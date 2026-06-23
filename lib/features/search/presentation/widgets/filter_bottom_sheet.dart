@@ -1,0 +1,343 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import '../cubit/filter_cubit.dart';
+import '../cubit/filter_state.dart';
+import '../cubit/search_cubit.dart';
+
+class FilterBottomSheet extends StatelessWidget {
+  const FilterBottomSheet({super.key});
+
+  static const List<_SortOption> _sortOptions = [
+    _SortOption(value: 0, label: 'Highest Offer'),
+    _SortOption(value: 1, label: 'Nearest'),
+    _SortOption(value: 2, label: 'Highest Rating'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
+      padding: EdgeInsets.only(
+        left: 20.w,
+        right: 20.w,
+        top: 16.h,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24.h,
+      ),
+      child: BlocBuilder<FilterCubit, FilterState>(
+        builder: (context, state) {
+          final filterCubit = context.read<FilterCubit>();
+          final searchCubit = context.read<SearchCubit>();
+
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Handle bar النظيف العلوي
+                Center(
+                  child: Container(
+                    width: 40.w,
+                    height: 4.h,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD1D5DB),
+                      borderRadius: BorderRadius.circular(2.r),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 16.h),
+
+                // العنوان مع زر الـ Reset
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Filter',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w700,
+                        fontSize: 18.sp,
+                        color: const Color(0xFF1A1A2E),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () => filterCubit.resetFilters(),
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: Text(
+                        'Reset',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14.sp,
+                          color: const Color(0xFF2D5FA6),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 16.h),
+
+                // Sort By Section
+                const _SectionTitle(title: 'Sort By'),
+                SizedBox(height: 8.h),
+                ..._sortOptions.map(
+                  (option) => _SortOptionTile(
+                    label: option.label,
+                    value: option.value,
+                    groupValue: state.selectedSortBy,
+                    onTap: () => filterCubit.selectSortBy(option.value),
+                  ),
+                ),
+                SizedBox(height: 20.h),
+
+                // Location Section
+                const _SectionTitle(title: 'Location'),
+                SizedBox(height: 12.h),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _LookupDropdown(
+                        hint: 'Governorate',
+                        isLoading: state.isLoadingGovernorates,
+                        items: state.governorates
+                            .map(
+                              (g) => DropdownMenuItem(
+                                value: g.id,
+                                child: Text(
+                                  g.name ?? '',
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            )
+                            .toList(),
+                        value: state.selectedGovernorateId,
+                        onChanged: (id) => filterCubit.selectGovernorate(id),
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: _LookupDropdown(
+                        hint: 'City',
+                        isLoading: state.isLoadingCities,
+                        isDisabled: state.selectedGovernorateId == null,
+                        items: state.cities
+                            .map(
+                              (c) => DropdownMenuItem(
+                                value: c.id,
+                                child: Text(
+                                  c.name ?? '',
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            )
+                            .toList(),
+                        value: state.selectedCityId,
+                        onChanged: state.selectedGovernorateId == null
+                            ? null
+                            : (id) => filterCubit.selectCity(id),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 24.h),
+
+                // Apply button المظبوط
+                SizedBox(
+                  width: double.infinity,
+                  height: 48.h,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2D5FA6),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                      elevation: 0,
+                    ),
+                    onPressed: () {
+                      searchCubit.applyFilters(
+                        governorateId: state.selectedGovernorateId,
+                        cityId: state.selectedCityId,
+                        sortBy: state.selectedSortBy,
+                      );
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(
+                      'Apply Filters',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15.sp,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _SectionTitle extends StatelessWidget {
+  final String title;
+  const _SectionTitle({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      title,
+      style: TextStyle(
+        fontFamily: 'Inter',
+        fontWeight: FontWeight.w600,
+        fontSize: 15.sp,
+        color: const Color(0xFF374151),
+      ),
+    );
+  }
+}
+
+class _SortOptionTile extends StatelessWidget {
+  final String label;
+  final int value;
+  final int? groupValue;
+  final VoidCallback onTap;
+
+  const _SortOptionTile({
+    required this.label,
+    required this.value,
+    required this.groupValue,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isSelected = groupValue == value;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8.r),
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 8.h),
+        child: Row(
+          children: [
+            Container(
+              width: 20.r,
+              height: 20.r,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSelected
+                      ? const Color(0xFF2D5FA6)
+                      : const Color(0xFFD1D5DB),
+                  width: 2.w,
+                ),
+                color: isSelected
+                    ? const Color(0xFF2D5FA6)
+                    : Colors.transparent,
+              ),
+              child: isSelected
+                  ? Icon(Icons.check, size: 12.sp, color: Colors.white)
+                  : null,
+            ),
+            SizedBox(width: 10.w),
+            Text(
+              label,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 14.sp,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                color: isSelected
+                    ? const Color(0xFF2D5FA6)
+                    : const Color(0xFF374151),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LookupDropdown extends StatelessWidget {
+  final String hint;
+  final bool isLoading;
+  final bool isDisabled;
+  final List<DropdownMenuItem<int?>> items;
+  final int? value;
+  final ValueChanged<int?>? onChanged;
+
+  const _LookupDropdown({
+    required this.hint,
+    required this.isLoading,
+    required this.items,
+    required this.value,
+    required this.onChanged,
+    this.isDisabled = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12.w),
+      height: 46.h,
+      decoration: BoxDecoration(
+        color: isDisabled ? const Color(0xFFF3F4F6) : Colors.white,
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(color: const Color(0xFFD1D5DB)),
+      ),
+      child: isLoading
+          ? Center(
+              child: SizedBox(
+                width: 18.r,
+                height: 18.r,
+                child: const CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Color(0xFF2D5FA6),
+                ),
+              ),
+            )
+          : DropdownButtonHideUnderline(
+              child: DropdownButton<int?>(
+                isExpanded: true,
+                hint: Text(
+                  hint,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 13.sp,
+                    color: const Color(0xFF9CA3AF),
+                  ),
+                ),
+                value: value,
+                items: items,
+                onChanged: isDisabled ? null : onChanged,
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 13.sp,
+                  color: const Color(0xFF1A1A2E),
+                ),
+                icon: Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: const Color(0xFF9CA3AF),
+                  size: 22.sp,
+                ),
+              ),
+            ),
+    );
+  }
+}
+
+class _SortOption {
+  final int value;
+  final String label;
+  const _SortOption({required this.value, required this.label});
+}

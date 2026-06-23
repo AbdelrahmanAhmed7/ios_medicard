@@ -1,0 +1,57 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+class SearchBarWidget extends StatelessWidget {
+  final double? latitude;
+  final double? longitude;
+
+  const SearchBarWidget({
+    super.key,
+    this.latitude,
+    this.longitude,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        context.push(
+          '/search',
+          extra: {
+            'userLatitude': latitude,
+            'userLongitude': longitude,
+          },
+        );
+      },
+      child: AbsorbPointer(
+        child: TextField(
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            hintText: 'Doctor name, pharmacy, lab...',
+            hintStyle: const TextStyle(
+              fontFamily: 'Inter',
+              color: Color(0xFF9CA3AF),
+              fontSize: 14,
+            ),
+            prefixIcon: const Icon(
+              Icons.search,
+              color: Color(0xFF9CA3AF),
+              size: 20,
+            ),
+            suffixIcon: const Icon(
+              Icons.tune,
+              color: Color(0xFF2D5FA6),
+              size: 20,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+          ),
+        ),
+      ),
+    );
+  }
+}

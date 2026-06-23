@@ -1,0 +1,46 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/di/service_locator.dart';
+import '../../../../core/theming/app_toast.dart';
+import '../cubit/profile_cubit.dart';
+import '../cubit/profile_state.dart';
+import '../widgets/profile_content.dart';
+import '../widgets/profile_error_view.dart';
+import '../widgets/profile_shimmer.dart';
+
+class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => sl<ProfileCubit>()..loadProfile(),
+      child: BlocConsumer<ProfileCubit, ProfileState>(
+        listener: (context, state) {
+          state.maybeWhen(
+            failed: (error) => showErrorToast(error),
+            orElse: () {},
+          );
+        },
+        builder: (context, state) {
+          return Scaffold(
+            backgroundColor: const Color(0xFFF8F9FA),
+            body: state.when(
+              initial: () => const SizedBox.shrink(),
+              loading: () => const ProfileShimmer(),
+              success: (data) => ProfileContent(data: data),
+              updating: (data) => ProfileContent(data: data),
+              updated: (data) => ProfileContent(data: data),
+              failed: (_) => const ProfileErrorView(),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
