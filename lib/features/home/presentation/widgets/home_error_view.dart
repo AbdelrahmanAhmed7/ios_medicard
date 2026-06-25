@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 /// Full-content error state shown inside the sliver scroll when the API fails.
 /// Displays a friendly message and a retry button.
@@ -33,9 +34,9 @@ class HomeErrorView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          const Text(
-            'Something went wrong',
-            style: TextStyle(
+          Text(
+            'home.something_went_wrong'.tr(),
+            style: const TextStyle(
               fontFamily: 'Inter',
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -60,9 +61,9 @@ class HomeErrorView extends StatelessWidget {
             child: ElevatedButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: const Text(
-                'Try Again',
-                style: TextStyle(
+              label: Text(
+                'common.try_again'.tr(),
+                style: const TextStyle(
                   fontFamily: 'Inter',
                   fontSize: 14,
                   fontWeight: FontWeight.w600,

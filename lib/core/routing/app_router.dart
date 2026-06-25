@@ -16,8 +16,19 @@ import '../../features/profile/presentation/pages/profile_screen.dart';
 import '../../features/search/presentation/cubit/filter_cubit.dart';
 import '../../features/search/presentation/cubit/search_cubit.dart';
 import '../../features/search/presentation/screens/search_screen.dart';
+import '../../features/content/domain/models/content_type.dart';
+import '../../features/content/presentation/cubit/content_cubit.dart';
+import '../../features/content/presentation/pages/content_screen.dart';
+import '../../features/family_members/presentation/cubit/family_members_cubit.dart';
+import '../../features/family_members/presentation/pages/family_members_list_screen.dart';
+import '../../features/family_members/presentation/pages/add_edit_family_member_screen.dart';
+import '../../features/family_members/data/models/family_member_model.dart';
+import '../../features/guest_home/presentation/pages/guest_home_screen.dart';
 import '../../medicard_network/logic/medicard_network_cubit.dart';
 import '../../medicard_network/presentation/medicard_network_screen.dart';
+import '../../medicard_network/presentation/pages/provider_page_screen.dart';
+import '../../medicard_network/presentation/pages/branches_screen.dart';
+import '../../network/data/provider_page_response_model.dart';
 import '../../presentation/logic/medicard_home_cubit.dart';
 import '../../presentation/logic/medicard_login_cubit.dart';
 import '../../presentation/logic/medicard_support_cubit.dart';
@@ -52,11 +63,11 @@ class AppRouter {
         return '/onboarding';
       }
 
-      return '/medicard-login';
+      return '/guest-home';
     } catch (e) {
       // Fallback — never leave the user on a blank splash
       if (kDebugMode) debugPrint('AppRouter.getInitialLocation error: $e');
-      return '/medicard-login';
+      return '/guest-home';
     }
   }
 
@@ -76,6 +87,10 @@ class AppRouter {
         GoRoute(
           path: '/medicard-activation',
           builder: (context, state) => const ActivateCardScreen(),
+        ),
+        GoRoute(
+          path: '/guest-home',
+          builder: (context, state) => const GuestHomeScreen(),
         ),
         GoRoute(
           path: '/medicard-login',
@@ -190,6 +205,83 @@ class AppRouter {
                 categoryId: categoryId,
               ),
             );
+          },
+        ),
+        GoRoute(
+          path: '/privacy-policy',
+          builder: (context, state) {
+            return BlocProvider(
+              create: (_) =>
+                  sl<ContentCubit>()..loadContent(ContentType.privacyPolicy),
+              child: const ContentScreen(
+                contentType: ContentType.privacyPolicy,
+              ),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/refund-policy',
+          builder: (context, state) {
+            return BlocProvider(
+              create: (_) =>
+                  sl<ContentCubit>()..loadContent(ContentType.refundPolicy),
+              child: const ContentScreen(contentType: ContentType.refundPolicy),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/terms-and-conditions',
+          builder: (context, state) {
+            return BlocProvider(
+              create: (_) =>
+                  sl<ContentCubit>()
+                    ..loadContent(ContentType.termsAndConditions),
+              child: const ContentScreen(
+                contentType: ContentType.termsAndConditions,
+              ),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/family-members',
+          builder: (context, state) {
+            return BlocProvider.value(
+              value: sl<FamilyMembersCubit>(),
+              child: const FamilyMembersListScreen(),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/family-members/add',
+          builder: (context, state) {
+            return BlocProvider.value(
+              value: sl<FamilyMembersCubit>(),
+              child: const AddEditFamilyMemberScreen(),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/family-members/edit',
+          builder: (context, state) {
+            final member = state.extra as FamilyMemberModel;
+            return BlocProvider.value(
+              value: sl<FamilyMembersCubit>(),
+              child: AddEditFamilyMemberScreen(member: member),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/provider-page',
+          builder: (context, state) {
+            final providerId = state.extra as int;
+            return ProviderPageScreen(providerId: providerId);
+          },
+        ),
+        GoRoute(
+          path: '/provider-branches',
+          builder: (context, state) {
+            final branches = state.extra as List<ProviderBranch>;
+            return BranchesScreen(branches: branches);
           },
         ),
       ],

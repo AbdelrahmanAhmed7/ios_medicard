@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -50,7 +51,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not pick image: ${e.toString()}')),
+          SnackBar(content: Text('${"edit_profile.could_not_pick_image".tr()}: ${e.toString()}')),
         );
       }
     } finally {
@@ -145,13 +146,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           bottomRight: Radius.circular(24),
                         ),
                       ),
-                      padding: EdgeInsets.fromLTRB(
+                      padding: EdgeInsetsDirectional.fromSTEB(
                         16.w,
                         statusBarHeight + 12.h,
                         16.w,
                         0,
                       ),
-                      alignment: Alignment.topLeft,
+                      alignment: AlignmentDirectional.topStart,
                       child: IconButton(
                         icon: Icon(
                           Icons.arrow_back_ios_new_rounded,
@@ -180,12 +181,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const _FieldLabel('Name'),
+                                _FieldLabel('edit_profile.name'.tr()),
                                 _buildTextField(
                                   controller: _firstNameController,
-                                  hintText: 'First Name',
+                                  hintText: 'edit_profile.first_name'.tr(),
                                   validator: (v) => (v == null || v.isEmpty)
-                                      ? 'Required'
+                                      ? 'common.required'.tr()
                                       : null,
                                 ),
                               ],
@@ -196,12 +197,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const _FieldLabel('Last Name'),
+                                _FieldLabel('edit_profile.last_name'.tr()),
                                 _buildTextField(
                                   controller: _lastNameController,
-                                  hintText: 'Second Name',
+                                  hintText: 'edit_profile.last_name'.tr(),
                                   validator: (v) => (v == null || v.isEmpty)
-                                      ? 'Required'
+                                      ? 'common.required'.tr()
                                       : null,
                                 ),
                               ],
@@ -212,7 +213,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       SizedBox(height: 14.h),
 
                       // رقم الكارت (Passport or Card Number)
-                      const _FieldLabel('Card Number'),
+                      _FieldLabel('edit_profile.card_number'.tr()),
                       _buildTextField(
                         controller: _passportNumberController,
                         hintText: '1020212*****',
@@ -221,15 +222,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       SizedBox(height: 14.h),
 
                       // الرقم القومي
-                      const _FieldLabel('National ID'),
+                      _FieldLabel('edit_profile.national_id'.tr()),
                       _buildTextField(
                         controller: _nationalIdController,
-                        hintText: 'First Name',
+                        hintText: 'edit_profile.national_id'.tr(),
                         keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: 14.h),
 
-                      const _FieldLabel('Phone Number'),
+                      _FieldLabel('edit_profile.phone_number'.tr()),
                       Row(
                         children: [
                           Container(
@@ -254,7 +255,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           Expanded(
                             child: _buildTextField(
                               controller: _phoneNumberController,
-                              hintText: 'Phone number',
+                              hintText: 'edit_profile.phone_number'.tr(),
                               keyboardType: TextInputType.phone,
                             ),
                           ),
@@ -262,7 +263,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                       SizedBox(height: 14.h),
 
-                      const _FieldLabel('Date of Birth'),
+                      _FieldLabel('edit_profile.date_of_birth'.tr()),
                       GestureDetector(
                         onTap: _selectBirthDate,
                         child: Row(
@@ -277,13 +278,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                       SizedBox(height: 14.h),
 
-                      const _FieldLabel('Gender'),
+                      _FieldLabel('edit_profile.gender'.tr()),
                       _buildGenderDropdown(),
 
                       SizedBox(height: 32.h),
 
                       AuthPrimaryButton(
-                        label: 'Update',
+                        label: 'common.update'.tr(),
                         isLoading: _isSaving,
                         onPressed: _isSaving ? () {} : _saveProfile,
                       ),
@@ -387,9 +388,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 : _buildRemoteProfileImage(),
           ),
         ),
-        Positioned(
+        PositionedDirectional(
           bottom: 2.h,
-          right: 2.w,
+          end: 2.w,
           child: GestureDetector(
             onTap: _pickImage,
             child: Container(
@@ -452,7 +453,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       validator:
           validator ??
           (required
-              ? (v) => (v == null || v.isEmpty) ? 'Required' : null
+              ? (v) => (v == null || v.isEmpty) ? 'common.required'.tr() : null
               : null),
     );
   }
@@ -495,7 +496,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return DropdownButtonFormField<bool>(
       initialValue: _isMale,
       hint: Text(
-        'Select an option',
+        'edit_profile.select_an_option'.tr(),
         style: TextStyle(
           fontSize: 14.sp,
           color: Colors.grey.shade400,
@@ -525,9 +526,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           borderSide: const BorderSide(color: kAuthBlue, width: 1.2),
         ),
       ),
-      items: const [
-        DropdownMenuItem(value: true, child: Text('Male')),
-        DropdownMenuItem(value: false, child: Text('Female')),
+      items: [
+        DropdownMenuItem(value: true, child: Text('edit_profile.male'.tr())),
+        DropdownMenuItem(value: false, child: Text('edit_profile.female'.tr())),
       ],
       onChanged: (val) {
         setState(() {

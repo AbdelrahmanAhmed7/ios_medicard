@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import '../../domain/models/provider_model.dart';
 import 'home_section_header.dart';
@@ -15,7 +16,7 @@ class NearestSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        HomeSectionHeader(title: 'Nearest Providers', onViewAll: onViewAll),
+        HomeSectionHeader(title: 'home.nearest_providers'.tr(), onViewAll: onViewAll),
         const SizedBox(height: 12),
         SizedBox(
           height: 274,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/widgets/auth_shared_widgets.dart';
 
 /// Floating pill bottom navigation bar.
@@ -14,15 +15,15 @@ class HomeBottomNav extends StatelessWidget {
     required this.onTap,
   });
 
-  static const _items = <_NavItem>[
-    _NavItem(icon: Icons.home_rounded, label: 'Home'),
-    _NavItem(icon: Icons.credit_card_rounded, label: 'E-card'),
-    _NavItem(icon: Icons.business_rounded, label: 'Providers'),
-    _NavItem(icon: Icons.person_rounded, label: 'Profile'),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final items = <_NavItem>[
+      _NavItem(icon: Icons.home_rounded, labelKey: 'home.nav_home'),
+      _NavItem(icon: Icons.credit_card_rounded, labelKey: 'home.nav_ecard'),
+      _NavItem(icon: Icons.business_rounded, labelKey: 'home.nav_providers'),
+      _NavItem(icon: Icons.person_rounded, labelKey: 'home.nav_profile'),
+    ];
+
     return Container(
       // White base so the rounded top doesn't expose transparency on iOS
       color: Colors.white,
@@ -36,9 +37,9 @@ class HomeBottomNav extends StatelessWidget {
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(_items.length, (i) {
+            children: List.generate(items.length, (i) {
               return _NavPill(
-                item: _items[i],
+                item: items[i],
                 isSelected: currentIndex == i,
                 onTap: () => onTap(i),
               );
@@ -54,8 +55,8 @@ class HomeBottomNav extends StatelessWidget {
 
 class _NavItem {
   final IconData icon;
-  final String label;
-  const _NavItem({required this.icon, required this.label});
+  final String labelKey;
+  const _NavItem({required this.icon, required this.labelKey});
 }
 
 // ─── Animated pill item ───────────────────────────────────────────────────────
@@ -115,7 +116,7 @@ class _NavPill extends StatelessWidget {
                   ? Padding(
                       padding: const EdgeInsets.only(left: 7),
                       child: Text(
-                        item.label,
+                        item.labelKey.tr(),
                         style: const TextStyle(
                           fontFamily: 'Inter',
                           color: Colors.white,

@@ -8,6 +8,7 @@ import '../data/auth_register_request_model.dart';
 import '../data/auth_login_request_model.dart';
 import '../data/auth_response_model.dart';
 import '../features/home/data/models/home_response_model.dart';
+import '../features/guest_home/data/models/guest_home_response_model.dart';
 import '../features/profile/data/models/change_password_response_model.dart';
 import '../features/profile/data/models/change_language_response_model.dart';
 import '../features/profile/data/models/profile_response_model.dart';
@@ -63,5 +64,10 @@ abstract class MedicardRepository {
 
   Future<ApiResult<ChangeLanguageResponseModel>> changeLanguage({
     required String language,
+  });
+
+  Future<ApiResult<GuestHomeResponseModel>> getGuestHomeData({
+    double? latitude,
+    double? longitude,
   });
 }

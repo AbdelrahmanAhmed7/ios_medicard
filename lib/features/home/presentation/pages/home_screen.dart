@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/cubit/app_refresh_cubit.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/theming/app_toast.dart';
 import '../../../../features/profile/presentation/cubit/profile_cubit.dart';
@@ -41,6 +42,21 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
   @override
+  void initState() {
+    super.initState();
+    // Listen to AppRefreshCubit to refresh data when language changes
+    sl<AppRefreshCubit>().stream.listen((state) {
+      state.maybeWhen(
+        languageChanged: () {
+          _homeCubit.getHomeData();
+          _profileCubit.loadProfile();
+        },
+        orElse: () {},
+      );
+    });
+  }
+
+  @override
   void dispose() {
     _homeCubit.close();
     _profileCubit.close();
@@ -55,22 +71,27 @@ class _HomeScreenState extends State<HomeScreen> {
         BlocProvider<HomeCubit>.value(value: _homeCubit),
         BlocProvider<ProfileCubit>.value(value: _profileCubit),
         BlocProvider<LocationCubit>.value(value: _locationCubit),
+        BlocProvider<AppRefreshCubit>.value(value: sl<AppRefreshCubit>()),
       ],
-      child: Scaffold(
-        backgroundColor: const Color(0xFFFFFFFF),
-        body: IndexedStack(
-          index: _currentIndex,
-          children: const [
-            _HomeBody(),
-            Center(child: Text('E-card')),
-            Center(child: Text('Providers')),
-            _ProfileBody(),
-          ],
-        ),
-        bottomNavigationBar: HomeBottomNav(
-          currentIndex: _currentIndex,
-          onTap: (i) => setState(() => _currentIndex = i),
-        ),
+      child: BlocBuilder<AppRefreshCubit, AppRefreshState>(
+        builder: (context, state) {
+          return Scaffold(
+            backgroundColor: const Color(0xFFFFFFFF),
+            body: IndexedStack(
+              index: _currentIndex,
+              children: const [
+                _HomeBody(),
+                Center(child: Text('E-card')),
+                Center(child: Text('Providers')),
+                _ProfileBody(),
+              ],
+            ),
+            bottomNavigationBar: HomeBottomNav(
+              currentIndex: _currentIndex,
+              onTap: (i) => setState(() => _currentIndex = i),
+            ),
+          );
+        },
       ),
     );
   }

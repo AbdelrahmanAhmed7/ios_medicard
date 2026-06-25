@@ -5,11 +5,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicard/core/constants/constants.dart';
+import 'package:medicard/core/cubit/localization_cubit.dart';
 import 'package:medicard/core/helpers/shared_pref_helper.dart';
-
 import '../../../../core/widgets/auth_shared_widgets.dart';
 import '../../data/models/profile_response_model.dart';
-import '../cubit/profile_cubit.dart';
 
 class ProfileContent extends StatelessWidget {
   final ProfileData data;
@@ -34,14 +33,14 @@ class ProfileContent extends StatelessWidget {
                 bottomRight: Radius.circular(20),
               ),
             ),
-            padding: EdgeInsets.fromLTRB(
+            padding: EdgeInsetsDirectional.fromSTEB(
               20.w,
               statusBarHeight + 40.h,
               20.w,
               24.h,
             ),
             child: Text(
-              'My profile',
+              'profile.my_profile'.tr(),
               style: TextStyle(
                 fontSize: 26.sp,
                 fontWeight: FontWeight.w700,
@@ -54,17 +53,21 @@ class ProfileContent extends StatelessWidget {
 
           _UserInfoCard(data: data),
 
-          const _SectionTitle(title: 'Settings'),
+          SizedBox(height: 20.h),
+
+          _SectionTitle(title: 'profile.settings'.tr()),
           _Card(
             children: [
-              const _Item(
+              _Item(
                 icon: Icons.person_outline_rounded,
-                label: 'My Profile',
+                label: 'profile.my_profile_link'.tr(),
+                route: '/medicard-edit-profile-new',
+                routeExtra: {'profileData': data},
               ),
               const Divider(color: kAuthBorderColor, height: 1),
               _Item(
                 icon: Icons.badge_outlined,
-                label: 'Rewards',
+                label: 'profile.rewards'.tr(),
                 trailing: Text(
                   '100 points',
                   style: TextStyle(
@@ -77,28 +80,30 @@ class ProfileContent extends StatelessWidget {
               const Divider(color: kAuthBorderColor, height: 1),
               _Item(
                 icon: Icons.people_outline_rounded,
-                label: 'Family Members',
-                trailing: Text(
-                  '3 Members',
-                  style: TextStyle(color: kAuthGreyText, fontSize: 14.sp),
+                label: 'profile.family_members'.tr(),
+                route: '/family-members',
+                trailing: Icon(
+                  Icons.chevron_right_rounded,
+                  color: Colors.black54,
+                  size: 20.sp,
                 ),
               ),
               const Divider(color: kAuthBorderColor, height: 1),
               _LanguageItem(data: data),
               const Divider(color: kAuthBorderColor, height: 1),
-              const _Item(
+              _Item(
                 icon: Icons.lock_outline_rounded,
-                label: 'Change Password',
+                label: 'profile.change_password'.tr(),
                 route: '/change-password',
               ),
             ],
           ),
 
-          const _SectionTitle(title: 'Links'),
+          _SectionTitle(title: 'profile.links'.tr()),
           _Card(
             children: [
               _Item(
-                label: 'Help Center',
+                label: 'profile.help_center'.tr(),
                 trailing: Icon(
                   Icons.chevron_right_rounded,
                   color: Colors.black54,
@@ -107,21 +112,33 @@ class ProfileContent extends StatelessWidget {
               ),
               const Divider(color: kAuthBorderColor, height: 1),
               _Item(
-                label: 'Terms of Service',
+                label: 'profile.terms_of_service'.tr(),
                 trailing: Icon(
                   Icons.chevron_right_rounded,
                   color: Colors.black54,
                   size: 20.sp,
                 ),
+                route: '/terms-and-conditions',
               ),
               const Divider(color: kAuthBorderColor, height: 1),
               _Item(
-                label: 'Privacy Policy',
+                label: 'profile.privacy_policy'.tr(),
                 trailing: Icon(
                   Icons.chevron_right_rounded,
                   color: Colors.black54,
                   size: 20.sp,
                 ),
+                route: '/privacy-policy',
+              ),
+              const Divider(color: kAuthBorderColor, height: 1),
+              _Item(
+                label: 'profile.refund_policy'.tr(),
+                trailing: Icon(
+                  Icons.chevron_right_rounded,
+                  color: Colors.black54,
+                  size: 20.sp,
+                ),
+                route: '/refund-policy',
               ),
             ],
           ),
@@ -142,7 +159,7 @@ class ProfileContent extends StatelessWidget {
                 ),
               ),
               child: Text(
-                'Delete Account',
+                'common.delete_account'.tr(),
                 style: TextStyle(
                   color: kAuthBlue,
                   fontSize: 16.sp,
@@ -177,7 +194,7 @@ class ProfileContent extends StatelessWidget {
                   Icon(Icons.logout_rounded, color: Colors.red, size: 20.sp),
                   SizedBox(width: 8.w),
                   Text(
-                    'Logout',
+                    'common.logout'.tr(),
                     style: TextStyle(
                       color: Colors.red,
                       fontSize: 16.sp,
@@ -266,7 +283,7 @@ class _UserInfoCard extends StatelessWidget {
                         ),
                         SizedBox(height: 4.h),
                         Text(
-                          'Standard plan',
+                          'profile.standard_plan'.tr(),
                           style: TextStyle(
                             color: kAuthGreyText,
                             fontSize: 14.sp,
@@ -279,9 +296,9 @@ class _UserInfoCard extends StatelessWidget {
                 ],
               ),
             ),
-            Positioned(
+            PositionedDirectional(
               top: 12.h,
-              right: 12.w,
+              end: 12.w,
               child: GestureDetector(
                 onTap: () {
                   context.push(
@@ -313,7 +330,7 @@ class _SectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(left: 20.w, top: 16.h, bottom: 12.h),
+      padding: EdgeInsetsDirectional.only(start: 20.w, top: 16.h, bottom: 12.h),
       child: Text(
         title,
         style: TextStyle(
@@ -354,13 +371,28 @@ class _Item extends StatelessWidget {
   final String label;
   final Widget? trailing;
   final String? route;
+  final Map<String, dynamic>? routeExtra;
 
-  const _Item({this.icon, required this.label, this.trailing, this.route});
+  const _Item({
+    this.icon,
+    required this.label,
+    this.trailing,
+    this.route,
+    this.routeExtra,
+  });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: route != null ? () => context.push(route!) : () {},
+      onTap: route != null
+          ? () {
+              if (routeExtra != null) {
+                context.push(route!, extra: routeExtra);
+              } else {
+                context.push(route!);
+              }
+            }
+          : () {},
       borderRadius: BorderRadius.circular(16.r),
       child: Container(
         height: 54.h,
@@ -397,14 +429,20 @@ class _LanguageItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentLocale = context.locale.languageCode;
-    final currentLanguage = currentLocale == 'ar' ? 'العربية' : 'English';
+    final currentLanguage = currentLocale == 'ar'
+        ? 'profile.arabic'.tr()
+        : 'profile.english'.tr();
+    final label = 'profile.language'.tr();
 
     return InkWell(
       onTap: () async {
         final newLanguage = currentLocale == 'ar' ? 'en' : 'ar';
-        await context.setLocale(Locale(newLanguage));
-        if (!context.mounted) return;
-        await context.read<ProfileCubit>().changeLanguage(language: newLanguage);
+        if (context.mounted) {
+          await context.read<LocalizationCubit>().changeLanguage(
+            context,
+            newLanguage,
+          );
+        }
       },
       borderRadius: BorderRadius.circular(16.r),
       child: Container(
@@ -412,15 +450,11 @@ class _LanguageItem extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         child: Row(
           children: [
-            Icon(
-              Icons.language_outlined,
-              size: 22.sp,
-              color: Colors.black87,
-            ),
+            Icon(Icons.language_outlined, size: 22.sp, color: Colors.black87),
             SizedBox(width: 12.w),
             Expanded(
               child: Text(
-                'Language',
+                label,
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: 15.sp,

@@ -6,6 +6,8 @@ import '../../network/data/government_response_model.dart';
 import '../../network/data/network_category_response_model.dart';
 import '../../network/data/network_provider_response_model.dart';
 import '../../network/data/top_providers_slider_model.dart';
+import '../../network/data/provider_page_response_model.dart';
+import '../../network/data/provider_services_response_model.dart';
 
 part 'medicard_network_api_service.g.dart';
 
@@ -52,4 +54,19 @@ abstract class MedicardNetworkApiService {
   Future<TopProvidersSliderResponse> getTopProvidersForSlider(
     @Path("lang") String lang,
   );
+
+  @GET("/{lang}/ProviderPage/{providerId}")
+  Future<ProviderPageResponse> getProviderPage(
+    @Path("lang") String lang,
+    @Path("providerId") int providerId,
+  );
+
+  @GET("/{lang}/ProviderPage/{providerId}/services")
+  Future<ProviderServicesResponse> getProviderServices(
+    @Path("lang") String lang,
+    @Path("providerId") int providerId, {
+    @Query("search") String? search,
+    @Query("pageNumber") int? pageNumber,
+    @Query("pageSize") int? pageSize,
+  });
 }

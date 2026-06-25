@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../data/home_mock_data.dart';
 
 class QuickActionsRow extends StatelessWidget {
@@ -35,7 +36,7 @@ class QuickActionsRow extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      action.label,
+                      action.labelKey.tr(),
                       style: const TextStyle(
                         fontFamily: 'Inter',
                         fontSize: 12,

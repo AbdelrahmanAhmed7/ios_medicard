@@ -1,6 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../core/cubit/app_refresh_cubit.dart';
+import '../../core/cubit/localization_cubit.dart';
+import '../../core/services/app_language_manager.dart';
 import '../../domain/medicard_repository.dart';
 import '../../domain/usecases/get_home_info_usecase.dart';
 import '../../domain/usecases/get_personal_info_usecase.dart';
@@ -34,7 +37,17 @@ import '../../features/profile/domain/usecases/update_profile_v2_usecase.dart';
 import '../../features/profile/domain/usecases/change_language_usecase.dart';
 import '../../features/profile/presentation/cubit/change_password_cubit.dart';
 import '../../features/profile/presentation/cubit/profile_cubit.dart';
+import '../../features/content/data/repositories/content_repository_impl.dart';
+import '../../features/content/domain/repositories/content_repository.dart';
+import '../../features/content/domain/use_cases/get_content_use_case.dart';
+import '../../features/content/presentation/cubit/content_cubit.dart';
+import '../../features/family_members/data/repository/family_members_repository_impl.dart';
+import '../../features/family_members/domain/repository/family_members_repository.dart';
+import '../../features/family_members/presentation/cubit/family_members_cubit.dart';
+import '../../features/guest_home/domain/usecases/get_guest_home_data_usecase.dart';
+import '../../features/guest_home/presentation/cubit/guest_home_cubit.dart';
 import '../../medicard_network/logic/medicard_network_cubit.dart';
+import '../../medicard_network/logic/provider_page_cubit.dart';
 import '../../medicard_network/repository/medicard_network_repository.dart';
 import '../../medicard_network/service/medicard_network_api_service.dart';
 import '../../presentation/logic/medicard_home_cubit.dart';
@@ -50,7 +63,23 @@ import '../services/location_repository.dart';
 final GetIt sl = GetIt.instance;
 
 Future<void> setupServiceLocator() async {
+  // Initialize AppLanguageManager first
+  await AppLanguageManager.instance.initialize();
+
   final Dio medicardDio = await DioFactory.getDioForMedicard();
+
+  sl.registerLazySingleton<AppLanguageManager>(
+    () => AppLanguageManager.instance,
+  );
+  sl.registerLazySingleton<AppRefreshCubit>(
+    () => AppRefreshCubit(),
+  );
+  sl.registerFactory<LocalizationCubit>(
+    () => LocalizationCubit(
+      languageManager: sl<AppLanguageManager>(),
+      appRefreshCubit: sl<AppRefreshCubit>(),
+    ),
+  );
 
   sl.registerLazySingleton<MedicardApiService>(
     () => MedicardApiService(medicardDio),
@@ -76,6 +105,12 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<NotificationRepository>(
     () => NotificationRepository(sl()),
   );
+  sl.registerLazySingleton<ContentRepository>(
+    () => ContentRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton<FamilyMembersRepository>(
+    () => FamilyMembersRepositoryImpl(sl()),
+  );
   sl.registerLazySingleton<LocationService>(() => LocationService());
   sl.registerLazySingleton<LocationRepository>(() => LocationRepository());
 
@@ -100,6 +135,8 @@ Future<void> setupServiceLocator() async {
   );
   sl.registerFactory<ChangeLanguageUseCase>(() => ChangeLanguageUseCase(sl()));
   sl.registerFactory<ChangePasswordUseCase>(() => ChangePasswordUseCase(sl()));
+  sl.registerFactory<GetContentUseCase>(() => GetContentUseCase(sl()));
+  sl.registerFactory<GetGuestHomeDataUseCase>(() => GetGuestHomeDataUseCase(sl()));
 
   // Search use cases
   sl.registerFactory<SearchProvidersUseCase>(
@@ -130,10 +167,16 @@ Future<void> setupServiceLocator() async {
   );
   sl.registerFactory<MedicardSupportCubit>(() => MedicardSupportCubit(sl()));
   sl.registerFactory<MedicardNetworkCubit>(() => MedicardNetworkCubit(sl()));
+  sl.registerFactoryParam<ProviderPageCubit, int, void>(
+    (providerId, _) => ProviderPageCubit(sl(), providerId),
+  );
   sl.registerFactory<HomeCubit>(() => HomeCubit(sl(), sl()));
   sl.registerFactory<LocationCubit>(() => LocationCubit(sl(), sl()));
   sl.registerFactory<ProfileCubit>(() => ProfileCubit(sl(), sl(), sl()));
   sl.registerFactory<ChangePasswordCubit>(() => ChangePasswordCubit(sl()));
+  sl.registerFactory<ContentCubit>(() => ContentCubit(sl()));
+  sl.registerLazySingleton<FamilyMembersCubit>(() => FamilyMembersCubit(sl()));
+  sl.registerFactory<GuestHomeCubit>(() => GuestHomeCubit(sl(), sl()));
 
   // Search cubits
   sl.registerFactory<SearchCubit>(() => SearchCubit(sl(), sl()));

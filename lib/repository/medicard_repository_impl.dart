@@ -20,6 +20,7 @@ import '../features/profile/data/models/change_password_request_model.dart';
 import '../features/profile/data/models/change_password_response_model.dart';
 import '../features/profile/data/models/change_language_request_model.dart';
 import '../features/profile/data/models/change_language_response_model.dart';
+import '../features/guest_home/data/models/guest_home_response_model.dart';
 import '../features/profile/data/models/profile_response_model.dart';
 import '../service/medicard_api_service.dart';
 
@@ -346,6 +347,31 @@ class MedicardRepositoryImpl implements MedicardRepository {
                   : response.message?.isNotEmpty == true
                   ? response.message!
                   : 'Failed to change language.',
+            );
+    } catch (error) {
+      return ApiResult.failure(parseApiError(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<GuestHomeResponseModel>> getGuestHomeData({
+    double? latitude,
+    double? longitude,
+  }) async {
+    try {
+      final response = await _apiService.getGuestHomeData(
+        latitude,
+        longitude,
+      );
+
+      return (response.succeeded == true && response.data != null)
+          ? ApiResult.success(response)
+          : ApiResult.failure(
+              (response.errors != null && response.errors!.isNotEmpty)
+                  ? response.errors!.join('\n')
+                  : response.message?.isNotEmpty == true
+                  ? response.message!
+                  : 'Failed to get guest home data.',
             );
     } catch (error) {
       return ApiResult.failure(parseApiError(error));

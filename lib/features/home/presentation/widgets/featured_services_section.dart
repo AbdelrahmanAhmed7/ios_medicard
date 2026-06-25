@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import '../../domain/models/featured_service_model.dart';
 import 'featured_service_card.dart';
@@ -19,7 +20,7 @@ class FeaturedServicesSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        HomeSectionHeader(title: 'Packages', onViewAll: onViewAll),
+        HomeSectionHeader(title: 'home.featured_services'.tr(), onViewAll: onViewAll),
         const SizedBox(height: 12),
         SizedBox(
           height: 240,

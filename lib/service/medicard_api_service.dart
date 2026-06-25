@@ -8,10 +8,16 @@ import '../data/auth_register_request_model.dart';
 import '../data/auth_login_request_model.dart';
 import '../data/auth_response_model.dart';
 import '../features/home/data/models/home_response_model.dart';
+import '../features/profile/data/models/change_language_response_model.dart';
 import '../features/profile/data/models/change_password_response_model.dart';
 import '../features/profile/data/models/change_language_request_model.dart';
-import '../features/profile/data/models/change_language_response_model.dart';
 import '../features/profile/data/models/profile_response_model.dart';
+import '../features/content/data/models/content_response_model.dart';
+import '../features/family_members/data/models/get_family_members_response_model.dart';
+import '../features/family_members/data/models/get_family_member_response_model.dart';
+import '../features/family_members/data/models/create_family_member_request_model.dart';
+import '../features/family_members/data/models/family_member_operation_response_model.dart';
+import '../features/guest_home/data/models/guest_home_response_model.dart';
 
 part 'medicard_api_service.g.dart';
 
@@ -94,5 +100,56 @@ abstract class MedicardApiService {
   Future<ChangeLanguageResponseModel> changeLanguage(
     @Header('Authorization') String token,
     @Body() ChangeLanguageRequestModel body,
+  );
+
+  @GET('/Content/privacy-policy')
+  Future<ContentResponseModel> getPrivacyPolicy(
+    @Header('Authorization') String token,
+  );
+
+  @GET('/Content/refund-policy')
+  Future<ContentResponseModel> getRefundPolicy(
+    @Header('Authorization') String token,
+  );
+
+  @GET('/Content/terms-and-conditions')
+  Future<ContentResponseModel> getTermsAndConditions(
+    @Header('Authorization') String token,
+  );
+
+  @GET('/FamilyMembers')
+  Future<GetFamilyMembersResponseModel> getFamilyMembers(
+    @Header('Authorization') String token,
+  );
+
+  @GET('/FamilyMembers/{id}')
+  Future<GetFamilyMemberResponseModel> getFamilyMember(
+    @Header('Authorization') String token,
+    @Path('id') int id,
+  );
+
+  @POST('/FamilyMembers')
+  Future<FamilyMemberOperationResponseModel> createFamilyMember(
+    @Header('Authorization') String token,
+    @Body() CreateFamilyMemberRequestModel request,
+  );
+
+  @PUT('/FamilyMembers/{id}')
+  Future<FamilyMemberOperationResponseModel> updateFamilyMember(
+    @Header('Authorization') String token,
+    @Path('id') int id,
+    @Body() CreateFamilyMemberRequestModel request,
+  );
+
+  @DELETE('/FamilyMembers/{id}')
+  Future<FamilyMemberOperationResponseModel> deleteFamilyMember(
+    @Header('Authorization') String token,
+    @Path('id') int id,
+  );
+
+  @GET('/GuestMobileHome/guest')
+  Future<GuestHomeResponseModel> getGuestHomeData(
+    @Query('latitude') double? latitude,
+    @Query('longitude') double? longitude,
   );
 }

@@ -1,8 +1,8 @@
 class QuickAction {
-  final String label;
+  final String labelKey;
   final String assetPath;
 
-  const QuickAction({required this.label, required this.assetPath});
+  const QuickAction({required this.labelKey, required this.assetPath});
 }
 
 class PromoBanner {
@@ -21,9 +21,9 @@ class PromoBanner {
 
 class HomeMockData {
   static const List<QuickAction> quickActions = [
-    QuickAction(label: 'Upload\nPrescription', assetPath: 'assets/home/1.png'),
-    QuickAction(label: 'Services', assetPath: 'assets/home/2.png'),
-    QuickAction(label: 'Providers', assetPath: 'assets/home/3.png'),
+    QuickAction(labelKey: 'home.upload_prescription', assetPath: 'assets/home/1.png'),
+    QuickAction(labelKey: 'home.services', assetPath: 'assets/home/2.png'),
+    QuickAction(labelKey: 'home.providers', assetPath: 'assets/home/3.png'),
   ];
 
   static const List<PromoBanner> promoBanners = [

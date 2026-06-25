@@ -178,6 +178,12 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
                           _ActivateCardButton(
                             onPressed: () => context.push('/medicard-activation'),
                           ),
+                          SizedBox(height: 20.h),
+
+                          // Continue as Guest Button
+                          _ContinueAsGuestButton(
+                            onPressed: () => context.go('/guest-home'),
+                          ),
                           SizedBox(height: 32.h),
                         ],
                       ),
@@ -282,6 +288,38 @@ class _ActivateCardButton extends StatelessWidget {
             fontSize: 16.sp,
             fontWeight: FontWeight.bold,
             color: kAuthBlue,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Continue as Guest Button ─────────────────────────────────────────────────
+
+class _ContinueAsGuestButton extends StatelessWidget {
+  final VoidCallback onPressed;
+  const _ContinueAsGuestButton({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 52.h,
+      child: TextButton(
+        onPressed: onPressed,
+        style: TextButton.styleFrom(
+          backgroundColor: Colors.grey.shade100,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+        ),
+        child: Text(
+          'Continue as Guest',
+          style: TextStyle(
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey.shade700,
           ),
         ),
       ),

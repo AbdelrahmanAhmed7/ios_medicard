@@ -4,6 +4,8 @@ import '../../network/data/government_response_model.dart';
 import '../../network/data/network_category_response_model.dart';
 import '../../network/data/network_provider_response_model.dart';
 import '../../network/data/top_providers_slider_model.dart';
+import '../../network/data/provider_page_response_model.dart';
+import '../../network/data/provider_services_response_model.dart';
 import '../service/medicard_network_api_service.dart';
 
 class MedicardNetworkRepository {
@@ -90,6 +92,47 @@ class MedicardNetworkRepository {
   Future<ApiResult<TopProvidersSliderResponse>> getTopProvidersForSlider(String lang) async {
     try {
       final response = await _apiService.getTopProvidersForSlider(lang);
+      if (response.success) {
+        return ApiResult.success(response);
+      } else {
+        return ApiResult.failure(response.message);
+      }
+    } catch (e) {
+      return ApiResult.failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<ProviderPageResponse>> getProviderPage({
+    required String lang,
+    required int providerId,
+  }) async {
+    try {
+      final response = await _apiService.getProviderPage(lang, providerId);
+      if (response.success) {
+        return ApiResult.success(response);
+      } else {
+        return ApiResult.failure(response.message);
+      }
+    } catch (e) {
+      return ApiResult.failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<ProviderServicesResponse>> getProviderServices({
+    required String lang,
+    required int providerId,
+    String? search,
+    int pageNumber = 1,
+    int pageSize = 20,
+  }) async {
+    try {
+      final response = await _apiService.getProviderServices(
+        lang,
+        providerId,
+        search: search,
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+      );
       if (response.success) {
         return ApiResult.success(response);
       } else {

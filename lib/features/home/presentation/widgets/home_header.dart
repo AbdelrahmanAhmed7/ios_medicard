@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import '../cubit/location_cubit.dart';
 import '../cubit/location_state.dart';
@@ -50,7 +51,7 @@ class _HeaderTopRow extends StatelessWidget {
           child: BlocBuilder<LocationCubit, LocationState>(
             builder: (context, state) {
               return LocationDisplay(
-                text: _locationText(state),
+                text: _locationText(state, context),
                 onTap: context.read<LocationCubit>().refreshLocation,
               );
             },
@@ -76,9 +77,9 @@ class _HeaderTopRow extends StatelessWidget {
     );
   }
 
-  String _locationText(LocationState state) {
+  String _locationText(LocationState state, BuildContext context) {
     return switch (state) {
-      LocationInitial() || LocationLoading() => 'Getting location...',
+      LocationInitial() || LocationLoading() => 'home.getting_location'.tr(),
       LocationLoaded(:final name) => name,
       LocationError(:final message) => message,
     };

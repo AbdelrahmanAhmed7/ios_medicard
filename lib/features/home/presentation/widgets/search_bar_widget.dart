@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class SearchBarWidget extends StatelessWidget {
   final double? latitude;
@@ -28,7 +29,7 @@ class SearchBarWidget extends StatelessWidget {
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.white,
-            hintText: 'Doctor name, pharmacy, lab...',
+            hintText: 'home.search_hint'.tr(),
             hintStyle: const TextStyle(
               fontFamily: 'Inter',
               color: Color(0xFF9CA3AF),

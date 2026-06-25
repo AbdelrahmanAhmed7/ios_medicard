@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 enum SortOption { highestOffer, nearest, highestRating }
 
@@ -44,9 +45,9 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
           const SizedBox(height: 20),
 
           // Sort By
-          const Text(
-            'Sort By',
-            style: TextStyle(
+          Text(
+            'sort_filter.sort_by'.tr(),
+            style: const TextStyle(
               fontFamily: 'Inter',
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -54,15 +55,15 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
             ),
           ),
           const SizedBox(height: 12),
-          _buildCheckItem('Highest Offer', SortOption.highestOffer),
-          _buildCheckItem('Nearest', SortOption.nearest),
-          _buildCheckItem('Highest Rating', SortOption.highestRating),
+          _buildCheckItem('sort_filter.highest_offer'.tr(), SortOption.highestOffer),
+          _buildCheckItem('sort_filter.nearest'.tr(), SortOption.nearest),
+          _buildCheckItem('sort_filter.highest_rating'.tr(), SortOption.highestRating),
           const SizedBox(height: 20),
 
           // Location
-          const Text(
-            'Location',
-            style: TextStyle(
+          Text(
+            'sort_filter.location'.tr(),
+            style: const TextStyle(
               fontFamily: 'Inter',
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -74,7 +75,7 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
             children: [
               Expanded(
                 child: _buildDropdown(
-                  hint: 'Government',
+                  hint: 'sort_filter.government'.tr(),
                   value: _selectedGovernment,
                   items: _governments,
                   onChanged: (val) => setState(() => _selectedGovernment = val),
@@ -83,7 +84,7 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
               const SizedBox(width: 12),
               Expanded(
                 child: _buildDropdown(
-                  hint: 'City',
+                  hint: 'sort_filter.city'.tr(),
                   value: _selectedCity,
                   items: _cities,
                   onChanged: (val) => setState(() => _selectedCity = val),
@@ -113,9 +114,9 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
-                'Apply',
-                style: TextStyle(
+              child: Text(
+                'common.apply'.tr(),
+                style: const TextStyle(
                   fontFamily: 'Inter',
                   fontSize: 16,
                   fontWeight: FontWeight.w600,

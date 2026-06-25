@@ -1,12 +1,15 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:medicard/core/network/dio_factory.dart';
 
+import 'core/cubit/app_refresh_cubit.dart';
+import 'core/cubit/localization_cubit.dart';
 import 'core/di/service_locator.dart';
+import 'core/services/app_language_manager.dart';
 import 'core/services/location_repository.dart';
 import 'core/services/location_service.dart';
 import 'core/network/connectivity_service.dart';
@@ -19,24 +22,31 @@ void main() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
-  // تهيئة EasyLocalization
+  // Step 1: Initialize EasyLocalization
   await EasyLocalization.ensureInitialized();
+
+  // Step 2: Initialize Firebase
   await Firebase.initializeApp();
+
+  // Step 3: Initialize Push Notifications
   await PushNotificationService.instance.initialize();
 
+  // Step 4: Initialize Connectivity
   await ConnectivityService.instance.initialize();
+
+  // Step 5: Initialize AppLanguageManager FIRST (this also handles SharedPreferences)
+  await AppLanguageManager.instance.initialize();
+
+  // Step 6: Setup Service Locator (now that AppLanguageManager is initialized)
   await setupServiceLocator();
 
+  // Step 7: Initialize Location
   await sl<LocationRepository>().resolve(sl<LocationService>());
 
-  final deviceLocale = WidgetsBinding.instance.platformDispatcher.locale;
-  final startLocale = deviceLocale.languageCode == 'ar'
-      ? const Locale('ar')
-      : const Locale('en');
-  DioFactory.setAcceptLanguage(startLocale.languageCode);
-
+  // Step 8: Get Initial Location
   final initialLocation = await AppRouter.getInitialLocation();
 
+  // Remove splash
   FlutterNativeSplash.remove();
 
   runApp(
@@ -44,7 +54,7 @@ void main() async {
       supportedLocales: const [Locale('ar'), Locale('en')],
       path: 'assets/translations',
       fallbackLocale: const Locale('en'),
-      startLocale: startLocale,
+      startLocale: Locale(sl<AppLanguageManager>().currentLanguage),
       useOnlyLangCode: true,
       child: MyApp(initialLocation: initialLocation),
     ),
@@ -71,21 +81,32 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      designSize: const Size(375, 812),
-      minTextAdapt: true,
-      splitScreenMode: true,
-      child: MaterialApp.router(
-        debugShowCheckedModeBanner: false,
-        routerConfig: _router,
-        title: 'MediCard',
-        theme: ThemeData(
-          fontFamily: FontManager.getFontFamily(context),
-          useMaterial3: true,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: sl<AppRefreshCubit>()),
+        BlocProvider.value(value: sl<LocalizationCubit>()),
+      ],
+      child: ScreenUtilInit(
+        designSize: const Size(375, 812),
+        minTextAdapt: true,
+        splitScreenMode: true,
+        child: MaterialApp.router(
+          debugShowCheckedModeBanner: false,
+          routerConfig: _router,
+          title: 'MediCard',
+          theme: ThemeData(
+            fontFamily: FontManager.getFontFamily(context),
+            useMaterial3: true,
+          ),
+          localizationsDelegates: context.localizationDelegates,
+          supportedLocales: context.supportedLocales,
+          locale: context.locale,
+          // Ensure correct text direction
+          builder: (context, child) {
+            // EasyLocalization already handles Directionality, but just in case
+            return child!;
+          },
         ),
-        localizationsDelegates: context.localizationDelegates,
-        supportedLocales: context.supportedLocales,
-        locale: context.locale,
       ),
     );
   }
