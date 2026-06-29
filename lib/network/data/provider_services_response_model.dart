@@ -5,15 +5,17 @@ part 'provider_services_response_model.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class ProviderServicesResponse {
-  final bool success;
-  final String timestamp;
-  final String message;
+  final int? httpStatusCode;
+  final List<String>? errors;
+  final bool? succeeded;
+  final String? message;
   final ProviderServicesData? data;
 
   ProviderServicesResponse({
-    required this.success,
-    required this.timestamp,
-    required this.message,
+    this.httpStatusCode,
+    this.errors,
+    this.succeeded,
+    this.message,
     this.data,
   });
 
@@ -25,40 +27,65 @@ class ProviderServicesResponse {
 
 @JsonSerializable(explicitToJson: true)
 class ProviderServicesData {
-  final List<ProviderService>? services;
-  final Pagination? pagination;
+  final List<ProviderService>? items;
+  final int? pageNumber;
+  final int? pageSize;
+  final int? totalCount;
+  final int? totalPages;
 
   ProviderServicesData({
-    this.services,
-    this.pagination,
+    this.items,
+    this.pageNumber,
+    this.pageSize,
+    this.totalCount,
+    this.totalPages,
   });
 
   factory ProviderServicesData.fromJson(Map<String, dynamic> json) =>
       _$ProviderServicesDataFromJson(json);
 
   Map<String, dynamic> toJson() => _$ProviderServicesDataToJson(this);
+
+  // Helper getters to keep existing code working
+  List<ProviderService>? get services => items;
+  Pagination? get pagination {
+    if (pageNumber == null || pageSize == null || totalCount == null || totalPages == null) {
+      return null;
+    }
+    return Pagination(
+      currentPage: pageNumber!,
+      pageSize: pageSize!,
+      totalCount: totalCount!,
+      totalPages: totalPages!,
+      hasNextPage: pageNumber! < totalPages!,
+      hasPreviousPage: pageNumber! > 1,
+    );
+  }
 }
 
 @JsonSerializable()
 class ProviderService {
-  final int serviceId;
-  final String serviceName;
+  final int? id;
+  final String? serviceName;
   final double? priceBefore;
   final double? priceAfter;
   final double? discountPercentage;
-  final bool? hasSpecialOffer;
+  final bool? isSpecialOffer;
 
   ProviderService({
-    required this.serviceId,
-    required this.serviceName,
+    this.id,
+    this.serviceName,
     this.priceBefore,
     this.priceAfter,
     this.discountPercentage,
-    this.hasSpecialOffer,
+    this.isSpecialOffer,
   });
 
   factory ProviderService.fromJson(Map<String, dynamic> json) =>
       _$ProviderServiceFromJson(json);
 
   Map<String, dynamic> toJson() => _$ProviderServiceToJson(this);
+
+  // Helper getter to keep existing code working
+  bool? get hasSpecialOffer => isSpecialOffer;
 }

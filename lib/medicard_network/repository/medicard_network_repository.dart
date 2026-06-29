@@ -103,23 +103,23 @@ class MedicardNetworkRepository {
   }
 
   Future<ApiResult<ProviderPageResponse>> getProviderPage({
-    required String lang,
     required int providerId,
   }) async {
     try {
-      final response = await _apiService.getProviderPage(lang, providerId);
-      if (response.success) {
+      final response = await _apiService.getProviderPage(providerId);
+      if (response.succeeded == true) {
         return ApiResult.success(response);
       } else {
-        return ApiResult.failure(response.message);
+        return ApiResult.failure(response.message ?? 'Failed to load provider page');
       }
-    } catch (e) {
+    } catch (e, s) {
+      print('getProviderPage error: $e');
+      print('Stack trace: $s');
       return ApiResult.failure(e.toString());
     }
   }
 
   Future<ApiResult<ProviderServicesResponse>> getProviderServices({
-    required String lang,
     required int providerId,
     String? search,
     int pageNumber = 1,
@@ -127,18 +127,65 @@ class MedicardNetworkRepository {
   }) async {
     try {
       final response = await _apiService.getProviderServices(
-        lang,
         providerId,
         search: search,
         pageNumber: pageNumber,
         pageSize: pageSize,
       );
-      if (response.success) {
+      if (response.succeeded == true) {
         return ApiResult.success(response);
       } else {
-        return ApiResult.failure(response.message);
+        return ApiResult.failure(response.message ?? 'Failed to load provider services');
       }
-    } catch (e) {
+    } catch (e, s) {
+      print('getProviderServices error: $e');
+      print('Stack trace: $s');
+      return ApiResult.failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<ProviderReviewsResponse>> getProviderReviews({
+    required int providerId,
+    int pageNumber = 1,
+    int pageSize = 20,
+  }) async {
+    try {
+      final response = await _apiService.getProviderReviews(
+        providerId,
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+      );
+      if (response.succeeded == true) {
+        return ApiResult.success(response);
+      } else {
+        return ApiResult.failure(response.message ?? 'Failed to load provider reviews');
+      }
+    } catch (e, s) {
+      print('getProviderReviews error: $e');
+      print('Stack trace: $s');
+      return ApiResult.failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<ProviderPackagesResponse>> getProviderPackages({
+    required int providerId,
+    int pageNumber = 1,
+    int pageSize = 20,
+  }) async {
+    try {
+      final response = await _apiService.getProviderPackages(
+        providerId,
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+      );
+      if (response.succeeded == true) {
+        return ApiResult.success(response);
+      } else {
+        return ApiResult.failure(response.message ?? 'Failed to load provider packages');
+      }
+    } catch (e, s) {
+      print('getProviderPackages error: $e');
+      print('Stack trace: $s');
       return ApiResult.failure(e.toString());
     }
   }

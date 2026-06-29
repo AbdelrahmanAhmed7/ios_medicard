@@ -12,7 +12,7 @@ part of 'medicard_network_api_service.dart';
 
 class _MedicardNetworkApiService implements MedicardNetworkApiService {
   _MedicardNetworkApiService(this._dio, {this.baseUrl, this.errorLogger}) {
-    baseUrl ??= 'https://api.medicardeg.com/api/';
+    baseUrl ??= 'https://medicard-api-v2.medicardeg.com/api/';
   }
 
   final Dio _dio;
@@ -201,10 +201,7 @@ class _MedicardNetworkApiService implements MedicardNetworkApiService {
   }
 
   @override
-  Future<ProviderPageResponse> getProviderPage(
-    String lang,
-    int providerId,
-  ) async {
+  Future<ProviderPageResponse> getProviderPage(int providerId) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
@@ -213,7 +210,7 @@ class _MedicardNetworkApiService implements MedicardNetworkApiService {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/${lang}/ProviderPage/${providerId}',
+            'ProviderPage/${providerId}',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -232,7 +229,6 @@ class _MedicardNetworkApiService implements MedicardNetworkApiService {
 
   @override
   Future<ProviderServicesResponse> getProviderServices(
-    String lang,
     int providerId, {
     String? search,
     int? pageNumber,
@@ -251,7 +247,7 @@ class _MedicardNetworkApiService implements MedicardNetworkApiService {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/${lang}/ProviderPage/${providerId}/services',
+            'ProviderPage/${providerId}/services',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -261,6 +257,76 @@ class _MedicardNetworkApiService implements MedicardNetworkApiService {
     late ProviderServicesResponse _value;
     try {
       _value = ProviderServicesResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<ProviderReviewsResponse> getProviderReviews(
+    int providerId, {
+    int? pageNumber,
+    int? pageSize,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'pageNumber': pageNumber,
+      r'pageSize': pageSize,
+    };
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<ProviderReviewsResponse>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            'ProviderPage/${providerId}/reviews',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ProviderReviewsResponse _value;
+    try {
+      _value = ProviderReviewsResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<ProviderPackagesResponse> getProviderPackages(
+    int providerId, {
+    int? pageNumber,
+    int? pageSize,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'pageNumber': pageNumber,
+      r'pageSize': pageSize,
+    };
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<ProviderPackagesResponse>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            'ProviderPage/${providerId}/packages',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ProviderPackagesResponse _value;
+    try {
+      _value = ProviderPackagesResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
       rethrow;

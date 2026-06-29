@@ -66,7 +66,10 @@ class LocationService {
   ///   3. Fetch coordinates.
   ///
   /// The API call in the cubit must NOT fire until this Future completes.
-  Future<LocationResult> resolveLocation({bool requestIfNeeded = false}) async {
+  Future<LocationResult> resolveLocation({
+    bool requestIfNeeded = false,
+    Future<bool> Function()? showRationaleDialog,
+  }) async {
     try {
       // ── Step 1: runtime permission ─────────────────────────────────────────
       var permission = await Geolocator.checkPermission();
@@ -75,6 +78,15 @@ class LocationService {
         if (!requestIfNeeded) {
           return LocationResult.status(LocationAccessStatus.denied);
         }
+
+        // Show rationale dialog if provided, before asking OS
+        if (showRationaleDialog != null) {
+          final shouldProceed = await showRationaleDialog();
+          if (!shouldProceed) {
+            return LocationResult.status(LocationAccessStatus.denied);
+          }
+        }
+
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
           return LocationResult.status(LocationAccessStatus.denied);

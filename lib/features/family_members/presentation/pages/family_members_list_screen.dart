@@ -33,10 +33,12 @@ class _FamilyMembersListScreenState extends State<FamilyMembersListScreen> {
         },
         builder: (context, state) {
           return state.when(
-            initial: () {
-              context.read<FamilyMembersCubit>().loadFamilyMembers();
-              return const SizedBox.shrink();
-            },
+      initial: () {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          context.read<FamilyMembersCubit>().loadFamilyMembers();
+        });
+        return const Center(child: CircularProgressIndicator());
+      },
             loading: () => const Center(child: CircularProgressIndicator()),
             success: (members) {
               return Column(

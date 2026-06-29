@@ -56,7 +56,7 @@ extension ProviderPageStatePatterns on ProviderPageState {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _Initial value)?  initial,TResult Function( _ProviderLoading value)?  providerLoading,TResult Function( _ProviderSuccess value)?  providerSuccess,TResult Function( _ProviderFailed value)?  providerFailed,TResult Function( _ServicesLoading value)?  servicesLoading,TResult Function( _ServicesSuccess value)?  servicesSuccess,TResult Function( _ServicesFailed value)?  servicesFailed,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _Initial value)?  initial,TResult Function( _ProviderLoading value)?  providerLoading,TResult Function( _ProviderSuccess value)?  providerSuccess,TResult Function( _ProviderFailed value)?  providerFailed,TResult Function( _ServicesLoading value)?  servicesLoading,TResult Function( _ServicesSuccess value)?  servicesSuccess,TResult Function( _ServicesFailed value)?  servicesFailed,TResult Function( _PackagesLoading value)?  packagesLoading,TResult Function( _PackagesSuccess value)?  packagesSuccess,TResult Function( _PackagesFailed value)?  packagesFailed,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
@@ -66,7 +66,10 @@ return providerSuccess(_that);case _ProviderFailed() when providerFailed != null
 return providerFailed(_that);case _ServicesLoading() when servicesLoading != null:
 return servicesLoading(_that);case _ServicesSuccess() when servicesSuccess != null:
 return servicesSuccess(_that);case _ServicesFailed() when servicesFailed != null:
-return servicesFailed(_that);case _:
+return servicesFailed(_that);case _PackagesLoading() when packagesLoading != null:
+return packagesLoading(_that);case _PackagesSuccess() when packagesSuccess != null:
+return packagesSuccess(_that);case _PackagesFailed() when packagesFailed != null:
+return packagesFailed(_that);case _:
   return orElse();
 
 }
@@ -84,7 +87,7 @@ return servicesFailed(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _Initial value)  initial,required TResult Function( _ProviderLoading value)  providerLoading,required TResult Function( _ProviderSuccess value)  providerSuccess,required TResult Function( _ProviderFailed value)  providerFailed,required TResult Function( _ServicesLoading value)  servicesLoading,required TResult Function( _ServicesSuccess value)  servicesSuccess,required TResult Function( _ServicesFailed value)  servicesFailed,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _Initial value)  initial,required TResult Function( _ProviderLoading value)  providerLoading,required TResult Function( _ProviderSuccess value)  providerSuccess,required TResult Function( _ProviderFailed value)  providerFailed,required TResult Function( _ServicesLoading value)  servicesLoading,required TResult Function( _ServicesSuccess value)  servicesSuccess,required TResult Function( _ServicesFailed value)  servicesFailed,required TResult Function( _PackagesLoading value)  packagesLoading,required TResult Function( _PackagesSuccess value)  packagesSuccess,required TResult Function( _PackagesFailed value)  packagesFailed,}){
 final _that = this;
 switch (_that) {
 case _Initial():
@@ -94,7 +97,10 @@ return providerSuccess(_that);case _ProviderFailed():
 return providerFailed(_that);case _ServicesLoading():
 return servicesLoading(_that);case _ServicesSuccess():
 return servicesSuccess(_that);case _ServicesFailed():
-return servicesFailed(_that);case _:
+return servicesFailed(_that);case _PackagesLoading():
+return packagesLoading(_that);case _PackagesSuccess():
+return packagesSuccess(_that);case _PackagesFailed():
+return packagesFailed(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -111,7 +117,7 @@ return servicesFailed(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _Initial value)?  initial,TResult? Function( _ProviderLoading value)?  providerLoading,TResult? Function( _ProviderSuccess value)?  providerSuccess,TResult? Function( _ProviderFailed value)?  providerFailed,TResult? Function( _ServicesLoading value)?  servicesLoading,TResult? Function( _ServicesSuccess value)?  servicesSuccess,TResult? Function( _ServicesFailed value)?  servicesFailed,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _Initial value)?  initial,TResult? Function( _ProviderLoading value)?  providerLoading,TResult? Function( _ProviderSuccess value)?  providerSuccess,TResult? Function( _ProviderFailed value)?  providerFailed,TResult? Function( _ServicesLoading value)?  servicesLoading,TResult? Function( _ServicesSuccess value)?  servicesSuccess,TResult? Function( _ServicesFailed value)?  servicesFailed,TResult? Function( _PackagesLoading value)?  packagesLoading,TResult? Function( _PackagesSuccess value)?  packagesSuccess,TResult? Function( _PackagesFailed value)?  packagesFailed,}){
 final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
@@ -121,7 +127,10 @@ return providerSuccess(_that);case _ProviderFailed() when providerFailed != null
 return providerFailed(_that);case _ServicesLoading() when servicesLoading != null:
 return servicesLoading(_that);case _ServicesSuccess() when servicesSuccess != null:
 return servicesSuccess(_that);case _ServicesFailed() when servicesFailed != null:
-return servicesFailed(_that);case _:
+return servicesFailed(_that);case _PackagesLoading() when packagesLoading != null:
+return packagesLoading(_that);case _PackagesSuccess() when packagesSuccess != null:
+return packagesSuccess(_that);case _PackagesFailed() when packagesFailed != null:
+return packagesFailed(_that);case _:
   return null;
 
 }
@@ -138,7 +147,7 @@ return servicesFailed(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  providerLoading,TResult Function( ProviderPageData data)?  providerSuccess,TResult Function( String error)?  providerFailed,TResult Function()?  servicesLoading,TResult Function( List<ProviderService> services,  bool hasMore,  bool isLoadingMore)?  servicesSuccess,TResult Function( String error)?  servicesFailed,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  providerLoading,TResult Function( ProviderPageData data)?  providerSuccess,TResult Function( String error)?  providerFailed,TResult Function()?  servicesLoading,TResult Function( List<ProviderService> services,  bool hasMore,  bool isLoadingMore)?  servicesSuccess,TResult Function( String error)?  servicesFailed,TResult Function()?  packagesLoading,TResult Function( List<ProviderPackage> packages,  bool hasMore,  bool isLoadingMore)?  packagesSuccess,TResult Function( String error)?  packagesFailed,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _ProviderLoading() when providerLoading != null:
@@ -147,7 +156,10 @@ return providerSuccess(_that.data);case _ProviderFailed() when providerFailed !=
 return providerFailed(_that.error);case _ServicesLoading() when servicesLoading != null:
 return servicesLoading();case _ServicesSuccess() when servicesSuccess != null:
 return servicesSuccess(_that.services,_that.hasMore,_that.isLoadingMore);case _ServicesFailed() when servicesFailed != null:
-return servicesFailed(_that.error);case _:
+return servicesFailed(_that.error);case _PackagesLoading() when packagesLoading != null:
+return packagesLoading();case _PackagesSuccess() when packagesSuccess != null:
+return packagesSuccess(_that.packages,_that.hasMore,_that.isLoadingMore);case _PackagesFailed() when packagesFailed != null:
+return packagesFailed(_that.error);case _:
   return orElse();
 
 }
@@ -165,7 +177,7 @@ return servicesFailed(_that.error);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  providerLoading,required TResult Function( ProviderPageData data)  providerSuccess,required TResult Function( String error)  providerFailed,required TResult Function()  servicesLoading,required TResult Function( List<ProviderService> services,  bool hasMore,  bool isLoadingMore)  servicesSuccess,required TResult Function( String error)  servicesFailed,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  providerLoading,required TResult Function( ProviderPageData data)  providerSuccess,required TResult Function( String error)  providerFailed,required TResult Function()  servicesLoading,required TResult Function( List<ProviderService> services,  bool hasMore,  bool isLoadingMore)  servicesSuccess,required TResult Function( String error)  servicesFailed,required TResult Function()  packagesLoading,required TResult Function( List<ProviderPackage> packages,  bool hasMore,  bool isLoadingMore)  packagesSuccess,required TResult Function( String error)  packagesFailed,}) {final _that = this;
 switch (_that) {
 case _Initial():
 return initial();case _ProviderLoading():
@@ -174,7 +186,10 @@ return providerSuccess(_that.data);case _ProviderFailed():
 return providerFailed(_that.error);case _ServicesLoading():
 return servicesLoading();case _ServicesSuccess():
 return servicesSuccess(_that.services,_that.hasMore,_that.isLoadingMore);case _ServicesFailed():
-return servicesFailed(_that.error);case _:
+return servicesFailed(_that.error);case _PackagesLoading():
+return packagesLoading();case _PackagesSuccess():
+return packagesSuccess(_that.packages,_that.hasMore,_that.isLoadingMore);case _PackagesFailed():
+return packagesFailed(_that.error);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -191,7 +206,7 @@ return servicesFailed(_that.error);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  providerLoading,TResult? Function( ProviderPageData data)?  providerSuccess,TResult? Function( String error)?  providerFailed,TResult? Function()?  servicesLoading,TResult? Function( List<ProviderService> services,  bool hasMore,  bool isLoadingMore)?  servicesSuccess,TResult? Function( String error)?  servicesFailed,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  providerLoading,TResult? Function( ProviderPageData data)?  providerSuccess,TResult? Function( String error)?  providerFailed,TResult? Function()?  servicesLoading,TResult? Function( List<ProviderService> services,  bool hasMore,  bool isLoadingMore)?  servicesSuccess,TResult? Function( String error)?  servicesFailed,TResult? Function()?  packagesLoading,TResult? Function( List<ProviderPackage> packages,  bool hasMore,  bool isLoadingMore)?  packagesSuccess,TResult? Function( String error)?  packagesFailed,}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _ProviderLoading() when providerLoading != null:
@@ -200,7 +215,10 @@ return providerSuccess(_that.data);case _ProviderFailed() when providerFailed !=
 return providerFailed(_that.error);case _ServicesLoading() when servicesLoading != null:
 return servicesLoading();case _ServicesSuccess() when servicesSuccess != null:
 return servicesSuccess(_that.services,_that.hasMore,_that.isLoadingMore);case _ServicesFailed() when servicesFailed != null:
-return servicesFailed(_that.error);case _:
+return servicesFailed(_that.error);case _PackagesLoading() when packagesLoading != null:
+return packagesLoading();case _PackagesSuccess() when packagesSuccess != null:
+return packagesSuccess(_that.packages,_that.hasMore,_that.isLoadingMore);case _PackagesFailed() when packagesFailed != null:
+return packagesFailed(_that.error);case _:
   return null;
 
 }
@@ -570,6 +588,180 @@ class __$ServicesFailedCopyWithImpl<$Res>
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') $Res call({Object? error = null,}) {
   return _then(_ServicesFailed(
+null == error ? _self.error : error // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _PackagesLoading implements ProviderPageState {
+  const _PackagesLoading();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PackagesLoading);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'ProviderPageState.packagesLoading()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class _PackagesSuccess implements ProviderPageState {
+  const _PackagesSuccess({required  List<ProviderPackage> packages, required this.hasMore, required this.isLoadingMore}): _packages = packages;
+  
+
+ final  List<ProviderPackage> _packages;
+ List<ProviderPackage> get packages {
+  if (_packages is EqualUnmodifiableListView) return _packages;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_packages);
+}
+
+ final  bool hasMore;
+ final  bool isLoadingMore;
+
+/// Create a copy of ProviderPageState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$PackagesSuccessCopyWith<_PackagesSuccess> get copyWith => __$PackagesSuccessCopyWithImpl<_PackagesSuccess>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PackagesSuccess&&const DeepCollectionEquality().equals(other._packages, _packages)&&(identical(other.hasMore, hasMore) || other.hasMore == hasMore)&&(identical(other.isLoadingMore, isLoadingMore) || other.isLoadingMore == isLoadingMore));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_packages),hasMore,isLoadingMore);
+
+@override
+String toString() {
+  return 'ProviderPageState.packagesSuccess(packages: $packages, hasMore: $hasMore, isLoadingMore: $isLoadingMore)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$PackagesSuccessCopyWith<$Res> implements $ProviderPageStateCopyWith<$Res> {
+  factory _$PackagesSuccessCopyWith(_PackagesSuccess value, $Res Function(_PackagesSuccess) _then) = __$PackagesSuccessCopyWithImpl;
+@useResult
+$Res call({
+ List<ProviderPackage> packages, bool hasMore, bool isLoadingMore
+});
+
+
+
+
+}
+/// @nodoc
+class __$PackagesSuccessCopyWithImpl<$Res>
+    implements _$PackagesSuccessCopyWith<$Res> {
+  __$PackagesSuccessCopyWithImpl(this._self, this._then);
+
+  final _PackagesSuccess _self;
+  final $Res Function(_PackagesSuccess) _then;
+
+/// Create a copy of ProviderPageState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? packages = null,Object? hasMore = null,Object? isLoadingMore = null,}) {
+  return _then(_PackagesSuccess(
+packages: null == packages ? _self._packages : packages // ignore: cast_nullable_to_non_nullable
+as List<ProviderPackage>,hasMore: null == hasMore ? _self.hasMore : hasMore // ignore: cast_nullable_to_non_nullable
+as bool,isLoadingMore: null == isLoadingMore ? _self.isLoadingMore : isLoadingMore // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _PackagesFailed implements ProviderPageState {
+  const _PackagesFailed(this.error);
+  
+
+ final  String error;
+
+/// Create a copy of ProviderPageState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$PackagesFailedCopyWith<_PackagesFailed> get copyWith => __$PackagesFailedCopyWithImpl<_PackagesFailed>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PackagesFailed&&(identical(other.error, error) || other.error == error));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,error);
+
+@override
+String toString() {
+  return 'ProviderPageState.packagesFailed(error: $error)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$PackagesFailedCopyWith<$Res> implements $ProviderPageStateCopyWith<$Res> {
+  factory _$PackagesFailedCopyWith(_PackagesFailed value, $Res Function(_PackagesFailed) _then) = __$PackagesFailedCopyWithImpl;
+@useResult
+$Res call({
+ String error
+});
+
+
+
+
+}
+/// @nodoc
+class __$PackagesFailedCopyWithImpl<$Res>
+    implements _$PackagesFailedCopyWith<$Res> {
+  __$PackagesFailedCopyWithImpl(this._self, this._then);
+
+  final _PackagesFailed _self;
+  final $Res Function(_PackagesFailed) _then;
+
+/// Create a copy of ProviderPageState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? error = null,}) {
+  return _then(_PackagesFailed(
 null == error ? _self.error : error // ignore: cast_nullable_to_non_nullable
 as String,
   ));

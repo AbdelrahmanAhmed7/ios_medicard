@@ -11,7 +11,7 @@ import '../../network/data/provider_services_response_model.dart';
 
 part 'medicard_network_api_service.g.dart';
 
-@RestApi(baseUrl: 'https://api.medicardeg.com/api/')
+@RestApi(baseUrl: 'https://medicard-api-v2.medicardeg.com/api/')
 abstract class MedicardNetworkApiService {
   factory MedicardNetworkApiService(Dio dio, {String baseUrl}) = _MedicardNetworkApiService;
 
@@ -55,17 +55,29 @@ abstract class MedicardNetworkApiService {
     @Path("lang") String lang,
   );
 
-  @GET("/{lang}/ProviderPage/{providerId}")
+  @GET("ProviderPage/{providerId}")
   Future<ProviderPageResponse> getProviderPage(
-    @Path("lang") String lang,
     @Path("providerId") int providerId,
   );
 
-  @GET("/{lang}/ProviderPage/{providerId}/services")
+  @GET("ProviderPage/{providerId}/services")
   Future<ProviderServicesResponse> getProviderServices(
-    @Path("lang") String lang,
     @Path("providerId") int providerId, {
     @Query("search") String? search,
+    @Query("pageNumber") int? pageNumber,
+    @Query("pageSize") int? pageSize,
+  });
+
+  @GET("ProviderPage/{providerId}/reviews")
+  Future<ProviderReviewsResponse> getProviderReviews(
+    @Path("providerId") int providerId, {
+    @Query("pageNumber") int? pageNumber,
+    @Query("pageSize") int? pageSize,
+  });
+
+  @GET("ProviderPage/{providerId}/packages")
+  Future<ProviderPackagesResponse> getProviderPackages(
+    @Path("providerId") int providerId, {
     @Query("pageNumber") int? pageNumber,
     @Query("pageSize") int? pageSize,
   });

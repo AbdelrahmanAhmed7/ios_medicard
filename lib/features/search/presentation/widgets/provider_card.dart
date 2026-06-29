@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../data/models/search_provider_model.dart';
 
@@ -13,52 +14,62 @@ class ProviderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final borderColor = const Color(0xFFC6D8EC);
 
-    return Container(
-      constraints: BoxConstraints(minHeight: 110.h),
-      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: borderColor, width: 1.w),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildImageSection(borderColor),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(12.w, 12.h, 12.w, 12.h),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (_hasText(provider.providerName)) ...[
-                    Text(
-                      provider.providerName!.trim(),
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16.sp,
-                        color: const Color(0xFF000000),
+    return GestureDetector(
+      onTap: () {
+        if (provider.providerId != null) {
+          context.push(
+            '/provider-page',
+            extra: provider.providerId,
+          );
+        }
+      },
+      child: Container(
+        constraints: BoxConstraints(minHeight: 110.h),
+        margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(color: borderColor, width: 1.w),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildImageSection(borderColor),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(12.w, 12.h, 12.w, 12.h),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (_hasText(provider.providerName)) ...[
+                      Text(
+                        provider.providerName!.trim(),
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16.sp,
+                          color: const Color(0xFF000000),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: 8.h),
+                      SizedBox(height: 8.h),
+                    ],
+                    if ((provider.maxDiscountPercentage ?? 0) > 0) ...[
+                      _DiscountChipsRow(
+                        categoryName: provider.categoryName,
+                        maxDiscount: provider.maxDiscountPercentage,
+                      ),
+                      SizedBox(height: 8.h),
+                    ],
+                    _RatingAndLocationRow(provider: provider),
                   ],
-                  if ((provider.maxDiscountPercentage ?? 0) > 0) ...[
-                    _DiscountChipsRow(
-                      categoryName: provider.categoryName,
-                      maxDiscount: provider.maxDiscountPercentage,
-                    ),
-                    SizedBox(height: 8.h),
-                  ],
-                  _RatingAndLocationRow(provider: provider),
-                ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

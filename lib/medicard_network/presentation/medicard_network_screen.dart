@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/di/service_locator.dart';
@@ -13,7 +14,6 @@ import '../../core/services/location_service.dart';
 import '../core/network_colors.dart';
 import '../logic/medicard_network_cubit.dart';
 import '../../core/utils/language_helper.dart';
-import 'provider_details_screen.dart';
 import 'widgets/location_status_banner.dart';
 import 'widgets/network_app_bar.dart';
 import 'widgets/network_search_bar.dart';
@@ -102,7 +102,8 @@ class _MedicardNetworkScreenState extends State<MedicardNetworkScreen> {
       final currentState = cubit.state;
       // Only act if we're in a loaded state that still has no location
       if (currentState is! MedicardNetworkLoaded) return;
-      if (currentState.locationStatus != LocationAccessStatus.permanentlyDenied) {
+      if (currentState.locationStatus !=
+          LocationAccessStatus.permanentlyDenied) {
         return;
       }
 
@@ -476,12 +477,9 @@ class _MedicardNetworkScreenState extends State<MedicardNetworkScreen> {
                                 provider: provider,
                                 onCall: _call,
                                 onMaps: _openMaps,
-                                onTap: () => Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (_) => ProviderDetailsScreen(
-                                      provider: provider,
-                                    ),
-                                  ),
+                                onTap: () => context.push(
+                                  '/provider-page',
+                                  extra: provider.providerId,
                                 ),
                                 onShowServices: () => ServicesDialog.show(
                                   context,

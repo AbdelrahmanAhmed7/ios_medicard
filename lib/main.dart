@@ -10,8 +10,6 @@ import 'core/cubit/app_refresh_cubit.dart';
 import 'core/cubit/localization_cubit.dart';
 import 'core/di/service_locator.dart';
 import 'core/services/app_language_manager.dart';
-import 'core/services/location_repository.dart';
-import 'core/services/location_service.dart';
 import 'core/network/connectivity_service.dart';
 import 'core/routing/app_router.dart';
 import 'core/theming/font_manager.dart';
@@ -40,10 +38,7 @@ void main() async {
   // Step 6: Setup Service Locator (now that AppLanguageManager is initialized)
   await setupServiceLocator();
 
-  // Step 7: Initialize Location
-  await sl<LocationRepository>().resolve(sl<LocationService>());
-
-  // Step 8: Get Initial Location
+  // Step 7: Get Initial Location
   final initialLocation = await AppRouter.getInitialLocation();
 
   // Remove splash

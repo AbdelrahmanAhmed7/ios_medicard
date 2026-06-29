@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:medicard/core/utils/location_permission_dialog.dart';
 
 import '../../../../core/cubit/app_refresh_cubit.dart';
 import '../../../../core/di/service_locator.dart';
@@ -44,6 +45,14 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    // Set the onShowRationaleDialog callback
+    _locationCubit.onShowRationaleDialog = (completer) {
+      LocationPermissionDialog.show(
+        context,
+        onEnablePressed: () => completer.complete(true),
+        onMaybeLaterPressed: () => completer.complete(false),
+      );
+    };
     // Listen to AppRefreshCubit to refresh data when language changes
     sl<AppRefreshCubit>().stream.listen((state) {
       state.maybeWhen(
@@ -58,6 +67,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    // Clear the callback to prevent memory leaks
+    _locationCubit.onShowRationaleDialog = null;
     _homeCubit.close();
     _profileCubit.close();
     _locationCubit.close();

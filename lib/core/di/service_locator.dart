@@ -66,7 +66,7 @@ Future<void> setupServiceLocator() async {
   // Initialize AppLanguageManager first
   await AppLanguageManager.instance.initialize();
 
-  final Dio medicardDio = await DioFactory.getDioForMedicard();
+  final Dio medicardDio = await DioFactory.getDio();
 
   sl.registerLazySingleton<AppLanguageManager>(
     () => AppLanguageManager.instance,
@@ -170,7 +170,7 @@ Future<void> setupServiceLocator() async {
   sl.registerFactoryParam<ProviderPageCubit, int, void>(
     (providerId, _) => ProviderPageCubit(sl(), providerId),
   );
-  sl.registerFactory<HomeCubit>(() => HomeCubit(sl(), sl()));
+  sl.registerFactory<HomeCubit>(() => HomeCubit(sl(), sl(), sl(), sl()));
   sl.registerFactory<LocationCubit>(() => LocationCubit(sl(), sl()));
   sl.registerFactory<ProfileCubit>(() => ProfileCubit(sl(), sl(), sl()));
   sl.registerFactory<ChangePasswordCubit>(() => ChangePasswordCubit(sl()));

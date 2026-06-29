@@ -7,7 +7,13 @@
     "try_again": "حاول مرة أخرى",
     "apply": "تطبيق",
     "update": "تحديث",
-    "required": "مطلوب"
+    "required": "مطلوب",
+    "error": "حدث خطأ",
+    "retry": "إعادة المحاولة"
+  },
+  "errors": {
+    "not_found_error": "لم يتم العثور على البيانات",
+    "generic_error": "حدث خطأ غير متوقع"
   },
   "profile": {
     "my_profile": "حسابي",

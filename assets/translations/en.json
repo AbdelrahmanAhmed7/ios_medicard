@@ -7,7 +7,13 @@
     "try_again": "Try Again",
     "apply": "Apply",
     "update": "Update",
-    "required": "Required"
+    "required": "Required",
+    "error": "Error",
+    "retry": "Retry"
+  },
+  "errors": {
+    "not_found_error": "Data not found",
+    "generic_error": "An unexpected error occurred"
   },
   "profile": {
     "my_profile": "My profile",

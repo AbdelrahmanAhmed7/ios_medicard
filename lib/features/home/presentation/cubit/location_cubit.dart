@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geocoding/geocoding.dart';
 
@@ -8,6 +9,9 @@ import 'location_state.dart';
 class LocationCubit extends Cubit<LocationState> {
   final LocationRepository _locationRepository;
   final LocationService _locationService;
+
+  // Callback the UI provides to show the dialog
+  void Function(Completer<bool> completer)? onShowRationaleDialog;
 
   LocationCubit(this._locationRepository, this._locationService)
     : super(const LocationInitial());
@@ -29,9 +33,27 @@ class LocationCubit extends Cubit<LocationState> {
       _locationRepository.clear();
     }
 
-    final result = _locationRepository.cached?.hasCoordinates == true
-        ? _locationRepository.cached!
-        : await _locationRepository.resolve(_locationService);
+    LocationResult result;
+    if (_locationRepository.cached?.hasCoordinates == true) {
+      result = _locationRepository.cached!;
+    } else {
+      // Call resolveLocation with showRationaleDialog
+      result = await _locationService.resolveLocation(
+        requestIfNeeded: true,
+        showRationaleDialog: () async {
+          if (onShowRationaleDialog == null) {
+            return false;
+          }
+          final completer = Completer<bool>();
+          onShowRationaleDialog!(completer);
+          return completer.future;
+        },
+      );
+      // Cache the result
+      if (result.hasCoordinates) {
+        _locationRepository.cache(result);
+      }
+    }
 
     if (isClosed) return;
 

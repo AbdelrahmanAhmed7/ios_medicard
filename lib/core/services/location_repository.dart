@@ -19,5 +19,9 @@ class LocationRepository {
     return result;
   }
 
+  void cache(LocationResult result) {
+    _cached = result;
+  }
+
   void clear() => _cached = null;
 }

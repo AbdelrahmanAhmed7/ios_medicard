@@ -17,4 +17,11 @@ class ProviderPageState with _$ProviderPageState {
     required bool isLoadingMore,
   }) = _ServicesSuccess;
   const factory ProviderPageState.servicesFailed(String error) = _ServicesFailed;
+  const factory ProviderPageState.packagesLoading() = _PackagesLoading;
+  const factory ProviderPageState.packagesSuccess({
+    required List<ProviderPackage> packages,
+    required bool hasMore,
+    required bool isLoadingMore,
+  }) = _PackagesSuccess;
+  const factory ProviderPageState.packagesFailed(String error) = _PackagesFailed;
 }
