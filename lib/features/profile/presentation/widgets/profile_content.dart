@@ -7,6 +7,8 @@ import 'package:go_router/go_router.dart';
 import 'package:medicard/core/constants/constants.dart';
 import 'package:medicard/core/cubit/localization_cubit.dart';
 import 'package:medicard/core/helpers/shared_pref_helper.dart';
+import 'package:medicard/core/network/dio_factory.dart';
+import 'package:medicard/core/widgets/app_blue_header.dart';
 import '../../../../core/widgets/auth_shared_widgets.dart';
 import '../../data/models/profile_response_model.dart';
 
@@ -17,36 +19,16 @@ class ProfileContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final statusBarHeight = MediaQuery.of(context).padding.top;
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              color: kAuthBlue,
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20),
-              ),
-            ),
-            padding: EdgeInsetsDirectional.fromSTEB(
-              20.w,
-              statusBarHeight + 40.h,
-              20.w,
-              24.h,
-            ),
-            child: Text(
-              'profile.my_profile'.tr(),
-              style: TextStyle(
-                fontSize: 26.sp,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-              ),
-            ),
+          AppBlueHeader(
+            title: 'profile.my_profile'.tr(),
+            showBack: false,
+            contentHeight: kMainTabHeaderContentHeight,
           ),
 
           SizedBox(height: 20.h),
@@ -59,14 +41,7 @@ class ProfileContent extends StatelessWidget {
           _Card(
             children: [
               _Item(
-                icon: Icons.person_outline_rounded,
-                label: 'profile.my_profile_link'.tr(),
-                route: '/medicard-edit-profile-new',
-                routeExtra: {'profileData': data},
-              ),
-              const Divider(color: kAuthBorderColor, height: 1),
-              _Item(
-                icon: Icons.badge_outlined,
+                icon: Icons.point_of_sale,
                 label: 'profile.rewards'.tr(),
                 trailing: Text(
                   '100 points',
@@ -175,10 +150,13 @@ class ProfileContent extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 20.w),
             child: OutlinedButton(
               onPressed: () async {
+                // Clear all session data from secure storage.
                 await SharedPrefHelper.clearAllSecuredData();
                 await SharedPrefHelper.removeData(
                   SharedPrefKeys.medicardCardNo,
                 );
+                // Remove the token from the in-memory Dio header.
+                DioFactory.clearTokenFromHeader();
                 if (context.mounted) context.go('/medicard-login');
               },
               style: OutlinedButton.styleFrom(
@@ -378,8 +356,7 @@ class _Item extends StatelessWidget {
     required this.label,
     this.trailing,
     this.route,
-    this.routeExtra,
-  });
+  }) : routeExtra = null;
 
   @override
   Widget build(BuildContext context) {

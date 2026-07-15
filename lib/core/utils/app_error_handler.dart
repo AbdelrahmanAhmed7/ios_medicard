@@ -13,6 +13,8 @@ class AppErrorHandler {
       case AppFailureType.network:
         return 'errors.network_error'.tr();
       case AppFailureType.timeout:
+      case AppFailureType.connectionTimeout:
+      case AppFailureType.transferTimeout:
         return 'errors.timeout_error'.tr();
       case AppFailureType.unauthorized:
         return 'errors.session_expired'.tr();
@@ -22,6 +24,7 @@ class AppErrorHandler {
         return 'errors.not_found_error'.tr();
       case AppFailureType.server:
         return 'errors.server_error'.tr();
+      case AppFailureType.cancelled:
       case AppFailureType.unexpected:
         return failure.message ?? 'errors.generic_error'.tr();
     }
@@ -64,7 +67,9 @@ class AppErrorHandler {
       return 'errors.not_found_error'.tr();
     }
 
-    if (error.contains('500') || error.contains('502') || error.contains('503')) {
+    if (error.contains('500') ||
+        error.contains('502') ||
+        error.contains('503')) {
       return 'errors.server_error'.tr();
     }
 
@@ -79,20 +84,20 @@ class AppErrorHandler {
   }
 
   static void showErrorSnackBar(
-      BuildContext context,
-      Object error, {
-        VoidCallback? onRetry,
-        Duration duration = const Duration(seconds: 4),
-      }) {
+    BuildContext context,
+    Object error, {
+    VoidCallback? onRetry,
+    Duration duration = const Duration(seconds: 4),
+  }) {
     final message = _resolveMessage(error);
     showErrorToast(message);
   }
 
   static void showErrorDialog(
-      BuildContext context,
-      Object error, {
-        VoidCallback? onRetry,
-      }) {
+    BuildContext context,
+    Object error, {
+    VoidCallback? onRetry,
+  }) {
     final message = _resolveMessage(error);
 
     showDialog(
@@ -136,11 +141,11 @@ class AppErrorHandler {
 
   /// Handle ApiResult and show appropriate error UI
   static void handleApiResult<T>(
-      BuildContext context,
-      ApiResult<T> result, {
-        VoidCallback? onRetry,
-        bool showDialog = false,
-      }) {
+    BuildContext context,
+    ApiResult<T> result, {
+    VoidCallback? onRetry,
+    bool showDialog = false,
+  }) {
     result.when(
       success: (_) {
         // Success - no action needed
@@ -157,17 +162,11 @@ class AppErrorHandler {
 
   /// Extract error message from ApiResult
   static String? getErrorMessageFromResult<T>(ApiResult<T> result) {
-    return result.maybeWhen(
-      failure: (message) => message,
-      orElse: () => null,
-    );
+    return result.maybeWhen(failure: (message) => message, orElse: () => null);
   }
 
   /// Check if ApiResult is a failure
   static bool isFailure<T>(ApiResult<T> result) {
-    return result.maybeWhen(
-      failure: (_) => true,
-      orElse: () => false,
-    );
+    return result.maybeWhen(failure: (_) => true, orElse: () => false);
   }
 }

@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:medicard/core/utils/location_permission_dialog.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:medicard/features/home/data/home_mock_data.dart';
 
 import '../../../../core/cubit/app_refresh_cubit.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/theming/app_toast.dart';
+import '../../../../core/theming/app_snack_bar.dart';
+import '../../../../features/activity/presentation/cubit/activity_cubit.dart';
 import '../../../../features/profile/presentation/cubit/profile_cubit.dart';
 import '../../../../features/profile/presentation/cubit/profile_state.dart';
 import '../../../../features/profile/presentation/widgets/profile_content.dart';
 import '../../../../features/profile/presentation/widgets/profile_error_view.dart';
 import '../../../../features/profile/presentation/widgets/profile_shimmer.dart';
-import '../../data/home_mock_data.dart';
-import '../../domain/models/appointment_model.dart';
-import '../../domain/models/featured_service_model.dart';
-import '../../domain/models/provider_model.dart';
+import '../../data/models/home_response_model.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
 import '../cubit/location_cubit.dart';
 import '../mappers/home_mappers.dart';
+import '../widgets/activity_screen.dart';
 import '../widgets/featured_services_section.dart';
 import '../widgets/home_bottom_nav.dart';
 import '../widgets/home_empty_view.dart';
@@ -37,161 +39,199 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late final HomeCubit _homeCubit = sl<HomeCubit>()..getHomeData();
-  late final ProfileCubit _profileCubit = sl<ProfileCubit>()..loadProfile();
-  late final LocationCubit _locationCubit = sl<LocationCubit>()..loadLocation();
   int _currentIndex = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    // Set the onShowRationaleDialog callback
-    _locationCubit.onShowRationaleDialog = (completer) {
-      LocationPermissionDialog.show(
-        context,
-        onEnablePressed: () => completer.complete(true),
-        onMaybeLaterPressed: () => completer.complete(false),
-      );
-    };
-    // Listen to AppRefreshCubit to refresh data when language changes
-    sl<AppRefreshCubit>().stream.listen((state) {
-      state.maybeWhen(
-        languageChanged: () {
-          _homeCubit.getHomeData();
-          _profileCubit.loadProfile();
-        },
-        orElse: () {},
-      );
-    });
-  }
-
-  @override
-  void dispose() {
-    // Clear the callback to prevent memory leaks
-    _locationCubit.onShowRationaleDialog = null;
-    _homeCubit.close();
-    _profileCubit.close();
-    _locationCubit.close();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<HomeCubit>.value(value: _homeCubit),
-        BlocProvider<ProfileCubit>.value(value: _profileCubit),
-        BlocProvider<LocationCubit>.value(value: _locationCubit),
+        BlocProvider<HomeCubit>(
+          create: (context) => sl<HomeCubit>()..getHomeData(),
+        ),
+        BlocProvider<ProfileCubit>(
+          create: (context) {
+            if (kDebugMode) {
+              debugPrint('[ProfileFlow] ProfileCubit created for HomeScreen');
+            }
+            return sl<ProfileCubit>();
+          },
+        ),
+        BlocProvider<LocationCubit>(
+          create: (context) => sl<LocationCubit>()..loadLocation(),
+        ),
+        BlocProvider<ActivityCubit>(
+          create: (context) => sl<ActivityCubit>()..loadInvoices(),
+        ),
         BlocProvider<AppRefreshCubit>.value(value: sl<AppRefreshCubit>()),
       ],
-      child: BlocBuilder<AppRefreshCubit, AppRefreshState>(
-        builder: (context, state) {
-          return Scaffold(
-            backgroundColor: const Color(0xFFFFFFFF),
-            body: IndexedStack(
-              index: _currentIndex,
-              children: const [
-                _HomeBody(),
-                Center(child: Text('E-card')),
-                Center(child: Text('Providers')),
-                _ProfileBody(),
-              ],
-            ),
-            bottomNavigationBar: HomeBottomNav(
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<AppRefreshCubit, AppRefreshState>(
+            listener: (context, state) {
+              state.maybeWhen(
+                languageChanged: () {
+                  context.read<HomeCubit>().getHomeData();
+                  if (_currentIndex == 2) {
+                    context.read<ProfileCubit>().loadProfile(
+                          forceRefresh: true,
+                        );
+                  }
+                },
+                orElse: () {},
+              );
+            },
+          ),
+        ],
+        child: Scaffold(
+          backgroundColor: Colors.white, 
+          body: IndexedStack(
+            index: _currentIndex,
+            children: const [_HomeBody(), ActivityScreen(), _ProfileBody()],
+          ),
+          bottomNavigationBar: Builder(
+            builder: (providerContext) => HomeBottomNav(
               currentIndex: _currentIndex,
-              onTap: (i) => setState(() => _currentIndex = i),
+              onTap: (i) {
+                if (i == 2) {
+                  if (kDebugMode) {
+                    debugPrint('[ProfileFlow] Profile tab opened');
+                  }
+                  providerContext.read<ProfileCubit>().loadProfile();
+                }
+                if (i != _currentIndex) setState(() => _currentIndex = i);
+              },
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Body — listens to HomeCubit and delegates to the right view
-// ─────────────────────────────────────────────────────────────────────────────
-
-/// Stateless body that rebuilds only when [HomeState] changes.
-/// All mapping logic lives in [home_mappers.dart], not here.
 class _HomeBody extends StatelessWidget {
   const _HomeBody();
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomeCubit, HomeState>(
+    return BlocConsumer<HomeCubit, HomeState>(
+      listener: (context, state) {
+        state.maybeWhen(
+          refreshFailed: (_, _) => showAppSnackBar(
+            context,
+            'home.refresh_failed'.tr(),
+            type: SnackBarType.error,
+            actionLabel: 'common.retry'.tr(),
+            onAction: () =>
+                context.read<HomeCubit>().getHomeData(refresh: true),
+          ),
+          orElse: () {},
+        );
+      },
       builder: (context, state) {
         return state.when(
-          initial: () => const SizedBox.shrink(),
-
-          loading: () => _buildShellScrollView(child: const HomeShimmer()),
-
-          success: (data) {
-            final appointments = mapAppointments(
-              data.data?.pendingAppointments ?? [],
-            );
-            final providers = mapProviders(data.data?.nearestProviders ?? []);
-            final banners = mapPromoBanners(data.data?.sliders ?? []);
-            final services = mapPackages(data.data?.packages ?? []);
-
-            final hasContent =
-                appointments.isNotEmpty ||
-                providers.isNotEmpty ||
-                services.isNotEmpty ||
-                banners.isNotEmpty;
-
-            return _buildShellScrollView(
-              banners: banners,
-              child: hasContent
-                  ? _HomeSuccessContent(
-                      appointments: appointments,
-                      providers: providers,
-                      services: services,
-                    )
-                  : const HomeEmptyView(),
-            );
-          },
-
-          failed: (error) => _buildShellScrollView(
-            child: HomeErrorView(
-              message: error,
-              onRetry: () => context.read<HomeCubit>().getHomeData(),
-            ),
+          initial: () => _buildShellScrollView(
+            slivers: [const SliverToBoxAdapter(child: HomeShimmer())],
           ),
+          loading: () => _buildShellScrollView(
+            slivers: [const SliverToBoxAdapter(child: HomeShimmer())],
+          ),
+          success: (data) => _buildLoadedView(context, data),
+          failed: (failure, isRetrying) => _buildShellScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: HomeErrorView(
+                  failure: failure,
+                  isRetrying: isRetrying,
+                  onRetry: () => context.read<HomeCubit>().getHomeData(),
+                ),
+              ),
+            ],
+          ),
+          refreshing: (data) =>
+              _buildLoadedView(context, data, isRefreshing: true),
+          refreshFailed: (data, _) => _buildLoadedView(context, data),
         );
       },
     );
   }
 
-  /// Builds the shared sliver shell (header + quick actions + optional banner)
-  /// and places [child] below inside a [SliverToBoxAdapter].
+  Widget _buildLoadedView(
+    BuildContext context,
+    HomeResponseModel data, {
+    bool isRefreshing = false,
+  }) {
+    final appointments = mapAppointments(data.data?.pendingAppointments ?? []);
+    final providers = mapProviders(data.data?.nearestProviders ?? []);
+    final banners = mapPromoBanners(data.data?.sliders ?? []);
+    final services = mapPackages(data.data?.packages ?? []);
+    
+    final hasContent = appointments.isNotEmpty ||
+        providers.isNotEmpty ||
+        services.isNotEmpty ||
+        banners.isNotEmpty;
+
+    return RefreshIndicator(
+      onRefresh: () => context.read<HomeCubit>().getHomeData(refresh: true),
+      backgroundColor: Colors.white, 
+      child: _buildShellScrollView(
+        banners: banners,
+        isRefreshing: isRefreshing,
+        slivers: [
+          if (!hasContent)
+            const SliverToBoxAdapter(child: HomeEmptyView())
+          else ...[
+            if (appointments.isNotEmpty) ...[
+              SliverToBoxAdapter(
+                child: PendingAppointmentsSection(appointments: appointments),
+              ),
+              const SliverToBoxAdapter(child: SizedBox(height: 24)),
+            ],
+            if (providers.isNotEmpty) ...[
+              SliverToBoxAdapter(child: NearestSection(providers: providers)),
+              const SliverToBoxAdapter(child: SizedBox(height: 24)),
+            ],
+            if (services.isNotEmpty)
+              SliverToBoxAdapter(
+                child: FeaturedServicesSection(services: services),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+
   Widget _buildShellScrollView({
-    required Widget child,
+    required List<Widget> slivers,
     List<PromoBanner> banners = const [],
+    bool isRefreshing = false,
   }) {
     return CustomScrollView(
-      physics: const BouncingScrollPhysics(),
+      physics: const AlwaysScrollableScrollPhysics(
+        parent: BouncingScrollPhysics(),
+      ),
       slivers: [
         const SliverToBoxAdapter(child: HomeHeader()),
+        if (isRefreshing)
+          const SliverToBoxAdapter(child: LinearProgressIndicator(minHeight: 2)),
+          
+        const SliverToBoxAdapter(child: SizedBox(height: 16)),
+
         SliverToBoxAdapter(
           child: QuickActionsRow(actions: HomeMockData.quickActions),
         ),
+        const SliverToBoxAdapter(child: SizedBox(height: 24)),
+
         if (banners.isNotEmpty) ...[
-          SliverToBoxAdapter(
-            child: PromoBannerWidget(banners: banners),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 16)),
+          SliverToBoxAdapter(child: PromoBannerWidget(banners: banners)),
+          const SliverToBoxAdapter(child: SizedBox(height: 24)),
         ],
-        SliverToBoxAdapter(child: child),
-        const SliverToBoxAdapter(child: SizedBox(height: 32)),
+
+        ...slivers,
+        const SliverToBoxAdapter(child: SizedBox(height: 40)),
       ],
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Profile Body
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _ProfileBody extends StatelessWidget {
   const _ProfileBody();
@@ -216,40 +256,6 @@ class _ProfileBody extends StatelessWidget {
           failed: (_) => const ProfileErrorView(),
         );
       },
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Success content — purely presentational, receives mapped domain models
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _HomeSuccessContent extends StatelessWidget {
-  final List<AppointmentModel> appointments;
-  final List<ProviderModel> providers;
-  final List<FeaturedServiceModel> services;
-
-  const _HomeSuccessContent({
-    required this.appointments,
-    required this.providers,
-    required this.services,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (appointments.isNotEmpty) ...[
-          PendingAppointmentsSection(appointments: appointments),
-          const SizedBox(height: 24),
-        ],
-        if (providers.isNotEmpty) ...[
-          NearestSection(providers: providers),
-          const SizedBox(height: 24),
-        ],
-        if (services.isNotEmpty) FeaturedServicesSection(services: services),
-      ],
     );
   }
 }

@@ -13,12 +13,11 @@ part 'medicard_network_api_service.g.dart';
 
 @RestApi(baseUrl: 'https://medicard-api-v2.medicardeg.com/api/')
 abstract class MedicardNetworkApiService {
-  factory MedicardNetworkApiService(Dio dio, {String baseUrl}) = _MedicardNetworkApiService;
+  factory MedicardNetworkApiService(Dio dio, {String baseUrl}) =
+      _MedicardNetworkApiService;
 
   @GET("/{lang}/Network/GetCategories")
-  Future<NetworkCategoryResponse> getCategories(
-    @Path("lang") String lang,
-  );
+  Future<NetworkCategoryResponse> getCategories(@Path("lang") String lang);
 
   @GET("/{lang}/Network/GetNetwork")
   Future<NetworkProviderResponse> searchProviders(
@@ -81,4 +80,9 @@ abstract class MedicardNetworkApiService {
     @Query("pageNumber") int? pageNumber,
     @Query("pageSize") int? pageSize,
   });
+
+  @GET("Package/{packageId}")
+  Future<PackageDetailsResponse> getPackageDetails(
+    @Path("packageId") int packageId,
+  );
 }

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' show basename;
 import '../core/constants/api_result.dart';
 import '../core/constants/constants.dart';
@@ -16,6 +17,9 @@ import '../data/auth_login_request_model.dart';
 import '../data/auth_response_model.dart';
 import '../domain/medicard_repository.dart';
 import '../features/home/data/models/home_response_model.dart';
+import '../features/home/domain/models/home_failure.dart';
+import '../core/network/app_failure.dart';
+import '../core/network/error_mapper.dart';
 import '../features/profile/data/models/change_password_request_model.dart';
 import '../features/profile/data/models/change_password_response_model.dart';
 import '../features/profile/data/models/change_language_request_model.dart';
@@ -195,36 +199,43 @@ class MedicardRepositoryImpl implements MedicardRepository {
     double? longitude,
   }) async {
     try {
-      final token = await SharedPrefHelper.getSecuredString(
-        SharedPrefKeys.userToken,
-      );
-      final response = await _apiService.getHomeData(
-        'Bearer $token',
-        latitude,
-        longitude,
-      );
+      if (kDebugMode) debugPrint('[HomeRepository] requesting Home data');
+      final response = await _apiService.getHomeData(latitude, longitude);
+      if (kDebugMode) {
+        debugPrint(
+          '[HomeRepository] Home response received (succeeded=${response.succeeded})',
+        );
+      }
 
       return (response.succeeded == true && response.data != null)
           ? ApiResult.success(response)
-          : ApiResult.failure(
-              (response.errors != null && response.errors!.isNotEmpty)
-                  ? response.errors!.join('\n')
-                  : response.message?.isNotEmpty == true
-                  ? response.message!
-                  : 'Failed to get home data.',
-            );
+          : ApiResult.failure(HomeFailureType.server.code);
     } catch (error) {
-      return ApiResult.failure(parseApiError(error));
+      final appFailure = error is DioException
+          ? (error.error is AppFailure
+                ? error.error! as AppFailure
+                : mapDioException(error))
+          : const AppFailure.unexpected();
+      final failure = homeFailureFromAppFailure(appFailure);
+      if (kDebugMode) {
+        debugPrint(
+          '[HomeRepository] Home request failed (category=${failure.name})',
+        );
+      }
+      return ApiResult.failure(failure.code);
     }
   }
 
   @override
   Future<ApiResult<ProfileResponseModel>> getProfile() async {
     try {
-      final token = await SharedPrefHelper.getSecuredString(
-        SharedPrefKeys.userToken,
-      );
-      final response = await _apiService.getProfile('Bearer $token');
+      if (kDebugMode) debugPrint('[ProfileRepository] requesting profile');
+      final response = await _apiService.getProfile();
+      if (kDebugMode) {
+        debugPrint(
+          '[ProfileRepository] profile response received (succeeded=${response.succeeded})',
+        );
+      }
 
       return (response.succeeded == true && response.data != null)
           ? ApiResult.success(response)
@@ -236,6 +247,9 @@ class MedicardRepositoryImpl implements MedicardRepository {
                   : 'Failed to get profile.',
             );
     } catch (error) {
+      if (kDebugMode) {
+        debugPrint('[ProfileRepository] profile request exception: $error');
+      }
       return ApiResult.failure(parseApiError(error));
     }
   }
@@ -309,7 +323,8 @@ class MedicardRepositoryImpl implements MedicardRepository {
         'Bearer $token',
         request.toJson(),
       );
-      final isSuccess = (response.succeeded == true) || (response.success == true);
+      final isSuccess =
+          (response.succeeded == true) || (response.success == true);
       return isSuccess
           ? ApiResult.success(response)
           : ApiResult.failure(
@@ -332,9 +347,7 @@ class MedicardRepositoryImpl implements MedicardRepository {
       final token = await SharedPrefHelper.getSecuredString(
         SharedPrefKeys.userToken,
       );
-      final request = ChangeLanguageRequestModel(
-        language: language,
-      );
+      final request = ChangeLanguageRequestModel(language: language);
       final response = await _apiService.changeLanguage(
         'Bearer $token',
         request,
@@ -359,10 +372,7 @@ class MedicardRepositoryImpl implements MedicardRepository {
     double? longitude,
   }) async {
     try {
-      final response = await _apiService.getGuestHomeData(
-        latitude,
-        longitude,
-      );
+      final response = await _apiService.getGuestHomeData(latitude, longitude);
 
       return (response.succeeded == true && response.data != null)
           ? ApiResult.success(response)

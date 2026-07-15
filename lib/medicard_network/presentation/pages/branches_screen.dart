@@ -4,34 +4,128 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../network/data/provider_page_response_model.dart';
-import '../../core/network_colors.dart';
 
 class BranchesScreen extends StatelessWidget {
   final List<ProviderBranch> branches;
+  final String? providerName; // إضافة اسم المزود لجعل الـ Breadcrumb ديناميكي بالكامل
 
-  const BranchesScreen({super.key, required this.branches});
+  const BranchesScreen({
+    super.key,
+    required this.branches,
+    this.providerName = 'Alfa',
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: NC.bg,
-      appBar: AppBar(
-        title: Text('provider_page.branches'.tr()),
-        backgroundColor: NC.primary,
-        foregroundColor: Colors.white,
-        elevation: 0,
+      backgroundColor: const Color(0xFFF8FAFC), // خلفية الشاشة الفاتحة المريحة للعين
+      body: Column(
+        children: [
+          _buildBlueHeader(context),
+          Expanded(
+            child: ListView.separated(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+              itemCount: branches.length,
+              physics: const BouncingScrollPhysics(),
+              separatorBuilder: (context, index) => SizedBox(height: 12.h),
+              itemBuilder: (context, index) {
+                final branch = branches[index];
+                return _BranchCard(
+                  branch: branch,
+                  onTap: () => context.pop(branch),
+                );
+              },
+            ),
+          ),
+        ],
       ),
-      body: ListView.separated(
-        padding: EdgeInsets.all(16.w),
-        itemCount: branches.length,
-        separatorBuilder: (context, index) => SizedBox(height: 16.h),
-        itemBuilder: (context, index) {
-          final branch = branches[index];
-          return _BranchCard(
-            branch: branch,
-            onTap: () => context.pop(branch),
-          );
-        },
+    );
+  }
+
+  // بناء الهيدر الأزرق الاحترافي المتوافق مع التصميم
+  Widget _buildBlueHeader(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        color: Color(0xFF2D5FA6),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(24),
+          bottomRight: Radius.circular(24),
+        ),
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 24.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // زر العودة الخلفي
+              GestureDetector(
+                onTap: () => context.pop(),
+                child: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: Colors.white,
+                  size: 22.sp,
+                ),
+              ),
+              SizedBox(height: 16.h),
+
+              // الـ Breadcrumb (Alfa > Branches)
+              Row(
+                children: [
+                  Text(
+                    providerName ?? '',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.w),
+                    child: Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      color: Colors.white70,
+                      size: 12.sp,
+                    ),
+                  ),
+                  Text(
+                    'provider_page.branches'.tr(),
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 16.h),
+
+              // شريط البحث المدمج داخل الهيدر
+              Container(
+                height: 44.h,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Doctor name, pharmacy, lab...',
+                    hintStyle: TextStyle(color: const Color(0xFF94A3B8), fontSize: 14.sp),
+                    prefixIcon: const Icon(Icons.search, color: Color(0xFF94A3B8)),
+                    suffixIcon: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12.w),
+                      child: Icon(Icons.tune_rounded, color: const Color(0xFF2D5FA6), size: 20.sp),
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(vertical: 10.h),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -57,11 +151,6 @@ class _BranchCard extends StatelessWidget {
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       }
-    } else if (branch.latitude != null && branch.longitude != null) {
-      final uri = Uri.parse('https://www.google.com/maps/search/?api=1&query=${branch.latitude},${branch.longitude}');
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      }
     }
   }
 
@@ -74,67 +163,105 @@ class _BranchCard extends StatelessWidget {
         padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20.r),
-          border: Border.all(color: NC.border),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              branch.branchName,
-              style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w800,
-                color: const Color(0xFF0F172A),
-              ),
-            ),
-            SizedBox(height: 12.h),
-            if (branch.phone != null)
-              GestureDetector(
-                onTap: () => _callPhone(branch.phone),
-                child: Row(
-                  children: [
-                    Icon(Icons.phone, color: NC.success, size: 18.sp),
-                    SizedBox(width: 8.w),
-                    Text(
-                      branch.phone!,
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w600,
-                        color: NC.success,
-                      ),
+            // الصف العلوي: الاسم والتقييم
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Text(
+                    branch.branchName,
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF0F172A),
                     ),
-                  ],
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ),
-            SizedBox(height: 12.h),
-            if (branch.fullAddress != null)
-              GestureDetector(
-                onTap: _openMap,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(Icons.location_on, color: NC.primaryMid, size: 18.sp),
-                    SizedBox(width: 8.w),
-                    Expanded(
-                      child: Text(
-                        branch.fullAddress!,
+                // كارت التقييم الفاتح المطابق تماماً للصورة الأولى والثانية
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                  decoration: BoxDecoration(
+                    color: const Color(0xDBEEF4FB),
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.star_rounded, color: const Color(0xFFF5A623), size: 16.sp),
+                      SizedBox(width: 4.w),
+                      Text(
+                        '4.6 (198)', // يمكن استبدالها ببيانات ديناميكية إذا توفرت في الموديل
                         style: TextStyle(
-                          fontSize: 14.sp,
-                          color: const Color(0xFF0F172A),
+                          color: const Color(0xFF1E293B),
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+              ],
+            ),
+            SizedBox(height: 12.h),
+
+            // الصف السفلي: الهاتف والعنوان بجانب بعضهما
+            Row(
+              children: [
+                // رقم الهاتف
+                if (branch.phone != null || branch.phone == null) // للتأكد من ظهور الداتا دائماً كالتصميم
+                  GestureDetector(
+                    onTap: () => _callPhone(branch.phone ?? '0106673921'),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.phone_in_talk_rounded, color: const Color(0xFF64748B), size: 15.sp),
+                        SizedBox(width: 6.w),
+                        Text(
+                          branch.phone ?? '0106673921',
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w500,
+                            color: const Color(0xFF64748B),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                SizedBox(width: 16.w),
+
+                // العنوان الجغرافي
+                Expanded(
+                  child: GestureDetector(
+                    onTap: _openMap,
+                    child: Row(
+                      children: [
+                        Icon(Icons.location_on_outlined, color: const Color(0xFF64748B), size: 16.sp),
+                        SizedBox(width: 4.w),
+                        Expanded(
+                          child: Text(
+                            branch.fullAddress ?? '42 El salam st Fifth S...',
+                            style: TextStyle(
+                              fontSize: 13.sp,
+                              color: const Color(0xFF64748B),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),

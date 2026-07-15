@@ -2,6 +2,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/constants/api_result.dart';
 import '../../core/constants/constants.dart';
+import '../../core/auth/auth_session.dart';
+import '../../core/auth/auth_session_storage.dart';
+import '../../core/auth/jwt_helper.dart';
 import '../../core/helpers/shared_pref_helper.dart';
 import '../../core/utils/api_error_parser.dart';
 import '../../data/auth_login_request_model.dart';
@@ -32,10 +35,20 @@ class MedicardLoginCubit extends Cubit<MedicardLoginState> {
 
       result.when(
         success: (response) async {
-          if (response.data?.token != null) {
+          final data = response.data;
+          if (data?.token != null) {
             await SharedPrefHelper.setSecuredString(
               SharedPrefKeys.userToken,
-              response.data!.token,
+              data!.token,
+            );
+            await const AuthSessionStorage().saveSession(
+              AuthSession(
+                accessToken: data.token,
+                refreshToken: data.refreshToken ?? '',
+                accessTokenExpiresAt:
+                    data.expiresAt ?? getJwtExpiryDate(data.token),
+                refreshTokenExpiresAt: data.refreshTokenExpiresAt,
+              ),
             );
           }
           emit(MedicardLoginState.success(response));

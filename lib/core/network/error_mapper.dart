@@ -6,16 +6,23 @@ AppFailure mapDioException(DioException exception) {
   final statusCode = exception.response?.statusCode;
 
   // Network-level errors
-  if (exception.type == DioExceptionType.connectionTimeout ||
-      exception.type == DioExceptionType.sendTimeout ||
+  if (exception.type == DioExceptionType.connectionTimeout) {
+    return const AppFailure.connectionTimeout();
+  }
+
+  if (exception.type == DioExceptionType.sendTimeout ||
       exception.type == DioExceptionType.receiveTimeout) {
-    return const AppFailure.timeout();
+    return const AppFailure.transferTimeout();
   }
 
   if (exception.type == DioExceptionType.connectionError ||
       (exception.type == DioExceptionType.unknown &&
           exception.error is SocketException)) {
     return const AppFailure.network();
+  }
+
+  if (exception.type == DioExceptionType.cancel) {
+    return const AppFailure.cancelled();
   }
 
   // HTTP status based errors
@@ -41,6 +48,5 @@ AppFailure mapDioException(DioException exception) {
   }
 
   // Fallback
-  return AppFailure.unexpected(exception.message);
+  return const AppFailure.unexpected();
 }
-

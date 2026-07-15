@@ -1,4 +1,54 @@
 {
+  "auth": {
+    "register": {
+      "title": "Create Account",
+      "subtitle": "Please fill in your details to continue",
+      "firstName": "First Name",
+      "firstNameHint": "Enter your first name",
+      "firstNameRequired": "First name is required",
+      "lastName": "Last Name",
+      "lastNameHint": "Enter your last name",
+      "lastNameRequired": "Last name is required",
+      "phoneNumber": "Phone Number",
+      "phoneNumberHint": "Enter your phone number",
+      "phoneNumberRequired": "Phone number is required",
+      "gender": "Gender",
+      "male": "Male",
+      "female": "Female",
+      "birthDate": "Date of Birth",
+      "password": "Password",
+      "passwordHint": "Enter your password",
+      "passwordRequired": "Password is required",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordHint": "Confirm your password",
+      "confirmPasswordRequired": "Confirm password is required",
+      "passwordsNotMatch": "Passwords do not match",
+      "nationalId": "National ID",
+      "nationalIdHint": "Enter your national ID",
+      "passportNumber": "Passport Number",
+      "passportNumberHint": "Enter your passport number",
+      "registerButton": "Register",
+      "fillAllFields": "Please fill in all required fields",
+      "nationalIdOrPassportRequired": "Please provide either National ID or Passport Number",
+      "alreadyHaveAccount": "Already have an account?",
+      "loginNow": "Login Now"
+    },
+    "login": {
+      "title": "Welcome Back!",
+      "subtitle": "Login to access your account",
+      "cardNumber": "Card Number",
+      "cardNumberHint": "Enter your card number",
+      "cardNumberRequired": "Card number is required",
+      "password": "Password",
+      "passwordHint": "Enter your password",
+      "passwordRequired": "Password is required",
+      "forgotPassword": "Forgot Password?",
+      "loginButton": "Login",
+      "orContinueWith": "Or continue with",
+      "dontHaveAccount": "Don't have an account?",
+      "registerNow": "Register Now"
+    }
+  },
   "common": {
     "cancel": "Cancel",
     "save": "Save",
@@ -9,7 +59,8 @@
     "update": "Update",
     "required": "Required",
     "error": "Error",
-    "retry": "Retry"
+    "retry": "Retry",
+    "this_field_required": "This field is required"
   },
   "errors": {
     "not_found_error": "Data not found",
@@ -19,7 +70,6 @@
     "my_profile": "My profile",
     "settings": "Settings",
     "links": "Links",
-    "my_profile_link": "My Profile",
     "rewards": "Rewards",
     "family_members": "Family Members",
     "change_password": "Change Password",
@@ -70,9 +120,22 @@
     "no_data_available": "No data available",
     "pull_down_refresh": "Pull down to refresh and check again.",
     "something_went_wrong": "Something went wrong",
+    "network_error_title": "Unable to load Home",
+    "no_internet_message": "Please check your internet connection and try again.",
+    "connection_timeout_message": "The connection is taking longer than expected. Please try again.",
+    "transfer_timeout_message": "The request took too long to complete. Please try again.",
+    "server_error_message": "We could not load the home data right now. Please try again shortly.",
+    "unauthorized_message": "Your session has expired. Please sign in again.",
+    "unknown_error_message": "Something went wrong. Please try again.",
+    "retrying": "Retrying...",
+    "refresh_failed": "Could not refresh Home. Your current data is still available.",
+    "user_not_active": "Your account is not active",
+    "upcoming": "Upcoming",
+    "pending": "Pending",
+    "completed": "Completed",
     "nav_home": "Home",
     "nav_ecard": "E-card",
-    "nav_providers": "Providers",
+    "nav_activity": "Activity",
     "nav_profile": "Profile"
   },
   "sort_filter": {
@@ -124,5 +187,14 @@
     "total_services": "Total Services",
     "reviews": "Reviews",
     "special_offer": "Special Offer"
+  },
+  "activity": {
+    "pending": "Pending",
+    "used": "Used",
+    "no_items": "No items found",
+    "status_pending": "Pending",
+    "status_used": "Used",
+    "download_results": "Download results",
+    "book": "Book"
   }
 }

@@ -4,6 +4,7 @@ import '../../../../core/helpers/shared_pref_helper.dart';
 import '../../../../core/utils/api_error_parser.dart';
 import '../../data/data_sources/search_remote_data_source.dart';
 import '../../data/models/category_model.dart';
+import '../../data/models/category_services_response_model.dart';
 import '../../data/models/lookup_model.dart';
 import '../../data/models/search_provider_model.dart';
 import '../../domain/repositories/search_repository.dart';
@@ -82,6 +83,23 @@ class SearchRepositoryImpl implements SearchRepository {
   }
 
   @override
+  Future<ApiResult<List<CategoryModel>>> getServiceCategories() async {
+    try {
+      final token = await _bearerToken;
+      final response = await _dataSource.getServiceCategories(token);
+      return (response.succeeded == true && response.data != null)
+          ? ApiResult.success(response.data!)
+          : ApiResult.failure(
+              response.message?.isNotEmpty == true
+                  ? response.message!
+                  : 'Failed to load service categories.',
+            );
+    } catch (error) {
+      return ApiResult.failure(parseApiError(error));
+    }
+  }
+
+  @override
   Future<ApiResult<List<LookupModel>>> getGovernorates() async {
     try {
       final token = await _bearerToken;
@@ -109,6 +127,27 @@ class SearchRepositoryImpl implements SearchRepository {
               response.message?.isNotEmpty == true
                   ? response.message!
                   : 'Failed to load cities.',
+            );
+    } catch (error) {
+      return ApiResult.failure(parseApiError(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<CategoryServicesDataModel>> getCategoryServices(
+    int categoryId,
+  ) async {
+    try {
+      final token = await _bearerToken;
+      final response = await _dataSource.getCategoryServices(token, categoryId);
+      return (response.succeeded == true && response.data != null)
+          ? ApiResult.success(response.data!)
+          : ApiResult.failure(
+              (response.errors != null && response.errors!.isNotEmpty)
+                  ? response.errors!.join('\n')
+                  : response.message?.isNotEmpty == true
+                  ? response.message!
+                  : 'Failed to load category services.',
             );
     } catch (error) {
       return ApiResult.failure(parseApiError(error));

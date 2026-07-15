@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
+import '../../../../core/widgets/app_blue_header.dart';
 
 import '../cubit/location_cubit.dart';
 import '../cubit/location_state.dart';
@@ -15,7 +16,7 @@ class HomeHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: Color(0xFF2D5FA6),
+        color: Color(0xFF3872B1),
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(24),
           bottomRight: Radius.circular(24),
@@ -24,15 +25,18 @@ class HomeHeader extends StatelessWidget {
       width: double.infinity,
       child: SafeArea(
         bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: const [
-              _HeaderTopRow(),
-              SizedBox(height: 16),
-              _HeaderSearchBar(),
-            ],
+        child: SizedBox(
+          height: kMainTabHeaderContentHeight,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                _HeaderTopRow(),
+                SizedBox(height: 12),
+                Expanded(child: _HeaderSearchBar()),
+              ],
+            ),
           ),
         ),
       ),
@@ -68,7 +72,7 @@ class _HeaderTopRow extends StatelessWidget {
             onTap: () => context.push('/notifications'),
             child: const Icon(
               Icons.notifications_none_rounded,
-              color: Color(0xFF2D5FA6),
+              color: Color(0xFF3872B1),
               size: 22,
             ),
           ),

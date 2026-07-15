@@ -6,11 +6,7 @@ class SearchBarWidget extends StatelessWidget {
   final double? latitude;
   final double? longitude;
 
-  const SearchBarWidget({
-    super.key,
-    this.latitude,
-    this.longitude,
-  });
+  const SearchBarWidget({super.key, this.latitude, this.longitude});
 
   @override
   Widget build(BuildContext context) {
@@ -18,10 +14,7 @@ class SearchBarWidget extends StatelessWidget {
       onTap: () {
         context.push(
           '/search',
-          extra: {
-            'userLatitude': latitude,
-            'userLongitude': longitude,
-          },
+          extra: {'userLatitude': latitude, 'userLongitude': longitude},
         );
       },
       child: AbsorbPointer(
@@ -38,11 +31,6 @@ class SearchBarWidget extends StatelessWidget {
             prefixIcon: const Icon(
               Icons.search,
               color: Color(0xFF9CA3AF),
-              size: 20,
-            ),
-            suffixIcon: const Icon(
-              Icons.tune,
-              color: Color(0xFF2D5FA6),
               size: 20,
             ),
             border: OutlineInputBorder(

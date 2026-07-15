@@ -11,4 +11,12 @@ class AppRefreshCubit extends Cubit<AppRefreshState> {
     emit(const AppRefreshState.languageChanged());
     emit(const AppRefreshState.initial());
   }
+
+  /// Emitted by [AuthInterceptor] when the session is definitively expired
+  /// (refresh token missing, expired, or refresh API call failed).
+  /// The UI layer should listen for this and redirect to the login screen.
+  void triggerSessionExpired() {
+    emit(const AppRefreshState.sessionExpired());
+    emit(const AppRefreshState.initial());
+  }
 }

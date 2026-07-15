@@ -1,26 +1,36 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/api_result.dart';
+import '../../../cart/domain/repository/cart_repository.dart';
+import '../../data/models/category_services_response_model.dart';
 import '../../domain/use_cases/get_categories_use_case.dart';
+import '../../domain/use_cases/get_category_services_use_case.dart';
+import '../../domain/use_cases/get_service_categories_use_case.dart';
 import '../../domain/use_cases/search_providers_use_case.dart';
 import 'search_state.dart';
 
 class SearchCubit extends Cubit<SearchState> {
   final SearchProvidersUseCase _searchProvidersUseCase;
   final GetCategoriesUseCase _getCategoriesUseCase;
+  final GetCategoryServicesUseCase _getCategoryServicesUseCase;
+  final GetServiceCategoriesUseCase _getServiceCategoriesUseCase;
+  final CartRepository _cartRepository;
 
   static const int _pageSize = 15;
 
-  // Active filter params
   int? _governorateId;
   int? _cityId;
   int? _sortBy;
 
-  SearchCubit(this._searchProvidersUseCase, this._getCategoriesUseCase)
-    : super(const SearchState());
+  SearchCubit(
+    this._searchProvidersUseCase,
+    this._getCategoriesUseCase,
+    this._getCategoryServicesUseCase,
+    this._getServiceCategoriesUseCase,
+    this._cartRepository,
+  ) : super(const SearchState());
 
-  /// Called when the screen is first opened.
-  /// Sets location and optional pre-selected category, then fires initial search.
   Future<void> init({double? lat, double? lng, int? categoryId}) async {
     if (isClosed) return;
     emit(
@@ -31,24 +41,252 @@ class SearchCubit extends Cubit<SearchState> {
         clearSelectedCategory: categoryId == null,
       ),
     );
-    await Future.wait([_loadCategories(), search()]);
+    await Future.wait([
+      _loadCategories(),
+      _loadServiceCategories(),
+      _loadCartCounters(),
+      search(),
+    ]);
   }
 
   Future<void> _loadCategories() async {
     final result = await _getCategoriesUseCase.call();
     if (isClosed) return;
     result.when(
+      success: (categories) => emit(state.copyWith(categories: categories)),
+      failure: (_) {},
+    );
+  }
+
+  Future<void> _loadServiceCategories() async {
+    if (isClosed) return;
+    emit(state.copyWith(isLoadingServiceCategories: true));
+    final result = await _getServiceCategoriesUseCase.call();
+    if (isClosed) return;
+    result.when(
       success: (categories) {
-        if (isClosed) return;
-        emit(state.copyWith(categories: categories));
+        emit(
+          state.copyWith(
+            serviceCategories: categories,
+            isLoadingServiceCategories: false,
+          ),
+        );
       },
-      failure: (_) {
-        // Non-fatal — categories section simply stays empty
+      failure: (_) => emit(state.copyWith(isLoadingServiceCategories: false)),
+    );
+  }
+
+  Future<void> _loadCartCounters() async {
+    if (kDebugMode) {
+      debugPrint('[SearchCubit] loading cart counters for service badges');
+    }
+    final result = await _cartRepository.getCart();
+    if (isClosed) return;
+    result.when(
+      success: (cart) {
+        final counts = {
+          for (final counter in cart.categoryCounters)
+            counter.categoryId: counter.count,
+        };
+        emit(state.copyWith(categorySelectedCounts: counts));
+      },
+      failure: (_) {},
+    );
+  }
+
+  Future<void> loadCategoryServices(int categoryId) async {
+    if (isClosed) return;
+
+    final cached = state.servicesByCategoryId[categoryId];
+    if (cached != null) {
+      if (kDebugMode) {
+        debugPrint('[SearchCubit] reused cached services category=$categoryId');
+      }
+      emit(
+        state.copyWith(
+          servicesData: cached,
+          services: cached.services?.items ?? const [],
+          isLoadingServices: false,
+          clearServicesError: true,
+        ),
+      );
+      return;
+    }
+
+    if (state.loadingServiceCategoryIds.contains(categoryId)) {
+      if (kDebugMode) {
+        debugPrint(
+          '[SearchCubit] duplicate category load ignored category=$categoryId',
+        );
+      }
+      return;
+    }
+
+    if (kDebugMode) {
+      debugPrint('[SearchCubit] loading services category=$categoryId');
+    }
+    emit(
+      state.copyWith(
+        isLoadingServices: true,
+        loadingServiceCategoryIds: {
+          ...state.loadingServiceCategoryIds,
+          categoryId,
+        },
+        clearServicesError: true,
+      ),
+    );
+
+    final result = await _getCategoryServicesUseCase.call(categoryId);
+    if (isClosed) return;
+
+    final loadingIds = Set<int>.from(state.loadingServiceCategoryIds)
+      ..remove(categoryId);
+
+    result.when(
+      success: (data) {
+        final counts = Map<int, int>.from(state.categorySelectedCounts);
+        counts[categoryId] = data.totalSelectedCount ?? 0;
+        final cachedCategories = Map<int, CategoryServicesDataModel>.from(
+          state.servicesByCategoryId,
+        )..[categoryId] = data;
+
+        emit(
+          state.copyWith(
+            isLoadingServices: false,
+            loadingServiceCategoryIds: loadingIds,
+            servicesByCategoryId: cachedCategories,
+            servicesData: data,
+            services: data.services?.items ?? const [],
+            clearServicesError: true,
+            categorySelectedCounts: counts,
+          ),
+        );
+      },
+      failure: (message) {
+        emit(
+          state.copyWith(
+            isLoadingServices: false,
+            loadingServiceCategoryIds: loadingIds,
+            servicesError: message,
+          ),
+        );
       },
     );
   }
 
-  /// Resets to page 1 and fires a fresh search.
+  Future<void> addServiceToCart({
+    required int serviceId,
+    required int categoryId,
+  }) async {
+    if (isClosed) return;
+    if (state.pendingServiceIds.contains(serviceId)) {
+      if (kDebugMode) {
+        debugPrint('[SearchCubit] duplicate add ignored service=$serviceId');
+      }
+      return;
+    }
+
+    if (kDebugMode) {
+      debugPrint('[SearchCubit] add service started service=$serviceId');
+    }
+    emit(
+      state.copyWith(
+        pendingServiceIds: {...state.pendingServiceIds, serviceId},
+        clearCartActionError: true,
+      ),
+    );
+
+    final result = await _cartRepository.addToCart(
+      serviceId: serviceId,
+      categoryId: categoryId,
+    );
+
+    if (isClosed) return;
+    final pending = Set<int>.from(state.pendingServiceIds)..remove(serviceId);
+
+    result.when(
+      success: (_) {
+        _emitLocalServiceSelection(
+          serviceId: serviceId,
+          categoryId: categoryId,
+          isSelected: true,
+          pendingServiceIds: pending,
+        );
+      },
+      failure: (message) {
+        final alreadyInCart =
+            message.contains('ServiceAlreadyInCart') ||
+            message.toLowerCase().contains('already');
+        if (alreadyInCart) {
+          _emitLocalServiceSelection(
+            serviceId: serviceId,
+            categoryId: categoryId,
+            isSelected: true,
+            pendingServiceIds: pending,
+          );
+          return;
+        }
+        if (kDebugMode) {
+          debugPrint(
+            '[SearchCubit] add service failed service=$serviceId message=$message',
+          );
+        }
+        emit(
+          state.copyWith(pendingServiceIds: pending, cartActionError: message),
+        );
+      },
+    );
+  }
+
+  Future<void> removeServiceFromCart({
+    required int serviceId,
+    required int categoryId,
+  }) async {
+    if (isClosed) return;
+    if (state.pendingServiceIds.contains(serviceId)) {
+      if (kDebugMode) {
+        debugPrint('[SearchCubit] duplicate remove ignored service=$serviceId');
+      }
+      return;
+    }
+
+    if (kDebugMode) {
+      debugPrint('[SearchCubit] remove service started service=$serviceId');
+    }
+    emit(
+      state.copyWith(
+        pendingServiceIds: {...state.pendingServiceIds, serviceId},
+        clearCartActionError: true,
+      ),
+    );
+
+    final result = await _cartRepository.removeFromCart(serviceId);
+
+    if (isClosed) return;
+    final pending = Set<int>.from(state.pendingServiceIds)..remove(serviceId);
+
+    result.when(
+      success: (_) {
+        _emitLocalServiceSelection(
+          serviceId: serviceId,
+          categoryId: categoryId,
+          isSelected: false,
+          pendingServiceIds: pending,
+        );
+      },
+      failure: (message) {
+        if (kDebugMode) {
+          debugPrint(
+            '[SearchCubit] remove service failed service=$serviceId message=$message',
+          );
+        }
+        emit(
+          state.copyWith(pendingServiceIds: pending, cartActionError: message),
+        );
+      },
+    );
+  }
+
   Future<void> search({String keyword = ''}) async {
     if (isClosed) return;
     emit(
@@ -64,7 +302,6 @@ class SearchCubit extends Cubit<SearchState> {
     await _fetch(page: 1);
   }
 
-  /// Appends the next page of results.
   Future<void> loadMore() async {
     if (isClosed) return;
     if (state.isLoadingMore || !state.hasMore) return;
@@ -72,7 +309,6 @@ class SearchCubit extends Cubit<SearchState> {
     await _fetch(page: state.currentPage + 1);
   }
 
-  /// Updates the active category and re-runs the search.
   Future<void> selectCategory(int? id) async {
     if (isClosed) return;
     if (id == null) {
@@ -83,7 +319,6 @@ class SearchCubit extends Cubit<SearchState> {
     await search(keyword: state.keyword);
   }
 
-  /// Stores filter values from the bottom sheet and re-runs the search.
   Future<void> applyFilters({
     int? governorateId,
     int? cityId,
@@ -109,10 +344,8 @@ class SearchCubit extends Cubit<SearchState> {
     );
 
     if (isClosed) return;
-
     result.when(
       success: (newItems) {
-        if (isClosed) return;
         final merged = page == 1 ? newItems : [...state.items, ...newItems];
         emit(
           state.copyWith(
@@ -126,7 +359,6 @@ class SearchCubit extends Cubit<SearchState> {
         );
       },
       failure: (message) {
-        if (isClosed) return;
         emit(
           state.copyWith(
             isLoading: false,
@@ -136,5 +368,110 @@ class SearchCubit extends Cubit<SearchState> {
         );
       },
     );
+  }
+
+  void _emitLocalServiceSelection({
+    required int serviceId,
+    required int categoryId,
+    required bool isSelected,
+    required Set<int> pendingServiceIds,
+  }) {
+    final currentData =
+        state.servicesByCategoryId[categoryId] ??
+        (state.servicesData?.categoryId == categoryId
+            ? state.servicesData
+            : null);
+    final updatedData = currentData == null
+        ? null
+        : _copyCategoryServiceSelection(
+            currentData,
+            serviceId: serviceId,
+            isSelected: isSelected,
+          );
+
+    final cachedCategories = Map<int, CategoryServicesDataModel>.from(
+      state.servicesByCategoryId,
+    );
+    if (updatedData != null) cachedCategories[categoryId] = updatedData;
+
+    final counts = Map<int, int>.from(state.categorySelectedCounts);
+    final oldCount = counts[categoryId] ?? currentData?.totalSelectedCount ?? 0;
+    final previousSelection = _serviceSelection(currentData, serviceId);
+    counts[categoryId] = previousSelection == isSelected
+        ? oldCount
+        : _nextSelectedCount(oldCount, increment: isSelected);
+
+    if (kDebugMode) {
+      debugPrint(
+        '[SearchCubit] local service update service=$serviceId selected=$isSelected',
+      );
+    }
+
+    final visibleCategoryId = state.servicesData?.categoryId;
+    emit(
+      state.copyWith(
+        pendingServiceIds: pendingServiceIds,
+        servicesByCategoryId: cachedCategories,
+        servicesData: visibleCategoryId == categoryId
+            ? updatedData ?? state.servicesData
+            : state.servicesData,
+        services: visibleCategoryId == categoryId && updatedData != null
+            ? updatedData.services?.items ?? const []
+            : state.services,
+        categorySelectedCounts: counts,
+      ),
+    );
+  }
+
+  CategoryServicesDataModel _copyCategoryServiceSelection(
+    CategoryServicesDataModel data, {
+    required int serviceId,
+    required bool isSelected,
+  }) {
+    final services = data.services;
+    if (services == null) return data;
+
+    var changed = false;
+    final updatedItems = (services.items ?? const <ServiceItemModel>[])
+        .map((service) {
+          if (service.serviceId != serviceId) return service;
+          if (service.isSelected == isSelected) return service;
+          changed = true;
+          return ServiceItemModel(
+            serviceId: service.serviceId,
+            serviceName: service.serviceName,
+            isSelected: isSelected,
+          );
+        })
+        .toList(growable: false);
+
+    final currentCount = data.totalSelectedCount ?? 0;
+    return CategoryServicesDataModel(
+      categoryId: data.categoryId,
+      categoryName: data.categoryName,
+      totalSelectedCount: changed
+          ? _nextSelectedCount(currentCount, increment: isSelected)
+          : currentCount,
+      services: PagedServicesModel(
+        items: updatedItems,
+        pageNumber: services.pageNumber,
+        pageSize: services.pageSize,
+        totalCount: services.totalCount,
+        totalPages: services.totalPages,
+      ),
+    );
+  }
+
+  int _nextSelectedCount(int current, {required bool increment}) {
+    if (increment) return current + 1;
+    return current > 0 ? current - 1 : 0;
+  }
+
+  bool? _serviceSelection(CategoryServicesDataModel? data, int serviceId) {
+    final items = data?.services?.items ?? const <ServiceItemModel>[];
+    for (final service in items) {
+      if (service.serviceId == serviceId) return service.isSelected == true;
+    }
+    return null;
   }
 }

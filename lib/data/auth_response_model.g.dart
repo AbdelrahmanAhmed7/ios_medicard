@@ -31,8 +31,26 @@ Map<String, dynamic> _$AuthResponseModelToJson(AuthResponseModel instance) =>
 AuthTokenDataModel _$AuthTokenDataModelFromJson(Map<String, dynamic> json) =>
     AuthTokenDataModel(
       token: json['token'] as String,
-      expiresAt: json['expiresAt'] as String?,
+      expiresAt: AuthTokenDataModel._parseDateTimeOrNull(
+        json['expiresAt'] as String?,
+      ),
+      refreshToken: json['refreshToken'] as String?,
+      refreshTokenExpiresAt: AuthTokenDataModel._parseDateTimeOrNull(
+        json['refreshTokenExpiresAt'] as String?,
+      ),
+      success: json['success'] as bool?,
+      message: json['message'] as String?,
     );
 
-Map<String, dynamic> _$AuthTokenDataModelToJson(AuthTokenDataModel instance) =>
-    <String, dynamic>{'token': instance.token, 'expiresAt': instance.expiresAt};
+Map<String, dynamic> _$AuthTokenDataModelToJson(
+  AuthTokenDataModel instance,
+) => <String, dynamic>{
+  'token': instance.token,
+  'expiresAt': AuthTokenDataModel._dateTimeToStringOrNull(instance.expiresAt),
+  'refreshToken': instance.refreshToken,
+  'refreshTokenExpiresAt': AuthTokenDataModel._dateTimeToStringOrNull(
+    instance.refreshTokenExpiresAt,
+  ),
+  'success': instance.success,
+  'message': instance.message,
+};

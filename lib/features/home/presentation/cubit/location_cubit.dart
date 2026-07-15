@@ -38,8 +38,8 @@ class LocationCubit extends Cubit<LocationState> {
       result = _locationRepository.cached!;
     } else {
       // Call resolveLocation with showRationaleDialog
-      result = await _locationService.resolveLocation(
-        requestIfNeeded: true,
+      result = await _locationRepository.resolve(
+        _locationService,
         showRationaleDialog: () async {
           if (onShowRationaleDialog == null) {
             return false;
@@ -49,10 +49,6 @@ class LocationCubit extends Cubit<LocationState> {
           return completer.future;
         },
       );
-      // Cache the result
-      if (result.hasCoordinates) {
-        _locationRepository.cache(result);
-      }
     }
 
     if (isClosed) return;

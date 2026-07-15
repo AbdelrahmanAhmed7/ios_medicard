@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 import '../cubit/filter_cubit.dart';
 import '../cubit/search_cubit.dart';
@@ -39,7 +41,6 @@ class _SearchScreenState extends State<SearchScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<SearchCubit>().init(
         lat: widget.userLatitude,
@@ -48,14 +49,11 @@ class _SearchScreenState extends State<SearchScreen>
       );
       context.read<FilterCubit>().loadGovernorates();
     });
-
     _scrollController.addListener(_onScroll);
   }
 
   void _onScroll() {
     if (!_scrollController.hasClients) return;
-
-    // ترك الـ 200 كمقياس بيكسل ثابت للإزاحة قبل نهاية القائمة يعتبر ممارسة طبيعية ولا تحتاج ScreenUtil في الغالب
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
       context.read<SearchCubit>().loadMore();
@@ -95,56 +93,63 @@ class _SearchScreenState extends State<SearchScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
-      body: Column(
-        children: [
-          _SearchAppBar(
-            controller: _searchController,
-            onChanged: _onSearchChanged,
-            onFilterTap: _openFilterSheet,
-          ),
-          // Tab bar المظبوط
-          Container(
-            color: Colors.white,
-            child: TabBar(
-              controller: _tabController,
-              labelStyle: TextStyle(
-                fontFamily: 'Inter',
-                fontWeight: FontWeight.w600,
-                fontSize: 14.sp,
-              ),
-              unselectedLabelStyle: TextStyle(
-                fontFamily: 'Inter',
-                fontWeight: FontWeight.w400,
-                fontSize: 14.sp,
-              ),
-              labelColor: const Color(0xFF2D5FA6),
-              unselectedLabelColor: const Color(0xFF6B7280),
-              indicatorColor: const Color(0xFF2D5FA6),
-              indicatorWeight: 2.5.h,
-              tabs: const [
-                Tab(text: 'Provider'),
-                Tab(text: 'Services'),
-              ],
+    return BlocListener<SearchCubit, SearchState>(
+      listenWhen: (previous, current) =>
+          previous.cartActionError != current.cartActionError &&
+          current.cartActionError != null,
+      listener: (context, state) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(state.cartActionError!)));
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF9FAFB),
+        body: Column(
+          children: [
+            _SearchAppBar(
+              controller: _searchController,
+              onChanged: _onSearchChanged,
+              onFilterTap: _openFilterSheet,
             ),
-          ),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _ProvidersTab(scrollController: _scrollController),
-                const _ServicesTab(),
-              ],
+            Container(
+              color: Colors.white,
+              child: TabBar(
+                controller: _tabController,
+                labelStyle: TextStyle(
+                  fontFamily: 'Inter',
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14.sp,
+                ),
+                unselectedLabelStyle: TextStyle(
+                  fontFamily: 'Inter',
+                  fontWeight: FontWeight.w400,
+                  fontSize: 14.sp,
+                ),
+                labelColor: const Color(0xFF2D5FA6),
+                unselectedLabelColor: const Color(0xFF6B7280),
+                indicatorColor: const Color(0xFF2D5FA6),
+                indicatorWeight: 2.5.h,
+                tabs: const [
+                  Tab(text: 'Provider'),
+                  Tab(text: 'Services'),
+                ],
+              ),
             ),
-          ),
-        ],
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _ProvidersTab(scrollController: _scrollController),
+                  const _ServicesTab(),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
-
-// ─── App bar with integrated search ──────────────────────────────────────────
 
 class _SearchAppBar extends StatelessWidget {
   final TextEditingController controller;
@@ -160,19 +165,26 @@ class _SearchAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFF2D5FA6),
+      color: const Color(0xFF3872B1),
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: EdgeInsets.fromLTRB(8.w, 8.h, 12.w, 12.h),
+          padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 16.h),
           child: Row(
             children: [
               // Back button
-              IconButton(
-                icon: Icon(Icons.arrow_back, color: Colors.white, size: 24.sp),
-                onPressed: () => Navigator.of(context).pop(),
+              GestureDetector(
+                onTap: () => Navigator.of(context).pop(),
+                child: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: Colors.white,
+                  size: 22.sp,
+                ),
               ),
-              // Search field المطور بالكامل
+              SizedBox(width: 12.w),
+
+              // Search field — matches home SearchBarWidget exactly,
+              // except the filter icon background is transparent here.
               Expanded(
                 child: TextField(
                   controller: controller,
@@ -186,49 +198,41 @@ class _SearchAppBar extends StatelessWidget {
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: Colors.white,
-                    hintText: 'Doctor name, pharmacy, lab...',
-                    hintStyle: TextStyle(
+                    hintText: 'home.search_hint'.tr(),
+                    hintStyle: const TextStyle(
                       fontFamily: 'Inter',
-                      color: const Color(0xFF9CA3AF),
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w400,
+                      color: Color(0xFF9CA3AF),
+                      fontSize: 14,
                     ),
-                    prefixIcon: Icon(
+                    prefixIcon: const Icon(
                       Icons.search,
-                      color: const Color(0xFF9CA3AF),
-                      size: 20.sp,
+                      color: Color(0xFF9CA3AF),
+                      size: 20,
+                    ),
+                    // Same position/size as home bar's blue circle,
+                    // but with a grey icon on transparent background.
+                    suffixIcon: GestureDetector(
+                      onTap: onFilterTap,
+                      child: Container(
+                        margin: const EdgeInsets.only(right: 12),
+                        padding: const EdgeInsets.all(8),
+                        decoration: const BoxDecoration(
+                          color: Colors.transparent,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.tune,
+                          color: Color(0xFF9CA3AF),
+                          size: 18,
+                        ),
+                      ),
                     ),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12.r),
+                      borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 16.w,
-                      vertical: 0,
-                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                   ),
-                ),
-              ),
-              SizedBox(width: 8.w),
-              // Filter icon المتجاوب
-              GestureDetector(
-                onTap: onFilterTap,
-                child: Container(
-                  width: 40.r,
-                  height: 40.r,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(10.r),
-                  ),
-                  child: Icon(Icons.tune, color: Colors.white, size: 20.sp),
                 ),
               ),
             ],
@@ -239,25 +243,50 @@ class _SearchAppBar extends StatelessWidget {
   }
 }
 
-// ─── Providers tab ────────────────────────────────────────────────────────────
-
 class _ProvidersTab extends StatelessWidget {
   final ScrollController scrollController;
-
   const _ProvidersTab({required this.scrollController});
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SearchCubit, SearchState>(
+      buildWhen: (p, c) =>
+          p.categories != c.categories ||
+          p.selectedCategoryId != c.selectedCategoryId ||
+          p.items != c.items ||
+          p.isLoading != c.isLoading ||
+          p.isLoadingMore != c.isLoadingMore ||
+          p.error != c.error,
       builder: (context, state) {
         return Column(
           children: [
             if (state.categories.isNotEmpty)
-              _CategoryChipsRow(
-                categories: state.categories,
-                selectedCategoryId: state.selectedCategoryId,
-                onSelect: (id) =>
-                    context.read<SearchCubit>().selectCategory(id),
+              Container(
+                color: Colors.white,
+                padding: EdgeInsets.symmetric(vertical: 10.h),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: Row(
+                    children: [
+                      CategoryChip(
+                        category: null,
+                        isSelected: state.selectedCategoryId == null,
+                        onTap: () =>
+                            context.read<SearchCubit>().selectCategory(null),
+                      ),
+                      ...state.categories.map(
+                        (cat) => CategoryChip(
+                          category: cat,
+                          isSelected: state.selectedCategoryId == cat.id,
+                          onTap: () => context
+                              .read<SearchCubit>()
+                              .selectCategory(cat.id),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             Expanded(child: _ResultsBody(scrollController: scrollController)),
           ],
@@ -267,59 +296,20 @@ class _ProvidersTab extends StatelessWidget {
   }
 }
 
-class _CategoryChipsRow extends StatelessWidget {
-  final List categories;
-  final int? selectedCategoryId;
-  final ValueChanged<int?> onSelect;
-
-  const _CategoryChipsRow({
-    required this.categories,
-    required this.selectedCategoryId,
-    required this.onSelect,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      padding: EdgeInsets.symmetric(vertical: 10.h),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        child: Row(
-          children: [
-            CategoryChip(
-              category: null,
-              isSelected: selectedCategoryId == null,
-              onTap: () => onSelect(null),
-            ),
-            ...categories.map(
-              (cat) => CategoryChip(
-                category: cat,
-                isSelected: selectedCategoryId == cat.id,
-                onTap: () => onSelect(cat.id),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _ResultsBody extends StatelessWidget {
   final ScrollController scrollController;
-
   const _ResultsBody({required this.scrollController});
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SearchCubit, SearchState>(
+      buildWhen: (p, c) =>
+          p.isLoading != c.isLoading ||
+          p.isLoadingMore != c.isLoadingMore ||
+          p.items != c.items ||
+          p.error != c.error,
       builder: (context, state) {
-        if (state.isLoading) {
-          return const SearchShimmer();
-        }
-
+        if (state.isLoading) return const SearchShimmer();
         if (state.error != null && state.items.isEmpty) {
           return _ErrorView(
             message: state.error!,
@@ -327,13 +317,10 @@ class _ResultsBody extends StatelessWidget {
                 context.read<SearchCubit>().search(keyword: state.keyword),
           );
         }
-
-        if (state.items.isEmpty) {
-          return const _EmptyView();
-        }
+        if (state.items.isEmpty) return const _EmptyView();
 
         return ListView.builder(
-          key: const PageStorageKey<String>('providers_results_list'),
+          key: const PageStorageKey<String>('providers_list'),
           controller: scrollController,
           padding: EdgeInsets.only(top: 8.h, bottom: 24.h),
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -362,39 +349,411 @@ class _ResultsBody extends StatelessWidget {
   }
 }
 
-// ─── Services tab placeholder ─────────────────────────────────────────────────
-
-class _ServicesTab extends StatelessWidget {
+class _ServicesTab extends StatefulWidget {
   const _ServicesTab();
 
   @override
+  State<_ServicesTab> createState() => _ServicesTabState();
+}
+
+class _ServicesTabState extends State<_ServicesTab> {
+  int? _selectedCategoryId;
+
+  @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.construction_rounded,
-            size: 52.sp,
-            color: const Color(0xFFD1D5DB),
+    return BlocBuilder<SearchCubit, SearchState>(
+      buildWhen: (previous, current) =>
+          previous.serviceCategories != current.serviceCategories ||
+          previous.isLoadingServiceCategories !=
+              current.isLoadingServiceCategories ||
+          previous.categorySelectedCounts != current.categorySelectedCounts ||
+          previous.isLoadingServices != current.isLoadingServices ||
+          previous.servicesError != current.servicesError ||
+          previous.servicesData != current.servicesData ||
+          previous.services != current.services,
+      builder: (context, state) {
+        final totalSelected = state.categorySelectedCounts.values.fold(
+          0,
+          (sum, c) => sum + c,
+        );
+
+        return Column(
+          children: [
+            if (state.isLoadingServiceCategories)
+              Container(
+                color: Colors.white,
+                height: 110.h,
+                child: const Center(
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Color(0xFF2D5FA6),
+                    ),
+                  ),
+                ),
+              )
+            else if (state.serviceCategories.isNotEmpty)
+              Container(
+                color: Colors.white,
+                padding: EdgeInsets.symmetric(vertical: 10.h),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: Row(
+                    children: [
+                      CategoryChip(
+                        category: null,
+                        isSelected: _selectedCategoryId == null,
+                        onTap: () => setState(() => _selectedCategoryId = null),
+                      ),
+                      ...state.serviceCategories.map((cat) {
+                        if (cat.id == null) return const SizedBox.shrink();
+                        final count = state.categorySelectedCounts[cat.id] ?? 0;
+                        return CategoryChip(
+                          category: cat,
+                          isSelected: _selectedCategoryId == cat.id,
+                          badgeCount: count > 0 ? count : null,
+                          onTap: () {
+                            setState(() => _selectedCategoryId = cat.id);
+                            context.read<SearchCubit>().loadCategoryServices(
+                              cat.id!,
+                            );
+                          },
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+              ),
+            Expanded(
+              child: Stack(
+                children: [
+                  _buildServicesBody(context, state, totalSelected),
+                  if (totalSelected > 0)
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: _ChooseProviderBar(count: totalSelected),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildServicesBody(
+    BuildContext context,
+    SearchState state,
+    int totalSelected,
+  ) {
+    if (_selectedCategoryId == null) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.category_rounded,
+              size: 52.sp,
+              color: const Color(0xFFD1D5DB),
+            ),
+            SizedBox(height: 12.h),
+            Text(
+              'Select a Category',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF6B7280),
+              ),
+            ),
+            SizedBox(height: 6.h),
+            Text(
+              'Choose a category to view services',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 13.sp,
+                color: const Color(0xFF9CA3AF),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (state.isLoadingServices) {
+      return const Center(
+        child: CircularProgressIndicator(color: Color(0xFF2D5FA6)),
+      );
+    }
+
+    if (state.servicesError != null) {
+      return Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 32.w),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.error_outline_rounded,
+                size: 52.sp,
+                color: const Color(0xFFD1D5DB),
+              ),
+              SizedBox(height: 12.h),
+              Text(
+                state.servicesError!,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: const Color(0xFF6B7280),
+                ),
+              ),
+              SizedBox(height: 16.h),
+              ElevatedButton(
+                onPressed: () => context
+                    .read<SearchCubit>()
+                    .loadCategoryServices(_selectedCategoryId!),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2D5FA6),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                  elevation: 0,
+                  minimumSize: Size(120.w, 40.h),
+                ),
+                child: Text(
+                  'Retry',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14.sp,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
           ),
-          SizedBox(height: 12.h),
-          Text(
-            'Coming Soon',
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFF6B7280),
+        ),
+      );
+    }
+
+    if (state.services.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.search_off_rounded,
+              size: 52.sp,
+              color: const Color(0xFFD1D5DB),
+            ),
+            SizedBox(height: 12.h),
+            Text(
+              'No Services Found',
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF6B7280),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final categoryId = state.servicesData?.categoryId ?? 0;
+
+    return ListView.builder(
+      padding: EdgeInsets.fromLTRB(
+        16.w,
+        12.h,
+        16.w,
+        totalSelected > 0 ? 80.h : 16.h,
+      ),
+      itemCount: state.services.length,
+      itemBuilder: (context, index) {
+        final service = state.services[index];
+        final serviceId = service.serviceId ?? 0;
+        final isSelected = service.isSelected == true;
+        return _ServiceCardConnector(
+          serviceId: serviceId,
+          categoryId: categoryId,
+          serviceName: service.serviceName ?? '',
+          isSelected: isSelected,
+        );
+      },
+    );
+  }
+}
+
+class _ServiceCardConnector extends StatelessWidget {
+  final int serviceId;
+  final int categoryId;
+  final String serviceName;
+  final bool isSelected;
+
+  const _ServiceCardConnector({
+    required this.serviceId,
+    required this.categoryId,
+    required this.serviceName,
+    required this.isSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocSelector<SearchCubit, SearchState, bool>(
+      selector: (state) => state.pendingServiceIds.contains(serviceId),
+      builder: (context, isPending) {
+        return _ServiceCard(
+          serviceName: serviceName,
+          isSelected: isSelected,
+          isPending: isPending,
+          onToggle: () {
+            if (isSelected) {
+              context.read<SearchCubit>().removeServiceFromCart(
+                serviceId: serviceId,
+                categoryId: categoryId,
+              );
+            } else {
+              context.read<SearchCubit>().addServiceToCart(
+                serviceId: serviceId,
+                categoryId: categoryId,
+              );
+            }
+          },
+        );
+      },
+    );
+  }
+}
+
+class _ServiceCard extends StatelessWidget {
+  final String serviceName;
+  final bool isSelected;
+  final bool isPending;
+  final VoidCallback onToggle;
+
+  const _ServiceCard({
+    required this.serviceName,
+    required this.isSelected,
+    required this.isPending,
+    required this.onToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 10.h),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(
+          color: isSelected
+              ? const Color(0xFF2D5FA6).withValues(alpha: 0.3)
+              : const Color(0xFFE5E7EB),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  serviceName,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF111827),
+                  ),
+                ),
+                SizedBox(height: 3.h),
+                Text(
+                  'صورة دم كاملة',
+                  style: TextStyle(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFF374151),
+                  ),
+                ),
+                SizedBox(height: 8.h),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 4.h),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEF3C7),
+                    borderRadius: BorderRadius.circular(20.r),
+                    border: Border.all(
+                      color: const Color(0xFFFDE68A),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.access_time_rounded,
+                        size: 12.sp,
+                        color: const Color(0xFFD97706),
+                      ),
+                      SizedBox(width: 4.w),
+                      Text(
+                        'No Fasting',
+                        style: TextStyle(
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFFD97706),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-          SizedBox(height: 6.h),
-          Text(
-            'Services search will be available soon.',
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 13.sp,
-              color: const Color(0xFF9CA3AF),
+          SizedBox(width: 12.w),
+          GestureDetector(
+            onTap: isPending ? null : onToggle,
+            child: Container(
+              width: 34.r,
+              height: 34.r,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isSelected && !isPending
+                    ? const Color(0xFF2D5FA6)
+                    : Colors.transparent,
+                border: Border.all(color: const Color(0xFF2D5FA6), width: 1.8),
+              ),
+              child: Center(
+                child: isPending
+                    ? SizedBox(
+                        width: 16.r,
+                        height: 16.r,
+                        child: const CircularProgressIndicator(
+                          strokeWidth: 1.8,
+                          color: Color(0xFF2D5FA6),
+                        ),
+                      )
+                    : Icon(
+                        isSelected ? Icons.check : Icons.add,
+                        color: isSelected
+                            ? Colors.white
+                            : const Color(0xFF2D5FA6),
+                        size: 18.sp,
+                      ),
+              ),
             ),
           ),
         ],
@@ -403,7 +762,71 @@ class _ServicesTab extends StatelessWidget {
   }
 }
 
-// ─── Empty & Error views ──────────────────────────────────────────────────────
+class _ChooseProviderBar extends StatelessWidget {
+  final int count;
+  const _ChooseProviderBar({required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        16.w,
+        0,
+        16.w,
+        MediaQuery.of(context).padding.bottom + 10.h,
+      ),
+      child: GestureDetector(
+        onTap: () => context.push('/choose-provider'),
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 12.h),
+          decoration: BoxDecoration(
+            color: const Color(0xFF2D5FA6),
+            borderRadius: BorderRadius.circular(16.r),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF2D5FA6).withValues(alpha: 0.30),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 28.r,
+                height: 28.r,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.25),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    '$count',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 10.w),
+              Text(
+                'Choose Provider',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class _EmptyView extends StatelessWidget {
   const _EmptyView();

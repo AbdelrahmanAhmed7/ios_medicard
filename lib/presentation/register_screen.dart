@@ -67,16 +67,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   void _onRegisterPressed(BuildContext context) {
     FocusScope.of(context).unfocus();
-    
+
     // Validate that at least one of nationalId or passportNumber is provided
     final nationalId = _nationalIdController.text.trim();
     final passportNumber = _passportNumberController.text.trim();
-    
+
     if (nationalId.isEmpty && passportNumber.isEmpty) {
       showErrorToast('Please provide either National ID or Passport Number');
       return;
     }
-    
+
     if (_formKey.currentState!.validate()) {
       context.read<RegisterCubit>().register(
         firstName: LanguageHelper.convertArabicToEnglishNumerals(

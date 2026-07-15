@@ -1,4 +1,5 @@
 class ProviderModel {
+  final int? providerId;
   final String imageUrl;
   final String name;
   final double rating;
@@ -8,6 +9,7 @@ class ProviderModel {
   final List<String> badges;
 
   const ProviderModel({
+    this.providerId,
     required this.imageUrl,
     required this.name,
     required this.rating,

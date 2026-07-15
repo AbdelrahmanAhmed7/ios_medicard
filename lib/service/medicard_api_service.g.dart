@@ -168,7 +168,6 @@ class _MedicardApiService implements MedicardApiService {
 
   @override
   Future<HomeResponseModel> getHomeData(
-    String authorization,
     double? latitude,
     double? longitude,
   ) async {
@@ -178,7 +177,7 @@ class _MedicardApiService implements MedicardApiService {
       r'longitude': longitude,
     };
     queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{r'Authorization': authorization};
+    final _headers = <String, dynamic>{};
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<HomeResponseModel>(
@@ -276,10 +275,10 @@ class _MedicardApiService implements MedicardApiService {
   }
 
   @override
-  Future<ProfileResponseModel> getProfile(String token) async {
+  Future<ProfileResponseModel> getProfile() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{r'Authorization': token};
+    final _headers = <String, dynamic>{};
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<ProfileResponseModel>(

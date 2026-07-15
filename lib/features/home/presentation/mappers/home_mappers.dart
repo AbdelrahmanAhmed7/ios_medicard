@@ -10,6 +10,7 @@ import '../../domain/models/provider_model.dart';
 List<ProviderModel> mapProviders(List<HomeNearestProvider> raw) {
   return raw.where((p) => _hasText(p.providerName)).map((p) {
     return ProviderModel(
+      providerId: p.providerId,
       imageUrl: _textOrEmpty(p.providerImageUrl),
       name: _textOrEmpty(p.providerName),
       rating: 0.0,

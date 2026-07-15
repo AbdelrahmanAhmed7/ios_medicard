@@ -1,86 +1,122 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 
+import '../../domain/models/home_failure.dart';
+
 /// Full-content error state shown inside the sliver scroll when the API fails.
 /// Displays a friendly message and a retry button.
 class HomeErrorView extends StatelessWidget {
-  final String message;
+  final HomeFailureType failure;
+  final String? message;
   final VoidCallback onRetry;
+  final bool isRetrying;
 
   const HomeErrorView({
     super.key,
-    required this.message,
+    this.failure = HomeFailureType.unknown,
+    this.message,
     required this.onRetry,
+    this.isRetrying = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 72,
-            height: 72,
-            decoration: BoxDecoration(
-              color: const Color(0xFFEEF3FB),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Icon(
-              Icons.cloud_off_rounded,
-              size: 36,
-              color: Color(0xFF2D5FA6),
-            ),
+    final theme = Theme.of(context);
+    final messageKey = switch (failure) {
+      HomeFailureType.noInternet => 'home.no_internet_message',
+      HomeFailureType.connectionTimeout => 'home.connection_timeout_message',
+      HomeFailureType.transferTimeout => 'home.transfer_timeout_message',
+      HomeFailureType.server => 'home.server_error_message',
+      HomeFailureType.unauthorized => 'home.unauthorized_message',
+      HomeFailureType.unknown => 'home.unknown_error_message',
+    };
+    final icon = failure == HomeFailureType.noInternet
+        ? Icons.wifi_off_rounded
+        : Icons.cloud_off_rounded;
+
+    return SafeArea(
+      top: false,
+      child: LayoutBuilder(
+        builder: (context, constraints) => Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: constraints.maxWidth < 360 ? 20 : 32,
+            vertical: 48,
           ),
-          const SizedBox(height: 20),
-          Text(
-            'home.something_went_wrong'.tr(),
-            style: const TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF1A1A2E),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 13,
-              fontWeight: FontWeight.w400,
-              color: Color(0xFF6B7280),
-              height: 1.5,
-            ),
-          ),
-          const SizedBox(height: 28),
-          SizedBox(
-            height: 46,
-            child: ElevatedButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: Text(
-                'common.try_again'.tr(),
-                style: const TextStyle(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 72,
+                height: 72,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Icon(
+                  icon,
+                  size: 36,
+                  color: theme.colorScheme.onPrimaryContainer,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'home.network_error_title'.tr(),
+                textAlign: TextAlign.center,
+                style: TextStyle(
                   fontFamily: 'Inter',
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2D5FA6),
-                foregroundColor: Colors.white,
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(horizontal: 28),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+              const SizedBox(height: 8),
+              Text(
+                message ?? messageKey.tr(),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w400,
+                  color: theme.colorScheme.onSurfaceVariant,
+                  height: 1.5,
                 ),
               ),
-            ),
+              const SizedBox(height: 28),
+              SizedBox(
+                height: 46,
+                child: ElevatedButton.icon(
+                  onPressed: isRetrying ? null : onRetry,
+                  icon: isRetrying
+                      ? const SizedBox.square(
+                          dimension: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.refresh_rounded, size: 18),
+                  label: Text(
+                    (isRetrying ? 'home.retrying' : 'common.try_again').tr(),
+                    style: const TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: theme.colorScheme.primary,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(horizontal: 28),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

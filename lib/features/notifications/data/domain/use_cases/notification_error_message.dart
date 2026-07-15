@@ -49,6 +49,8 @@ String _failureMessage(AppFailure failure) {
     case AppFailureType.network:
       return 'Connection error. Please check your internet connection.';
     case AppFailureType.timeout:
+    case AppFailureType.connectionTimeout:
+    case AppFailureType.transferTimeout:
       return 'Connection timeout. Please try again.';
     case AppFailureType.unauthorized:
       return 'Unauthorized. Please log in again.';
@@ -58,6 +60,7 @@ String _failureMessage(AppFailure failure) {
       return 'Endpoint not found.';
     case AppFailureType.server:
       return 'Server error. Please try again later.';
+    case AppFailureType.cancelled:
     case AppFailureType.unexpected:
       return failure.message ?? 'Something went wrong. Please try again.';
   }

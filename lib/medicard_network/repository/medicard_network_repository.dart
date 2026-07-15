@@ -63,9 +63,17 @@ class MedicardNetworkRepository {
     }
   }
 
-  Future<ApiResult<GovernmentResponse>> getGovernments(String lang, {int page = 1, int pageSize = 50}) async {
+  Future<ApiResult<GovernmentResponse>> getGovernments(
+    String lang, {
+    int page = 1,
+    int pageSize = 50,
+  }) async {
     try {
-      final response = await _apiService.getGovernments(lang, page: page, pageSize: pageSize);
+      final response = await _apiService.getGovernments(
+        lang,
+        page: page,
+        pageSize: pageSize,
+      );
       if (response.success) {
         return ApiResult.success(response);
       } else {
@@ -76,9 +84,19 @@ class MedicardNetworkRepository {
     }
   }
 
-  Future<ApiResult<CityResponse>> getCitiesByGovernment(String lang, int governmentId, {int page = 1, int pageSize = 50}) async {
+  Future<ApiResult<CityResponse>> getCitiesByGovernment(
+    String lang,
+    int governmentId, {
+    int page = 1,
+    int pageSize = 50,
+  }) async {
     try {
-      final response = await _apiService.getCitiesByGovernment(lang, governmentId: governmentId, page: page, pageSize: pageSize);
+      final response = await _apiService.getCitiesByGovernment(
+        lang,
+        governmentId: governmentId,
+        page: page,
+        pageSize: pageSize,
+      );
       if (response.success) {
         return ApiResult.success(response);
       } else {
@@ -89,7 +107,9 @@ class MedicardNetworkRepository {
     }
   }
 
-  Future<ApiResult<TopProvidersSliderResponse>> getTopProvidersForSlider(String lang) async {
+  Future<ApiResult<TopProvidersSliderResponse>> getTopProvidersForSlider(
+    String lang,
+  ) async {
     try {
       final response = await _apiService.getTopProvidersForSlider(lang);
       if (response.success) {
@@ -107,10 +127,13 @@ class MedicardNetworkRepository {
   }) async {
     try {
       final response = await _apiService.getProviderPage(providerId);
+      print('🟡 getProviderPage FULL RESPONSE JSON: ${response.toJson()}');
       if (response.succeeded == true) {
         return ApiResult.success(response);
       } else {
-        return ApiResult.failure(response.message ?? 'Failed to load provider page');
+        return ApiResult.failure(
+          response.message ?? 'Failed to load provider page',
+        );
       }
     } catch (e, s) {
       print('getProviderPage error: $e');
@@ -135,7 +158,9 @@ class MedicardNetworkRepository {
       if (response.succeeded == true) {
         return ApiResult.success(response);
       } else {
-        return ApiResult.failure(response.message ?? 'Failed to load provider services');
+        return ApiResult.failure(
+          response.message ?? 'Failed to load provider services',
+        );
       }
     } catch (e, s) {
       print('getProviderServices error: $e');
@@ -158,7 +183,9 @@ class MedicardNetworkRepository {
       if (response.succeeded == true) {
         return ApiResult.success(response);
       } else {
-        return ApiResult.failure(response.message ?? 'Failed to load provider reviews');
+        return ApiResult.failure(
+          response.message ?? 'Failed to load provider reviews',
+        );
       }
     } catch (e, s) {
       print('getProviderReviews error: $e');
@@ -181,11 +208,30 @@ class MedicardNetworkRepository {
       if (response.succeeded == true) {
         return ApiResult.success(response);
       } else {
-        return ApiResult.failure(response.message ?? 'Failed to load provider packages');
+        return ApiResult.failure(
+          response.message ?? 'Failed to load provider packages',
+        );
       }
     } catch (e, s) {
       print('getProviderPackages error: $e');
       print('Stack trace: $s');
+      return ApiResult.failure(e.toString());
+    }
+  }
+
+  Future<ApiResult<PackageDetailsResponse>> getPackageDetails({
+    required int packageId,
+  }) async {
+    try {
+      final response = await _apiService.getPackageDetails(packageId);
+      if (response.succeeded == true && response.data != null) {
+        return ApiResult.success(response);
+      } else {
+        return ApiResult.failure(
+          response.message ?? 'Failed to load package details',
+        );
+      }
+    } catch (e) {
       return ApiResult.failure(e.toString());
     }
   }

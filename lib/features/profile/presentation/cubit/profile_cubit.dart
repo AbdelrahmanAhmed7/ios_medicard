@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:medicard/core/constants/api_result.dart';
 import 'package:medicard/core/theming/app_toast.dart';
 import 'package:medicard/core/utils/api_error_parser.dart';
@@ -12,11 +13,42 @@ class ProfileCubit extends Cubit<ProfileState> {
   final GetProfileUseCase _getProfileUseCase;
   final UpdateProfileV2UseCase _updateProfileUseCase;
   final ChangeLanguageUseCase _changeLanguageUseCase;
+  Future<void>? _profileLoad;
 
   ProfileCubit(this._getProfileUseCase, this._updateProfileUseCase, this._changeLanguageUseCase)
     : super(const ProfileState.initial());
 
-  Future<void> loadProfile() async {
+  Future<void> loadProfile({bool forceRefresh = false}) {
+    if (isClosed) return Future.value();
+
+    final activeLoad = _profileLoad;
+    if (activeLoad != null) {
+      if (kDebugMode) debugPrint('[ProfileCubit] loadProfile joined in-flight request');
+      return activeLoad;
+    }
+
+    final hasProfile = state.maybeWhen(
+      success: (_) => true,
+      updating: (_) => true,
+      updated: (_) => true,
+      orElse: () => false,
+    );
+    if (hasProfile && !forceRefresh) {
+      if (kDebugMode) debugPrint('[ProfileCubit] loadProfile skipped; cached data retained');
+      return Future.value();
+    }
+
+    if (kDebugMode) {
+      debugPrint('[ProfileCubit] loadProfile called (forceRefresh=$forceRefresh)');
+    }
+    final load = _performProfileLoad();
+    _profileLoad = load;
+    return load.whenComplete(() {
+      if (identical(_profileLoad, load)) _profileLoad = null;
+    });
+  }
+
+  Future<void> _performProfileLoad() async {
     if (isClosed) return;
     emit(const ProfileState.loading());
     try {
@@ -25,15 +57,24 @@ class ProfileCubit extends Cubit<ProfileState> {
       result.when(
         success: (data) {
           if (isClosed) return;
-          emit(ProfileState.success(data.data!));
+          final profile = data.data;
+          if (profile == null) {
+            if (kDebugMode) debugPrint('[ProfileCubit] response contained no profile data');
+            emit(const ProfileState.failed('Profile data is unavailable.'));
+            return;
+          }
+          if (kDebugMode) debugPrint('[ProfileCubit] profile loaded successfully');
+          emit(ProfileState.success(profile));
         },
         failure: (message) {
           if (isClosed) return;
+          if (kDebugMode) debugPrint('[ProfileCubit] profile load failed: $message');
           emit(ProfileState.failed(message));
         },
       );
     } catch (e) {
       if (isClosed) return;
+      if (kDebugMode) debugPrint('[ProfileCubit] profile load exception: $e');
       emit(ProfileState.failed(parseApiError(e)));
     }
   }

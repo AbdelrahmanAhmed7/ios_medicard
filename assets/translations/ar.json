@@ -1,4 +1,54 @@
 {
+  "auth": {
+    "register": {
+      "title": "إنشاء حساب",
+      "subtitle": "يرجى ملء بياناتك للمتابعة",
+      "firstName": "الاسم الأول",
+      "firstNameHint": "أدخل اسمك الأول",
+      "firstNameRequired": "الاسم الأول مطلوب",
+      "lastName": "الاسم الأخير",
+      "lastNameHint": "أدخل اسمك الأخير",
+      "lastNameRequired": "الاسم الأخير مطلوب",
+      "phoneNumber": "رقم الهاتف",
+      "phoneNumberHint": "أدخل رقم هاتفك",
+      "phoneNumberRequired": "رقم الهاتف مطلوب",
+      "gender": "الجنس",
+      "male": "ذكر",
+      "female": "أنثى",
+      "birthDate": "تاريخ الميلاد",
+      "password": "كلمة المرور",
+      "passwordHint": "أدخل كلمة المرور",
+      "passwordRequired": "كلمة المرور مطلوبة",
+      "confirmPassword": "تأكيد كلمة المرور",
+      "confirmPasswordHint": "أكد كلمة المرور",
+      "confirmPasswordRequired": "تأكيد كلمة المرور مطلوب",
+      "passwordsNotMatch": "كلمات المرور غير متطابقة",
+      "nationalId": "الرقم القومي",
+      "nationalIdHint": "أدخل رقمك القومي",
+      "passportNumber": "رقم جواز السفر",
+      "passportNumberHint": "أدخل رقم جواز سفرك",
+      "registerButton": "إنشاء حساب",
+      "fillAllFields": "يرجى ملء جميع الحقول المطلوبة",
+      "nationalIdOrPassportRequired": "يرجى توفير رقم القومي أو رقم جواز السفر",
+      "alreadyHaveAccount": "لديك حساب بالفعل؟",
+      "loginNow": "تسجيل الدخول الآن"
+    },
+    "login": {
+      "title": "مرحباً بعودتك!",
+      "subtitle": "تسجيل الدخول للوصول إلى حسابك",
+      "cardNumber": "رقم الكارت",
+      "cardNumberHint": "أدخل رقم الكارت",
+      "cardNumberRequired": "رقم الكارت مطلوب",
+      "password": "كلمة المرور",
+      "passwordHint": "أدخل كلمة المرور",
+      "passwordRequired": "كلمة المرور مطلوبة",
+      "forgotPassword": "نسيت كلمة المرور؟",
+      "loginButton": "تسجيل الدخول",
+      "orContinueWith": "أو تابع باستخدام",
+      "dontHaveAccount": "ليس لديك حساب؟",
+      "registerNow": "إنشاء حساب الآن"
+    }
+  },
   "common": {
     "cancel": "إلغاء",
     "save": "حفظ",
@@ -9,7 +59,8 @@
     "update": "تحديث",
     "required": "مطلوب",
     "error": "حدث خطأ",
-    "retry": "إعادة المحاولة"
+    "retry": "إعادة المحاولة",
+    "this_field_required": "هذا الحقل مطلوب"
   },
   "errors": {
     "not_found_error": "لم يتم العثور على البيانات",
@@ -19,7 +70,6 @@
     "my_profile": "حسابي",
     "settings": "الإعدادات",
     "links": "الروابط",
-    "my_profile_link": "ملفي الشخصي",
     "rewards": "المكافآت",
     "family_members": "أفراد الأسرة",
     "change_password": "تغيير كلمة المرور",
@@ -70,10 +120,23 @@
     "no_data_available": "لا توجد بيانات",
     "pull_down_refresh": "اسحب للأسفل للتحديث والتحقق مرة أخرى.",
     "something_went_wrong": "حدث خطأ ما",
+    "network_error_title": "تعذر تحميل الصفحة الرئيسية",
+    "no_internet_message": "يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.",
+    "connection_timeout_message": "يستغرق الاتصال وقتًا أطول من المتوقع. يرجى المحاولة مرة أخرى.",
+    "transfer_timeout_message": "استغرق الطلب وقتًا طويلًا حتى يكتمل. يرجى المحاولة مرة أخرى.",
+    "server_error_message": "تعذر تحميل بيانات الصفحة الرئيسية الآن. يرجى المحاولة بعد قليل.",
+    "unauthorized_message": "انتهت صلاحية جلستك. يرجى تسجيل الدخول مرة أخرى.",
+    "unknown_error_message": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+    "retrying": "جارٍ إعادة المحاولة...",
+    "refresh_failed": "تعذر تحديث الصفحة الرئيسية. لا تزال بياناتك الحالية متاحة.",
+    "user_not_active": "حسابك غير نشط",
+    "upcoming": "القادمة",
+    "pending": "المعلقة",
+    "completed": "المكتملة",
     "nav_home": "الرئيسية",
     "nav_ecard": "البطاقة الإلكترونية",
-    "nav_providers": "المقدمين",
-    "nav_profile": "الملف الشخصي"
+    "nav_activity": "المواعيد",
+    "nav_profile": "حسابي"
   },
   "sort_filter": {
     "sort_by": "ترتيب حسب",
@@ -124,5 +187,14 @@
     "total_services": "إجمالي الخدمات",
     "reviews": "التقييمات",
     "special_offer": "عرض خاص"
+  },
+  "activity": {
+    "pending": "في الانتظار",
+    "used": "مستخدمة",
+    "no_items": "لا توجد عناصر",
+    "status_pending": "في الانتظار",
+    "status_used": "مستخدمة",
+    "download_results": "تحميل النتائج",
+    "book": "حجز"
   }
 }

@@ -50,7 +50,6 @@ abstract class MedicardApiService {
 
   @GET("mobile/MobileHome")
   Future<HomeResponseModel> getHomeData(
-    @Header("Authorization") String authorization,
     @Query("latitude") double? latitude,
     @Query("longitude") double? longitude,
   );
@@ -72,9 +71,7 @@ abstract class MedicardApiService {
   );
 
   @GET('/Profile')
-  Future<ProfileResponseModel> getProfile(
-    @Header('Authorization') String token,
-  );
+  Future<ProfileResponseModel> getProfile();
 
   @PUT('/Profile')
   @MultiPart()

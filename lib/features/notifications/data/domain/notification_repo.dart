@@ -16,7 +16,10 @@ class NotificationRepository {
     return 'Bearer $token';
   }
 
-  Future<NotificationData> getNotifications(int pageNumber, int pageSize) async {
+  Future<NotificationData> getNotifications(
+    int pageNumber,
+    int pageSize,
+  ) async {
     return await _service.getNotifications(
       await _bearerToken,
       pageNumber,

@@ -29,6 +29,7 @@ class ProviderPageData {
   final int id;
   final String name;
   final String categoryName;
+  final int? categoryId;
   final String imageUrl;
   final String? hotLine;
   final String? phoneNumber1;
@@ -45,6 +46,7 @@ class ProviderPageData {
     required this.id,
     required this.name,
     required this.categoryName,
+    this.categoryId,
     required this.imageUrl,
     this.hotLine,
     this.phoneNumber1,
@@ -72,10 +74,15 @@ class ProviderPageData {
   List<String>? get phones {
     final List<String> result = [];
     if (hotLine != null && hotLine!.isNotEmpty) result.add(hotLine!);
-    if (phoneNumber1 != null && phoneNumber1!.isNotEmpty) result.add(phoneNumber1!);
-    if (phoneNumber2 != null && phoneNumber2!.isNotEmpty) result.add(phoneNumber2!);
+    if (phoneNumber1 != null && phoneNumber1!.isNotEmpty) {
+      result.add(phoneNumber1!);
+    }
+    if (phoneNumber2 != null && phoneNumber2!.isNotEmpty) {
+      result.add(phoneNumber2!);
+    }
     return result.isEmpty ? null : result;
   }
+
   int? get servicesCount => totalServices;
 }
 
@@ -251,4 +258,54 @@ class ProviderPackage {
       _$ProviderPackageFromJson(json);
 
   Map<String, dynamic> toJson() => _$ProviderPackageToJson(this);
+}
+
+@JsonSerializable(explicitToJson: true)
+class PackageDetailsResponse {
+  final int? httpStatusCode;
+  final List<String>? errors;
+  final bool? succeeded;
+  final String? message;
+  final PackageDetailsData? data;
+
+  PackageDetailsResponse({
+    this.httpStatusCode,
+    this.errors,
+    this.succeeded,
+    this.message,
+    this.data,
+  });
+
+  factory PackageDetailsResponse.fromJson(Map<String, dynamic> json) =>
+      _$PackageDetailsResponseFromJson(json);
+
+  Map<String, dynamic> toJson() => _$PackageDetailsResponseToJson(this);
+}
+
+@JsonSerializable()
+class PackageDetailsData {
+  final int? id;
+  final String? name;
+  final String? description;
+  final String? image;
+  final double? priceBefore;
+  final double? priceAfter;
+  final double? discountPercentage;
+  final List<String>? serviceNames;
+
+  PackageDetailsData({
+    this.id,
+    this.name,
+    this.description,
+    this.image,
+    this.priceBefore,
+    this.priceAfter,
+    this.discountPercentage,
+    this.serviceNames,
+  });
+
+  factory PackageDetailsData.fromJson(Map<String, dynamic> json) =>
+      _$PackageDetailsDataFromJson(json);
+
+  Map<String, dynamic> toJson() => _$PackageDetailsDataToJson(this);
 }

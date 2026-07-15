@@ -5,10 +5,7 @@ import '../../domain/models/appointment_model.dart';
 class PendingAppointmentCard extends StatelessWidget {
   final AppointmentModel appointment;
 
-  const PendingAppointmentCard({
-    super.key,
-    required this.appointment,
-  });
+  const PendingAppointmentCard({super.key, required this.appointment});
 
   @override
   Widget build(BuildContext context) {
@@ -16,109 +13,109 @@ class PendingAppointmentCard extends StatelessWidget {
       width: 303,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFFEEF3FB),
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Logo
-          CircleAvatar(
-            radius: 28,
-            backgroundColor: const Color(0xFFFFFFFF),
-            child: CachedNetworkImage(
-              imageUrl: appointment.providerLogoUrl,
-              imageBuilder: (context, imageProvider) => Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    image: imageProvider,
-                    fit: BoxFit.cover,
-                  ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(15), // حل مشكلة الحواف البيضاء
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            CircleAvatar(
+              radius: 28,
+              backgroundColor: const Color(0xFFFFFFFF),
+              child: ClipOval(
+                child: CachedNetworkImage(
+                  imageUrl: appointment.providerLogoUrl,
+                  width: 56,
+                  height: 56,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) =>
+                      Container(color: const Color(0xFFEEF3FB)),
+                  errorWidget: (context, url, error) =>
+                      const Icon(Icons.broken_image),
                 ),
               ),
-              placeholder: (context, url) =>
-                  Container(color: const Color(0xFFEEF3FB)),
-              errorWidget: (context, url, error) =>
-              const Icon(Icons.broken_image),
             ),
-          ),
-          const SizedBox(width: 12),
-
-          // Text info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  appointment.providerName,
-                  style: const TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500, // medium
-                    color: Color(0xFF1A1A2E),
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                if (appointment.service.isNotEmpty) ...[
-                  const SizedBox(height: 3),
+            const SizedBox(width: 12),
+            // فاصل رأسي أنيق يفصل بين لوجو العيادة وبين البيانات
+            Container(width: 1, height: 40, color: const Color(0xFFE5E7EB)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
                   Text(
-                    appointment.service,
+                    appointment.providerName,
                     style: const TextStyle(
                       fontFamily: 'Inter',
-                      fontSize: 11,
-                      fontWeight: FontWeight.w400,
-                      color: Color(0xFF6B7280),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF1A1A2E),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                ],
-                if (appointment.branch.isNotEmpty) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    appointment.branch,
-                    style: const TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 11,
-                      fontWeight: FontWeight.w400,
-                      color: Color(0xFF6B7280),
+                  if (appointment.service.isNotEmpty) ...[
+                    const SizedBox(height: 3),
+                    Text(
+                      appointment.service,
+                      style: const TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 11,
+                        fontWeight: FontWeight.w400,
+                        color: Color(0xFF6B7280),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ],
-            ),
-          ),
-          if (appointment.status.isNotEmpty || appointment.date.isNotEmpty)
-            const SizedBox(width: 8),
-
-          if (appointment.status.isNotEmpty || appointment.date.isNotEmpty)
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                if (appointment.status.isNotEmpty)
-                  _StatusBadge(status: appointment.status),
-                if (appointment.status.isNotEmpty && appointment.date.isNotEmpty)
-                  const SizedBox(height: 6),
-                if (appointment.date.isNotEmpty)
-                  Text(
-                    appointment.date,
-                    style: const TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                      color: Color(0xFF6B7280),
+                  ],
+                  if (appointment.branch.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      appointment.branch,
+                      style: const TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 11,
+                        fontWeight: FontWeight.w400,
+                        color: Color(0xFF6B7280),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-              ],
+                  ],
+                ],
+              ),
             ),
-        ],
+            if (appointment.status.isNotEmpty || appointment.date.isNotEmpty)
+              const SizedBox(width: 8),
+            if (appointment.status.isNotEmpty || appointment.date.isNotEmpty)
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  if (appointment.status.isNotEmpty)
+                    _StatusBadge(status: appointment.status),
+                  if (appointment.status.isNotEmpty &&
+                      appointment.date.isNotEmpty)
+                    const SizedBox(height: 6),
+                  if (appointment.date.isNotEmpty)
+                    Text(
+                      appointment.date,
+                      style: const TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: Color(0xFF6B7280),
+                      ),
+                    ),
+                ],
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -136,19 +133,12 @@ class _StatusBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0x26F5A623),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFFF5A623),
-          width: 0.5,
-        ),
+        border: Border.all(color: const Color(0xFFF5A623), width: 0.5),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
-            Icons.access_time,
-            size: 12,
-            color: Color(0xFFF5A623),
-          ),
+          const Icon(Icons.access_time, size: 12, color: Color(0xFFF5A623)),
           const SizedBox(width: 4),
           Text(
             status,

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
 import '../models/category_response_model.dart';
+import '../models/category_services_response_model.dart';
 import '../models/lookup_response_model.dart';
 import '../models/search_response_model.dart';
 
@@ -33,6 +34,11 @@ abstract class SearchRemoteDataSource {
     @Header('Authorization') String token,
   );
 
+  @GET('CategoryService/categories')
+  Future<CategoryResponseModel> getServiceCategories(
+    @Header('Authorization') String token,
+  );
+
   @GET('Lookups/governorates')
   Future<LookupResponseModel> getGovernorates(
     @Header('Authorization') String token,
@@ -42,5 +48,11 @@ abstract class SearchRemoteDataSource {
   Future<LookupResponseModel> getCities(
     @Header('Authorization') String token,
     @Query('governorateId') int governorateId,
+  );
+
+  @GET('Cart/category/{categoryId}/services')
+  Future<CategoryServicesResponseModel> getCategoryServices(
+    @Header('Authorization') String token,
+    @Path('categoryId') int categoryId,
   );
 }

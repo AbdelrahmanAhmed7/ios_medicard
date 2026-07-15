@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/utils/shimmer_card.dart';
+import '../../../../core/widgets/app_blue_header.dart';
 
 class ProfileShimmer extends StatelessWidget {
   const ProfileShimmer({super.key});
@@ -17,7 +18,7 @@ class ProfileShimmer extends StatelessWidget {
           SmoothShimmer(
             child: Container(
               width: double.infinity,
-              height: statusBarHeight + 120.h,
+              height: statusBarHeight + kMainTabHeaderContentHeight,
               decoration: const BoxDecoration(
                 color: Color(0xFFE8E8E8),
                 borderRadius: BorderRadius.only(

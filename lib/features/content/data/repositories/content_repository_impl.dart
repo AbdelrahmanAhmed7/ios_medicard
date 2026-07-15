@@ -12,7 +12,9 @@ class ContentRepositoryImpl implements ContentRepository {
 
   @override
   Future<ContentResponseModel> getContent(ContentType contentType) async {
-    final token = await SharedPrefHelper.getSecuredString(SharedPrefKeys.userToken);
+    final token = await SharedPrefHelper.getSecuredString(
+      SharedPrefKeys.userToken,
+    );
     switch (contentType) {
       case ContentType.privacyPolicy:
         return apiService.getPrivacyPolicy('Bearer $token');

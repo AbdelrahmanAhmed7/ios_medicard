@@ -1,201 +1,441 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:medicard/network/data/provider_page_response_model.dart';
 import '../../core/constants/api_result.dart';
-import '../../network/data/provider_services_response_model.dart';
+import '../../features/cart/domain/repository/cart_repository.dart';
+import '../../network/data/provider_page_response_model.dart';
 import '../repository/medicard_network_repository.dart';
 import 'provider_page_state.dart';
 
-enum ProviderViewType { services, packages }
-
 class ProviderPageCubit extends Cubit<ProviderPageState> {
-  final MedicardNetworkRepository _repository;
+  final MedicardNetworkRepository _medicardRepository;
+  final CartRepository _cartRepository;
   final int providerId;
 
-  ProviderPageCubit(this._repository, this.providerId)
-      : super(const ProviderPageState.initial());
-
+  List<ProviderPackage> _fullPackages = [];
   static const int _pageSize = 20;
-
-  // Services state
-  int _servicesCurrentPage = 1;
-  String? _searchQuery;
-  bool _servicesHasMore = true;
-  bool _servicesIsLoadingMore = false;
-  List<ProviderService> _services = [];
-
-  // Packages state
   int _packagesCurrentPage = 1;
-  bool _packagesHasMore = true;
-  bool _packagesIsLoadingMore = false;
-  List<ProviderPackage> _packages = [];
-
   Timer? _debounceTimer;
-  ProviderPageData? _providerData;
-  ProviderViewType _currentView = ProviderViewType.services;
 
-  ProviderPageData? get providerData => _providerData;
-  ProviderViewType get currentView => _currentView;
+  ProviderPageCubit(
+    this._medicardRepository,
+    this._cartRepository,
+    // SearchRemoteDataSource is no longer needed — categories come from the
+    // Cart/category endpoint, not from Lookups.
+    dynamic _unused,
+    this.providerId,
+  ) : super(const ProviderPageState());
+
+  // ── Init ───────────────────────────────────────────────────────────────────
 
   Future<void> init() async {
-    await Future.wait([loadProviderPage(), loadServices()]);
+    await Future.wait([loadProviderPage(), getCart()]);
   }
+
+  // ── Cart ───────────────────────────────────────────────────────────────────
+
+  Future<void> getCart() async {
+    if (isClosed) return;
+    emit(state.copyWith(isCartLoading: true));
+    final result = await _cartRepository.getCart();
+    if (isClosed) return;
+    result.when(
+      success: (cart) {
+        if (isClosed) return;
+        emit(state.copyWith(cartItems: cart.items, isCartLoading: false));
+        // Refresh selectedCount badges on all loaded tabs after cart changes.
+        _refreshAllTabSelectedCounts();
+      },
+      failure: (_) {
+        if (isClosed) return;
+        emit(state.copyWith(isCartLoading: false));
+      },
+    );
+  }
+
+  Future<void> addToCart(int serviceId) async {
+    final categoryId = state.selectedTab?.categoryId;
+    if (categoryId == null || isClosed) return;
+
+    emit(
+      state.copyWith(
+        pendingCartActionIds: {...state.pendingCartActionIds, serviceId},
+      ),
+    );
+
+    final result = await _cartRepository.addToCart(
+      serviceId: serviceId,
+      categoryId: categoryId,
+    );
+
+    if (isClosed) return;
+    final updatedPending = Set<int>.from(state.pendingCartActionIds)
+      ..remove(serviceId);
+
+    result.when(
+      success: (_) async {
+        if (isClosed) return;
+        emit(state.copyWith(pendingCartActionIds: updatedPending));
+        // Refresh cart items AND reload the current tab to get updated
+        // totalSelectedCount + isSelected flags.
+        await Future.wait([getCart(), _reloadTab(state.selectedCategoryIndex)]);
+      },
+      failure: (_) {
+        if (isClosed) return;
+        emit(state.copyWith(pendingCartActionIds: updatedPending));
+      },
+    );
+  }
+
+  Future<void> removeFromCart(int serviceId) async {
+    if (isClosed) return;
+    emit(
+      state.copyWith(
+        pendingCartActionIds: {...state.pendingCartActionIds, serviceId},
+      ),
+    );
+
+    final result = await _cartRepository.removeFromCart(serviceId);
+    if (isClosed) return;
+    final updatedPending = Set<int>.from(state.pendingCartActionIds)
+      ..remove(serviceId);
+
+    result.when(
+      success: (_) {
+        if (isClosed) return;
+        final updatedItems = state.cartItems
+            .where((item) => item.serviceId != serviceId)
+            .toList();
+        emit(
+          state.copyWith(
+            cartItems: updatedItems,
+            pendingCartActionIds: updatedPending,
+          ),
+        );
+        // Reload current tab so totalSelectedCount badge updates.
+        _reloadTab(state.selectedCategoryIndex);
+      },
+      failure: (_) {
+        if (isClosed) return;
+        emit(state.copyWith(pendingCartActionIds: updatedPending));
+      },
+    );
+  }
+
+  // ── Provider page ──────────────────────────────────────────────────────────
 
   Future<void> loadProviderPage() async {
-    emit(const ProviderPageState.providerLoading());
-    final result = await _repository.getProviderPage(
+    if (isClosed) return;
+    emit(state.copyWith(isProviderLoading: true, resetProviderError: true));
+
+    final result = await _medicardRepository.getProviderPage(
       providerId: providerId,
     );
+
+    if (isClosed) return;
     result.when(
-      success: (response) {
-        if (response.data != null) {
-          _providerData = response.data!;
-          emit(ProviderPageState.providerSuccess(response.data!));
-        } else {
-          emit(const ProviderPageState.providerFailed('No data'));
+      success: (response) async {
+        if (response.data == null) {
+          if (isClosed) return;
+          emit(
+            state.copyWith(
+              isProviderLoading: false,
+              providerError: response.message ?? 'No data',
+            ),
+          );
+          return;
         }
-      },
-      failure: (error) => emit(ProviderPageState.providerFailed(error)),
-    );
-  }
 
-  Future<void> loadServices({bool reset = false}) async {
-    if (reset) {
-      _servicesCurrentPage = 1;
-      _services = [];
-      _servicesHasMore = true;
-    }
-    if (_servicesIsLoadingMore || !_servicesHasMore) return;
+        final data = response.data!;
+        if (isClosed) return;
+        emit(state.copyWith(isProviderLoading: false, providerData: data));
 
-    if (_servicesCurrentPage == 1) {
-      emit(const ProviderPageState.servicesLoading());
-    } else {
-      _servicesIsLoadingMore = true;
-      emit(ProviderPageState.servicesSuccess(
-        services: _services,
-        hasMore: _servicesHasMore,
-        isLoadingMore: _servicesIsLoadingMore,
-      ));
-    }
-
-    final result = await _repository.getProviderServices(
-      providerId: providerId,
-      search: _searchQuery,
-      pageNumber: _servicesCurrentPage,
-      pageSize: _pageSize,
-    );
-
-    result.when(
-      success: (response) {
-        print('loadServices success! data: ${response.data}');
-        print('loadServices items: ${response.data?.items}');
-        if (response.data?.items != null) {
-          _services.addAll(response.data!.items!);
-          _servicesHasMore = (_servicesCurrentPage < (response.data?.totalPages ?? 1));
-          _servicesCurrentPage++;
+        // Build the initial tab list from the provider's categoryId.
+        // Each tab is loaded on demand via _loadTabServices().
+        if (data.categoryId != null) {
+          final initialTab = CategoryTab(
+            categoryId: data.categoryId!,
+            categoryName: data.categoryName,
+            isLoading: true,
+          );
+          emit(state.copyWith(categoryTabs: [initialTab]));
+          await _loadTabServices(0, data.categoryId!);
         }
-        _servicesIsLoadingMore = false;
-        print('loadServices emitting _servicesSuccess with ${_services.length} services');
-        emit(ProviderPageState.servicesSuccess(
-          services: _services,
-          hasMore: _servicesHasMore,
-          isLoadingMore: _servicesIsLoadingMore,
-        ));
       },
       failure: (error) {
-        print('loadServices failed: $error');
-        _servicesIsLoadingMore = false;
-        emit(ProviderPageState.servicesFailed(error));
+        if (isClosed) return;
+        emit(state.copyWith(isProviderLoading: false, providerError: error));
       },
     );
   }
 
+  // ── Category tabs ──────────────────────────────────────────────────────────
+
+  /// Loads `GET /Cart/category/{categoryId}/services` for tab at [index].
+  /// Updates the tab in-place with services + totalSelectedCount.
+  Future<void> _loadTabServices(int index, int categoryId) async {
+    if (isClosed) return;
+
+    // Mark the tab as loading.
+    _updateTab(index, (tab) => tab.copyWith(isLoading: true, clearError: true));
+
+    final result = await _cartRepository.getCategoryServices(categoryId);
+
+    if (isClosed) return;
+    result.when(
+      success: (categoryServices) {
+        _updateTab(
+          index,
+          (tab) => tab.copyWith(
+            services: categoryServices,
+            isLoading: false,
+            clearError: true,
+          ),
+        );
+      },
+      failure: (error) {
+        _updateTab(
+          index,
+          (tab) => tab.copyWith(isLoading: false, error: error),
+        );
+      },
+    );
+  }
+
+  /// Reloads the tab at [index] — used after add/remove to refresh
+  /// `totalSelectedCount` and `isSelected` on each service row.
+  Future<void> _reloadTab(int index) async {
+    if (index >= state.categoryTabs.length) return;
+    final categoryId = state.categoryTabs[index].categoryId;
+    await _loadTabServices(index, categoryId);
+  }
+
+  /// Refreshes totalSelectedCount on every tab that has already been loaded
+  /// (triggered after cart changes from outside this screen).
+  void _refreshAllTabSelectedCounts() {
+    for (int i = 0; i < state.categoryTabs.length; i++) {
+      if (state.categoryTabs[i].services != null) {
+        _reloadTab(i);
+      }
+    }
+  }
+
+  /// Selects a different category tab; loads its services if not yet loaded.
+  Future<void> selectCategoryTab(int index) async {
+    if (index == state.selectedCategoryIndex) return;
+    if (isClosed) return;
+    emit(state.copyWith(selectedCategoryIndex: index));
+
+    // Load services for this tab if not loaded yet.
+    if (state.categoryTabs[index].services == null &&
+        !state.categoryTabs[index].isLoading) {
+      await _loadTabServices(index, state.categoryTabs[index].categoryId);
+    }
+  }
+
+  /// Retries loading the services for tab at [index] after an error.
+  Future<void> retryTabLoad(int index) async {
+    if (index >= state.categoryTabs.length) return;
+    await _loadTabServices(index, state.categoryTabs[index].categoryId);
+  }
+
+  // ── Helper: immutably update one tab in the list ───────────────────────────
+
+  void _updateTab(int index, CategoryTab Function(CategoryTab) updater) {
+    if (isClosed) return;
+    final tabs = List<CategoryTab>.from(state.categoryTabs);
+    if (index >= tabs.length) return;
+    tabs[index] = updater(tabs[index]);
+    emit(state.copyWith(categoryTabs: tabs));
+  }
+
+  // ── Packages ───────────────────────────────────────────────────────────────
+
   Future<void> loadPackages({bool reset = false}) async {
+    if (isClosed) return;
     if (reset) {
       _packagesCurrentPage = 1;
-      _packages = [];
-      _packagesHasMore = true;
+      _fullPackages = [];
+      emit(
+        state.copyWith(
+          packages: [],
+          fullPackages: [],
+          packagesHasMore: true,
+          isPackagesLoadingMore: false,
+        ),
+      );
     }
-    if (_packagesIsLoadingMore || !_packagesHasMore) return;
+    if (state.isPackagesLoading || (state.isPackagesLoadingMore && !reset)) {
+      return;
+    }
 
     if (_packagesCurrentPage == 1) {
-      emit(const ProviderPageState.packagesLoading());
+      emit(state.copyWith(isPackagesLoading: true, resetPackagesError: true));
     } else {
-      _packagesIsLoadingMore = true;
-      emit(ProviderPageState.packagesSuccess(
-        packages: _packages,
-        hasMore: _packagesHasMore,
-        isLoadingMore: _packagesIsLoadingMore,
-      ));
+      emit(state.copyWith(isPackagesLoadingMore: true));
     }
 
-    final result = await _repository.getProviderPackages(
+    final result = await _medicardRepository.getProviderPackages(
       providerId: providerId,
       pageNumber: _packagesCurrentPage,
       pageSize: _pageSize,
     );
 
+    if (isClosed) return;
     result.when(
       success: (response) {
-        if (response.data?.items != null) {
-          _packages.addAll(response.data!.items!);
-          _packagesHasMore = (_packagesCurrentPage < (response.data?.totalPages ?? 1));
-          _packagesCurrentPage++;
-        }
-        _packagesIsLoadingMore = false;
-        emit(ProviderPageState.packagesSuccess(
-          packages: _packages,
-          hasMore: _packagesHasMore,
-          isLoadingMore: _packagesIsLoadingMore,
-        ));
+        if (isClosed) return;
+        final newPackages = response.data?.items ?? [];
+        final allPackages = [..._fullPackages, ...newPackages];
+        _fullPackages = allPackages;
+        final hasMore = _packagesCurrentPage < (response.data?.totalPages ?? 1);
+        _packagesCurrentPage++;
+        emit(
+          state.copyWith(
+            fullPackages: allPackages,
+            packages: _filterPackages(allPackages, state.searchQuery),
+            packagesHasMore: hasMore,
+            isPackagesLoading: false,
+            isPackagesLoadingMore: false,
+          ),
+        );
       },
       failure: (error) {
-        _packagesIsLoadingMore = false;
-        emit(ProviderPageState.packagesFailed(error));
+        if (isClosed) return;
+        emit(
+          state.copyWith(
+            packagesError: error,
+            isPackagesLoading: false,
+            isPackagesLoadingMore: false,
+          ),
+        );
       },
     );
   }
 
+  Future<void> loadMorePackages() async => loadPackages();
+
+  Future<void> togglePackageDetails(int packageId) async {
+    if (isClosed) return;
+
+    final expandedIds = Set<int>.from(state.expandedPackageIds);
+    final willExpand = !expandedIds.contains(packageId);
+    if (willExpand) {
+      expandedIds.add(packageId);
+    } else {
+      expandedIds.remove(packageId);
+    }
+    emit(state.copyWith(expandedPackageIds: expandedIds));
+
+    if (!willExpand ||
+        state.packageDetailsById.containsKey(packageId) ||
+        state.loadingPackageDetailsIds.contains(packageId)) {
+      return;
+    }
+
+    final loadingIds = Set<int>.from(state.loadingPackageDetailsIds)
+      ..add(packageId);
+    final errors = Map<int, String>.from(state.packageDetailsErrors)
+      ..remove(packageId);
+    emit(
+      state.copyWith(
+        loadingPackageDetailsIds: loadingIds,
+        packageDetailsErrors: errors,
+      ),
+    );
+
+    final result = await _medicardRepository.getPackageDetails(
+      packageId: packageId,
+    );
+    if (isClosed) return;
+
+    final updatedLoadingIds = Set<int>.from(state.loadingPackageDetailsIds)
+      ..remove(packageId);
+
+    result.when(
+      success: (response) {
+        final details = response.data;
+        if (details == null) {
+          final nextErrors = Map<int, String>.from(state.packageDetailsErrors)
+            ..[packageId] = 'No package details found';
+          emit(
+            state.copyWith(
+              loadingPackageDetailsIds: updatedLoadingIds,
+              packageDetailsErrors: nextErrors,
+            ),
+          );
+          return;
+        }
+
+        final detailsById = Map<int, PackageDetailsData>.from(
+          state.packageDetailsById,
+        )..[packageId] = details;
+        emit(
+          state.copyWith(
+            packageDetailsById: detailsById,
+            loadingPackageDetailsIds: updatedLoadingIds,
+          ),
+        );
+      },
+      failure: (error) {
+        final nextErrors = Map<int, String>.from(state.packageDetailsErrors)
+          ..[packageId] = error;
+        emit(
+          state.copyWith(
+            loadingPackageDetailsIds: updatedLoadingIds,
+            packageDetailsErrors: nextErrors,
+          ),
+        );
+      },
+    );
+  }
+
+  // ── Search ─────────────────────────────────────────────────────────────────
+
   void updateSearchQuery(String query) {
     if (_debounceTimer?.isActive ?? false) _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
-      _searchQuery = query.isEmpty ? null : query;
-      loadServices(reset: true);
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      if (isClosed) return;
+      emit(
+        state.copyWith(
+          searchQuery: query.isEmpty ? null : query,
+          resetSearchQuery: query.isEmpty,
+          packages: _filterPackages(
+            state.fullPackages,
+            query.isEmpty ? null : query,
+          ),
+        ),
+      );
     });
   }
 
-  Future<void> loadMoreServices() async {
-    await loadServices();
+  List<ProviderPackage> _filterPackages(
+    List<ProviderPackage> packages,
+    String? query,
+  ) {
+    if (query == null || query.isEmpty) return packages;
+    final q = query.toLowerCase();
+    return packages
+        .where((p) => p.name?.toLowerCase().contains(q) ?? false)
+        .toList();
   }
 
-  Future<void> loadMorePackages() async {
-    await loadPackages();
-  }
+  // ── View switch ────────────────────────────────────────────────────────────
 
   Future<void> switchView(ProviderViewType view) async {
-    _currentView = view;
-    if (view == ProviderViewType.services) {
-      if (_services.isNotEmpty) {
-        emit(ProviderPageState.servicesSuccess(
-          services: _services,
-          hasMore: _servicesHasMore,
-          isLoadingMore: _servicesIsLoadingMore,
-        ));
-      } else {
-        await loadServices(reset: true);
-      }
-    } else {
-      if (_packages.isNotEmpty) {
-        emit(ProviderPageState.packagesSuccess(
-          packages: _packages,
-          hasMore: _packagesHasMore,
-          isLoadingMore: _packagesIsLoadingMore,
-        ));
-      } else {
-        await loadPackages(reset: true);
-      }
+    if (isClosed) return;
+    emit(state.copyWith(currentView: view));
+    if (view == ProviderViewType.packages && state.packages.isEmpty) {
+      await loadPackages(reset: true);
     }
   }
+
+  // ── No-ops kept for API compatibility ──────────────────────────────────────
+
+  Future<void> loadProviderServices({bool reset = false}) async {}
+  Future<void> loadServices({bool reset = false}) async {}
+  Future<void> loadMoreServices() async {}
+
+  // ── Lifecycle ──────────────────────────────────────────────────────────────
 
   @override
   Future<void> close() {

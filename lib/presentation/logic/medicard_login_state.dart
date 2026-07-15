@@ -8,6 +8,7 @@ part 'medicard_login_state.freezed.dart';
 class MedicardLoginState with _$MedicardLoginState {
   const factory MedicardLoginState.initial() = Initial;
   const factory MedicardLoginState.loading() = Loading;
-  const factory MedicardLoginState.success(AuthResponseModel response) = Success;
+  const factory MedicardLoginState.success(AuthResponseModel response) =
+      Success;
   const factory MedicardLoginState.failed({required String error}) = Failed;
 }

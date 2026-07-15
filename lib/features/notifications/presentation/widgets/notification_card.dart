@@ -20,33 +20,33 @@ class NotificationCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
-        padding: EdgeInsets.all(12.r),
+        padding: EdgeInsets.all(14.r),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(
-            color: const Color(0xFFE2E8F0),
-            width: 1.w,
-          ),
+          borderRadius: BorderRadius.circular(14.r),
+          border: Border.all(color: const Color(0xFFE2E8F0), width: 1.w),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: EdgeInsets.only(top: 14.h, right: 8.w),
-              child: CircleAvatar(
-                radius: 4.r,
-                backgroundColor: notification.isRead
-                    ? Colors.transparent
-                    : const Color(0xFF3B82F6),
+            if (!notification.isRead)
+              Padding(
+                padding: EdgeInsets.only(top: 18.h, right: 8.w),
+                child: Container(
+                  width: 8.w,
+                  height: 8.w,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF3B82F6),
+                    shape: BoxShape.circle,
+                  ),
+                ),
               ),
-            ),
             Container(
-              width: 48.r,
-              height: 48.r,
+              width: 52.r,
+              height: 52.r,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
               ),
               child: ClipOval(child: _NotificationImage(notification.imageUrl)),
             ),
@@ -55,33 +55,18 @@ class NotificationCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          notification.title,
-                          style: TextStyle(
-                            fontFamily: 'Roboto',
-                            fontWeight: FontWeight.w500,
-                            fontSize: 14.sp,
-                            color: const Color(0xFF2D5FA6),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      SizedBox(width: 8.w),
-                      Text(
-                        _formatRelativeTime(notification.createdAt),
-                        style: TextStyle(
-                          fontFamily: 'Roboto',
-                          fontWeight: FontWeight.w400,
-                          fontSize: 10.sp,
-                          color: const Color(0xFF94A3B8),
-                        ),
-                      ),
-                    ],
+                  SizedBox(height: 2.h),
+                  Text(
+                    notification.title,
+                    style: TextStyle(
+                      fontFamily: 'Roboto',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14.sp,
+                      color: const Color(0xFF3B82F6),
+                      height: 1.2,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: 4.h),
                   Text(
@@ -89,14 +74,27 @@ class NotificationCard extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: 'Roboto',
                       fontWeight: FontWeight.w400,
-                      fontSize: 12.sp,
-                      color: const Color(0xFF475569),
-                      height: 1.4,
+                      fontSize: 13.sp,
+                      color: const Color(0xFF64748B),
+                      height: 1.3,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
+              ),
+            ),
+            SizedBox(width: 8.w),
+            Padding(
+              padding: EdgeInsets.only(top: 2.h),
+              child: Text(
+                _formatRelativeTime(notification.createdAt),
+                style: TextStyle(
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.w400,
+                  fontSize: 11.sp,
+                  color: const Color(0xFF94A3B8),
+                ),
               ),
             ),
           ],
@@ -153,7 +151,7 @@ class _NotificationFallbackIcon extends StatelessWidget {
     return Center(
       child: Icon(
         Icons.notifications_outlined,
-        color: const Color(0xFF2D5FA6),
+        color: const Color(0xFF94A3B8),
         size: 24.sp,
       ),
     );

@@ -1,8 +1,11 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/auth/auth_session_storage.dart';
+import '../../core/auth/auth_refresh_service.dart';
+import '../../features/cart/presentation/cubit/cart_cubit.dart';
+import '../../features/cart/presentation/pages/cart_screen.dart';
 import '../../features/activate_card/presentation/pages/activate_card_screen.dart';
 import '../../features/home/presentation/pages/home_screen.dart';
 import '../../features/notifications/presentation/cubit/notifivation_cubit.dart';
@@ -15,6 +18,7 @@ import '../../features/profile/presentation/pages/edit_profile_screen.dart';
 import '../../features/profile/presentation/pages/profile_screen.dart';
 import '../../features/search/presentation/cubit/filter_cubit.dart';
 import '../../features/search/presentation/cubit/search_cubit.dart';
+import '../../features/search/presentation/screens/choose_provider_screen.dart';
 import '../../features/search/presentation/screens/search_screen.dart';
 import '../../features/content/domain/models/content_type.dart';
 import '../../features/content/presentation/cubit/content_cubit.dart';
@@ -28,75 +32,132 @@ import '../../medicard_network/logic/medicard_network_cubit.dart';
 import '../../medicard_network/presentation/medicard_network_screen.dart';
 import '../../medicard_network/presentation/pages/provider_page_screen.dart';
 import '../../medicard_network/presentation/pages/branches_screen.dart';
+import '../../medicard_network/presentation/pages/reviews_screen.dart';
 import '../../network/data/provider_page_response_model.dart';
-import '../../presentation/logic/medicard_home_cubit.dart';
 import '../../presentation/logic/medicard_login_cubit.dart';
-import '../../presentation/logic/medicard_support_cubit.dart';
-import '../../presentation/medicard_login_screen.dart';
-import '../../presentation/medicard_my_card_screen.dart';
-import '../../presentation/medicard_onboarding_screen.dart';
-import '../../presentation/medicard_selection_screen.dart';
-import '../../presentation/medicard_support_screen.dart';
-import '../../presentation/register_screen.dart';
 import '../../presentation/logic/register_cubit.dart';
+import '../../presentation/medicard_login_screen.dart';
+import '../../presentation/register_screen.dart';
 import '../constants/constants.dart';
 import '../di/service_locator.dart';
 import '../helpers/shared_pref_helper.dart';
 import '../theming/app_toast.dart';
 
 class AppRouter {
+  /// Determines the initial route based on the stored session state.
+  ///
+  /// Decision tree:
+  /// 1. No session → check onboarding flag → /onboarding or /guest-home
+  /// 2. Refresh token expired → clear session → /medicard-login
+  /// 3. Access token still valid → /medicard-home
+  /// 4. Access token expired but refresh token valid → attempt refresh
+  ///    → success: /medicard-home | failure: /medicard-login
   static Future<String> getInitialLocation() async {
     try {
-      // Check for existing auth token first — skip login if still logged in
-      final token = await SharedPrefHelper.getSecuredString(
-        SharedPrefKeys.userToken,
-      );
-      if (token.isNotEmpty) {
+      final sessionStorage = const AuthSessionStorage();
+      final session = await sessionStorage.getSession();
+
+      // No stored session at all.
+      if (session == null) {
+        return _loginOrOnboarding();
+      }
+
+      // Refresh token is gone or expired — session is dead.
+      if (!session.hasRefreshToken) {
+        if (session.accessTokenExpiresAt != null &&
+            session.isAccessTokenExpiredOrAboutToExpire) {
+          await sessionStorage.clearSession();
+          return '/medicard-login';
+        }
         return '/medicard-home';
       }
 
-      final hasSeenOnboarding = await SharedPrefHelper.getBool(
-        SharedPrefKeys.hasSeenOnboarding,
-      );
-
-      if (!hasSeenOnboarding) {
-        return '/onboarding';
+      if (session.isRefreshTokenExpired) {
+        await sessionStorage.clearSession();
+        return '/medicard-login';
       }
 
-      return '/guest-home';
+      // Access token is still valid — go straight home.
+      if (!session.isAccessTokenExpiredOrAboutToExpire) {
+        return '/medicard-home';
+      }
+
+      // Access token expired but refresh token is valid — try to refresh
+      // silently so the user lands directly on the home screen.
+      if (kDebugMode) {
+        debugPrint(
+          '[AppRouter] Access token expired at startup — refreshing silently',
+        );
+      }
+
+      final refreshService = sl<AuthRefreshService>();
+      final newSession = await refreshService.refreshToken();
+      if (newSession != null) {
+        return '/medicard-home';
+      }
+
+      // Refresh failed.
+      return '/medicard-login';
     } catch (e) {
-      // Fallback — never leave the user on a blank splash
-      if (kDebugMode) debugPrint('AppRouter.getInitialLocation error: $e');
+      if (kDebugMode) debugPrint('[AppRouter] getInitialLocation error: $e');
       return '/guest-home';
+    }
+  }
+
+  static Future<String> _loginOrOnboarding() async {
+    final hasSeenOnboarding = await SharedPrefHelper.getBool(
+      SharedPrefKeys.hasSeenOnboarding,
+    );
+    return hasSeenOnboarding ? '/guest-home' : '/onboarding';
+  }
+
+  static String normalizeLocation(String location) {
+    final trimmed = location.trim();
+    final normalized = trimmed.startsWith('/') ? trimmed : '/$trimmed';
+
+    switch (normalized.toLowerCase()) {
+      case '/':
+        return '/guest-home';
+      case '/home':
+      case '/medicardhome':
+      case '/medicard-home':
+        return '/medicard-home';
+      case '/guesthome':
+      case '/guest-home':
+      case '/onboarding':
+        return '/guest-home';
+      case '/login':
+      case '/medicard-login':
+        return '/medicard-login';
+      case '/register':
+      case '/medicard-register':
+        return '/medicard-register';
+      default:
+        return normalized;
     }
   }
 
   static GoRouter createRouter(String initialLocation) {
     return GoRouter(
       navigatorKey: toastNavigatorKey,
-      initialLocation: initialLocation,
+      initialLocation: normalizeLocation(initialLocation),
+      onException: (context, state, router) {
+        final fallbackLocation = normalizeLocation(state.uri.toString());
+        router.go(
+          fallbackLocation == state.uri.toString()
+              ? '/guest-home'
+              : fallbackLocation,
+        );
+      },
       routes: [
-        GoRoute(
-          path: '/onboarding',
-          builder: (context, state) => const MedicardOnboardingScreen(),
-        ),
-        GoRoute(
-          path: '/medicard',
-          builder: (context, state) => const MedicardSelectionScreen(),
-        ),
-        GoRoute(
-          path: '/medicard-activation',
-          builder: (context, state) => const ActivateCardScreen(),
-        ),
-        GoRoute(
-          path: '/guest-home',
-          builder: (context, state) => const GuestHomeScreen(),
-        ),
+        GoRoute(path: '/', redirect: (context, state) => '/guest-home'),
+        GoRoute(path: '/Home', redirect: (context, state) => '/medicard-home'),
+        GoRoute(path: '/home', redirect: (context, state) => '/medicard-home'),
         GoRoute(
           path: '/medicard-login',
           builder: (context, state) {
             return BlocProvider(
-              create: (context) => sl<MedicardLoginCubit>(),
+              create: (_) => sl<MedicardLoginCubit>(),
               child: const MediCardLoginScreen(),
             );
           },
@@ -105,10 +166,22 @@ class AppRouter {
           path: '/medicard-register',
           builder: (context, state) {
             return BlocProvider(
-              create: (context) => sl<RegisterCubit>(),
+              create: (_) => sl<RegisterCubit>(),
               child: const RegisterScreen(),
             );
           },
+        ),
+        GoRoute(
+          path: '/onboarding',
+          redirect: (context, state) => '/guest-home',
+        ),
+        GoRoute(
+          path: '/medicard-activation',
+          builder: (context, state) => const ActivateCardScreen(),
+        ),
+        GoRoute(
+          path: '/guest-home',
+          builder: (context, state) => const GuestHomeScreen(),
         ),
         GoRoute(
           path: '/medicard-home',
@@ -123,26 +196,7 @@ class AppRouter {
             );
           },
         ),
-        GoRoute(
-          path: '/medicard-my-card',
-          builder: (context, state) {
-            final extra = state.extra as Map<String, dynamic>?;
-            final personalData = extra?['personalData'];
-            final cardNo = extra?['cardNo'] as String?;
-            if (personalData == null || cardNo == null) {
-              return const Scaffold(
-                body: Center(child: Text('Invalid parameters')),
-              );
-            }
-            return BlocProvider(
-              create: (context) => sl<MedicardHomeCubit>(),
-              child: MedicardMyCardScreen(
-                personalData: personalData,
-                cardNo: cardNo,
-              ),
-            );
-          },
-        ),
+
         GoRoute(
           path: '/medicard-network',
           builder: (context, state) {
@@ -151,15 +205,6 @@ class AppRouter {
             return BlocProvider(
               create: (context) => sl<MedicardNetworkCubit>(),
               child: MedicardNetworkScreen(initialSearchQuery: searchQuery),
-            );
-          },
-        ),
-        GoRoute(
-          path: '/medicard-support',
-          builder: (context, state) {
-            return BlocProvider(
-              create: (context) => sl<MedicardSupportCubit>(),
-              child: const MediCardSupportScreen(),
             );
           },
         ),
@@ -271,6 +316,34 @@ class AppRouter {
           },
         ),
         GoRoute(
+          path: '/cart',
+          builder: (context, state) {
+            return BlocProvider(
+              create: (_) => sl<CartCubit>(),
+              child: const CartScreen(),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/choose-provider',
+          builder: (context, state) {
+            // The CartCubit instance is passed as extra so both screens
+            // share the same state. We fall back to creating a new one
+            // if extra is absent (e.g. deep-link / dev navigation).
+            if (state.extra is CartCubit) {
+              return BlocProvider.value(
+                value: state.extra as CartCubit,
+                child: const ChooseProviderScreen(),
+              );
+            }
+
+            return BlocProvider(
+              create: (_) => sl<CartCubit>()..loadProviders(),
+              child: const ChooseProviderScreen(),
+            );
+          },
+        ),
+        GoRoute(
           path: '/provider-page',
           builder: (context, state) {
             final providerId = state.extra as int;
@@ -282,6 +355,14 @@ class AppRouter {
           builder: (context, state) {
             final branches = state.extra as List<ProviderBranch>;
             return BranchesScreen(branches: branches);
+          },
+        ),
+        GoRoute(
+          path: '/provider-reviews',
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            final providerName = extra?['providerName'] as String?;
+            return ReviewsScreen(providerName: providerName);
           },
         ),
       ],

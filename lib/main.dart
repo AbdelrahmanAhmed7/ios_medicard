@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'core/cubit/app_refresh_cubit.dart';
 import 'core/cubit/localization_cubit.dart';
 import 'core/di/service_locator.dart';
+import 'core/network/dio_factory.dart';
 import 'core/services/app_language_manager.dart';
 import 'core/network/connectivity_service.dart';
 import 'core/routing/app_router.dart';
@@ -81,26 +82,38 @@ class _MyAppState extends State<MyApp> {
         BlocProvider.value(value: sl<AppRefreshCubit>()),
         BlocProvider.value(value: sl<LocalizationCubit>()),
       ],
-      child: ScreenUtilInit(
-        designSize: const Size(375, 812),
-        minTextAdapt: true,
-        splitScreenMode: true,
-        child: MaterialApp.router(
-          debugShowCheckedModeBanner: false,
-          routerConfig: _router,
-          title: 'MediCard',
-          theme: ThemeData(
-            fontFamily: FontManager.getFontFamily(context),
-            useMaterial3: true,
+      child: BlocListener<AppRefreshCubit, AppRefreshState>(
+        bloc: sl<AppRefreshCubit>(),
+        listener: (context, state) {
+          state.maybeWhen(
+            sessionExpired: () {
+              // Clear the singleton Dio header so no stale token is sent.
+              DioFactory.clearTokenFromHeader();
+              // Navigate to login from anywhere in the app.
+              _router.go('/medicard-login');
+            },
+            orElse: () {},
+          );
+        },
+        child: ScreenUtilInit(
+          designSize: const Size(375, 812),
+          minTextAdapt: true,
+          splitScreenMode: true,
+          child: MaterialApp.router(
+            debugShowCheckedModeBanner: false,
+            routerConfig: _router,
+            title: 'MediCard',
+            theme: ThemeData(
+              fontFamily: FontManager.getFontFamily(context),
+              useMaterial3: true,
+            ),
+            localizationsDelegates: context.localizationDelegates,
+            supportedLocales: context.supportedLocales,
+            locale: context.locale,
+            builder: (context, child) {
+              return child!;
+            },
           ),
-          localizationsDelegates: context.localizationDelegates,
-          supportedLocales: context.supportedLocales,
-          locale: context.locale,
-          // Ensure correct text direction
-          builder: (context, child) {
-            // EasyLocalization already handles Directionality, but just in case
-            return child!;
-          },
         ),
       ),
     );

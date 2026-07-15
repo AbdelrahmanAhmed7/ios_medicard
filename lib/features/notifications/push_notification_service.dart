@@ -379,7 +379,7 @@ class PushNotificationService {
       // Get initial token
       _currentToken = await _messaging.getToken();
       if (_currentToken != null) {
-        if (kDebugMode) debugPrint('FCM Token: $_currentToken');
+        if (kDebugMode) debugPrint('FCM token obtained successfully');
         _tokenController.add(_currentToken!);
       }
 

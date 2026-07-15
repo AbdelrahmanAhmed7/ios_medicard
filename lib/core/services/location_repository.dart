@@ -7,16 +7,34 @@ import 'location_service.dart';
 /// permission or GPS.
 class LocationRepository {
   LocationResult? _cached;
+  Future<LocationResult>? _ongoingResolution;
 
   LocationResult? get cached => _cached;
 
   bool get hasLocation => _cached?.hasCoordinates == true;
 
-  Future<LocationResult> resolve(LocationService service) async {
-    if (_cached?.hasCoordinates == true) return _cached!;
-    final result = await service.resolveLocation(requestIfNeeded: true);
-    _cached = result;
-    return result;
+  Future<LocationResult> resolve(
+    LocationService service, {
+    Future<bool> Function()? showRationaleDialog,
+  }) {
+    if (_cached?.hasCoordinates == true) return Future.value(_cached!);
+
+    final ongoing = _ongoingResolution;
+    if (ongoing != null) return ongoing;
+
+    final resolution = service.resolveLocation(
+      requestIfNeeded: true,
+      showRationaleDialog: showRationaleDialog,
+    );
+    _ongoingResolution = resolution;
+    return resolution.then((result) {
+      if (result.hasCoordinates) _cached = result;
+      return result;
+    }).whenComplete(() {
+      if (identical(_ongoingResolution, resolution)) {
+        _ongoingResolution = null;
+      }
+    });
   }
 
   void cache(LocationResult result) {

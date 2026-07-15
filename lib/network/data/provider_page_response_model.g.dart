@@ -33,6 +33,7 @@ ProviderPageData _$ProviderPageDataFromJson(Map<String, dynamic> json) =>
       id: (json['id'] as num).toInt(),
       name: json['name'] as String,
       categoryName: json['categoryName'] as String,
+      categoryId: (json['categoryId'] as num?)?.toInt(),
       imageUrl: json['imageUrl'] as String,
       hotLine: json['hotLine'] as String?,
       phoneNumber1: json['phoneNumber1'] as String?,
@@ -53,6 +54,7 @@ Map<String, dynamic> _$ProviderPageDataToJson(ProviderPageData instance) =>
       'id': instance.id,
       'name': instance.name,
       'categoryName': instance.categoryName,
+      'categoryId': instance.categoryId,
       'imageUrl': instance.imageUrl,
       'hotLine': instance.hotLine,
       'phoneNumber1': instance.phoneNumber1,
@@ -219,4 +221,52 @@ Map<String, dynamic> _$ProviderPackageToJson(ProviderPackage instance) =>
       'priceAfter': instance.priceAfter,
       'discountPercentage': instance.discountPercentage,
       'servicesCount': instance.servicesCount,
+    };
+
+PackageDetailsResponse _$PackageDetailsResponseFromJson(
+  Map<String, dynamic> json,
+) => PackageDetailsResponse(
+  httpStatusCode: (json['httpStatusCode'] as num?)?.toInt(),
+  errors: (json['errors'] as List<dynamic>?)?.map((e) => e as String).toList(),
+  succeeded: json['succeeded'] as bool?,
+  message: json['message'] as String?,
+  data: json['data'] == null
+      ? null
+      : PackageDetailsData.fromJson(json['data'] as Map<String, dynamic>),
+);
+
+Map<String, dynamic> _$PackageDetailsResponseToJson(
+  PackageDetailsResponse instance,
+) => <String, dynamic>{
+  'httpStatusCode': instance.httpStatusCode,
+  'errors': instance.errors,
+  'succeeded': instance.succeeded,
+  'message': instance.message,
+  'data': instance.data?.toJson(),
+};
+
+PackageDetailsData _$PackageDetailsDataFromJson(Map<String, dynamic> json) =>
+    PackageDetailsData(
+      id: (json['id'] as num?)?.toInt(),
+      name: json['name'] as String?,
+      description: json['description'] as String?,
+      image: json['image'] as String?,
+      priceBefore: (json['priceBefore'] as num?)?.toDouble(),
+      priceAfter: (json['priceAfter'] as num?)?.toDouble(),
+      discountPercentage: (json['discountPercentage'] as num?)?.toDouble(),
+      serviceNames: (json['serviceNames'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+    );
+
+Map<String, dynamic> _$PackageDetailsDataToJson(PackageDetailsData instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'description': instance.description,
+      'image': instance.image,
+      'priceBefore': instance.priceBefore,
+      'priceAfter': instance.priceAfter,
+      'discountPercentage': instance.discountPercentage,
+      'serviceNames': instance.serviceNames,
     };

@@ -176,7 +176,8 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
 
                           // Activate Card Button
                           _ActivateCardButton(
-                            onPressed: () => context.push('/medicard-activation'),
+                            onPressed: () =>
+                                context.push('/medicard-activation'),
                           ),
                           SizedBox(height: 20.h),
 

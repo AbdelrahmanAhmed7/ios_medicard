@@ -15,62 +15,100 @@ class FamilyMembersRepositoryImpl implements FamilyMembersRepository {
 
   @override
   Future<List<FamilyMemberModel>> getFamilyMembers() async {
-    final token = await SharedPrefHelper.getSecuredString(SharedPrefKeys.userToken);
-    final GetFamilyMembersResponseModel response = await apiService.getFamilyMembers('Bearer $token');
+    final token = await SharedPrefHelper.getSecuredString(
+      SharedPrefKeys.userToken,
+    );
+    final GetFamilyMembersResponseModel response = await apiService
+        .getFamilyMembers('Bearer $token');
     if (response.succeeded == true && response.data != null) {
       return response.data!;
     } else {
-      throw Exception(response.errors?.join(', ') ?? 'Failed to get family members');
+      throw Exception(
+        response.errors?.join(', ') ?? 'Failed to get family members',
+      );
     }
   }
 
   @override
   Future<FamilyMemberModel> getFamilyMember(int id) async {
-    final token = await SharedPrefHelper.getSecuredString(SharedPrefKeys.userToken);
-    final GetFamilyMemberResponseModel response = await apiService.getFamilyMember('Bearer $token', id);
+    final token = await SharedPrefHelper.getSecuredString(
+      SharedPrefKeys.userToken,
+    );
+    final GetFamilyMemberResponseModel response = await apiService
+        .getFamilyMember('Bearer $token', id);
     if (response.succeeded == true && response.data != null) {
       return response.data!;
     } else {
-      throw Exception(response.errors?.join(', ') ?? 'Failed to get family member');
+      throw Exception(
+        response.errors?.join(', ') ?? 'Failed to get family member',
+      );
     }
   }
 
   @override
-  Future<void> createFamilyMember(String firstName, String lastName, int relation, String? imageUrl) async {
-    final token = await SharedPrefHelper.getSecuredString(SharedPrefKeys.userToken);
-    final CreateFamilyMemberRequestModel request = CreateFamilyMemberRequestModel(
-      firstName: firstName,
-      lastName: lastName,
-      relation: relation,
-      imageUrl: imageUrl,
+  Future<void> createFamilyMember(
+    String firstName,
+    String lastName,
+    int relation,
+    String? imageUrl,
+  ) async {
+    final token = await SharedPrefHelper.getSecuredString(
+      SharedPrefKeys.userToken,
     );
-    final FamilyMemberOperationResponseModel response = await apiService.createFamilyMember('Bearer $token', request);
+    final CreateFamilyMemberRequestModel request =
+        CreateFamilyMemberRequestModel(
+          firstName: firstName,
+          lastName: lastName,
+          relation: relation,
+          imageUrl: imageUrl,
+        );
+    final FamilyMemberOperationResponseModel response = await apiService
+        .createFamilyMember('Bearer $token', request);
     if (response.succeeded != true) {
-      throw Exception(response.errors?.join(', ') ?? 'Failed to create family member');
+      throw Exception(
+        response.errors?.join(', ') ?? 'Failed to create family member',
+      );
     }
   }
 
   @override
-  Future<void> updateFamilyMember(int id, String firstName, String lastName, int relation, String? imageUrl) async {
-    final token = await SharedPrefHelper.getSecuredString(SharedPrefKeys.userToken);
-    final CreateFamilyMemberRequestModel request = CreateFamilyMemberRequestModel(
-      firstName: firstName,
-      lastName: lastName,
-      relation: relation,
-      imageUrl: imageUrl,
+  Future<void> updateFamilyMember(
+    int id,
+    String firstName,
+    String lastName,
+    int relation,
+    String? imageUrl,
+  ) async {
+    final token = await SharedPrefHelper.getSecuredString(
+      SharedPrefKeys.userToken,
     );
-    final FamilyMemberOperationResponseModel response = await apiService.updateFamilyMember('Bearer $token', id, request);
+    final CreateFamilyMemberRequestModel request =
+        CreateFamilyMemberRequestModel(
+          firstName: firstName,
+          lastName: lastName,
+          relation: relation,
+          imageUrl: imageUrl,
+        );
+    final FamilyMemberOperationResponseModel response = await apiService
+        .updateFamilyMember('Bearer $token', id, request);
     if (response.succeeded != true) {
-      throw Exception(response.errors?.join(', ') ?? 'Failed to update family member');
+      throw Exception(
+        response.errors?.join(', ') ?? 'Failed to update family member',
+      );
     }
   }
 
   @override
   Future<void> deleteFamilyMember(int id) async {
-    final token = await SharedPrefHelper.getSecuredString(SharedPrefKeys.userToken);
-    final FamilyMemberOperationResponseModel response = await apiService.deleteFamilyMember('Bearer $token', id);
+    final token = await SharedPrefHelper.getSecuredString(
+      SharedPrefKeys.userToken,
+    );
+    final FamilyMemberOperationResponseModel response = await apiService
+        .deleteFamilyMember('Bearer $token', id);
     if (response.succeeded != true) {
-      throw Exception(response.errors?.join(', ') ?? 'Failed to delete family member');
+      throw Exception(
+        response.errors?.join(', ') ?? 'Failed to delete family member',
+      );
     }
   }
 }

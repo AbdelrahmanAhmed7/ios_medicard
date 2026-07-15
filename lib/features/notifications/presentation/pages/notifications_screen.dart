@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../../core/widgets/app_blue_header.dart';
 import '../cubit/notifivation_cubit.dart';
 import '../cubit/notification_state.dart';
 import '../widgets/notification_card.dart';
@@ -15,7 +16,8 @@ class NotificationsScreen extends StatefulWidget {
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
   final ScrollController _scrollController = ScrollController();
-  int _selectedIndex = 0;
+  int _selectedIndex =
+      1;
 
   @override
   void initState() {
@@ -44,36 +46,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF2D5FA6),
-        elevation: 0,
-        centerTitle: false,
-        titleSpacing: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new,
-            color: Colors.white,
-            size: 20.sp,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'Notifications',
-          style: TextStyle(
-            fontFamily: 'Roboto',
-            fontWeight: FontWeight.w600,
-            fontSize: 20.sp,
-            color: Colors.white,
-          ),
-        ),
-      ),
       body: Column(
         children: [
-          _NotificationsTabsHeader(
-            selectedIndex: _selectedIndex,
-            onTabSelected: (index) => setState(() => _selectedIndex = index),
-            onMarkAllRead: () =>
-                context.read<NotificationCubit>().markAllAsRead(),
+          AppBlueHeader(
+            title: 'Notifications',
+            bottomChild: _NotificationsTabsHeader(
+              selectedIndex: _selectedIndex,
+              onTabSelected: (index) => setState(() => _selectedIndex = index),
+              onMarkAllRead: () =>
+                  context.read<NotificationCubit>().markAllAsRead(),
+            ),
           ),
           Expanded(
             child: BlocBuilder<NotificationCubit, NotificationState>(
@@ -92,7 +74,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     title: 'Could not load notifications',
                     message: state.error!,
                     actionLabel: 'Retry',
-                    onAction: context.read<NotificationCubit>().getNotifications,
+                    onAction: context
+                        .read<NotificationCubit>()
+                        .getNotifications,
                   );
                 }
 
@@ -114,7 +98,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   onRefresh: context.read<NotificationCubit>().getNotifications,
                   child: ListView.builder(
                     controller: _scrollController,
-                    padding: EdgeInsets.only(top: 12.h, bottom: 24.h),
+                    padding: EdgeInsets.symmetric(vertical: 12.h),
                     itemCount:
                         visibleItems.length + (state.isLoadingMore ? 1 : 0),
                     itemBuilder: (context, index) {
@@ -132,9 +116,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         notification: notification,
                         onTap: () {
                           if (!notification.isRead) {
-                            context
-                                .read<NotificationCubit>()
-                                .markAsRead(notification.id);
+                            context.read<NotificationCubit>().markAsRead(
+                              notification.id,
+                            );
                           }
                         },
                       );
@@ -163,9 +147,8 @@ class _NotificationsTabsHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: const Color(0xFF2D5FA6),
-      padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 8.h),
+    return Padding(
+      padding: EdgeInsets.only(bottom: 6.h, left: 4.w, right: 4.w),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -177,7 +160,7 @@ class _NotificationsTabsHeader extends StatelessWidget {
                 isSelected: selectedIndex == 0,
                 onTap: () => onTabSelected(0),
               ),
-              SizedBox(width: 24.w),
+              SizedBox(width: 32.w),
               _NotificationTab(
                 title: 'Unread',
                 isSelected: selectedIndex == 1,
@@ -188,26 +171,36 @@ class _NotificationsTabsHeader extends StatelessWidget {
           GestureDetector(
             onTap: onMarkAllRead,
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
               decoration: BoxDecoration(
-                color: const Color(0xFFC6D8EC),
-                borderRadius: BorderRadius.circular(6.r),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
                     Icons.done_all,
                     color: const Color(0xFF1E293B),
-                    size: 14.sp,
+                    size: 16.sp,
                   ),
-                  SizedBox(width: 4.w),
+                  SizedBox(width: 6.w),
                   Text(
                     'Mark all read',
                     style: TextStyle(
                       fontFamily: 'Roboto',
                       fontWeight: FontWeight.w500,
-                      fontSize: 12.sp,
-                      color: const Color(0xFF1E293B),
+                      fontSize: 13.sp,
+                      color: const Color(
+                        0xFF1E293B,
+                      ),
                     ),
                   ),
                 ],
@@ -244,14 +237,19 @@ class _NotificationTab extends StatelessWidget {
               fontFamily: 'Roboto',
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
               fontSize: 16.sp,
-              color: Colors.white,
+              color: isSelected
+                  ? Colors.white
+                  : Colors.white.withValues(alpha: 0.7),
             ),
           ),
           SizedBox(height: 8.h),
           Container(
             height: 3.h,
-            width: 40.w,
-            color: isSelected ? Colors.white : Colors.transparent,
+            width: 42.w,
+            decoration: BoxDecoration(
+              color: isSelected ? Colors.white : Colors.transparent,
+              borderRadius: BorderRadius.circular(2.r),
+            ),
           ),
         ],
       ),
@@ -307,10 +305,7 @@ class _NotificationsMessage extends StatelessWidget {
             ),
             if (actionLabel != null && onAction != null) ...[
               SizedBox(height: 16.h),
-              TextButton(
-                onPressed: onAction,
-                child: Text(actionLabel!),
-              ),
+              TextButton(onPressed: onAction, child: Text(actionLabel!)),
             ],
           ],
         ),
