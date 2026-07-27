@@ -3,6 +3,8 @@ import 'package:retrofit/retrofit.dart';
 
 import '../dto/create_invoice_response_dto.dart';
 import '../dto/create_cart_invoice_request_dto.dart';
+import '../dto/create_review_request_dto.dart';
+import '../dto/invoice_details_response_dto.dart';
 import '../dto/create_package_invoice_request_dto.dart';
 import '../dto/invoices_response_dto.dart';
 
@@ -24,5 +26,15 @@ abstract class InvoiceRemoteDataSource {
   @POST('ProviderBranchView/invoices/create-from-cart')
   Future<CreateInvoiceResponseDto> createFromCart(
     @Body() CreateCartInvoiceRequestDto request,
+  );
+
+  @GET('ProviderBranchView/invoices/{invoiceId}/details')
+  Future<InvoiceDetailsResponseDto> getInvoiceDetails(
+    @Path('invoiceId') int invoiceId,
+  );
+
+  @POST('Review/reviews')
+  Future<CreateInvoiceResponseDto> createReview(
+    @Body() CreateReviewRequestDto request,
   );
 }

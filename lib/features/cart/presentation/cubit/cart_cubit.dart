@@ -443,20 +443,12 @@ class CartCubit extends Cubit<CartState> {
       emit(state.copyWith(createInvoiceError: 'Please choose a branch.'));
       return false;
     }
-    if (state.paymentMethod == CartPaymentMethod.visa) {
-      emit(
-        state.copyWith(
-          createInvoiceError: 'Visa payment is not available yet.',
-        ),
-      );
-      return false;
-    }
-
     emit(
       state.copyWith(
         isCreatingInvoice: true,
         resetCreateInvoiceError: true,
         resetCreatedInvoiceId: true,
+        resetCreatedInvoicePaymentLink: true,
       ),
     );
     final result = await _invoiceRepository.createFromCart(
@@ -466,10 +458,16 @@ class CartCubit extends Cubit<CartState> {
       familyId: state.selectedFamilyMember?.id,
     );
     final success = result.when(
-      success: (invoiceId) {
+      success: (invoice) {
         emit(
-          state.copyWith(isCreatingInvoice: false, createdInvoiceId: invoiceId),
+          state.copyWith(
+            cart: const Cart.empty(),
+            isCreatingInvoice: false,
+            createdInvoiceId: invoice.invoiceId,
+            createdInvoicePaymentLink: invoice.paymentLink,
+          ),
         );
+        _syncCartAfterInvoiceCreation();
         return true;
       },
       failure: (error) {
@@ -480,6 +478,15 @@ class CartCubit extends Cubit<CartState> {
       },
     );
     return success;
+  }
+
+  Future<void> _syncCartAfterInvoiceCreation() async {
+    final result = await _repository.getCart();
+    if (isClosed) return;
+    result.when(
+      success: (cart) => emit(state.copyWith(cart: cart)),
+      failure: (_) {},
+    );
   }
 
   /// Assigns [provider] to all uncovered services in the cart by calling

@@ -13,6 +13,11 @@ class Cart {
     required this.categoryCounters,
   });
 
+  const Cart.empty()
+    : items = const [],
+      totalCount = 0,
+      categoryCounters = const [];
+
   Cart removeService(int serviceId) {
     final removedItems = items.where((item) => item.serviceId == serviceId);
     if (removedItems.isEmpty) return this;

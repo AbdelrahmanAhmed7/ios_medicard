@@ -37,6 +37,7 @@ class CartState {
   final bool isCreatingInvoice;
   final String? createInvoiceError;
   final String? createdInvoiceId;
+  final String? createdInvoicePaymentLink;
 
   const CartState({
     this.cart,
@@ -65,6 +66,7 @@ class CartState {
     this.isCreatingInvoice = false,
     this.createInvoiceError,
     this.createdInvoiceId,
+    this.createdInvoicePaymentLink,
   });
 
   CartState copyWith({
@@ -106,6 +108,8 @@ class CartState {
     bool resetCreateInvoiceError = false,
     String? createdInvoiceId,
     bool resetCreatedInvoiceId = false,
+    String? createdInvoicePaymentLink,
+    bool resetCreatedInvoicePaymentLink = false,
   }) {
     return CartState(
       cart: cart ?? this.cart,
@@ -158,6 +162,9 @@ class CartState {
       createdInvoiceId: resetCreatedInvoiceId
           ? null
           : (createdInvoiceId ?? this.createdInvoiceId),
+      createdInvoicePaymentLink: resetCreatedInvoicePaymentLink
+          ? null
+          : (createdInvoicePaymentLink ?? this.createdInvoicePaymentLink),
     );
   }
 }

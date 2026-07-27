@@ -11,6 +11,7 @@ import '../../../../features/family_members/data/models/family_member_model.dart
 import '../../../../network/data/provider_page_response_model.dart';
 import '../cubit/cart_cubit.dart';
 import '../cubit/cart_state.dart';
+import 'order_confirmed_screen.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final int? initialProviderId;
@@ -39,22 +40,30 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       body: BlocConsumer<CartCubit, CartState>(
         listenWhen: (previous, current) =>
             previous.createInvoiceError != current.createInvoiceError ||
-            previous.createdInvoiceId != current.createdInvoiceId,
-        listener: (context, state) {
+            previous.createdInvoiceId != current.createdInvoiceId ||
+            previous.createdInvoicePaymentLink !=
+                current.createdInvoicePaymentLink,
+        listener: (context, state) async {
           if (state.createInvoiceError != null) {
             ScaffoldMessenger.of(
               context,
             ).showSnackBar(SnackBar(content: Text(state.createInvoiceError!)));
           }
           if (state.createdInvoiceId != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Invoice #${state.createdInvoiceId} created successfully.',
-                ),
-              ),
+            final paymentLink = state.createdInvoicePaymentLink;
+            if (paymentLink != null && paymentLink.isNotEmpty) {
+              final opened = await UrlLauncherService().launchURL(paymentLink);
+              if (!opened && context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Could not open payment link.')),
+                );
+              }
+            }
+            if (!context.mounted) return;
+            context.go(
+              '/order-confirmed',
+              extra: _confirmedArgsFromState(state),
             );
-            context.pop();
           }
         },
         builder: (context, state) {
@@ -113,6 +122,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       ],
     );
   }
+}
+
+OrderConfirmedArgs _confirmedArgsFromState(CartState state) {
+  return OrderConfirmedArgs(orderNumber: state.createdInvoiceId ?? '-');
 }
 
 class _PatientDropdown extends StatelessWidget {
