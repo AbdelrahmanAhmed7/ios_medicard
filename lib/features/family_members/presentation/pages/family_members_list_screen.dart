@@ -15,7 +15,8 @@ class FamilyMembersListScreen extends StatefulWidget {
   const FamilyMembersListScreen({super.key});
 
   @override
-  State<FamilyMembersListScreen> createState() => _FamilyMembersListScreenState();
+  State<FamilyMembersListScreen> createState() =>
+      _FamilyMembersListScreenState();
 }
 
 class _FamilyMembersListScreenState extends State<FamilyMembersListScreen> {
@@ -27,18 +28,16 @@ class _FamilyMembersListScreenState extends State<FamilyMembersListScreen> {
       backgroundColor: const Color(0xFFF8F9FA),
       body: BlocConsumer<FamilyMembersCubit, FamilyMembersState>(
         listener: (context, state) {
-          state.maybeWhen(
-            orElse: () {},
-          );
+          state.maybeWhen(orElse: () {});
         },
         builder: (context, state) {
           return state.when(
-      initial: () {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          context.read<FamilyMembersCubit>().loadFamilyMembers();
-        });
-        return const Center(child: CircularProgressIndicator());
-      },
+            initial: () {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                context.read<FamilyMembersCubit>().loadFamilyMembers();
+              });
+              return const Center(child: CircularProgressIndicator());
+            },
             loading: () => const Center(child: CircularProgressIndicator()),
             success: (members) {
               return Column(
@@ -61,7 +60,10 @@ class _FamilyMembersListScreenState extends State<FamilyMembersListScreen> {
                     child: Row(
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                          icon: const Icon(
+                            Icons.arrow_back_ios_new_rounded,
+                            color: Colors.white,
+                          ),
                           onPressed: () => context.pop(),
                         ),
                         Expanded(
@@ -84,10 +86,15 @@ class _FamilyMembersListScreenState extends State<FamilyMembersListScreen> {
                         ? _buildEmptyState(context)
                         : RefreshIndicator(
                             onRefresh: () async {
-                              context.read<FamilyMembersCubit>().loadFamilyMembers();
+                              context
+                                  .read<FamilyMembersCubit>()
+                                  .loadFamilyMembers();
                             },
                             child: ListView.builder(
-                              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 20.w,
+                                vertical: 16.h,
+                              ),
                               itemCount: members.length,
                               itemBuilder: (context, index) {
                                 return _FamilyMemberListItem(
@@ -135,18 +142,11 @@ class _FamilyMembersListScreenState extends State<FamilyMembersListScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.people_outline,
-            size: 80.sp,
-            color: Colors.grey,
-          ),
+          Icon(Icons.people_outline, size: 80.sp, color: Colors.grey),
           SizedBox(height: 16.h),
           Text(
             'family_members.no_family_members'.tr(),
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w600,
-            ),
+            style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -172,18 +172,13 @@ class _FamilyMemberListItem extends StatelessWidget {
         child: ListTile(
           leading: _buildAvatar(member.imageUrl),
           title: Text(
-            member.fullName ?? '${member.firstName ?? ''} ${member.lastName ?? ''}',
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w500,
-            ),
+            member.fullName ??
+                '${member.firstName ?? ''} ${member.lastName ?? ''}',
+            style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
           ),
           subtitle: Text(
             RelationHelper.getLocalizedRelation(member.relation),
-            style: TextStyle(
-              color: kAuthGreyText,
-              fontSize: 14.sp,
-            ),
+            style: TextStyle(color: kAuthGreyText, fontSize: 14.sp),
           ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,

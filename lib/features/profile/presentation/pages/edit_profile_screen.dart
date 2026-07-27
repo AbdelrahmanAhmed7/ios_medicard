@@ -51,7 +51,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${"edit_profile.could_not_pick_image".tr()}: ${e.toString()}')),
+          SnackBar(
+            content: Text(
+              '${"edit_profile.could_not_pick_image".tr()}: ${e.toString()}',
+            ),
+          ),
         );
       }
     } finally {
@@ -303,7 +307,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> _saveProfile() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isSaving = true);
-      context.read<ProfileCubit>().updateProfile(
+      final didUpdate = await context.read<ProfileCubit>().updateProfile(
         firstName: _firstNameController.text.trim(),
         lastName: _lastNameController.text.trim(),
         phoneNumber: _phoneNumberController.text.trim(),
@@ -316,7 +320,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         imagePath: _pickedImage?.path,
         currentData: widget.profileData,
       );
-      if (mounted) context.pop();
+      if (!mounted) return;
+      setState(() => _isSaving = false);
+      if (didUpdate) context.pop();
     }
   }
 

@@ -1,4 +1,7 @@
 class FeaturedServiceModel {
+  final int? packageId;
+  final int? providerId;
+  final int? providerBranchId;
   final String imageUrl;
   final String providerLogoUrl;
   final String providerName;
@@ -10,6 +13,9 @@ class FeaturedServiceModel {
   final int reviewCount;
 
   const FeaturedServiceModel({
+    this.packageId,
+    this.providerId,
+    this.providerBranchId,
     required this.imageUrl,
     required this.providerLogoUrl,
     required this.providerName,

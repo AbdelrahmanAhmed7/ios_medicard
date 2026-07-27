@@ -59,9 +59,14 @@ abstract class MedicardNetworkApiService {
     @Path("providerId") int providerId,
   );
 
-  @GET("ProviderPage/{providerId}/services")
+  @GET("ProviderPage/{providerId}/branchLocations")
+  Future<ProviderBranchesResponse> getProviderBranchLocations(
+    @Path("providerId") int providerId,
+  );
+
+  @GET("https://medicard-api-v2.medicardeg.com/services")
   Future<ProviderServicesResponse> getProviderServices(
-    @Path("providerId") int providerId, {
+    @Query("providerId") int providerId, {
     @Query("search") String? search,
     @Query("pageNumber") int? pageNumber,
     @Query("pageSize") int? pageSize,

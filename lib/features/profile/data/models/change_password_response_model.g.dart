@@ -10,7 +10,7 @@ ChangePasswordResponseModel _$ChangePasswordResponseModelFromJson(
   Map<String, dynamic> json,
 ) => ChangePasswordResponseModel(
   httpStatusCode: (json['httpStatusCode'] as num?)?.toInt(),
-  errors: (json['errors'] as List<dynamic>?)?.map((e) => e as String).toList(),
+  errors: json['errors'],
   succeeded: json['succeeded'] as bool?,
   success: json['success'] as bool?,
   message: json['message'] as String?,

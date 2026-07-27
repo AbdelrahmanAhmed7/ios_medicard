@@ -280,6 +280,7 @@ class _FakeCartRepository implements CartRepository {
     required int categoryId,
     int? providerId,
     String? cardNumber,
+    double? price,
   }) {
     addCalls[serviceId] = (addCalls[serviceId] ?? 0) + 1;
     final completer = addCompleters[serviceId];
@@ -307,5 +308,13 @@ class _FakeCartRepository implements CartRepository {
   @override
   Future<ApiResult<List<ProviderOption>>> getChooseProviders() async {
     return const ApiResult.success([]);
+  }
+
+  @override
+  Future<ApiResult<void>> updateCartProvider({
+    required int cartId,
+    required int providerId,
+  }) async {
+    return const ApiResult.success(null);
   }
 }

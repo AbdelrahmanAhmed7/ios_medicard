@@ -20,6 +20,7 @@ List<ProviderModel> mapGuestProviders(List<GuestNearestProvider> raw) {
 List<PromoBanner> mapGuestPromoBanners(List<GuestSlider> raw) {
   return raw.where((slider) => _hasText(slider.imageUrl)).map((slider) {
     return PromoBanner(
+      providerId: slider.providerId,
       imageUrl: _textOrEmpty(slider.imageUrl),
       providerLogoUrl: '',
       title: _textOrEmpty(slider.providerName),
@@ -29,24 +30,29 @@ List<PromoBanner> mapGuestPromoBanners(List<GuestSlider> raw) {
 }
 
 List<FeaturedServiceModel> mapGuestPackages(List<GuestPackage> raw) {
-  return raw.where((package) => _hasAnyText([
-    package.name,
-    package.providerName,
-    package.imageUrl,
-    package.description,
-  ])).map((package) {
-    return FeaturedServiceModel(
-      imageUrl: _textOrEmpty(package.imageUrl),
-      providerLogoUrl: '',
-      providerName: _textOrEmpty(package.providerName),
-      serviceName: _textOrEmpty(package.name),
-      location: _textOrEmpty(package.description),
-      originalPrice: package.priceBefore ?? 0,
-      discountedPrice: package.priceAfter ?? 0,
-      rating: 0,
-      reviewCount: 0,
-    );
-  }).toList();
+  return raw
+      .where(
+        (package) => _hasAnyText([
+          package.name,
+          package.providerName,
+          package.imageUrl,
+          package.description,
+        ]),
+      )
+      .map((package) {
+        return FeaturedServiceModel(
+          imageUrl: _textOrEmpty(package.imageUrl),
+          providerLogoUrl: '',
+          providerName: _textOrEmpty(package.providerName),
+          serviceName: _textOrEmpty(package.name),
+          location: _textOrEmpty(package.description),
+          originalPrice: package.priceBefore ?? 0,
+          discountedPrice: package.priceAfter ?? 0,
+          rating: 0,
+          reviewCount: 0,
+        );
+      })
+      .toList();
 }
 
 bool _hasAnyText(List<String?> values) => values.any(_hasText);

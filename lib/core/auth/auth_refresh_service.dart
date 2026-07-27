@@ -6,15 +6,9 @@ import 'auth_session_storage.dart';
 import 'jwt_helper.dart';
 import 'refresh_token_dto.dart';
 
-/// Handles refresh-token calls and single-flight deduplication.
-///
-/// Only ONE refresh request is ever in-flight at a time. Any concurrent
-/// callers receive the same [Future] so the backend is hit exactly once.
 class AuthRefreshService {
   final AuthSessionStorage _sessionStorage;
 
-  /// A dedicated [Dio] instance that NEVER carries our auth interceptor,
-  /// preventing interceptor recursion during the refresh call itself.
   final Dio _refreshDio;
 
   AuthRefreshService({
@@ -27,10 +21,6 @@ class AuthRefreshService {
 
   Future<AuthSession?>? _ongoingRefresh;
 
-  /// Refreshes the token exactly once even if called concurrently.
-  ///
-  /// Returns the updated [AuthSession] on success, or `null` on failure
-  /// (session is cleared before returning null).
   Future<AuthSession?> refreshToken() {
     _ongoingRefresh ??= _performRefresh().whenComplete(() {
       _ongoingRefresh = null;
@@ -69,10 +59,7 @@ class AuthRefreshService {
       final response = await _refreshDio.post<Map<String, dynamic>>(
         'Auth/refresh-token',
         data: requestBody,
-        options: Options(
-          // Prevent the auth interceptor from interfering with this request.
-          extra: {'skipAuthInterceptor': true},
-        ),
+        options: Options(extra: {'skipAuthInterceptor': true}),
       );
 
       final envelope = RefreshTokenEnvelopeDto.fromJson(response.data ?? {});
@@ -98,7 +85,9 @@ class AuthRefreshService {
       // Determine access-token expiry.
       // Prefer the field from the response; fall back to decoding the JWT.
       final accessTokenExpiry =
-          data?.expiresAt ?? getJwtExpiryDate(newAccessToken);
+          data?.expiresAt ??
+          getJwtExpiryDate(newAccessToken) ??
+          DateTime.now().toUtc().add(const Duration(minutes: 55));
 
       final newSession = AuthSession(
         accessToken: newAccessToken,
@@ -117,19 +106,22 @@ class AuthRefreshService {
     } on DioException catch (e) {
       final statusCode = e.response?.statusCode;
       if (kDebugMode) {
+        final data = e.response?.data;
+        final message = data is Map ? data['message'] : null;
         debugPrint(
-          '[AuthRefreshService] Refresh request failed (HTTP $statusCode)',
+          '[AuthRefreshService] Refresh request failed (HTTP $statusCode, message=$message)',
         );
       }
-      // On any HTTP error from the refresh endpoint, clear the session.
-      await _sessionStorage.clearSession();
+      if (statusCode == 400 || statusCode == 401 || statusCode == 403) {
+        await _sessionStorage.clearSession();
+      }
       return null;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('[AuthRefreshService] Unexpected refresh error');
+        debugPrint(
+          '[AuthRefreshService] Unexpected refresh error: ${e.runtimeType}',
+        );
       }
-      // For unexpected errors (e.g. JSON parse) also clear session.
-      await _sessionStorage.clearSession();
       return null;
     }
   }

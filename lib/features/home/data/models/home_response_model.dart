@@ -18,10 +18,40 @@ class HomeResponseModel {
     this.data,
   });
 
-  factory HomeResponseModel.fromJson(Map<String, dynamic> json) =>
-      _$HomeResponseModelFromJson(json);
+  factory HomeResponseModel.fromJson(Map<String, dynamic> json) {
+    final data = json['data'];
+    return HomeResponseModel(
+      httpStatusCode: (json['httpStatusCode'] as num?)?.toInt(),
+      errors: _stringList(json['errors']),
+      succeeded: json['succeeded'] as bool?,
+      message: json['message']?.toString(),
+      data: data is Map<String, dynamic> ? HomeDataModel.fromJson(data) : null,
+    );
+  }
 
   Map<String, dynamic> toJson() => _$HomeResponseModelToJson(this);
+}
+
+List<String>? _stringList(dynamic value) {
+  if (value == null) return null;
+  if (value is List) return value.map((e) => e.toString()).toList();
+  return [value.toString()];
+}
+
+String? _stringValue(dynamic value) => value?.toString();
+
+int? _intValue(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value.toString());
+}
+
+double? _doubleValue(dynamic value) {
+  if (value == null) return null;
+  if (value is double) return value;
+  if (value is num) return value.toDouble();
+  return double.tryParse(value.toString());
 }
 
 @JsonSerializable()
@@ -58,8 +88,12 @@ class HomeSlider {
     this.providerName,
   });
 
-  factory HomeSlider.fromJson(Map<String, dynamic> json) =>
-      _$HomeSliderFromJson(json);
+  factory HomeSlider.fromJson(Map<String, dynamic> json) => HomeSlider(
+    id: _intValue(json['id']),
+    imageUrl: _stringValue(json['imageUrl']),
+    providerId: _intValue(json['providerId']),
+    providerName: _stringValue(json['providerName']),
+  );
 
   Map<String, dynamic> toJson() => _$HomeSliderToJson(this);
 }
@@ -87,7 +121,16 @@ class HomePendingAppointment {
   });
 
   factory HomePendingAppointment.fromJson(Map<String, dynamic> json) =>
-      _$HomePendingAppointmentFromJson(json);
+      HomePendingAppointment(
+        providerId: _intValue(json['providerId']),
+        providerBranchId: _intValue(json['providerBranchId']),
+        providerName: _stringValue(json['providerName']),
+        providerImageUrl: _stringValue(json['providerImageUrl']),
+        branchName: _stringValue(json['branchName']),
+        service: _stringValue(json['service']),
+        status: _stringValue(json['status']),
+        date: _stringValue(json['date']),
+      );
 
   Map<String, dynamic> toJson() => _$HomePendingAppointmentToJson(this);
 }
@@ -115,7 +158,16 @@ class HomeNearestProvider {
   });
 
   factory HomeNearestProvider.fromJson(Map<String, dynamic> json) =>
-      _$HomeNearestProviderFromJson(json);
+      HomeNearestProvider(
+        providerId: _intValue(json['providerId']),
+        providerBranchId: _intValue(json['providerBranchId']),
+        providerName: _stringValue(json['providerName']),
+        providerImageUrl: _stringValue(json['providerImageUrl']),
+        branchName: _stringValue(json['branchName']),
+        fullAddress: _stringValue(json['fullAddress']),
+        mapUrl: _stringValue(json['mapUrl']),
+        distanceKm: _doubleValue(json['distanceKm']),
+      );
 
   Map<String, dynamic> toJson() => _$HomeNearestProviderToJson(this);
 }
@@ -124,6 +176,7 @@ class HomeNearestProvider {
 class HomePackage {
   final int? packageId;
   final int? providerId;
+  final int? providerBranchId;
   final String? providerName;
   final String? name;
   final String? imageUrl;
@@ -136,6 +189,7 @@ class HomePackage {
   const HomePackage({
     this.packageId,
     this.providerId,
+    this.providerBranchId,
     this.providerName,
     this.name,
     this.imageUrl,
@@ -146,8 +200,19 @@ class HomePackage {
     this.servicesCount,
   });
 
-  factory HomePackage.fromJson(Map<String, dynamic> json) =>
-      _$HomePackageFromJson(json);
+  factory HomePackage.fromJson(Map<String, dynamic> json) => HomePackage(
+    packageId: _intValue(json['packageId']),
+    providerId: _intValue(json['providerId']),
+    providerBranchId: _intValue(json['providerBranchId']),
+    providerName: _stringValue(json['providerName']),
+    name: _stringValue(json['name']),
+    imageUrl: _stringValue(json['imageUrl']),
+    description: _stringValue(json['description']),
+    priceBefore: _doubleValue(json['priceBefore']),
+    priceAfter: _doubleValue(json['priceAfter']),
+    discountPercentage: _doubleValue(json['discountPercentage']),
+    servicesCount: _intValue(json['servicesCount']),
+  );
 
   Map<String, dynamic> toJson() => _$HomePackageToJson(this);
 }

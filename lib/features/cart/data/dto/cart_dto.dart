@@ -20,10 +20,24 @@ class CartDto {
     this.data,
   });
 
-  factory CartDto.fromJson(Map<String, dynamic> json) =>
-      _$CartDtoFromJson(json);
+  factory CartDto.fromJson(Map<String, dynamic> json) {
+    final data = json['data'];
+    return CartDto(
+      httpStatusCode: (json['httpStatusCode'] as num?)?.toInt(),
+      errors: _stringList(json['errors']),
+      succeeded: json['succeeded'] as bool?,
+      message: json['message']?.toString(),
+      data: data is Map<String, dynamic> ? CartDataDto.fromJson(data) : null,
+    );
+  }
 
   Map<String, dynamic> toJson() => _$CartDtoToJson(this);
+}
+
+List<String>? _stringList(dynamic value) {
+  if (value == null) return null;
+  if (value is List) return value.map((e) => e.toString()).toList();
+  return [value.toString()];
 }
 
 @JsonSerializable()
@@ -32,11 +46,7 @@ class CartDataDto {
   final int? totalCount;
   final List<CategoryCounterDto>? categoryCounters;
 
-  const CartDataDto({
-    this.items,
-    this.totalCount,
-    this.categoryCounters,
-  });
+  const CartDataDto({this.items, this.totalCount, this.categoryCounters});
 
   factory CartDataDto.fromJson(Map<String, dynamic> json) =>
       _$CartDataDtoFromJson(json);

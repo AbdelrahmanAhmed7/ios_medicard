@@ -1,4 +1,5 @@
 class AppointmentModel {
+  final int? providerId;
   final String providerLogoUrl;
   final String providerName;
   final String service;
@@ -7,6 +8,7 @@ class AppointmentModel {
   final String date;
 
   const AppointmentModel({
+    this.providerId,
     required this.providerLogoUrl,
     required this.providerName,
     required this.service,

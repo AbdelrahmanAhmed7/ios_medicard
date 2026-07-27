@@ -28,6 +28,28 @@ Map<String, dynamic> _$ProviderPageResponseToJson(
   'data': instance.data?.toJson(),
 };
 
+ProviderBranchesResponse _$ProviderBranchesResponseFromJson(
+  Map<String, dynamic> json,
+) => ProviderBranchesResponse(
+  httpStatusCode: (json['httpStatusCode'] as num?)?.toInt(),
+  errors: (json['errors'] as List<dynamic>?)?.map((e) => e as String).toList(),
+  succeeded: json['succeeded'] as bool?,
+  message: json['message'] as String?,
+  data: (json['data'] as List<dynamic>?)
+      ?.map((e) => ProviderBranch.fromJson(e as Map<String, dynamic>))
+      .toList(),
+);
+
+Map<String, dynamic> _$ProviderBranchesResponseToJson(
+  ProviderBranchesResponse instance,
+) => <String, dynamic>{
+  'httpStatusCode': instance.httpStatusCode,
+  'errors': instance.errors,
+  'succeeded': instance.succeeded,
+  'message': instance.message,
+  'data': instance.data?.map((e) => e.toJson()).toList(),
+};
+
 ProviderPageData _$ProviderPageDataFromJson(Map<String, dynamic> json) =>
     ProviderPageData(
       id: (json['id'] as num).toInt(),
@@ -43,6 +65,9 @@ ProviderPageData _$ProviderPageDataFromJson(Map<String, dynamic> json) =>
       totalReviews: (json['totalReviews'] as num?)?.toInt(),
       branches: (json['branches'] as List<dynamic>?)
           ?.map((e) => ProviderBranch.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      services: (json['services'] as List<dynamic>?)
+          ?.map((e) => ProviderService.fromJson(e as Map<String, dynamic>))
           .toList(),
       pageNumber: (json['pageNumber'] as num?)?.toInt(),
       pageSize: (json['pageSize'] as num?)?.toInt(),
@@ -63,6 +88,7 @@ Map<String, dynamic> _$ProviderPageDataToJson(ProviderPageData instance) =>
       'averageRating': instance.averageRating,
       'totalReviews': instance.totalReviews,
       'branches': instance.branches?.map((e) => e.toJson()).toList(),
+      'services': instance.services?.map((e) => e.toJson()).toList(),
       'pageNumber': instance.pageNumber,
       'pageSize': instance.pageSize,
       'totalPages': instance.totalPages,

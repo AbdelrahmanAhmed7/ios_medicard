@@ -33,7 +33,7 @@ class DioFactory {
     requestHeader: false, // keeps tokens out of logs
     requestBody: true,
     responseHeader: false,
-    responseBody: true,
+    responseBody: false,
     error: true,
     compact: false,
     maxWidth: 90,

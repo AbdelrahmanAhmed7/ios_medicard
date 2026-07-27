@@ -33,6 +33,67 @@ class MedicardRepositoryImpl implements MedicardRepository {
 
   MedicardRepositoryImpl(this._apiService);
 
+  String _formatApiMessages(dynamic value) {
+    if (value == null) return '';
+    if (value is String) return value.trim();
+    if (value is Iterable) {
+      return value
+          .map(_formatApiMessages)
+          .where((message) => message.isNotEmpty)
+          .join('\n');
+    }
+    if (value is Map) {
+      return value.values
+          .map(_formatApiMessages)
+          .where((message) => message.isNotEmpty)
+          .join('\n');
+    }
+    return value.toString().trim();
+  }
+
+  String _friendlyChangePasswordMessage(String message) {
+    final lower = message.toLowerCase();
+    if (lower.contains('password') &&
+        (lower.contains('incorrect') ||
+            lower.contains('invalid') ||
+            lower.contains('wrong'))) {
+      return 'Current password is incorrect';
+    }
+    return message;
+  }
+
+  bool _isRegisterSuccess(AuthResponseModel response) {
+    final hasToken = response.data?.token?.isNotEmpty == true;
+    final innerSuccess = response.data?.success == true;
+    final successfulStatus =
+        response.httpStatusCode != null &&
+        response.httpStatusCode! >= 200 &&
+        response.httpStatusCode! < 300;
+
+    return response.succeeded || innerSuccess || successfulStatus || hasToken;
+  }
+
+  bool _isLoginSuccess(AuthResponseModel response) {
+    final hasToken = response.data?.token?.isNotEmpty == true;
+    final innerSuccess = response.data?.success == true;
+    final successfulStatus =
+        response.httpStatusCode != null &&
+        response.httpStatusCode! >= 200 &&
+        response.httpStatusCode! < 300;
+
+    return hasToken && (response.succeeded || innerSuccess || successfulStatus);
+  }
+
+  String _authFailureMessage(AuthResponseModel response) {
+    return (response.errors != null && response.errors!.isNotEmpty)
+        ? response.errors!.join('\n')
+        : response.message?.isNotEmpty == true
+        ? response.message!
+        : response.data?.message?.isNotEmpty == true
+        ? response.data!.message!
+        : 'Something went wrong';
+  }
+
   @override
   Future<ApiResult<AuthResponseModel>> register(
     AuthRegisterRequestModel request,
@@ -40,15 +101,9 @@ class MedicardRepositoryImpl implements MedicardRepository {
     try {
       final response = await _apiService.register(request);
 
-      return (response.succeeded && response.data != null)
+      return _isRegisterSuccess(response)
           ? ApiResult.success(response)
-          : ApiResult.failure(
-              (response.errors != null && response.errors!.isNotEmpty)
-                  ? response.errors!.join('\n')
-                  : response.message?.isNotEmpty == true
-                  ? response.message!
-                  : 'Something went wrong',
-            );
+          : ApiResult.failure(_authFailureMessage(response));
     } catch (error) {
       return ApiResult.failure(parseApiError(error));
     }
@@ -61,15 +116,9 @@ class MedicardRepositoryImpl implements MedicardRepository {
     try {
       final response = await _apiService.login(request);
 
-      return (response.succeeded && response.data != null)
+      return _isLoginSuccess(response)
           ? ApiResult.success(response)
-          : ApiResult.failure(
-              (response.errors != null && response.errors!.isNotEmpty)
-                  ? response.errors!.join('\n')
-                  : response.message?.isNotEmpty == true
-                  ? response.message!
-                  : 'Something went wrong',
-            );
+          : ApiResult.failure(_authFailureMessage(response));
     } catch (error) {
       return ApiResult.failure(parseApiError(error));
     }
@@ -211,6 +260,11 @@ class MedicardRepositoryImpl implements MedicardRepository {
           ? ApiResult.success(response)
           : ApiResult.failure(HomeFailureType.server.code);
     } catch (error) {
+      if (kDebugMode) {
+        debugPrint(
+          '[HomeRepository] Home request exception: ${error.runtimeType} $error',
+        );
+      }
       final appFailure = error is DioException
           ? (error.error is AppFailure
                 ? error.error! as AppFailure
@@ -328,11 +382,13 @@ class MedicardRepositoryImpl implements MedicardRepository {
       return isSuccess
           ? ApiResult.success(response)
           : ApiResult.failure(
-              (response.errors != null && response.errors!.isNotEmpty)
-                  ? response.errors!.join('\n')
-                  : response.message?.isNotEmpty == true
-                  ? response.message!
-                  : 'Failed to change password.',
+              _friendlyChangePasswordMessage(
+                _formatApiMessages(response.errors).isNotEmpty
+                    ? _formatApiMessages(response.errors)
+                    : response.message?.trim().isNotEmpty == true
+                    ? response.message!.trim()
+                    : 'Failed to change password.',
+              ),
             );
     } catch (error) {
       return ApiResult.failure(parseApiError(error));

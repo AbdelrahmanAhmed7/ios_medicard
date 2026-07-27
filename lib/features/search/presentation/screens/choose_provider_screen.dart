@@ -401,7 +401,7 @@ class _ChooseProviderBottomBar extends StatelessWidget {
           // Confirm button
           BlocBuilder<CartCubit, CartState>(
             builder: (context, state) {
-              final isLoading = state.isCartLoading;
+              final isLoading = state.isAssigningProvider;
               return SizedBox(
                 width: double.infinity,
                 height: 52.h,
@@ -409,12 +409,25 @@ class _ChooseProviderBottomBar extends StatelessWidget {
                   onPressed: isLoading
                       ? null
                       : () async {
-                          await context.read<CartCubit>().assignProvider(
-                            provider,
-                          );
+                          final didAssign = await context
+                              .read<CartCubit>()
+                              .assignProvider(provider);
                           if (context.mounted) {
-                            // Go back to cart
-                            context.pop();
+                            if (didAssign) {
+                              context.pop();
+                            } else {
+                              final error = context
+                                  .read<CartCubit>()
+                                  .state
+                                  .assignProviderError;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    error ?? 'Failed to update provider.',
+                                  ),
+                                ),
+                              );
+                            }
                           }
                         },
                   style: ElevatedButton.styleFrom(

@@ -60,8 +60,9 @@ class AuthSessionStorage {
   // ── Read ───────────────────────────────────────────────────────────────────
 
   Future<AuthSession?> getSession() async {
-    if (kDebugMode)
+    if (kDebugMode) {
       debugPrint('[AuthSessionStorage] reading authentication session');
+    }
     final accessToken = await SharedPrefHelper.getSecuredString(
       SharedPrefKeys.accessToken,
     );
@@ -74,8 +75,9 @@ class AuthSessionStorage {
         SharedPrefKeys.userToken,
       );
       if (legacy.isEmpty) {
-        if (kDebugMode)
+        if (kDebugMode) {
           debugPrint('[AuthSessionStorage] no access token found');
+        }
         return null;
       }
 
@@ -96,10 +98,11 @@ class AuthSessionStorage {
         );
       }
 
-      if (kDebugMode)
+      if (kDebugMode) {
         debugPrint(
           '[AuthSessionStorage] legacy authentication session available',
         );
+      }
       return AuthSession(
         accessToken: legacy,
         refreshToken: refreshToken,
@@ -161,17 +164,11 @@ class AuthSessionStorage {
 
   Future<void> clearSession() async {
     await Future.wait([
-      SharedPrefHelper.setSecuredString(SharedPrefKeys.accessToken, ''),
-      SharedPrefHelper.setSecuredString(SharedPrefKeys.refreshToken, ''),
-      SharedPrefHelper.setSecuredString(
-        SharedPrefKeys.accessTokenExpiresAt,
-        '',
-      ),
-      SharedPrefHelper.setSecuredString(
-        SharedPrefKeys.refreshTokenExpiresAt,
-        '',
-      ),
-      SharedPrefHelper.setSecuredString(SharedPrefKeys.userToken, ''),
+      SharedPrefHelper.removeSecuredData(SharedPrefKeys.accessToken),
+      SharedPrefHelper.removeSecuredData(SharedPrefKeys.refreshToken),
+      SharedPrefHelper.removeSecuredData(SharedPrefKeys.accessTokenExpiresAt),
+      SharedPrefHelper.removeSecuredData(SharedPrefKeys.refreshTokenExpiresAt),
+      SharedPrefHelper.removeSecuredData(SharedPrefKeys.userToken),
     ]);
   }
 }

@@ -54,11 +54,11 @@ class SearchRepositoryImpl implements SearchRepository {
       return (response.succeeded == true && response.data != null)
           ? ApiResult.success(response.data!.items ?? [])
           : ApiResult.failure(
-              (response.errors != null && response.errors!.isNotEmpty)
-                  ? response.errors!.join('\n')
-                  : response.message?.isNotEmpty == true
-                  ? response.message!
-                  : 'Failed to search providers.',
+              _responseMessage(
+                errors: response.errors,
+                message: response.message,
+                fallback: 'Failed to search providers.',
+              ),
             );
     } catch (error) {
       return ApiResult.failure(parseApiError(error));
@@ -143,14 +143,43 @@ class SearchRepositoryImpl implements SearchRepository {
       return (response.succeeded == true && response.data != null)
           ? ApiResult.success(response.data!)
           : ApiResult.failure(
-              (response.errors != null && response.errors!.isNotEmpty)
-                  ? response.errors!.join('\n')
-                  : response.message?.isNotEmpty == true
-                  ? response.message!
-                  : 'Failed to load category services.',
+              _responseMessage(
+                errors: response.errors,
+                message: response.message,
+                fallback: 'Failed to load category services.',
+              ),
             );
     } catch (error) {
       return ApiResult.failure(parseApiError(error));
     }
   }
+}
+
+String _responseMessage({
+  required dynamic errors,
+  required String? message,
+  required String fallback,
+}) {
+  final errorText = _extractMessages(errors);
+  if (errorText.isNotEmpty) return errorText;
+  if (message?.trim().isNotEmpty == true) return message!.trim();
+  return fallback;
+}
+
+String _extractMessages(dynamic value) {
+  if (value == null) return '';
+  if (value is String) return value.trim();
+  if (value is Iterable) {
+    return value
+        .map(_extractMessages)
+        .where((message) => message.isNotEmpty)
+        .join('\n');
+  }
+  if (value is Map) {
+    return value.values
+        .map(_extractMessages)
+        .where((message) => message.isNotEmpty)
+        .join('\n');
+  }
+  return value.toString().trim();
 }

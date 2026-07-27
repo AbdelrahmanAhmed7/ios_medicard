@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../core/theming/app_toast.dart';
 import '../core/utils/language_helper.dart';
 import '../core/widgets/auth_shared_widgets.dart';
+import '../data/auth_response_model.dart';
 import 'logic/register_cubit.dart';
 import 'logic/register_state.dart';
 
@@ -18,7 +19,11 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  static const int _passwordMinLength = 8;
+
   final _formKey = GlobalKey<FormState>();
+  final _nationalIdFieldKey = GlobalKey<FormFieldState<String>>();
+  final _confirmPasswordFieldKey = GlobalKey<FormFieldState<String>>();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _phoneNumberController = TextEditingController();
@@ -33,7 +38,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _obscureConfirmPassword = true;
 
   @override
+  void initState() {
+    super.initState();
+    _passwordController.addListener(_onPasswordChanged);
+  }
+
+  @override
   void dispose() {
+    _passwordController.removeListener(_onPasswordChanged);
     _firstNameController.dispose();
     _lastNameController.dispose();
     _phoneNumberController.dispose();
@@ -44,7 +56,139 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
+  void _onPasswordChanged() {
+    if (_confirmPasswordController.text.isNotEmpty) {
+      _confirmPasswordFieldKey.currentState?.validate();
+    }
+    setState(() {});
+  }
+
+  String? _validatePassword(String? value) {
+    final password = LanguageHelper.convertArabicToEnglishNumerals(
+      value?.trim() ?? '',
+    );
+
+    if (password.isEmpty) {
+      return 'auth.register.passwordRequired'.tr();
+    }
+    if (!_isPasswordValid(password)) {
+      return 'auth.register.passwordPolicyInvalid'.tr();
+    }
+    return null;
+  }
+
+  String? _validateConfirmPassword(String? value) {
+    final confirmPassword = LanguageHelper.convertArabicToEnglishNumerals(
+      value?.trim() ?? '',
+    );
+    final password = LanguageHelper.convertArabicToEnglishNumerals(
+      _passwordController.text.trim(),
+    );
+
+    if (confirmPassword.isEmpty) {
+      return 'auth.register.confirmPasswordRequired'.tr();
+    }
+    if (confirmPassword != password) {
+      return 'auth.register.passwordsNotMatch'.tr();
+    }
+    return null;
+  }
+
+  bool _hasUsableAuthSession(AuthResponseModel response) {
+    final data = response.data;
+    final token = data?.token;
+    final refreshToken = data?.refreshToken;
+    final refreshTokenExpiresAt = data?.refreshTokenExpiresAt;
+
+    if (token == null || token.isEmpty) return false;
+    if (refreshToken == null || refreshToken.isEmpty) return false;
+    if (refreshTokenExpiresAt == null) return false;
+    return DateTime.now().toUtc().isBefore(refreshTokenExpiresAt.toUtc());
+  }
+
+  bool _isPasswordValid(String password) {
+    return _hasMinimumLength(password) &&
+        _hasLetter(password) &&
+        _hasNumber(password) &&
+        _hasSpecialCharacter(password);
+  }
+
+  bool _hasMinimumLength(String password) =>
+      password.length >= _passwordMinLength;
+
+  bool _hasLetter(String password) => RegExp(r'[A-Za-z]').hasMatch(password);
+
+  bool _hasNumber(String password) => RegExp(r'[0-9]').hasMatch(password);
+
+  bool _hasSpecialCharacter(String password) =>
+      RegExp(r'[!@#\$%^&*(),.?":{}|<>_\-+=\[\]\\;/`~]').hasMatch(password);
+
+  String? _validatePhoneNumber(String? value) {
+    final phoneNumber = LanguageHelper.convertArabicToEnglishNumerals(
+      value?.trim() ?? '',
+    );
+
+    if (phoneNumber.isEmpty) {
+      return 'auth.register.phoneNumberRequired'.tr();
+    }
+
+    final cleanPhoneNumber = phoneNumber.startsWith('0')
+        ? phoneNumber.substring(1)
+        : phoneNumber;
+
+    if (!RegExp(r'^(10|11|12|15)[0-9]{8}$').hasMatch(cleanPhoneNumber)) {
+      return 'auth.register.phoneNumberInvalid'.tr();
+    }
+
+    return null;
+  }
+
+  String? _validateNationalId(String? value) {
+    final nationalId = LanguageHelper.convertArabicToEnglishNumerals(
+      value?.trim() ?? '',
+    );
+    final passportNumber = LanguageHelper.convertArabicToEnglishNumerals(
+      _passportNumberController.text.trim(),
+    );
+
+    if (nationalId.isEmpty) {
+      return passportNumber.isEmpty
+          ? 'auth.register.nationalIdOrPassportRequired'.tr()
+          : null;
+    }
+
+    if (!RegExp(r'^[0-9]{14}$').hasMatch(nationalId)) {
+      return 'auth.register.nationalIdInvalid'.tr();
+    }
+
+    return null;
+  }
+
+  String? _validatePassportNumber(String? value) {
+    final passportNumber = LanguageHelper.convertArabicToEnglishNumerals(
+      value?.trim() ?? '',
+    );
+
+    if (passportNumber.isEmpty) {
+      return null;
+    }
+
+    if (!RegExp(r'^[A-Za-z0-9]{6,20}$').hasMatch(passportNumber)) {
+      return 'auth.register.passportNumberInvalid'.tr();
+    }
+
+    return null;
+  }
+
+  void _clearInputFocus() {
+    FocusManager.instance.primaryFocus?.unfocus(
+      disposition: UnfocusDisposition.scope,
+    );
+  }
+
   Future<void> _selectBirthDate() async {
+    _clearInputFocus();
+
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.parse(_birthDate),
@@ -63,21 +207,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
             '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
       });
     }
+    _clearInputFocus();
   }
 
   void _onRegisterPressed(BuildContext context) {
     FocusScope.of(context).unfocus();
 
-    // Validate that at least one of nationalId or passportNumber is provided
-    final nationalId = _nationalIdController.text.trim();
-    final passportNumber = _passportNumberController.text.trim();
-
-    if (nationalId.isEmpty && passportNumber.isEmpty) {
-      showErrorToast('Please provide either National ID or Passport Number');
-      return;
-    }
-
     if (_formKey.currentState!.validate()) {
+      final nationalId = _nationalIdController.text.trim();
+      final passportNumber = _passportNumberController.text.trim();
+
       context.read<RegisterCubit>().register(
         firstName: LanguageHelper.convertArabicToEnglishNumerals(
           _firstNameController.text.trim(),
@@ -103,8 +242,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ? null
             : LanguageHelper.convertArabicToEnglishNumerals(passportNumber),
       );
-    } else {
-      showErrorToast('auth.register.fillAllFields'.tr());
     }
   }
 
@@ -118,7 +255,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
           loading: () {},
           success: (response) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) context.go('/medicard-home');
+              if (mounted) {
+                showSuccessToast('auth.register.registrationSuccess'.tr());
+                if (_hasUsableAuthSession(response)) {
+                  context.go('/medicard-home');
+                } else {
+                  context.go('/medicard-login');
+                }
+              }
             });
           },
           failed: (error) {
@@ -134,6 +278,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           loading: () => true,
           orElse: () => false,
         );
+        final bottomSafePadding = MediaQuery.viewPaddingOf(context).bottom;
 
         return Scaffold(
           backgroundColor: kAuthBackground,
@@ -150,7 +295,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     AuthBlueHeader(
                       showBackButton: true,
                       onBack: () => context.go('/medicard-login'),
-                      title: 'Welcome to Medicard',
+                      title: 'auth.welcomeTitle'.tr(),
                     ),
 
                     // ── Form Section ────────────────────────────────────
@@ -188,6 +333,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   children: [
                                     AuthFieldLabel(
                                       'auth.register.firstName'.tr(),
+                                      isRequired: true,
                                     ),
                                     SizedBox(height: 6.h),
                                     _buildTextField(
@@ -209,6 +355,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   children: [
                                     AuthFieldLabel(
                                       'auth.register.lastName'.tr(),
+                                      isRequired: true,
                                     ),
                                     SizedBox(height: 6.h),
                                     _buildTextField(
@@ -228,32 +375,44 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           SizedBox(height: 16.h),
 
                           // Phone Number
-                          AuthFieldLabel('auth.register.phoneNumber'.tr()),
+                          AuthFieldLabel(
+                            'auth.register.phoneNumber'.tr(),
+                            isRequired: true,
+                          ),
                           SizedBox(height: 6.h),
                           _buildTextField(
                             controller: _phoneNumberController,
                             hintText: 'auth.register.phoneNumberHint'.tr(),
                             keyboardType: TextInputType.phone,
-                            validator: (v) => (v == null || v.isEmpty)
-                                ? 'auth.register.phoneNumberRequired'.tr()
-                                : null,
+                            validator: _validatePhoneNumber,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
                           ),
                           SizedBox(height: 16.h),
 
                           // Gender
-                          AuthFieldLabel('auth.register.gender'.tr()),
+                          AuthFieldLabel(
+                            'auth.register.gender'.tr(),
+                            isRequired: true,
+                          ),
                           SizedBox(height: 6.h),
                           _buildGenderSelector(),
                           SizedBox(height: 16.h),
 
                           // Birth Date
-                          AuthFieldLabel('auth.register.birthDate'.tr()),
+                          AuthFieldLabel(
+                            'auth.register.birthDate'.tr(),
+                            isRequired: true,
+                          ),
                           SizedBox(height: 6.h),
                           _buildBirthDateField(),
                           SizedBox(height: 16.h),
 
                           // Password
-                          AuthFieldLabel('auth.register.password'.tr()),
+                          AuthFieldLabel(
+                            'auth.register.password'.tr(),
+                            isRequired: true,
+                          ),
                           SizedBox(height: 6.h),
                           _buildPasswordField(
                             controller: _passwordController,
@@ -262,16 +421,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             onToggle: () => setState(
                               () => _obscurePassword = !_obscurePassword,
                             ),
-                            validator: (v) => (v == null || v.isEmpty)
-                                ? 'auth.register.passwordRequired'.tr()
-                                : null,
+                            validator: _validatePassword,
                           ),
+                          SizedBox(height: 10.h),
+                          _buildPasswordRequirements(),
                           SizedBox(height: 16.h),
 
                           // Confirm Password
-                          AuthFieldLabel('auth.register.confirmPassword'.tr()),
+                          AuthFieldLabel(
+                            'auth.register.confirmPassword'.tr(),
+                            isRequired: true,
+                          ),
                           SizedBox(height: 6.h),
                           _buildPasswordField(
+                            fieldKey: _confirmPasswordFieldKey,
                             controller: _confirmPasswordController,
                             hintText: 'auth.register.confirmPasswordHint'.tr(),
                             obscure: _obscureConfirmPassword,
@@ -279,27 +442,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               () => _obscureConfirmPassword =
                                   !_obscureConfirmPassword,
                             ),
-                            validator: (v) {
-                              if (v == null || v.isEmpty) {
-                                return 'auth.register.confirmPasswordRequired'
-                                    .tr();
-                              }
-                              if (v != _passwordController.text) {
-                                return 'auth.register.passwordsNotMatch'.tr();
-                              }
-                              return null;
-                            },
+                            validator: _validateConfirmPassword,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
                           ),
                           SizedBox(height: 16.h),
 
                           // National ID
+                          _buildRequiredHint(
+                            'auth.register.nationalIdOrPassportRequired'.tr(),
+                          ),
+                          SizedBox(height: 10.h),
                           AuthFieldLabel('auth.register.nationalId'.tr()),
                           SizedBox(height: 6.h),
                           _buildTextField(
+                            fieldKey: _nationalIdFieldKey,
                             controller: _nationalIdController,
                             hintText: 'auth.register.nationalIdHint'.tr(),
                             keyboardType: TextInputType.number,
                             required: false,
+                            validator: _validateNationalId,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
                           ),
                           SizedBox(height: 16.h),
 
@@ -310,6 +474,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             controller: _passportNumberController,
                             hintText: 'auth.register.passportNumberHint'.tr(),
                             required: false,
+                            validator: _validatePassportNumber,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            onChanged: (_) =>
+                                _nationalIdFieldKey.currentState?.validate(),
                           ),
                           SizedBox(height: 28.h),
 
@@ -345,7 +514,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 32.h),
+                          SizedBox(height: bottomSafePadding + 32.h),
                         ],
                       ),
                     ),
@@ -362,15 +531,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
   // ── Text Field ──────────────────────────────────────────────────────────────
 
   Widget _buildTextField({
+    Key? fieldKey,
     required TextEditingController controller,
     required String hintText,
     TextInputType? keyboardType,
     bool required = true,
     String? Function(String?)? validator,
+    ValueChanged<String>? onChanged,
+    AutovalidateMode? autovalidateMode,
   }) {
     return TextFormField(
+      key: fieldKey,
       controller: controller,
       keyboardType: keyboardType,
+      autovalidateMode: autovalidateMode,
+      onChanged: onChanged,
       style: TextStyle(fontSize: 15.sp, color: Colors.black),
       decoration: authInputDecoration(hintText: hintText),
       validator:
@@ -385,15 +560,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
   // ── Password Field ──────────────────────────────────────────────────────────
 
   Widget _buildPasswordField({
+    Key? fieldKey,
     required TextEditingController controller,
     required String hintText,
     required bool obscure,
     required VoidCallback onToggle,
     String? Function(String?)? validator,
+    AutovalidateMode? autovalidateMode,
   }) {
     return TextFormField(
+      key: fieldKey,
       controller: controller,
       obscureText: obscure,
+      autovalidateMode: autovalidateMode,
       style: TextStyle(fontSize: 15.sp, color: Colors.black),
       decoration: authInputDecoration(
         hintText: hintText,
@@ -411,6 +590,113 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   // ── Birth Date Field ────────────────────────────────────────────────────────
+
+  Widget _buildPasswordRequirements() {
+    final password = LanguageHelper.convertArabicToEnglishNumerals(
+      _passwordController.text.trim(),
+    );
+    final showInvalidRequirements = password.isNotEmpty;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'auth.register.passwordRequirementsTitle'.tr(),
+          style: TextStyle(
+            fontSize: 12.sp,
+            color: kAuthGreyText,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        SizedBox(height: 6.h),
+        _buildPasswordRequirement(
+          label: 'auth.register.passwordMinLength'.tr(
+            namedArgs: {'count': _passwordMinLength.toString()},
+          ),
+          isMet: _hasMinimumLength(password),
+          showInvalid: showInvalidRequirements,
+        ),
+        _buildPasswordRequirement(
+          label: 'auth.register.passwordLetter'.tr(),
+          isMet: _hasLetter(password),
+          showInvalid: showInvalidRequirements,
+        ),
+        _buildPasswordRequirement(
+          label: 'auth.register.passwordNumber'.tr(),
+          isMet: _hasNumber(password),
+          showInvalid: showInvalidRequirements,
+        ),
+        _buildPasswordRequirement(
+          label: 'auth.register.passwordSpecialCharacter'.tr(),
+          isMet: _hasSpecialCharacter(password),
+          showInvalid: showInvalidRequirements,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPasswordRequirement({
+    required String label,
+    required bool isMet,
+    required bool showInvalid,
+  }) {
+    final color = isMet
+        ? Colors.green
+        : showInvalid
+        ? Colors.red
+        : kAuthGreyText;
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: 4.h),
+      child: Row(
+        children: [
+          Icon(
+            isMet ? Icons.check_circle : Icons.radio_button_unchecked,
+            size: 14.sp,
+            color: color,
+          ),
+          SizedBox(width: 6.w),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: color,
+                fontWeight: isMet ? FontWeight.w600 : FontWeight.w400,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRequiredHint(String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '*',
+          style: TextStyle(
+            fontSize: 13.sp,
+            color: Colors.red,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        SizedBox(width: 4.w),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 12.sp,
+              color: kAuthGreyText,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
   Widget _buildBirthDateField() {
     return GestureDetector(
@@ -455,13 +741,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
           AuthGenderOption(
             label: 'auth.register.male'.tr(),
             selected: _isMale,
-            onTap: () => setState(() => _isMale = true),
+            onTap: () {
+              _clearInputFocus();
+              setState(() => _isMale = true);
+            },
           ),
           SizedBox(width: 32.w),
           AuthGenderOption(
             label: 'auth.register.female'.tr(),
             selected: !_isMale,
-            onTap: () => setState(() => _isMale = false),
+            onTap: () {
+              _clearInputFocus();
+              setState(() => _isMale = false);
+            },
           ),
         ],
       ),

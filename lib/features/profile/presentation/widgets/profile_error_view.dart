@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
+import 'package:medicard/core/auth/auth_session_storage.dart';
 import 'package:medicard/core/constants/constants.dart';
 import 'package:medicard/core/helpers/shared_pref_helper.dart';
+import 'package:medicard/core/network/dio_factory.dart';
 import 'package:medicard/core/widgets/app_blue_header.dart';
 import '../cubit/profile_cubit.dart';
 
@@ -29,7 +31,11 @@ class ProfileErrorView extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.error_outline, color: const Color(0xFF9CA3AF), size: 48.sp),
+                Icon(
+                  Icons.error_outline,
+                  color: const Color(0xFF9CA3AF),
+                  size: 48.sp,
+                ),
                 SizedBox(height: 12.h),
                 Text(
                   'errors.something_went_wrong'.tr(),
@@ -37,7 +43,9 @@ class ProfileErrorView extends StatelessWidget {
                 ),
                 SizedBox(height: 16.h),
                 ElevatedButton(
-                  onPressed: () => context.read<ProfileCubit>().loadProfile(forceRefresh: true),
+                  onPressed: () => context.read<ProfileCubit>().loadProfile(
+                    forceRefresh: true,
+                  ),
                   child: Text('common.retry'.tr()),
                 ),
               ],
@@ -48,10 +56,11 @@ class ProfileErrorView extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 20.w),
             child: OutlinedButton(
               onPressed: () async {
-                await SharedPrefHelper.clearAllSecuredData();
+                await const AuthSessionStorage().clearSession();
                 await SharedPrefHelper.removeData(
                   SharedPrefKeys.medicardCardNo,
                 );
+                DioFactory.clearTokenFromHeader();
                 if (context.mounted) context.go('/medicard-login');
               },
               style: OutlinedButton.styleFrom(

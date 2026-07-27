@@ -178,7 +178,6 @@ class _MedicardApiService implements MedicardApiService {
     };
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
-    _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<HomeResponseModel>(
       Options(method: 'GET', headers: _headers, extra: _extra)
@@ -279,7 +278,6 @@ class _MedicardApiService implements MedicardApiService {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<ProfileResponseModel>(
       Options(method: 'GET', headers: _headers, extra: _extra)
@@ -370,7 +368,7 @@ class _MedicardApiService implements MedicardApiService {
     final _data = <String, dynamic>{};
     _data.addAll(body);
     final _options = _setStreamType<ChangePasswordResponseModel>(
-      Options(method: 'PUT', headers: _headers, extra: _extra)
+      Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
             'Auth/change-password',
@@ -423,73 +421,16 @@ class _MedicardApiService implements MedicardApiService {
   }
 
   @override
-  Future<ContentResponseModel> getPrivacyPolicy(String token) async {
+  Future<ContentResponseModel> getContent(String slug) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{r'Authorization': token};
-    _headers.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<ContentResponseModel>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/Content/privacy-policy',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ContentResponseModel _value;
-    try {
-      _value = ContentResponseModel.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<ContentResponseModel> getRefundPolicy(String token) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{r'Authorization': token};
-    _headers.removeWhere((k, v) => v == null);
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<ContentResponseModel>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/Content/refund-policy',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ContentResponseModel _value;
-    try {
-      _value = ContentResponseModel.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<ContentResponseModel> getTermsAndConditions(String token) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{r'Authorization': token};
-    _headers.removeWhere((k, v) => v == null);
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<ContentResponseModel>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/Content/terms-and-conditions',
+            '/Content/${slug}',
             queryParameters: queryParameters,
             data: _data,
           )

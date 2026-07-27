@@ -1,14 +1,21 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:medicard/firebase_options.dart';
 
 /// Background message handler - must be top-level function
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
   if (kDebugMode) debugPrint('Background message: ${message.messageId}');
   await PushNotificationService.instance.setupFlutterNotifications();
   await PushNotificationService.instance.showNotification(message);
@@ -26,7 +33,7 @@ class PushNotificationService {
 
   /// Stream for notification actions (tap/interaction)
   final _notificationActionController =
-  StreamController<NotificationAction>.broadcast();
+      StreamController<NotificationAction>.broadcast();
   Stream<NotificationAction> get onNotificationAction =>
       _notificationActionController.stream;
 
@@ -70,10 +77,14 @@ class PushNotificationService {
       await _setupTokenHandling();
 
       _isInitialized = true;
-      if (kDebugMode) debugPrint('PushNotificationService initialized successfully');
+      if (kDebugMode) {
+        debugPrint('PushNotificationService initialized successfully');
+      }
       return true;
     } catch (e, stackTrace) {
-      if (kDebugMode) debugPrint('Error initializing PushNotificationService: $e');
+      if (kDebugMode) {
+        debugPrint('Error initializing PushNotificationService: $e');
+      }
       if (kDebugMode) debugPrint('Stack trace: $stackTrace');
       return false;
     }
@@ -94,9 +105,11 @@ class PushNotificationService {
 
       final isAuthorized =
           settings.authorizationStatus == AuthorizationStatus.authorized ||
-              settings.authorizationStatus == AuthorizationStatus.provisional;
+          settings.authorizationStatus == AuthorizationStatus.provisional;
 
-      if (kDebugMode) debugPrint('Permission status: ${settings.authorizationStatus}');
+      if (kDebugMode) {
+        debugPrint('Permission status: ${settings.authorizationStatus}');
+      }
       return isAuthorized;
     } catch (e) {
       if (kDebugMode) debugPrint('Error requesting permission: $e');
@@ -136,20 +149,20 @@ class PushNotificationService {
       // Create Android notification channel
       await _localNotifications
           .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-      >()
+            AndroidFlutterLocalNotificationsPlugin
+          >()
           ?.createNotificationChannel(channel);
 
       // Create extra channels (safe no-op if already exists)
       await _localNotifications
           .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-      >()
+            AndroidFlutterLocalNotificationsPlugin
+          >()
           ?.createNotificationChannel(promoChannel);
       await _localNotifications
           .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-      >()
+            AndroidFlutterLocalNotificationsPlugin
+          >()
           ?.createNotificationChannel(updatesChannel);
 
       // Initialize settings for both platforms
@@ -200,7 +213,8 @@ class PushNotificationService {
       final data = message.data;
 
       // Support multiple image field names
-      final imageUrl = data['image'] as String? ??
+      final imageUrl =
+          data['image'] as String? ??
           data['imageUrl'] as String? ??
           data['picture'] as String? ??
           android?.imageUrl;
@@ -216,7 +230,8 @@ class PushNotificationService {
           : 'High Importance Notifications';
 
       // Auto-enable big picture if image URL exists
-      final forceBigPicture = (data['forceBigPicture'] == 'true') ||
+      final forceBigPicture =
+          (data['forceBigPicture'] == 'true') ||
           (imageUrl != null && imageUrl.isNotEmpty);
 
       if (kDebugMode) debugPrint('Notification Image URL: $imageUrl');
@@ -267,36 +282,36 @@ class PushNotificationService {
       }
 
       final AndroidNotificationDetails androidDetails =
-      AndroidNotificationDetails(
-        channelId,
-        channelName,
-        channelDescription: 'This channel is used for notifications.',
-        importance: Importance.high,
-        priority: Priority.high,
-        icon: android?.smallIcon ?? '@mipmap/ic_launcher',
-        playSound: true,
-        enableVibration: true,
-        styleInformation: styleInfo,
-        showWhen: true,
-        ticker: notification.title,
-        largeIcon: largeIconBitmap,
-        color: colorHex != null ? _parseColor(colorHex) : null,
-        groupKey: groupKey,
-        actions: <AndroidNotificationAction>[
-          const AndroidNotificationAction(
-            'view',
-            'View',
-            showsUserInterface: true,
-            cancelNotification: true,
-          ),
-          const AndroidNotificationAction(
-            'mark_read',
-            'Mark as read',
-            showsUserInterface: false,
-            cancelNotification: true,
-          ),
-        ],
-      );
+          AndroidNotificationDetails(
+            channelId,
+            channelName,
+            channelDescription: 'This channel is used for notifications.',
+            importance: Importance.high,
+            priority: Priority.high,
+            icon: android?.smallIcon ?? '@mipmap/ic_launcher',
+            playSound: true,
+            enableVibration: true,
+            styleInformation: styleInfo,
+            showWhen: true,
+            ticker: notification.title,
+            largeIcon: largeIconBitmap,
+            color: colorHex != null ? _parseColor(colorHex) : null,
+            groupKey: groupKey,
+            actions: <AndroidNotificationAction>[
+              const AndroidNotificationAction(
+                'view',
+                'View',
+                showsUserInterface: true,
+                cancelNotification: true,
+              ),
+              const AndroidNotificationAction(
+                'mark_read',
+                'Mark as read',
+                showsUserInterface: false,
+                cancelNotification: true,
+              ),
+            ],
+          );
 
       const iosDetails = DarwinNotificationDetails(
         presentAlert: true,
@@ -349,7 +364,9 @@ class PushNotificationService {
 
       // Background messages (app in background, user taps notification)
       FirebaseMessaging.onMessageOpenedApp.listen((message) {
-        if (kDebugMode) debugPrint('Notification opened (background): ${message.messageId}');
+        if (kDebugMode) {
+          debugPrint('Notification opened (background): ${message.messageId}');
+        }
         _handleMessageOpen(message);
       });
 
@@ -358,8 +375,8 @@ class PushNotificationService {
       if (initialMessage != null) {
         if (kDebugMode) {
           debugPrint(
-          '🚀 App opened from notification: ${initialMessage.messageId}',
-        );
+            '🚀 App opened from notification: ${initialMessage.messageId}',
+          );
         }
         // Delay to ensure app is fully initialized
         Future.delayed(const Duration(seconds: 1), () {
@@ -445,7 +462,7 @@ class PushNotificationService {
       if (kDebugMode) ('Unsubscribed from topic: $topic');
       return true;
     } catch (e) {
-      if  (kDebugMode) debugPrint('Error unsubscribing from topic: $e');
+      if (kDebugMode) debugPrint('Error unsubscribing from topic: $e');
       return false;
     }
   }
@@ -501,8 +518,8 @@ class PushNotificationService {
     } else if (Platform.isAndroid) {
       final plugin = _localNotifications
           .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-      >();
+            AndroidFlutterLocalNotificationsPlugin
+          >();
       return await plugin?.areNotificationsEnabled() ?? false;
     }
     return false;

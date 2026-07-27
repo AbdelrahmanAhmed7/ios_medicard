@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/auth/auth_session_storage.dart';
 import '../../core/auth/auth_refresh_service.dart';
 import '../../features/cart/presentation/cubit/cart_cubit.dart';
+import '../../features/cart/presentation/pages/checkout_screen.dart';
 import '../../features/cart/presentation/pages/cart_screen.dart';
 import '../../features/activate_card/presentation/pages/activate_card_screen.dart';
 import '../../features/home/presentation/pages/home_screen.dart';
@@ -93,6 +94,11 @@ class AppRouter {
       final refreshService = sl<AuthRefreshService>();
       final newSession = await refreshService.refreshToken();
       if (newSession != null) {
+        return '/medicard-home';
+      }
+
+      final retainedSession = await sessionStorage.getSession();
+      if (retainedSession != null && retainedSession.hasRefreshToken) {
         return '/medicard-home';
       }
 
@@ -217,8 +223,15 @@ class AppRouter {
           builder: (context, state) {
             final extra = state.extra as Map<String, dynamic>;
             final profileData = extra['profileData'] as ProfileData;
-            return BlocProvider(
-              create: (_) => sl<ProfileCubit>(),
+            final profileCubit = extra['profileCubit'] as ProfileCubit?;
+            if (profileCubit == null) {
+              return BlocProvider(
+                create: (_) => sl<ProfileCubit>(),
+                child: EditProfileScreen(profileData: profileData),
+              );
+            }
+            return BlocProvider.value(
+              value: profileCubit,
               child: EditProfileScreen(profileData: profileData),
             );
           },
@@ -239,6 +252,7 @@ class AppRouter {
             final lat = extra?['userLatitude'] as double?;
             final lng = extra?['userLongitude'] as double?;
             final categoryId = extra?['categoryId'] as int?;
+            final initialTabIndex = extra?['initialTabIndex'] as int? ?? 0;
             return MultiBlocProvider(
               providers: [
                 BlocProvider(create: (_) => sl<SearchCubit>()),
@@ -248,6 +262,49 @@ class AppRouter {
                 userLatitude: lat,
                 userLongitude: lng,
                 categoryId: categoryId,
+                initialTabIndex: initialTabIndex,
+              ),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/search/providers',
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            final lat = extra?['userLatitude'] as double?;
+            final lng = extra?['userLongitude'] as double?;
+            final categoryId = extra?['categoryId'] as int?;
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(create: (_) => sl<SearchCubit>()),
+                BlocProvider(create: (_) => sl<FilterCubit>()),
+              ],
+              child: SearchScreen(
+                userLatitude: lat,
+                userLongitude: lng,
+                categoryId: categoryId,
+                initialTabIndex: 0,
+              ),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/search/services',
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            final lat = extra?['userLatitude'] as double?;
+            final lng = extra?['userLongitude'] as double?;
+            final categoryId = extra?['categoryId'] as int?;
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(create: (_) => sl<SearchCubit>()),
+                BlocProvider(create: (_) => sl<FilterCubit>()),
+              ],
+              child: SearchScreen(
+                userLatitude: lat,
+                userLongitude: lng,
+                categoryId: categoryId,
+                initialTabIndex: 1,
               ),
             );
           },
@@ -318,9 +375,47 @@ class AppRouter {
         GoRoute(
           path: '/cart',
           builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            final providerId = extra?['providerId'] as int?;
+            final selectedBranch = extra?['selectedBranch'] as ProviderBranch?;
+            return BlocProvider(
+              create: (_) => sl<CartCubit>(param1: providerId),
+              child: CartScreen(
+                initialProviderId: providerId,
+                initialBranch: selectedBranch,
+              ),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/checkout',
+          builder: (context, state) {
+            if (state.extra is Map<String, dynamic>) {
+              final extra = state.extra as Map<String, dynamic>;
+              final cubit = extra['cubit'] as CartCubit?;
+              final providerId = extra['providerId'] as int?;
+              final selectedBranch = extra['selectedBranch'] as ProviderBranch?;
+              if (cubit != null) {
+                return BlocProvider.value(
+                  value: cubit,
+                  child: CheckoutScreen(
+                    initialProviderId: providerId,
+                    initialBranch: selectedBranch,
+                  ),
+                );
+              }
+              return BlocProvider(
+                create: (_) => sl<CartCubit>(param1: providerId),
+                child: CheckoutScreen(
+                  initialProviderId: providerId,
+                  initialBranch: selectedBranch,
+                ),
+              );
+            }
+
             return BlocProvider(
               create: (_) => sl<CartCubit>(),
-              child: const CartScreen(),
+              child: const CheckoutScreen(),
             );
           },
         ),
@@ -338,7 +433,7 @@ class AppRouter {
             }
 
             return BlocProvider(
-              create: (_) => sl<CartCubit>()..loadProviders(),
+              create: (_) => sl<CartCubit>()..loadCartAndProviders(),
               child: const ChooseProviderScreen(),
             );
           },

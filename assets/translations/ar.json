@@ -1,5 +1,6 @@
-{
+﻿{
   "auth": {
+    "welcomeTitle": "مرحباً بك في ميديكارد",
     "register": {
       "title": "إنشاء حساب",
       "subtitle": "يرجى ملء بياناتك للمتابعة",
@@ -12,6 +13,7 @@
       "phoneNumber": "رقم الهاتف",
       "phoneNumberHint": "أدخل رقم هاتفك",
       "phoneNumberRequired": "رقم الهاتف مطلوب",
+      "phoneNumberInvalid": "أدخل رقم هاتف محمول مصري صحيح",
       "gender": "الجنس",
       "male": "ذكر",
       "female": "أنثى",
@@ -19,34 +21,50 @@
       "password": "كلمة المرور",
       "passwordHint": "أدخل كلمة المرور",
       "passwordRequired": "كلمة المرور مطلوبة",
+      "passwordPolicyInvalid": "كلمة المرور لا تستوفي المتطلبات",
+      "passwordRequirementsTitle": "يجب أن تحتوي كلمة المرور على:",
+      "passwordMinLength": "{count} أحرف على الأقل",
+      "passwordLetter": "حرف واحد",
+      "passwordNumber": "رقم واحد",
+      "passwordSpecialCharacter": "رمز خاص واحد",
       "confirmPassword": "تأكيد كلمة المرور",
       "confirmPasswordHint": "أكد كلمة المرور",
       "confirmPasswordRequired": "تأكيد كلمة المرور مطلوب",
       "passwordsNotMatch": "كلمات المرور غير متطابقة",
       "nationalId": "الرقم القومي",
       "nationalIdHint": "أدخل رقمك القومي",
+      "nationalIdInvalid": "يجب أن يتكون الرقم القومي من 14 رقمًا",
       "passportNumber": "رقم جواز السفر",
       "passportNumberHint": "أدخل رقم جواز سفرك",
+      "passportNumberInvalid": "يجب أن يتكون رقم جواز السفر من 6 إلى 20 حرفًا أو رقمًا",
       "registerButton": "إنشاء حساب",
+      "registrationSuccess": "تم إنشاء الحساب بنجاح",
       "fillAllFields": "يرجى ملء جميع الحقول المطلوبة",
       "nationalIdOrPassportRequired": "يرجى توفير رقم القومي أو رقم جواز السفر",
       "alreadyHaveAccount": "لديك حساب بالفعل؟",
       "loginNow": "تسجيل الدخول الآن"
     },
     "login": {
-      "title": "مرحباً بعودتك!",
+      "title": "تسجيل الدخول",
       "subtitle": "تسجيل الدخول للوصول إلى حسابك",
+      "fillAllFields": "يرجى ملء جميع الحقول المطلوبة",
       "cardNumber": "رقم الكارت",
       "cardNumberHint": "أدخل رقم الكارت",
       "cardNumberRequired": "رقم الكارت مطلوب",
+      "mobileOrCardNumber": "رقم الموبايل/ميديكارد",
+      "phoneNumberRequired": "رقم الهاتف أو رقم ميديكارد مطلوب",
+      "phoneNumberInvalid": "أدخل رقم هاتف محمول مصري صحيح",
       "password": "كلمة المرور",
       "passwordHint": "أدخل كلمة المرور",
       "passwordRequired": "كلمة المرور مطلوبة",
       "forgotPassword": "نسيت كلمة المرور؟",
       "loginButton": "تسجيل الدخول",
+      "or": "أو",
       "orContinueWith": "أو تابع باستخدام",
       "dontHaveAccount": "ليس لديك حساب؟",
-      "registerNow": "إنشاء حساب الآن"
+      "registerNow": "إنشاء حساب",
+      "activateCard": "تفعيل الكارت",
+      "continueAsGuest": "المتابعة كزائر"
     }
   },
   "common": {
@@ -63,6 +81,7 @@
     "this_field_required": "هذا الحقل مطلوب"
   },
   "errors": {
+    "something_went_wrong": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
     "not_found_error": "لم يتم العثور على البيانات",
     "generic_error": "حدث خطأ غير متوقع"
   },
@@ -106,7 +125,12 @@
   "content": {
     "privacy_policy": "سياسة الخصوصية",
     "refund_policy": "سياسة الاسترداد",
-    "terms_and_conditions": "الشروط والأحكام"
+    "terms_and_conditions": "الشروط والأحكام",
+    "load_failed_title": "تعذر تحميل المحتوى",
+    "load_failed": "تعذر تحميل هذه الصفحة الآن. يرجى المحاولة مرة أخرى.",
+    "empty_title": "لا يوجد محتوى متاح",
+    "empty_message": "{} غير متاحة حالياً.",
+    "unable_to_open_link": "تعذر فتح هذا الرابط"
   },
   "home": {
     "getting_location": "جارٍ الحصول على الموقع...",

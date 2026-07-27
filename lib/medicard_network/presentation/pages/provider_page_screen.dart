@@ -5,9 +5,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/service_locator.dart';
+import '../../../../core/constants/api_result.dart';
 import '../../../../core/utils/error_state_widget.dart';
 import '../../../../core/widgets/app_blue_header.dart';
 import '../../../../network/data/provider_page_response_model.dart';
+import '../../../../network/data/provider_services_response_model.dart';
 import '../../logic/provider_page_cubit.dart';
 import '../../logic/provider_page_state.dart';
 
@@ -66,7 +68,13 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
 
   Widget _buildViewCartBar(BuildContext context, ProviderPageState state) {
     return GestureDetector(
-      onTap: () => context.push('/cart'),
+      onTap: () => context.push(
+        '/cart',
+        extra: {
+          'providerId': widget.providerId,
+          'selectedBranch': _selectedBranch,
+        },
+      ),
       child: Container(
         width: double.infinity,
         margin: EdgeInsets.all(12.w),
@@ -106,13 +114,10 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                 ),
               ),
             ),
-            Text(
-              '${state.calculateTotalPrice().toStringAsFixed(0)} EGP',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16.sp,
-                fontWeight: FontWeight.bold,
-              ),
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: Colors.white,
+              size: 18.sp,
             ),
           ],
         ),
@@ -135,10 +140,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
               selectedBranch: _selectedBranch,
               onBranchTap: () =>
                   _openBranchSelector(state.providerData!.branches),
-              onRatingTap: () => context.push(
-                '/provider-reviews',
-                extra: {'providerName': state.providerData!.providerName},
-              ),
+              onRatingTap: () => cubit.switchView(ProviderViewType.reviews),
             )
           : const SizedBox.shrink(),
     );
@@ -149,6 +151,10 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
     ProviderPageState state,
     ProviderPageCubit cubit,
   ) {
+    final dropdownValue = state.currentView == ProviderViewType.reviews
+        ? null
+        : state.currentView;
+
     return Row(
       children: [
         Expanded(
@@ -194,7 +200,17 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<ProviderViewType>(
-              value: state.currentView,
+              value: dropdownValue,
+              hint: Text(
+                state.currentView == ProviderViewType.reviews
+                    ? 'Reviews'
+                    : 'Services',
+                style: TextStyle(
+                  color: const Color(0xFF64748B),
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
               icon: const Icon(
                 Icons.keyboard_arrow_down_rounded,
                 color: Color(0xFF64748B),
@@ -244,8 +260,10 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
   ) {
     if (state.currentView == ProviderViewType.services) {
       return _buildCategoryTabsSection(context, state, cubit);
-    } else {
+    } else if (state.currentView == ProviderViewType.packages) {
       return _buildPackagesListSection(context, state, cubit);
+    } else {
+      return _buildReviewsListSection(context, state, cubit);
     }
   }
 
@@ -261,12 +279,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
     }
 
     if (state.categoryTabs.isEmpty) {
-      return Center(
-        child: Text(
-          'provider_page.no_services_found'.tr(),
-          style: TextStyle(color: const Color(0xFF64748B), fontSize: 14.sp),
-        ),
-      );
+      return _buildProviderServicesBody(context, state, cubit);
     }
 
     return Column(
@@ -296,6 +309,83 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
         // ── Services for selected tab ──────────────────────────────────────
         _buildTabServicesBody(context, state, cubit),
       ],
+    );
+  }
+
+  Widget _buildProviderServicesBody(
+    BuildContext context,
+    ProviderPageState state,
+    ProviderPageCubit cubit,
+  ) {
+    if (state.isServicesLoading) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 40),
+          child: CircularProgressIndicator(color: Color(0xFF3872B1)),
+        ),
+      );
+    }
+
+    if (state.servicesError != null) {
+      return ErrorStateWidget(
+        error: state.servicesError!,
+        onRetry: () => cubit.loadProviderServices(reset: true),
+      );
+    }
+
+    if (state.services.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 40.h),
+          child: Text(
+            'provider_page.no_services_found'.tr(),
+            style: TextStyle(color: const Color(0xFF64748B), fontSize: 14.sp),
+          ),
+        ),
+      );
+    }
+
+    return NotificationListener<ScrollNotification>(
+      onNotification: (scrollInfo) {
+        if (scrollInfo is ScrollUpdateNotification &&
+            scrollInfo.metrics.pixels >=
+                scrollInfo.metrics.maxScrollExtent - 200) {
+          if (!state.isServicesLoadingMore && state.servicesHasMore) {
+            cubit.loadMoreServices();
+          }
+        }
+        return false;
+      },
+      child: Column(
+        children: [
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: state.services.length,
+            separatorBuilder: (_, _) => SizedBox(height: 12.h),
+            itemBuilder: (context, index) {
+              final service = state.services[index];
+              final serviceId = service.id;
+              final isPending =
+                  serviceId != null &&
+                  state.pendingCartActionIds.contains(serviceId);
+              final isInCart = service.isSelected == true;
+              return _buildProviderServiceCard(
+                context,
+                service,
+                isPending,
+                isInCart,
+                cubit,
+              );
+            },
+          ),
+          if (state.isServicesLoadingMore)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+        ],
+      ),
     );
   }
 
@@ -471,6 +561,149 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
     );
   }
 
+  Widget _buildProviderServiceCard(
+    BuildContext context,
+    ProviderService service,
+    bool isPending,
+    bool isInCart,
+    ProviderPageCubit cubit,
+  ) {
+    final serviceId = service.id;
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.fromLTRB(16.w, 14.h, 14.w, 12.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(
+          color: isInCart
+              ? const Color(0xFF3872B1).withValues(alpha: 0.4)
+              : const Color(0xFFD1D5DB),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  service.serviceName ?? '',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black,
+                    height: 1.35,
+                  ),
+                ),
+                SizedBox(height: 8.h),
+                Wrap(
+                  spacing: 4.w,
+                  runSpacing: 4.h,
+                  children: [
+                    _ServiceBadge(
+                      label: 'No Fasting',
+                      color: const Color(0xFFFFA726),
+                      backgroundColor: const Color(0xFFFFF3E0),
+                      icon: Icons.access_time_rounded,
+                    ),
+                    if (service.discountPercentage != null &&
+                        service.discountPercentage! > 0)
+                      _ServiceBadge(
+                        label:
+                            '${service.discountPercentage!.toStringAsFixed(0)}%Off',
+                        color: const Color(0xFF3872B1),
+                        backgroundColor: const Color(0xFFEFF6FF),
+                      ),
+                  ],
+                ),
+                SizedBox(height: 9.h),
+                Text(
+                  'Full haematology panel including WBC, RBC, platelets',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: const Color(0xFF475569),
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(height: 13.h),
+                Row(
+                  children: [
+                    if (service.priceBefore != null) ...[
+                      Text(
+                        '${_formatPrice(service.priceBefore)} EGP',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: Colors.black,
+                          decoration: TextDecoration.lineThrough,
+                        ),
+                      ),
+                      SizedBox(width: 12.w),
+                    ],
+                    if (service.priceAfter != null)
+                      Text(
+                        '${_formatPrice(service.priceAfter)} EGP',
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFF1F6BC1),
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: 12.w),
+          if (isPending)
+            SizedBox(
+              width: 24.r,
+              height: 24.r,
+              child: const CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Color(0xFF3872B1),
+              ),
+            )
+          else if (isInCart && serviceId != null)
+            GestureDetector(
+              onTap: () => cubit.removeFromCart(serviceId),
+              child: Icon(
+                Icons.check_circle_rounded,
+                color: const Color(0xFF3872B1),
+                size: 26.sp,
+              ),
+            )
+          else
+            GestureDetector(
+              onTap: serviceId == null
+                  ? null
+                  : () => cubit.addToCart(
+                      serviceId,
+                      categoryId: service.categoryId,
+                    ),
+              child: Container(
+                width: 24.r,
+                height: 24.r,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: const Color(0xFF3872B1),
+                    width: 1.4,
+                  ),
+                ),
+                child: const Center(
+                  child: Icon(Icons.add, color: Color(0xFF3872B1), size: 20),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildPackagesListSection(
     BuildContext context,
     ProviderPageState state,
@@ -510,7 +743,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
               crossAxisCount: 2,
               crossAxisSpacing: 12.w,
               mainAxisSpacing: 12.h,
-              childAspectRatio: 0.85,
+              childAspectRatio: 0.78,
             ),
             itemCount: state.packages.length,
             itemBuilder: (context, index) {
@@ -532,6 +765,126 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
     );
   }
 
+  Widget _buildReviewsListSection(
+    BuildContext context,
+    ProviderPageState state,
+    ProviderPageCubit cubit,
+  ) {
+    if (state.isReviewsLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (state.reviewsError != null) {
+      return ErrorStateWidget(
+        error: state.reviewsError!,
+        onRetry: () => cubit.loadReviews(reset: true),
+      );
+    }
+    if (state.reviews.isEmpty) {
+      return Center(child: Text('No reviews found'.tr()));
+    }
+
+    return NotificationListener<ScrollNotification>(
+      onNotification: (scrollInfo) {
+        if (scrollInfo is ScrollUpdateNotification &&
+            scrollInfo.metrics.pixels >=
+                scrollInfo.metrics.maxScrollExtent - 200) {
+          if (!state.isReviewsLoadingMore && state.reviewsHasMore) {
+            cubit.loadMoreReviews();
+          }
+        }
+        return false;
+      },
+      child: Column(
+        children: [
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: state.reviews.length,
+            separatorBuilder: (_, _) => SizedBox(height: 12.h),
+            itemBuilder: (context, index) {
+              return _buildReviewCard(state.reviews[index]);
+            },
+          ),
+          if (state.isReviewsLoadingMore)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReviewCard(ProviderReview review) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(14.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(color: const Color(0xFFD1D5DB)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipOval(
+            child: CachedNetworkImage(
+              imageUrl: review.userImageUrl ?? '',
+              width: 42.r,
+              height: 42.r,
+              fit: BoxFit.cover,
+              errorWidget: (_, _, _) => Container(
+                width: 42.r,
+                height: 42.r,
+                color: const Color(0xFFE2E8F0),
+                child: const Icon(Icons.person, color: Color(0xFF64748B)),
+              ),
+            ),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  review.userName ?? '',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF0F172A),
+                  ),
+                ),
+                SizedBox(height: 4.h),
+                Row(
+                  children: List.generate(5, (index) {
+                    return Icon(
+                      index < (review.rating ?? 0)
+                          ? Icons.star_rounded
+                          : Icons.star_border_rounded,
+                      size: 15.sp,
+                      color: const Color(0xFFF5A623),
+                    );
+                  }),
+                ),
+                if ((review.ratingText ?? '').isNotEmpty) ...[
+                  SizedBox(height: 8.h),
+                  Text(
+                    review.ratingText!,
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      color: const Color(0xFF475569),
+                      height: 1.35,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildPackageCard(
     BuildContext context,
     ProviderPageState state,
@@ -539,38 +892,32 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
     ProviderPackage packageData,
   ) {
     final packageId = packageData.id;
-    final isExpanded =
-        packageId != null && state.expandedPackageIds.contains(packageId);
-    final isLoading =
-        packageId != null && state.loadingPackageDetailsIds.contains(packageId);
-    final details = packageId == null
-        ? null
-        : state.packageDetailsById[packageId];
-    final error = packageId == null
-        ? null
-        : state.packageDetailsErrors[packageId];
+    final isCreatingInvoice =
+        packageId != null && state.pendingPackageInvoiceIds.contains(packageId);
 
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        borderRadius: BorderRadius.circular(8.r),
+        border: Border.all(color: const Color(0xFFD1D5DB)),
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(8.r),
         onTap: packageId == null
             ? null
-            : () => cubit.togglePackageDetails(packageId),
+            : () => _openPackageDetailsSheet(context, cubit, packageData),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              flex: 2,
+              flex: 5,
               child: Stack(
+                fit: StackFit.expand,
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(16.r),
-                      topRight: Radius.circular(16.r),
+                      topLeft: Radius.circular(8.r),
+                      topRight: Radius.circular(8.r),
                     ),
                     child: CachedNetworkImage(
                       imageUrl: packageData.imageUrl ?? '',
@@ -583,20 +930,40 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                     ),
                   ),
                   Positioned(
-                    top: 8.w,
-                    right: 8.w,
-                    child: Container(
-                      padding: EdgeInsets.all(4.w),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        isExpanded
-                            ? Icons.keyboard_arrow_up_rounded
-                            : Icons.keyboard_arrow_down_rounded,
-                        color: const Color(0xFF3872B1),
-                        size: 20.sp,
+                    top: 6.w,
+                    right: 6.w,
+                    child: GestureDetector(
+                      onTap: packageId == null || isCreatingInvoice
+                          ? null
+                          : () => _createPackageInvoice(
+                              context,
+                              cubit,
+                              packageId,
+                            ),
+                      child: Container(
+                        width: 24.r,
+                        height: 24.r,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: const Color(0xFF3872B1),
+                            width: 1.3,
+                          ),
+                        ),
+                        child: isCreatingInvoice
+                            ? Padding(
+                                padding: EdgeInsets.all(5.r),
+                                child: const CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Color(0xFF3872B1),
+                                ),
+                              )
+                            : Icon(
+                                Icons.add_rounded,
+                                color: const Color(0xFF3872B1),
+                                size: 20.sp,
+                              ),
                       ),
                     ),
                   ),
@@ -604,32 +971,34 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
               ),
             ),
             Expanded(
-              flex: isExpanded ? 3 : 2,
+              flex: 3,
               child: Padding(
-                padding: EdgeInsets.all(12.w),
+                padding: EdgeInsets.fromLTRB(8.w, 7.h, 8.w, 8.h),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       packageData.name ?? '',
                       style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF0F172A),
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const Spacer(),
+                    SizedBox(height: 5.h),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         if (packageData.priceBefore != null)
                           Flexible(
                             child: Text(
-                              '${packageData.priceBefore} EGP',
+                              '${_formatPrice(packageData.priceBefore)} EGP',
                               style: TextStyle(
                                 fontSize: 11.sp,
-                                color: const Color(0xFF94A3B8),
+                                color: Colors.black,
                                 decoration: TextDecoration.lineThrough,
                               ),
                               maxLines: 1,
@@ -638,45 +1007,18 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                           ),
                         SizedBox(width: 8.w),
                         if (packageData.priceAfter != null)
-                          Flexible(
-                            child: Text(
-                              '${packageData.priceAfter} EGP',
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.bold,
-                                color: const Color(0xFF3872B1),
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                          Text(
+                            '${_formatPrice(packageData.priceAfter)} EGP',
+                            style: TextStyle(
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w500,
+                              color: const Color(0xFF1F6BC1),
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                       ],
                     ),
-                    if (isExpanded) ...[
-                      SizedBox(height: 8.h),
-                      if (isLoading)
-                        const Center(
-                          child: SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                        )
-                      else if (error != null)
-                        Text(
-                          error,
-                          style: TextStyle(
-                            fontSize: 11.sp,
-                            color: const Color(0xFFEF4444),
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        )
-                      else
-                        _PackageServiceNames(
-                          serviceNames: details?.serviceNames ?? const [],
-                        ),
-                    ],
                   ],
                 ),
               ),
@@ -685,6 +1027,374 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _createPackageInvoice(
+    BuildContext context,
+    ProviderPageCubit cubit,
+    int packageId,
+  ) async {
+    final branches = cubit.state.providerData?.branches;
+    final branchId =
+        _selectedBranch?.branchId ??
+        ((branches != null && branches.isNotEmpty)
+            ? branches.first.branchId
+            : null);
+
+    if (branchId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a branch first.')),
+      );
+      return;
+    }
+
+    final result = await cubit.createInvoiceFromPackage(
+      packageId: packageId,
+      providerBranchId: branchId,
+    );
+
+    if (!context.mounted) return;
+    result.when(
+      success: (invoiceId) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Invoice #$invoiceId created successfully.')),
+        );
+      },
+      failure: (error) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(error)));
+      },
+    );
+  }
+
+  void _openPackageDetailsSheet(
+    BuildContext context,
+    ProviderPageCubit cubit,
+    ProviderPackage packageData,
+  ) {
+    final packageId = packageData.id;
+    if (packageId == null) return;
+
+    if (!cubit.state.packageDetailsById.containsKey(packageId) &&
+        !cubit.state.loadingPackageDetailsIds.contains(packageId)) {
+      cubit.togglePackageDetails(packageId);
+    }
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withValues(alpha: 0.35),
+      builder: (sheetContext) {
+        return BlocProvider.value(
+          value: cubit,
+          child: BlocBuilder<ProviderPageCubit, ProviderPageState>(
+            builder: (context, state) {
+              final details = state.packageDetailsById[packageId];
+              final isLoading = state.loadingPackageDetailsIds.contains(
+                packageId,
+              );
+              final error = state.packageDetailsErrors[packageId];
+              final isCreatingInvoice = state.pendingPackageInvoiceIds.contains(
+                packageId,
+              );
+              final imageUrl = details?.image ?? packageData.imageUrl ?? '';
+              final name = details?.name ?? packageData.name ?? '';
+              final description =
+                  details?.description ?? packageData.description ?? '';
+              final serviceNames = details?.serviceNames ?? const <String>[];
+              final priceBefore =
+                  details?.priceBefore ?? packageData.priceBefore;
+              final priceAfter = details?.priceAfter ?? packageData.priceAfter;
+              final discount =
+                  details?.discountPercentage ?? packageData.discountPercentage;
+
+              return DraggableScrollableSheet(
+                initialChildSize: 0.64,
+                minChildSize: 0.42,
+                maxChildSize: 0.92,
+                builder: (context, scrollController) {
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(12.r),
+                      ),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: ListView(
+                      controller: scrollController,
+                      padding: EdgeInsets.zero,
+                      children: [
+                        Stack(
+                          children: [
+                            SizedBox(
+                              height: 136.h,
+                              width: double.infinity,
+                              child: CachedNetworkImage(
+                                imageUrl: imageUrl,
+                                fit: BoxFit.cover,
+                                errorWidget: (_, _, _) => const ColoredBox(
+                                  color: Color(0xFFE2E8F0),
+                                  child: Center(
+                                    child: Icon(
+                                      Icons.local_hospital,
+                                      color: Color(0xFF3872B1),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              top: 9.h,
+                              left: 0,
+                              right: 0,
+                              child: Center(
+                                child: Container(
+                                  width: 132.w,
+                                  height: 4.h,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.85),
+                                    borderRadius: BorderRadius.circular(99.r),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              left: 16.w,
+                              right: 110.w,
+                              bottom: 18.h,
+                              child: Text(
+                                name,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24.sp,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (discount != null && discount > 0)
+                              Positioned(
+                                right: 16.w,
+                                bottom: 14.h,
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 10.w,
+                                    vertical: 7.h,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFE7FFFA),
+                                    borderRadius: BorderRadius.circular(12.r),
+                                  ),
+                                  child: Text(
+                                    'Save ${discount.toStringAsFixed(0)}%',
+                                    style: TextStyle(
+                                      color: const Color(0xFF16A99A),
+                                      fontSize: 13.sp,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(18.w, 14.h, 18.w, 0),
+                          child: isLoading
+                              ? const Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 32),
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                )
+                              : error != null
+                              ? Text(
+                                  error,
+                                  style: TextStyle(
+                                    color: const Color(0xFFEF4444),
+                                    fontSize: 13.sp,
+                                  ),
+                                )
+                              : Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      description,
+                                      style: TextStyle(
+                                        color: const Color(0xFF4B5563),
+                                        fontSize: 14.sp,
+                                        height: 1.24,
+                                      ),
+                                    ),
+                                    SizedBox(height: 28.h),
+                                    Text(
+                                      'Tests included',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 16.sp,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    SizedBox(height: 14.h),
+                                    _PackagePlainServiceNames(
+                                      serviceNames: serviceNames,
+                                    ),
+                                    SizedBox(height: 30.h),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'Total',
+                                          style: TextStyle(
+                                            color: const Color(0xFF64748B),
+                                            fontSize: 17.sp,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                        const Spacer(),
+                                        if (priceBefore != null) ...[
+                                          Text(
+                                            '${_formatPrice(priceBefore)} EGP',
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 13.sp,
+                                              decoration:
+                                                  TextDecoration.lineThrough,
+                                            ),
+                                          ),
+                                          SizedBox(width: 10.w),
+                                        ],
+                                        if (priceAfter != null)
+                                          Text(
+                                            '${_formatPrice(priceAfter)} EGP',
+                                            style: TextStyle(
+                                              color: const Color(0xFF1F6BC1),
+                                              fontSize: 18.sp,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 16.h),
+                                    SizedBox(
+                                      width: double.infinity,
+                                      height: 50.h,
+                                      child: ElevatedButton(
+                                        onPressed:
+                                            isLoading || isCreatingInvoice
+                                            ? null
+                                            : () async {
+                                                final branches = state
+                                                    .providerData
+                                                    ?.branches;
+                                                final branchId =
+                                                    _selectedBranch?.branchId ??
+                                                    ((branches != null &&
+                                                            branches.isNotEmpty)
+                                                        ? branches
+                                                              .first
+                                                              .branchId
+                                                        : null);
+
+                                                if (branchId == null) {
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
+                                                    const SnackBar(
+                                                      content: Text(
+                                                        'Please select a branch first.',
+                                                      ),
+                                                    ),
+                                                  );
+                                                  return;
+                                                }
+
+                                                final result = await context
+                                                    .read<ProviderPageCubit>()
+                                                    .createInvoiceFromPackage(
+                                                      packageId: packageId,
+                                                      providerBranchId:
+                                                          branchId,
+                                                    );
+
+                                                if (!context.mounted) return;
+
+                                                result.when(
+                                                  success: (invoiceId) {
+                                                    Navigator.of(context).pop();
+                                                    ScaffoldMessenger.of(
+                                                      this.context,
+                                                    ).showSnackBar(
+                                                      SnackBar(
+                                                        content: Text(
+                                                          'Invoice #$invoiceId created successfully.',
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                  failure: (error) {
+                                                    ScaffoldMessenger.of(
+                                                      context,
+                                                    ).showSnackBar(
+                                                      SnackBar(
+                                                        content: Text(error),
+                                                      ),
+                                                    );
+                                                  },
+                                                );
+                                              },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: const Color(
+                                            0xFF3872B1,
+                                          ),
+                                          foregroundColor: Colors.white,
+                                          elevation: 0,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8.r,
+                                            ),
+                                          ),
+                                        ),
+                                        child: isCreatingInvoice
+                                            ? const SizedBox(
+                                                width: 22,
+                                                height: 22,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                      strokeWidth: 2,
+                                                      color: Colors.white,
+                                                    ),
+                                              )
+                                            : Text(
+                                                'Add',
+                                                style: TextStyle(
+                                                  fontSize: 20.sp,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 10.h),
+                                  ],
+                                ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  String _formatPrice(double? price) {
+    if (price == null) return '';
+    return price % 1 == 0 ? price.toStringAsFixed(0) : price.toStringAsFixed(2);
   }
 
   void _openBranchSelector(List<ProviderBranch>? branches) async {
@@ -835,10 +1545,10 @@ class _ProviderInfoRow extends StatelessWidget {
   }
 }
 
-class _PackageServiceNames extends StatelessWidget {
+class PackageServiceNames extends StatelessWidget {
   final List<String> serviceNames;
 
-  const _PackageServiceNames({required this.serviceNames});
+  const PackageServiceNames({super.key, required this.serviceNames});
 
   @override
   Widget build(BuildContext context) {
@@ -886,6 +1596,82 @@ class _PackageServiceNames extends StatelessWidget {
 
 /// A tappable chip for a category tab.
 /// Shows a blue badge with [CategoryTab.selectedCount] when > 0.
+class _PackagePlainServiceNames extends StatelessWidget {
+  final List<String> serviceNames;
+
+  const _PackagePlainServiceNames({required this.serviceNames});
+
+  @override
+  Widget build(BuildContext context) {
+    if (serviceNames.isEmpty) {
+      return Text(
+        'No services found',
+        style: TextStyle(fontSize: 14.sp, color: const Color(0xFF64748B)),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: List.generate(serviceNames.length, (index) {
+        return Padding(
+          padding: EdgeInsets.only(bottom: 2.h),
+          child: Text(
+            '${index + 1}-${serviceNames[index]}',
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: const Color(0xFF4B5563),
+              height: 1.22,
+            ),
+          ),
+        );
+      }),
+    );
+  }
+}
+
+class _ServiceBadge extends StatelessWidget {
+  final String label;
+  final Color color;
+  final Color backgroundColor;
+  final IconData? icon;
+
+  const _ServiceBadge({
+    required this.label,
+    required this.color,
+    required this.backgroundColor,
+    this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(color: color.withValues(alpha: 0.55)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 11.sp, color: color),
+            SizedBox(width: 3.w),
+          ],
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 11.sp,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _CategoryTabChip extends StatelessWidget {
   final CategoryTab tab;
   final bool isSelected;

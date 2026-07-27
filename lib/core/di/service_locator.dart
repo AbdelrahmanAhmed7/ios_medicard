@@ -229,7 +229,8 @@ Future<void> setupServiceLocator() async {
     (providerId, _) => ProviderPageCubit(sl(), sl(), sl(), providerId),
   );
   sl.registerFactoryParam<CartCubit, int?, void>(
-    (providerId, _) => CartCubit(sl(), providerId: providerId),
+    (providerId, _) =>
+        CartCubit(sl(), sl(), sl(), sl(), providerId: providerId),
   );
   sl.registerFactory<HomeCubit>(() => HomeCubit(sl(), sl(), sl()));
   sl.registerFactory<ActivityCubit>(() => ActivityCubit(sl()));

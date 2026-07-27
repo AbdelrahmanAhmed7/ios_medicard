@@ -228,6 +228,35 @@ class _MedicardNetworkApiService implements MedicardNetworkApiService {
   }
 
   @override
+  Future<ProviderBranchesResponse> getProviderBranchLocations(
+    int providerId,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<ProviderBranchesResponse>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            'ProviderPage/${providerId}/branchLocations',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ProviderBranchesResponse _value;
+    try {
+      _value = ProviderBranchesResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
   Future<ProviderServicesResponse> getProviderServices(
     int providerId, {
     String? search,
@@ -236,6 +265,7 @@ class _MedicardNetworkApiService implements MedicardNetworkApiService {
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
+      r'providerId': providerId,
       r'search': search,
       r'pageNumber': pageNumber,
       r'pageSize': pageSize,
@@ -247,7 +277,7 @@ class _MedicardNetworkApiService implements MedicardNetworkApiService {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'ProviderPage/${providerId}/services',
+            'https://medicard-api-v2.medicardeg.com/services',
             queryParameters: queryParameters,
             data: _data,
           )

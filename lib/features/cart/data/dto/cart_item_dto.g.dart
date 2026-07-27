@@ -7,6 +7,7 @@ part of 'cart_item_dto.dart';
 // **************************************************************************
 
 CartItemDto _$CartItemDtoFromJson(Map<String, dynamic> json) => CartItemDto(
+  cartItemId: (json['cartItemId'] as num?)?.toInt(),
   serviceId: (json['serviceId'] as num?)?.toInt(),
   serviceName: json['serviceName'] as String?,
   categoryId: (json['categoryId'] as num?)?.toInt(),
@@ -15,10 +16,12 @@ CartItemDto _$CartItemDtoFromJson(Map<String, dynamic> json) => CartItemDto(
   providerName: json['providerName'] as String?,
   priceAfter: (json['priceAfter'] as num?)?.toDouble(),
   priceBefore: (json['priceBefore'] as num?)?.toDouble(),
+  discountPercentage: (json['discountPercentage'] as num?)?.toDouble(),
 );
 
 Map<String, dynamic> _$CartItemDtoToJson(CartItemDto instance) =>
     <String, dynamic>{
+      'cartItemId': instance.cartItemId,
       'serviceId': instance.serviceId,
       'serviceName': instance.serviceName,
       'categoryId': instance.categoryId,
@@ -27,4 +30,5 @@ Map<String, dynamic> _$CartItemDtoToJson(CartItemDto instance) =>
       'providerName': instance.providerName,
       'priceAfter': instance.priceAfter,
       'priceBefore': instance.priceBefore,
+      'discountPercentage': instance.discountPercentage,
     };

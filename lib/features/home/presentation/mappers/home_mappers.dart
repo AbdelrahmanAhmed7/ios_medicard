@@ -23,27 +23,34 @@ List<ProviderModel> mapProviders(List<HomeNearestProvider> raw) {
 }
 
 List<AppointmentModel> mapAppointments(List<HomePendingAppointment> raw) {
-  return raw.where((a) => _hasAnyText([
-    a.providerName,
-    a.service,
-    a.branchName,
-    a.status,
-    a.date,
-  ])).map((a) {
-    return AppointmentModel(
-      providerLogoUrl: _textOrEmpty(a.providerImageUrl),
-      providerName: _textOrEmpty(a.providerName),
-      service: _textOrEmpty(a.service),
-      branch: _textOrEmpty(a.branchName),
-      status: _textOrEmpty(a.status),
-      date: _textOrEmpty(a.date),
-    );
-  }).toList();
+  return raw
+      .where(
+        (a) => _hasAnyText([
+          a.providerName,
+          a.service,
+          a.branchName,
+          a.status,
+          a.date,
+        ]),
+      )
+      .map((a) {
+        return AppointmentModel(
+          providerId: a.providerId,
+          providerLogoUrl: _textOrEmpty(a.providerImageUrl),
+          providerName: _textOrEmpty(a.providerName),
+          service: _textOrEmpty(a.service),
+          branch: _textOrEmpty(a.branchName),
+          status: _textOrEmpty(a.status),
+          date: _textOrEmpty(a.date),
+        );
+      })
+      .toList();
 }
 
 List<PromoBanner> mapPromoBanners(List<HomeSlider> raw) {
   return raw.where((slider) => _hasText(slider.imageUrl)).map((slider) {
     return PromoBanner(
+      providerId: slider.providerId,
       imageUrl: _textOrEmpty(slider.imageUrl),
       providerLogoUrl: '',
       title: _textOrEmpty(slider.providerName),
@@ -53,24 +60,32 @@ List<PromoBanner> mapPromoBanners(List<HomeSlider> raw) {
 }
 
 List<FeaturedServiceModel> mapPackages(List<HomePackage> raw) {
-  return raw.where((package) => _hasAnyText([
-    package.name,
-    package.providerName,
-    package.imageUrl,
-    package.description,
-  ])).map((package) {
-    return FeaturedServiceModel(
-      imageUrl: _textOrEmpty(package.imageUrl),
-      providerLogoUrl: '',
-      providerName: _textOrEmpty(package.providerName),
-      serviceName: _textOrEmpty(package.name),
-      location: _textOrEmpty(package.description),
-      originalPrice: package.priceBefore ?? 0,
-      discountedPrice: package.priceAfter ?? 0,
-      rating: 0,
-      reviewCount: 0,
-    );
-  }).toList();
+  return raw
+      .where(
+        (package) => _hasAnyText([
+          package.name,
+          package.providerName,
+          package.imageUrl,
+          package.description,
+        ]),
+      )
+      .map((package) {
+        return FeaturedServiceModel(
+          packageId: package.packageId,
+          providerId: package.providerId,
+          providerBranchId: package.providerBranchId,
+          imageUrl: _textOrEmpty(package.imageUrl),
+          providerLogoUrl: '',
+          providerName: _textOrEmpty(package.providerName),
+          serviceName: _textOrEmpty(package.name),
+          location: _textOrEmpty(package.description),
+          originalPrice: package.priceBefore ?? 0,
+          discountedPrice: package.priceAfter ?? 0,
+          rating: 0,
+          reviewCount: 0,
+        );
+      })
+      .toList();
 }
 
 bool _hasAnyText(List<String?> values) => values.any(_hasText);

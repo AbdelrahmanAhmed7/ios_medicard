@@ -15,15 +15,20 @@ class ProfileCubit extends Cubit<ProfileState> {
   final ChangeLanguageUseCase _changeLanguageUseCase;
   Future<void>? _profileLoad;
 
-  ProfileCubit(this._getProfileUseCase, this._updateProfileUseCase, this._changeLanguageUseCase)
-    : super(const ProfileState.initial());
+  ProfileCubit(
+    this._getProfileUseCase,
+    this._updateProfileUseCase,
+    this._changeLanguageUseCase,
+  ) : super(const ProfileState.initial());
 
   Future<void> loadProfile({bool forceRefresh = false}) {
     if (isClosed) return Future.value();
 
     final activeLoad = _profileLoad;
     if (activeLoad != null) {
-      if (kDebugMode) debugPrint('[ProfileCubit] loadProfile joined in-flight request');
+      if (kDebugMode) {
+        debugPrint('[ProfileCubit] loadProfile joined in-flight request');
+      }
       return activeLoad;
     }
 
@@ -34,12 +39,16 @@ class ProfileCubit extends Cubit<ProfileState> {
       orElse: () => false,
     );
     if (hasProfile && !forceRefresh) {
-      if (kDebugMode) debugPrint('[ProfileCubit] loadProfile skipped; cached data retained');
+      if (kDebugMode) {
+        debugPrint('[ProfileCubit] loadProfile skipped; cached data retained');
+      }
       return Future.value();
     }
 
     if (kDebugMode) {
-      debugPrint('[ProfileCubit] loadProfile called (forceRefresh=$forceRefresh)');
+      debugPrint(
+        '[ProfileCubit] loadProfile called (forceRefresh=$forceRefresh)',
+      );
     }
     final load = _performProfileLoad();
     _profileLoad = load;
@@ -59,16 +68,22 @@ class ProfileCubit extends Cubit<ProfileState> {
           if (isClosed) return;
           final profile = data.data;
           if (profile == null) {
-            if (kDebugMode) debugPrint('[ProfileCubit] response contained no profile data');
+            if (kDebugMode) {
+              debugPrint('[ProfileCubit] response contained no profile data');
+            }
             emit(const ProfileState.failed('Profile data is unavailable.'));
             return;
           }
-          if (kDebugMode) debugPrint('[ProfileCubit] profile loaded successfully');
+          if (kDebugMode) {
+            debugPrint('[ProfileCubit] profile loaded successfully');
+          }
           emit(ProfileState.success(profile));
         },
         failure: (message) {
           if (isClosed) return;
-          if (kDebugMode) debugPrint('[ProfileCubit] profile load failed: $message');
+          if (kDebugMode) {
+            debugPrint('[ProfileCubit] profile load failed: $message');
+          }
           emit(ProfileState.failed(message));
         },
       );
@@ -79,7 +94,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     }
   }
 
-  Future<void> updateProfile({
+  Future<bool> updateProfile({
     required String firstName,
     required String lastName,
     required String phoneNumber,
@@ -90,7 +105,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     String? imagePath,
     required ProfileData currentData,
   }) async {
-    if (isClosed) return;
+    if (isClosed) return false;
     emit(ProfileState.updating(currentData));
     try {
       final result = await _updateProfileUseCase.call(
@@ -103,15 +118,26 @@ class ProfileCubit extends Cubit<ProfileState> {
         birthDate: birthDate,
         imagePath: imagePath,
       );
-      if (isClosed) return;
+      if (isClosed) return false;
+      var didUpdate = false;
       result.when(
         success: (response) {
           if (isClosed) return;
+          final responseData = response.data ?? currentData;
+          final updatedData = ProfileData(
+            firstName: firstName,
+            lastName: lastName,
+            phoneNumber: phoneNumber,
+            nationalId: nationalId,
+            passportNumber: passportNumber,
+            isMale: isMale,
+            birthDate: birthDate,
+            imageUrl: imagePath ?? responseData.imageUrl,
+          );
           showSuccessToast('Profile updated successfully');
           if (isClosed) return;
-          if (response.data != null) {
-            emit(ProfileState.updated(response.data!));
-          }
+          emit(ProfileState.updated(updatedData));
+          didUpdate = true;
         },
         failure: (message) {
           if (isClosed) return;
@@ -120,22 +146,20 @@ class ProfileCubit extends Cubit<ProfileState> {
           emit(ProfileState.success(currentData));
         },
       );
+      return didUpdate;
     } catch (e) {
-      if (isClosed) return;
+      if (isClosed) return false;
       showErrorToast(parseApiError(e));
-      if (isClosed) return;
+      if (isClosed) return false;
       emit(ProfileState.success(currentData));
+      return false;
     }
   }
 
-  Future<void> changeLanguage({
-    required String language,
-  }) async {
+  Future<void> changeLanguage({required String language}) async {
     if (isClosed) return;
     try {
-      final result = await _changeLanguageUseCase.call(
-        language: language,
-      );
+      final result = await _changeLanguageUseCase.call(language: language);
       if (isClosed) return;
       result.when(
         success: (response) {

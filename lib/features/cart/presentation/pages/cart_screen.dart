@@ -4,13 +4,17 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/widgets/app_blue_header.dart';
+import '../../../../network/data/provider_page_response_model.dart';
 import '../cubit/cart_cubit.dart';
 import '../cubit/cart_state.dart';
 import '../../domain/models/cart_item.dart';
 import '../../domain/models/category_counter.dart';
 
 class CartScreen extends StatefulWidget {
-  const CartScreen({super.key});
+  final int? initialProviderId;
+  final ProviderBranch? initialBranch;
+
+  const CartScreen({super.key, this.initialProviderId, this.initialBranch});
 
   @override
   State<CartScreen> createState() => _CartScreenState();
@@ -26,10 +30,10 @@ class _CartScreenState extends State<CartScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: const Color(0xFFF4F6F9), // لون مقارب لخلفية الصورة
       body: Column(
         children: [
-          const AppBlueHeader(title: 'Cart', bottomRadius: 0),
+          const AppBlueHeader(title: 'Cart', bottomRadius: 20),
           Expanded(
             child: BlocBuilder<CartCubit, CartState>(
               builder: (context, state) {
@@ -51,6 +55,8 @@ class _CartScreenState extends State<CartScreen> {
                 return _CartBody(
                   items: items,
                   categoryCounters: state.cart?.categoryCounters ?? [],
+                  initialProviderId: widget.initialProviderId,
+                  initialBranch: widget.initialBranch,
                 );
               },
             ),
@@ -66,25 +72,20 @@ class _CartScreenState extends State<CartScreen> {
 class _CartBody extends StatelessWidget {
   final List<CartItem> items;
   final List<CategoryCounter> categoryCounters;
+  final int? initialProviderId;
+  final ProviderBranch? initialBranch;
 
-  const _CartBody({required this.items, required this.categoryCounters});
+  const _CartBody({
+    required this.items,
+    required this.categoryCounters,
+    this.initialProviderId,
+    this.initialBranch,
+  });
 
   @override
   Widget build(BuildContext context) {
-    double subtotal = 0;
-    double totalAfter = 0;
-
-    for (var item in items) {
-      final original = item.priceBefore ?? item.priceAfter ?? 0;
-      final current = item.priceAfter ?? item.priceBefore ?? 0;
-      subtotal += original;
-      totalAfter += current;
-    }
-
-    final double discount = subtotal - totalAfter;
-
-    // Items that still have no provider assigned
     final hasUnassigned = items.any((i) => i.providerId == null);
+    final hasAssigned = items.any((i) => i.providerId != null);
 
     return Column(
       children: [
@@ -92,7 +93,7 @@ class _CartBody extends StatelessWidget {
           child: ListView(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
             children: [
-              // ── Category badges row
+              // ── Category badges row (إذا أردت الإبقاء عليها كما هي باللوجيك)
               if (categoryCounters.isNotEmpty) ...[
                 _CategoryBadgesRow(counters: categoryCounters),
                 SizedBox(height: 16.h),
@@ -102,26 +103,17 @@ class _CartBody extends StatelessWidget {
               ...items.map((item) => _CartItemCard(item: item)),
 
               SizedBox(height: 24.h),
-
-              // ── Suggested Offers
-              const _SuggestedOffersSection(),
-
-              SizedBox(height: 24.h),
-
-              // ── Payment Summary
-              _PaymentSummarySection(
-                subtotal: subtotal,
-                discount: discount,
-                total: totalAfter,
-              ),
-
-              SizedBox(height: 16.h),
             ],
           ),
         ),
 
         // ── Bottom action bar ────────────────────────────────────────────────
-        _CartBottomBar(hasUnassigned: hasUnassigned, total: totalAfter),
+        _CartBottomBar(
+          hasUnassigned: hasUnassigned,
+          hasAssigned: hasAssigned,
+          initialProviderId: initialProviderId,
+          initialBranch: initialBranch,
+        ),
       ],
     );
   }
@@ -129,11 +121,6 @@ class _CartBody extends StatelessWidget {
 
 // ─── Category Badges Row ──────────────────────────────────────────────────────
 
-/// Horizontal row of category chips, each with a badge showing the
-/// number of selected services in that category.
-///
-/// Sourced from [Cart.categoryCounters] which comes from the
-/// `GET /Cart` response — no extra API call required.
 class _CategoryBadgesRow extends StatelessWidget {
   final List<CategoryCounter> counters;
 
@@ -171,7 +158,6 @@ class _CategoryBadgesRow extends StatelessWidget {
   }
 }
 
-/// A single category chip with a floating badge showing [CategoryCounter.count].
 class _CategoryChip extends StatelessWidget {
   final CategoryCounter counter;
 
@@ -182,7 +168,6 @@ class _CategoryChip extends StatelessWidget {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        // ── Chip body
         Container(
           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
           decoration: BoxDecoration(
@@ -199,8 +184,6 @@ class _CategoryChip extends StatelessWidget {
             ),
           ),
         ),
-
-        // ── Badge — only shown when count > 0
         if (counter.count > 0)
           Positioned(
             top: -6.h,
@@ -250,15 +233,8 @@ class _CartItemCard extends StatelessWidget {
           padding: EdgeInsets.all(16.w),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(16.r),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.02),
-                blurRadius: 6,
-                offset: const Offset(0, 2),
-              ),
-            ],
+            borderRadius: BorderRadius.circular(12.r),
+            border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -269,66 +245,20 @@ class _CartItemCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item.serviceName,
-                          style: TextStyle(
-                            fontSize: 15.sp,
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFF1E293B),
-                          ),
-                        ),
-                        SizedBox(height: 4.h),
-                        // Provider name — shown if assigned, warning if not
-                        if (item.providerName != null)
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.storefront_outlined,
-                                size: 13.sp,
-                                color: const Color(0xFF3872B1),
-                              ),
-                              SizedBox(width: 4.w),
-                              Text(
-                                item.providerName!,
-                                style: TextStyle(
-                                  fontSize: 13.sp,
-                                  color: const Color(0xFF3872B1),
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          )
-                        else
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.warning_amber_rounded,
-                                size: 13.sp,
-                                color: const Color(0xFFF97316),
-                              ),
-                              SizedBox(width: 4.w),
-                              Text(
-                                'No provider selected',
-                                style: TextStyle(
-                                  fontSize: 13.sp,
-                                  color: const Color(0xFFF97316),
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                      ],
+                    child: Text(
+                      item.serviceName,
+                      style: TextStyle(
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87, // ليتناسب مع الصورة
+                      ),
                     ),
                   ),
+                  SizedBox(width: 8.w),
                   if (isPending)
                     SizedBox(
-                      width: 24.w,
-                      height: 24.h,
+                      width: 20.w,
+                      height: 20.h,
                       child: const CircularProgressIndicator(
                         strokeWidth: 2,
                         color: Color(0xFF3872B1),
@@ -340,76 +270,138 @@ class _CartItemCard extends StatelessWidget {
                         serviceId: item.serviceId,
                         categoryId: item.categoryId,
                       ),
-                      child: Container(
-                        padding: EdgeInsets.all(4.r),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: const Color(0xFFE0E7FF),
-                            width: 1.5,
-                          ),
-                        ),
-                        child: Icon(
-                          Icons.remove,
-                          color: const Color(0xFF3872B1),
-                          size: 18.sp,
-                        ),
+                      child: Icon(
+                        Icons.remove_circle_outline, // أيقونة متطابقة مع الصورة
+                        color: const Color(0xFF3872B1),
+                        size: 24.sp,
                       ),
                     ),
                 ],
               ),
 
-              SizedBox(height: 12.h),
+              SizedBox(height: 16.h),
 
-              // Badges & Price Row
+              // Bottom Row: Tags (Provider/Category/Discount) & Price
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Badges
-                  Row(
-                    children: [
-                      _buildBadge(
-                        'No Fasting',
-                        const Color(0xFFFEF3C7),
-                        const Color(0xFFD97706),
-                        true,
-                      ),
-                      SizedBox(width: 8.w),
-                      _buildBadge(
-                        '10%Off',
-                        const Color(0xFFDBEAFE),
-                        const Color(0xFF2563EB),
-                        false,
-                      ),
-                    ],
-                  ),
-                  // Prices
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
-                    children: [
-                      if (item.priceBefore != null)
-                        Text(
-                          '${item.priceBefore!.toStringAsFixed(0)} EGP',
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            color: const Color(0xFF94A3B8),
-                            decoration: TextDecoration.lineThrough,
+                  // Tags Row
+                  Expanded(
+                    child: Wrap(
+                      spacing: 8.w,
+                      runSpacing: 6.h,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        // Yellowish Tag (Used for Provider Name or Category to match UI)
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 8.w,
+                            vertical: 4.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFFBEB), // لون أصفر فاتح
+                            borderRadius: BorderRadius.circular(12.r),
+                            border: Border.all(
+                              color: const Color(
+                                0xFFFBBF24,
+                              ).withValues(alpha: 0.5),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                item.providerName != null
+                                    ? Icons.storefront_outlined
+                                    : Icons.warning_amber_rounded,
+                                size: 12.sp,
+                                color: const Color(0xFFD97706),
+                              ),
+                              SizedBox(width: 4.w),
+                              Text(
+                                item.providerName ?? 'No provider selected',
+                                style: TextStyle(
+                                  fontSize: 11.sp,
+                                  color: const Color(0xFFD97706),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      SizedBox(width: 6.w),
-                      if (item.priceAfter != null)
-                        Text(
-                          '${item.priceAfter!.toStringAsFixed(0)} EGP',
-                          style: TextStyle(
-                            fontSize: 15.sp,
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFF3872B1),
+
+                        // Discount Tag (Blue)
+                        if (item.discountPercentage != null)
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 8.w,
+                              vertical: 4.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFEFF6FF),
+                              borderRadius: BorderRadius.circular(12.r),
+                              border: Border.all(
+                                color: const Color(
+                                  0xFF3872B1,
+                                ).withValues(alpha: 0.3),
+                              ),
+                            ),
+                            child: Text(
+                              '${item.discountPercentage!.toStringAsFixed(0)}%Off',
+                              style: TextStyle(
+                                color: const Color(0xFF3872B1),
+                                fontSize: 11.sp,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
+
+                  // Price Section
+                  if (item.priceBefore != null || item.priceAfter != null)
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (item.priceBefore != null)
+                          Text(
+                            '${item.priceBefore!.toStringAsFixed(0)} EGP',
+                            style: TextStyle(
+                              fontSize: 11.sp,
+                              color: Colors.black, // نفس اللون في الصورة
+                              decoration: item.priceAfter != null
+                                  ? TextDecoration.lineThrough
+                                  : TextDecoration.none,
+                            ),
+                          ),
+                        if (item.priceBefore != null && item.priceAfter != null)
+                          SizedBox(width: 6.w),
+                        if (item.priceAfter != null)
+                          Text(
+                            '${item.priceAfter!.toStringAsFixed(0)} EGP',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.bold,
+                              color: const Color(
+                                0xFF3872B1,
+                              ), // الأزرق في الصورة
+                            ),
+                          ),
+                      ],
+                    )
+                  else
+                    Text(
+                      'Price unavailable',
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: const Color(0xFF94A3B8),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                 ],
               ),
             ],
@@ -418,48 +410,22 @@ class _CartItemCard extends StatelessWidget {
       },
     );
   }
-
-  Widget _buildBadge(
-    String text,
-    Color bgColor,
-    Color textColor,
-    bool showIcon,
-  ) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: bgColor.withValues(alpha: 0.5)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (showIcon) ...[
-            Icon(Icons.access_time, size: 12.sp, color: textColor),
-            SizedBox(width: 4.w),
-          ],
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 11.sp,
-              fontWeight: FontWeight.w600,
-              color: textColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 // ─── Cart Bottom Bar ──────────────────────────────────────────────────────────
 
 class _CartBottomBar extends StatelessWidget {
   final bool hasUnassigned;
-  final double total;
+  final bool hasAssigned;
+  final int? initialProviderId;
+  final ProviderBranch? initialBranch;
 
-  const _CartBottomBar({required this.hasUnassigned, required this.total});
+  const _CartBottomBar({
+    required this.hasUnassigned,
+    required this.hasAssigned,
+    this.initialProviderId,
+    this.initialBranch,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -470,19 +436,17 @@ class _CartBottomBar extends StatelessWidget {
         16.w,
         MediaQuery.of(context).padding.bottom + 16.h,
       ),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: const Color(0xFFE2E8F0))),
+      decoration: const BoxDecoration(
+        color: Color(0xFFF4F6F9), // يتناسق مع الخلفية في التصميم السفلي
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // "Choose Provider" banner — shown only when there are unassigned items
           if (hasUnassigned) ...[
             GestureDetector(
               onTap: () {
                 final cubit = context.read<CartCubit>();
-                cubit.loadProviders();
+                cubit.loadCartAndProviders();
                 context.push('/choose-provider', extra: cubit);
               },
               child: Container(
@@ -526,28 +490,39 @@ class _CartBottomBar extends StatelessWidget {
           // Checkout button
           SizedBox(
             width: double.infinity,
-            height: 52.h,
+            height: 54.h,
             child: ElevatedButton(
-              onPressed: hasUnassigned
-                  ? null
-                  : () {
-                      // TODO: navigate to checkout
-                    },
+              onPressed: () {
+                final cubit = context.read<CartCubit>();
+                if (!hasAssigned) {
+                  cubit.loadCartAndProviders();
+                  context.push('/choose-provider', extra: cubit);
+                  return;
+                }
+                context.push(
+                  '/checkout',
+                  extra: {
+                    'cubit': cubit,
+                    'providerId': initialProviderId,
+                    'selectedBranch': initialBranch,
+                  },
+                );
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF3872B1),
                 disabledBackgroundColor: const Color(0xFFCBD5E1),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
+                  borderRadius: BorderRadius.circular(
+                    8.r,
+                  ), // مطابق لحواف الزر بالصورة
                 ),
                 elevation: 0,
               ),
               child: Text(
-                hasUnassigned
-                    ? 'Choose providers first'
-                    : 'Checkout  •  EGP ${total.toStringAsFixed(2)}',
+                hasAssigned ? 'Checkout' : 'Choose Provider',
                 style: TextStyle(
-                  fontSize: 15.sp,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w600, // خط عريض وواضح
                   color: Colors.white,
                 ),
               ),
@@ -555,240 +530,6 @@ class _CartBottomBar extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-// ─── Suggested Offers Section ─────────────────────────────────────────────────
-
-class _SuggestedOffersSection extends StatelessWidget {
-  const _SuggestedOffersSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Suggested Offers',
-          style: TextStyle(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.bold,
-            color: const Color(0xFF334155),
-          ),
-        ),
-        SizedBox(height: 12.h),
-        SizedBox(
-          height: 190.h,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: 3, // Mock data count
-            itemBuilder: (context, index) {
-              return Container(
-                width: 140.w,
-                margin: EdgeInsets.only(right: 12.w),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16.r),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Image Placeholder
-                    Stack(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(15.r),
-                          ),
-                          child: Container(
-                            height: 100.h,
-                            width: double.infinity,
-                            color: const Color(0xFFE2E8F0), // Placeholder color
-                            // يمكنك استبداله بصورة حقيقية لاحقاً:
-                            // child: Image.network('url', fit: BoxFit.cover),
-                          ),
-                        ),
-                        Positioned(
-                          top: 8.h,
-                          right: 8.w,
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white,
-                            ),
-                            child: Icon(
-                              Icons.add_circle_outline,
-                              color: const Color(0xFF3872B1),
-                              size: 24.sp,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(10.w),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Full Vitamin Test',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.w600,
-                              color: const Color(0xFF1E293B),
-                            ),
-                          ),
-                          SizedBox(height: 8.h),
-                          Row(
-                            children: [
-                              Text(
-                                '150 EGP',
-                                style: TextStyle(
-                                  fontSize: 11.sp,
-                                  color: const Color(0xFF94A3B8),
-                                  decoration: TextDecoration.lineThrough,
-                                ),
-                              ),
-                              SizedBox(width: 4.w),
-                              Text(
-                                '135 EGP',
-                                style: TextStyle(
-                                  fontSize: 13.sp,
-                                  fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF3872B1),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// ─── Payment Summary Section ──────────────────────────────────────────────────
-
-class _PaymentSummarySection extends StatelessWidget {
-  final double subtotal;
-  final double discount;
-  final double total;
-
-  const _PaymentSummarySection({
-    required this.subtotal,
-    required this.discount,
-    required this.total,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Payment Summary',
-          style: TextStyle(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.bold,
-            color: const Color(0xFF334155),
-          ),
-        ),
-        SizedBox(height: 12.h),
-        Container(
-          padding: EdgeInsets.all(16.w),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16.r),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
-          ),
-          child: Column(
-            children: [
-              // Subtotal
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Subtotal',
-                    style: TextStyle(
-                      fontSize: 15.sp,
-                      color: const Color(0xFF1E293B),
-                    ),
-                  ),
-                  Text(
-                    'EGP ${subtotal.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 15.sp,
-                      color: const Color(0xFF64748B),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 16.h),
-
-              // Discount
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Discount',
-                    style: TextStyle(
-                      fontSize: 15.sp,
-                      color: const Color(0xFF1E293B),
-                    ),
-                  ),
-                  Text(
-                    '- EGP ${discount.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 15.sp,
-                      color: const Color(0xFF22C55E), // Green color
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 16.h),
-                child: const Divider(color: Color(0xFFE2E8F0), height: 1),
-              ),
-
-              // Total Amount
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Total amount',
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF1E293B),
-                    ),
-                  ),
-                  Text(
-                    'EGP ${total.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF1E293B),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

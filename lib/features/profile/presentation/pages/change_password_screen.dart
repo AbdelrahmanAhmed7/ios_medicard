@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/utils/language_helper.dart';
 import '../../../../core/widgets/auth_shared_widgets.dart';
 import '../cubit/change_password_cubit.dart';
 import '../cubit/change_password_state.dart';
@@ -15,6 +16,8 @@ class ChangePasswordScreen extends StatefulWidget {
 }
 
 class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
+  static const int _passwordMinLength = 8;
+
   final _formKey = GlobalKey<FormState>();
   final _currentPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
@@ -35,10 +38,34 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     context.read<ChangePasswordCubit>().changePassword(
-      currentPassword: _currentPasswordController.text,
-      newPassword: _newPasswordController.text,
-      confirmNewPassword: _confirmPasswordController.text,
+      currentPassword: LanguageHelper.convertArabicToEnglishNumerals(
+        _currentPasswordController.text.trim(),
+      ),
+      newPassword: LanguageHelper.convertArabicToEnglishNumerals(
+        _newPasswordController.text.trim(),
+      ),
+      confirmNewPassword: LanguageHelper.convertArabicToEnglishNumerals(
+        _confirmPasswordController.text.trim(),
+      ),
     );
+  }
+
+  String? _validateNewPassword(String? value) {
+    final password = LanguageHelper.convertArabicToEnglishNumerals(
+      value?.trim() ?? '',
+    );
+    if (password.isEmpty) return 'New password is required';
+    if (!_isPasswordValid(password)) {
+      return 'Password must contain at least 8 characters, one letter, one number, and one special character';
+    }
+    return null;
+  }
+
+  bool _isPasswordValid(String password) {
+    return password.length >= _passwordMinLength &&
+        RegExp(r'[A-Za-z]').hasMatch(password) &&
+        RegExp(r'[0-9]').hasMatch(password) &&
+        RegExp(r'[!@#\$%^&*(),.?":{}|<>_\-+=\[\]\\;/`~]').hasMatch(password);
   }
 
   @override
@@ -132,7 +159,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                             () => _showCurrentPassword = !_showCurrentPassword,
                           ),
                           validator: (v) {
-                            if (v == null || v.isEmpty) {
+                            if (v == null || v.trim().isEmpty) {
                               return 'Current password is required';
                             }
                             return null;
@@ -149,15 +176,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           onToggle: () => setState(
                             () => _showNewPassword = !_showNewPassword,
                           ),
-                          validator: (v) {
-                            if (v == null || v.isEmpty) {
-                              return 'New password is required';
-                            }
-                            if (v.length < 6) {
-                              return 'Password must be at least 6 characters';
-                            }
-                            return null;
-                          },
+                          validator: _validateNewPassword,
                         ),
 
                         SizedBox(height: 16.h),
@@ -171,10 +190,18 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                             () => _showConfirmPassword = !_showConfirmPassword,
                           ),
                           validator: (v) {
-                            if (v == null || v.isEmpty) {
+                            final confirmPassword =
+                                LanguageHelper.convertArabicToEnglishNumerals(
+                                  v?.trim() ?? '',
+                                );
+                            final newPassword =
+                                LanguageHelper.convertArabicToEnglishNumerals(
+                                  _newPasswordController.text.trim(),
+                                );
+                            if (confirmPassword.isEmpty) {
                               return 'Please confirm your new password';
                             }
-                            if (v != _newPasswordController.text) {
+                            if (confirmPassword != newPassword) {
                               return 'Passwords do not match';
                             }
                             return null;

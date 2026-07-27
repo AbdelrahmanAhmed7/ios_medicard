@@ -20,6 +20,7 @@ import '../cubit/home_state.dart';
 import '../cubit/location_cubit.dart';
 import '../mappers/home_mappers.dart';
 import '../widgets/activity_screen.dart';
+import '../widgets/ecard_screen.dart';
 import '../widgets/featured_services_section.dart';
 import '../widgets/home_bottom_nav.dart';
 import '../widgets/home_empty_view.dart';
@@ -71,10 +72,10 @@ class _HomeScreenState extends State<HomeScreen> {
               state.maybeWhen(
                 languageChanged: () {
                   context.read<HomeCubit>().getHomeData();
-                  if (_currentIndex == 2) {
+                  if (_currentIndex == 3) {
                     context.read<ProfileCubit>().loadProfile(
-                          forceRefresh: true,
-                        );
+                      forceRefresh: true,
+                    );
                   }
                 },
                 orElse: () {},
@@ -82,24 +83,36 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
         ],
-        child: Scaffold(
-          backgroundColor: Colors.white, 
-          body: IndexedStack(
-            index: _currentIndex,
-            children: const [_HomeBody(), ActivityScreen(), _ProfileBody()],
-          ),
-          bottomNavigationBar: Builder(
-            builder: (providerContext) => HomeBottomNav(
-              currentIndex: _currentIndex,
-              onTap: (i) {
-                if (i == 2) {
-                  if (kDebugMode) {
-                    debugPrint('[ProfileFlow] Profile tab opened');
+        child: PopScope(
+          canPop: _currentIndex == 0,
+          onPopInvokedWithResult: (didPop, result) {
+            if (didPop || _currentIndex == 0) return;
+            setState(() => _currentIndex = 0);
+          },
+          child: Scaffold(
+            backgroundColor: Colors.white,
+            body: IndexedStack(
+              index: _currentIndex,
+              children: const [
+                _HomeBody(),
+                ECardScreen(),
+                ActivityScreen(),
+                _ProfileBody(),
+              ],
+            ),
+            bottomNavigationBar: Builder(
+              builder: (providerContext) => HomeBottomNav(
+                currentIndex: _currentIndex,
+                onTap: (i) {
+                  if (i == 3) {
+                    if (kDebugMode) {
+                      debugPrint('[ProfileFlow] Profile tab opened');
+                    }
+                    providerContext.read<ProfileCubit>().loadProfile();
                   }
-                  providerContext.read<ProfileCubit>().loadProfile();
-                }
-                if (i != _currentIndex) setState(() => _currentIndex = i);
-              },
+                  if (i != _currentIndex) setState(() => _currentIndex = i);
+                },
+              ),
             ),
           ),
         ),
@@ -164,15 +177,16 @@ class _HomeBody extends StatelessWidget {
     final providers = mapProviders(data.data?.nearestProviders ?? []);
     final banners = mapPromoBanners(data.data?.sliders ?? []);
     final services = mapPackages(data.data?.packages ?? []);
-    
-    final hasContent = appointments.isNotEmpty ||
+
+    final hasContent =
+        appointments.isNotEmpty ||
         providers.isNotEmpty ||
         services.isNotEmpty ||
         banners.isNotEmpty;
 
     return RefreshIndicator(
       onRefresh: () => context.read<HomeCubit>().getHomeData(refresh: true),
-      backgroundColor: Colors.white, 
+      backgroundColor: Colors.white,
       child: _buildShellScrollView(
         banners: banners,
         isRefreshing: isRefreshing,
@@ -212,8 +226,10 @@ class _HomeBody extends StatelessWidget {
       slivers: [
         const SliverToBoxAdapter(child: HomeHeader()),
         if (isRefreshing)
-          const SliverToBoxAdapter(child: LinearProgressIndicator(minHeight: 2)),
-          
+          const SliverToBoxAdapter(
+            child: LinearProgressIndicator(minHeight: 2),
+          ),
+
         const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
         SliverToBoxAdapter(

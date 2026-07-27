@@ -6,6 +6,7 @@ part 'auth_response_model.g.dart';
 class AuthResponseModel {
   final int? httpStatusCode;
   final List<String>? errors;
+  @JsonKey(readValue: _readSucceeded, defaultValue: false)
   final bool succeeded;
   final String? message;
   final AuthTokenDataModel? data;
@@ -24,13 +25,17 @@ class AuthResponseModel {
   Map<String, dynamic> toJson() => _$AuthResponseModelToJson(this);
 }
 
+Object? _readSucceeded(Map<dynamic, dynamic> json, String key) {
+  return json[key] ?? json['success'] ?? false;
+}
+
 /// Matches the `data` field of both /Auth/login and /Auth/register responses.
 ///
 /// The API returns ISO-8601 strings with a trailing "Z" (UTC).
 /// We store them as [DateTime] (UTC) so expiry checks are timezone-safe.
 @JsonSerializable()
 class AuthTokenDataModel {
-  final String token;
+  final String? token;
 
   /// Access-token expiry returned by the login/register endpoint.
   /// Parsed as UTC because the API always sends "Z"-suffixed timestamps.
@@ -51,7 +56,7 @@ class AuthTokenDataModel {
   final String? message;
 
   const AuthTokenDataModel({
-    required this.token,
+    this.token,
     this.expiresAt,
     this.refreshToken,
     this.refreshTokenExpiresAt,

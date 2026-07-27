@@ -7,41 +7,29 @@ class ContentShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final statusBarHeight = MediaQuery.of(context).padding.top;
-
-    return Column(
-      children: [
-        Container(
-          height: 80.h + statusBarHeight,
-          color: const Color(0xFF2D5FA6),
-        ),
-        Expanded(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-            child: Column(
-              children: [
-                ShimmerCard(width: double.infinity, height: 20.h),
-                SizedBox(height: 12.h),
-                ShimmerCard(width: double.infinity, height: 16.h),
-                SizedBox(height: 8.h),
-                ShimmerCard(width: double.infinity, height: 16.h),
-                SizedBox(height: 8.h),
-                ShimmerCard(width: double.infinity, height: 16.h),
-                SizedBox(height: 8.h),
-                ShimmerCard(width: 0.8.sw, height: 16.h),
-                SizedBox(height: 12.h),
-                ShimmerCard(width: double.infinity, height: 20.h),
-                SizedBox(height: 12.h),
-                ShimmerCard(width: double.infinity, height: 16.h),
-                SizedBox(height: 8.h),
-                ShimmerCard(width: double.infinity, height: 16.h),
-                SizedBox(height: 8.h),
-                ShimmerCard(width: 0.6.sw, height: 16.h),
-              ],
-            ),
-          ),
-        ),
-      ],
+    return SingleChildScrollView(
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+      child: Column(
+        children: [
+          ShimmerCard(width: double.infinity, height: 24.h),
+          SizedBox(height: 16.h),
+          ShimmerCard(width: double.infinity, height: 16.h),
+          SizedBox(height: 8.h),
+          ShimmerCard(width: double.infinity, height: 16.h),
+          SizedBox(height: 8.h),
+          ShimmerCard(width: double.infinity, height: 16.h),
+          SizedBox(height: 8.h),
+          ShimmerCard(width: 0.8.sw, height: 16.h),
+          SizedBox(height: 20.h),
+          ShimmerCard(width: double.infinity, height: 22.h),
+          SizedBox(height: 12.h),
+          ShimmerCard(width: double.infinity, height: 16.h),
+          SizedBox(height: 8.h),
+          ShimmerCard(width: double.infinity, height: 16.h),
+          SizedBox(height: 8.h),
+          ShimmerCard(width: 0.6.sw, height: 16.h),
+        ],
+      ),
     );
   }
 }

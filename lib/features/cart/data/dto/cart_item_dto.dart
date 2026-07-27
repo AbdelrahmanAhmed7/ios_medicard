@@ -4,6 +4,7 @@ part 'cart_item_dto.g.dart';
 
 @JsonSerializable()
 class CartItemDto {
+  final int? cartItemId;
   final int? serviceId;
   final String? serviceName;
   final int? categoryId;
@@ -12,8 +13,10 @@ class CartItemDto {
   final String? providerName;
   final double? priceAfter;
   final double? priceBefore;
+  final double? discountPercentage;
 
   const CartItemDto({
+    this.cartItemId,
     this.serviceId,
     this.serviceName,
     this.categoryId,
@@ -22,6 +25,7 @@ class CartItemDto {
     this.providerName,
     this.priceAfter,
     this.priceBefore,
+    this.discountPercentage,
   });
 
   factory CartItemDto.fromJson(Map<String, dynamic> json) =>

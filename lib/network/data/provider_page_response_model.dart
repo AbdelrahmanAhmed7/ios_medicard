@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'provider_services_response_model.dart';
 
 part 'provider_page_response_model.g.dart';
 
@@ -25,6 +26,28 @@ class ProviderPageResponse {
 }
 
 @JsonSerializable(explicitToJson: true)
+class ProviderBranchesResponse {
+  final int? httpStatusCode;
+  final List<String>? errors;
+  final bool? succeeded;
+  final String? message;
+  final List<ProviderBranch>? data;
+
+  ProviderBranchesResponse({
+    this.httpStatusCode,
+    this.errors,
+    this.succeeded,
+    this.message,
+    this.data,
+  });
+
+  factory ProviderBranchesResponse.fromJson(Map<String, dynamic> json) =>
+      _$ProviderBranchesResponseFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ProviderBranchesResponseToJson(this);
+}
+
+@JsonSerializable(explicitToJson: true)
 class ProviderPageData {
   final int id;
   final String name;
@@ -38,6 +61,7 @@ class ProviderPageData {
   final double? averageRating;
   final int? totalReviews;
   final List<ProviderBranch>? branches;
+  final List<ProviderService>? services;
   final int? pageNumber;
   final int? pageSize;
   final int? totalPages;
@@ -55,6 +79,7 @@ class ProviderPageData {
     this.averageRating,
     this.totalReviews,
     this.branches,
+    this.services,
     this.pageNumber,
     this.pageSize,
     this.totalPages,

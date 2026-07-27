@@ -30,6 +30,11 @@ AppFailure mapDioException(DioException exception) {
     if (statusCode == 401) return const AppFailure.unauthorized();
     if (statusCode == 403) return const AppFailure.forbidden();
     if (statusCode == 404) return const AppFailure.notFound();
+    if (statusCode == 405) {
+      return const AppFailure.unexpected(
+        'This action is currently unavailable. Please try again later.',
+      );
+    }
     if (statusCode >= 500) return AppFailure.server(statusCode: statusCode);
 
     // For 400 errors, check if response has success: true (some APIs return data even on 400)

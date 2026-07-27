@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
-import '../../../../core/widgets/auth_shared_widgets.dart';
 
 class HomeBottomNav extends StatelessWidget {
   final int currentIndex;
@@ -14,8 +13,10 @@ class HomeBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bottomSafePadding = MediaQuery.viewPaddingOf(context).bottom;
     final items = <_NavItem>[
       _NavItem(icon: Icons.home_outlined, labelKey: 'home.nav_home'),
+      _NavItem(icon: Icons.credit_card_outlined, labelKey: 'home.nav_ecard'),
       _NavItem(icon: Icons.access_time_outlined, labelKey: 'home.nav_activity'),
       _NavItem(
         icon: Icons.person_outline_rounded,
@@ -25,22 +26,23 @@ class HomeBottomNav extends StatelessWidget {
 
     return Container(
       color: Colors.transparent,
-      padding: const EdgeInsets.only(left: 24, right: 24, bottom: 20),
+      padding: EdgeInsets.only(bottom: bottomSafePadding),
       child: Container(
-        height: 64,
+        height: 74,
         decoration: BoxDecoration(
-          color: kAuthBlue,
-          borderRadius: BorderRadius.circular(32),
+          color: Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+          border: Border.all(color: const Color(0xFFD9DDE5)),
           boxShadow: [
             BoxShadow(
-              color: kAuthBlue.withValues(alpha: 0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 10,
+              offset: const Offset(0, -3),
             ),
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(32),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
           child: Row(
             children: List.generate(items.length, (i) {
               return Expanded(
@@ -77,50 +79,31 @@ class _NavColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const activeColor = Color(0xFFFFD700);
-    const inactiveColor = Colors.white;
+    const activeColor = Color(0xFF3976B7);
+    const inactiveColor = Color(0xFF6C6C6C);
     final color = isSelected ? activeColor : inactiveColor;
 
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: SizedBox(
-        height: 64,
-        child: Stack(
-          alignment: Alignment.center,
+        height: 74,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(item.icon, size: 24, color: color),
-                const SizedBox(height: 3),
-                Text(
-                  item.labelKey.tr(),
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    color: color,
-                    fontSize: 10,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-            if (isSelected)
-              Positioned(
-                bottom: 0,
-                child: Container(
-                  width: 24,
-                  height: 4,
-                  decoration: const BoxDecoration(
-                    color: activeColor,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(4),
-                    ),
-                  ),
-                ),
+            Icon(item.icon, size: 24, color: color),
+            const SizedBox(height: 7),
+            Text(
+              item.labelKey.tr(),
+              style: TextStyle(
+                fontFamily: 'Inter',
+                color: color,
+                fontSize: 14,
+                fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ],
         ),
       ),

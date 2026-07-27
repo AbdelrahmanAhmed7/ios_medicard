@@ -12,12 +12,14 @@ AddCartRequestDto _$AddCartRequestDtoFromJson(Map<String, dynamic> json) =>
       categoryId: (json['categoryId'] as num).toInt(),
       providerId: (json['providerId'] as num?)?.toInt(),
       cardNumber: json['cardNumber'] as String?,
+      price: (json['price'] as num?)?.toDouble(),
     );
 
 Map<String, dynamic> _$AddCartRequestDtoToJson(AddCartRequestDto instance) =>
     <String, dynamic>{
       'serviceId': instance.serviceId,
       'categoryId': instance.categoryId,
-      'providerId': instance.providerId,
-      'cardNumber': instance.cardNumber,
+      'providerId': ?instance.providerId,
+      'cardNumber': ?instance.cardNumber,
+      'price': ?instance.price,
     };

@@ -87,7 +87,7 @@ abstract class MedicardApiService {
     @Part(name: 'Image') MultipartFile? image,
   );
 
-  @PUT('Auth/change-password')
+  @POST('Auth/change-password')
   Future<ChangePasswordResponseModel> changePassword(
     @Header('Authorization') String token,
     @Body() Map<String, dynamic> body,
@@ -99,20 +99,8 @@ abstract class MedicardApiService {
     @Body() ChangeLanguageRequestModel body,
   );
 
-  @GET('/Content/privacy-policy')
-  Future<ContentResponseModel> getPrivacyPolicy(
-    @Header('Authorization') String token,
-  );
-
-  @GET('/Content/refund-policy')
-  Future<ContentResponseModel> getRefundPolicy(
-    @Header('Authorization') String token,
-  );
-
-  @GET('/Content/terms-and-conditions')
-  Future<ContentResponseModel> getTermsAndConditions(
-    @Header('Authorization') String token,
-  );
+  @GET('/Content/{slug}')
+  Future<ContentResponseModel> getContent(@Path('slug') String slug);
 
   @GET('/FamilyMembers')
   Future<GetFamilyMembersResponseModel> getFamilyMembers(

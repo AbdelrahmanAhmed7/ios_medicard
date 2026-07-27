@@ -73,7 +73,7 @@ class SharedPrefHelper {
   // ====================== Secure Storage ======================
 
   static final FlutterSecureStorage _secureStorage = FlutterSecureStorage(
-    aOptions: AndroidOptions(resetOnError: true),
+    aOptions: AndroidOptions(resetOnError: false),
     iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
   );
 
@@ -129,6 +129,19 @@ class SharedPrefHelper {
     } catch (e) {
       if (kDebugMode) {
         debugPrint("SecureStorage clear failed: $e");
+      }
+      rethrow;
+    }
+  }
+
+  static Future<void> removeSecuredData(String key) async {
+    if (kDebugMode) debugPrint("SecureStorage : remove $key");
+
+    try {
+      await _secureStorage.delete(key: key);
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint("SecureStorage remove failed: $e");
       }
       rethrow;
     }

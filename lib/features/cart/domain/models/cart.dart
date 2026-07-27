@@ -1,5 +1,6 @@
 import 'cart_item.dart';
 import 'category_counter.dart';
+import 'provider_option.dart';
 
 class Cart {
   final List<CartItem> items;
@@ -11,4 +12,60 @@ class Cart {
     required this.totalCount,
     required this.categoryCounters,
   });
+
+  Cart removeService(int serviceId) {
+    final removedItems = items.where((item) => item.serviceId == serviceId);
+    if (removedItems.isEmpty) return this;
+
+    final removedCountByCategory = <int, int>{};
+    for (final item in removedItems) {
+      removedCountByCategory[item.categoryId] =
+          (removedCountByCategory[item.categoryId] ?? 0) + 1;
+    }
+
+    final nextItems = items
+        .where((item) => item.serviceId != serviceId)
+        .toList();
+    final nextCounters = categoryCounters
+        .map((counter) {
+          final removed = removedCountByCategory[counter.categoryId] ?? 0;
+          return CategoryCounter(
+            categoryId: counter.categoryId,
+            categoryName: counter.categoryName,
+            count: counter.count - removed,
+          );
+        })
+        .where((counter) => counter.count > 0)
+        .toList();
+
+    return Cart(
+      items: nextItems,
+      totalCount: totalCount - removedItems.length,
+      categoryCounters: nextCounters,
+    );
+  }
+
+  Cart assignProvider(ProviderOption provider) {
+    final coveredByCartId = {
+      for (final service in provider.coveredServices)
+        service.cartItemId: service,
+    };
+
+    return Cart(
+      items: items.map((item) {
+        final covered = coveredByCartId[item.cartItemId];
+        if (covered == null) return item;
+
+        return item.copyWith(
+          providerId: provider.providerId,
+          providerName: provider.providerName,
+          priceBefore: covered.priceBefore,
+          priceAfter: covered.priceAfter,
+          discountPercentage: covered.discountPercentage,
+        );
+      }).toList(),
+      totalCount: totalCount,
+      categoryCounters: categoryCounters,
+    );
+  }
 }

@@ -18,12 +18,14 @@ class SearchScreen extends StatefulWidget {
   final double? userLatitude;
   final double? userLongitude;
   final int? categoryId;
+  final int initialTabIndex;
 
   const SearchScreen({
     super.key,
     this.userLatitude,
     this.userLongitude,
     this.categoryId,
+    this.initialTabIndex = 0,
   });
 
   @override
@@ -40,7 +42,11 @@ class _SearchScreenState extends State<SearchScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(
+      length: 2,
+      vsync: this,
+      initialIndex: widget.initialTabIndex.clamp(0, 1),
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<SearchCubit>().init(
         lat: widget.userLatitude,

@@ -48,14 +48,16 @@ class AuthInterceptor extends Interceptor {
       return handler.next(options);
     }
 
-    if (kDebugMode)
+    if (kDebugMode) {
       debugPrint('[HTTP] preparing ${options.method} ${options.path}');
+    }
 
     final session = await _sessionStorage.getSession();
 
     if (session == null || !session.hasAccessToken) {
-      if (kDebugMode)
+      if (kDebugMode) {
         debugPrint('[HTTP] authentication unavailable for ${options.path}');
+      }
       // No session — let through; server 401 will be handled in onError.
       return handler.next(options);
     }
@@ -71,6 +73,12 @@ class AuthInterceptor extends Interceptor {
       if (newSession != null && newSession.hasAccessToken) {
         options.headers['Authorization'] = 'Bearer ${newSession.accessToken}';
       } else {
+        final retainedSession = await _sessionStorage.getSession();
+        if (retainedSession != null && retainedSession.hasAccessToken) {
+          options.headers['Authorization'] =
+              'Bearer ${retainedSession.accessToken}';
+          return handler.next(options);
+        }
         if (kDebugMode) {
           debugPrint('[AuthInterceptor] Proactive refresh failed');
         }
@@ -139,6 +147,10 @@ class AuthInterceptor extends Interceptor {
     final newSession = await _refreshService.refreshToken();
 
     if (newSession == null || !newSession.hasAccessToken) {
+      final retainedSession = await _sessionStorage.getSession();
+      if (retainedSession != null && retainedSession.hasRefreshToken) {
+        return super.onError(err, handler);
+      }
       if (kDebugMode) {
         debugPrint('[AuthInterceptor] Refresh failed after 401 — logging out');
       }

@@ -2,6 +2,7 @@ import '../../../../core/constants/api_result.dart';
 import '../../../../core/constants/constants.dart';
 import '../../../../core/helpers/shared_pref_helper.dart';
 import '../../../../core/utils/api_error_parser.dart';
+import 'package:flutter/foundation.dart';
 import '../api/cart_remote_data_source.dart';
 import '../dto/add_cart_request_dto.dart';
 import '../dto/cart_dto.dart';
@@ -10,6 +11,7 @@ import '../dto/category_counter_dto.dart';
 import '../dto/category_service_dto.dart';
 import '../dto/category_services_dto.dart';
 import '../dto/choose_providers_dto.dart';
+import '../dto/update_cart_provider_request_dto.dart';
 import '../../domain/models/cart.dart';
 import '../../domain/models/cart_item.dart';
 import '../../domain/models/category_counter.dart';
@@ -31,6 +33,19 @@ class CartRepositoryImpl implements CartRepository {
     return 'Bearer $token';
   }
 
+  String _failureMessage({
+    List<String>? errors,
+    String? message,
+    required String fallback,
+  }) {
+    final raw = (errors != null && errors.isNotEmpty)
+        ? errors.join('\n')
+        : message?.isNotEmpty == true
+        ? message!
+        : fallback;
+    return parseApiError(raw);
+  }
+
   Cart _mapCartDtoToDomain(CartDto dto) {
     return Cart(
       items: (dto.data?.items ?? []).map(_mapCartItemDtoToDomain).toList(),
@@ -43,6 +58,7 @@ class CartRepositoryImpl implements CartRepository {
 
   CartItem _mapCartItemDtoToDomain(CartItemDto dto) {
     return CartItem(
+      cartItemId: dto.cartItemId ?? 0,
       serviceId: dto.serviceId ?? 0,
       serviceName: dto.serviceName ?? '',
       categoryId: dto.categoryId ?? 0,
@@ -51,6 +67,7 @@ class CartRepositoryImpl implements CartRepository {
       providerName: dto.providerName,
       priceAfter: dto.priceAfter,
       priceBefore: dto.priceBefore,
+      discountPercentage: dto.discountPercentage,
     );
   }
 
@@ -87,13 +104,18 @@ class CartRepositoryImpl implements CartRepository {
       return (response.succeeded == true && response.data != null)
           ? ApiResult.success(_mapCartDtoToDomain(response))
           : ApiResult.failure(
-              (response.errors != null && response.errors!.isNotEmpty)
-                  ? response.errors!.join('\n')
-                  : response.message?.isNotEmpty == true
-                  ? response.message!
-                  : 'Failed to load cart.',
+              _failureMessage(
+                errors: response.errors,
+                message: response.message,
+                fallback: 'Failed to load cart.',
+              ),
             );
     } catch (error) {
+      if (kDebugMode) {
+        debugPrint(
+          '[CartRepository] addToCart failed: ${error.runtimeType} $error',
+        );
+      }
       return ApiResult.failure(parseApiError(error));
     }
   }
@@ -104,6 +126,7 @@ class CartRepositoryImpl implements CartRepository {
     required int categoryId,
     int? providerId,
     String? cardNumber,
+    double? price,
   }) async {
     try {
       final token = await _bearerToken;
@@ -112,16 +135,17 @@ class CartRepositoryImpl implements CartRepository {
         categoryId: categoryId,
         providerId: providerId,
         cardNumber: cardNumber,
+        price: price,
       );
       final response = await _dataSource.addToCart(token, request);
       return (response.succeeded == true)
           ? const ApiResult.success(null)
           : ApiResult.failure(
-              (response.errors != null && response.errors!.isNotEmpty)
-                  ? response.errors!.join('\n')
-                  : response.message?.isNotEmpty == true
-                  ? response.message!
-                  : 'Failed to add item to cart.',
+              _failureMessage(
+                errors: response.errors,
+                message: response.message,
+                fallback: 'Failed to add item to cart.',
+              ),
             );
     } catch (error) {
       return ApiResult.failure(parseApiError(error));
@@ -136,11 +160,36 @@ class CartRepositoryImpl implements CartRepository {
       return (response.succeeded == true)
           ? const ApiResult.success(null)
           : ApiResult.failure(
-              (response.errors != null && response.errors!.isNotEmpty)
-                  ? response.errors!.join('\n')
-                  : response.message?.isNotEmpty == true
-                  ? response.message!
-                  : 'Failed to remove item from cart.',
+              _failureMessage(
+                errors: response.errors,
+                message: response.message,
+                fallback: 'Failed to remove item from cart.',
+              ),
+            );
+    } catch (error) {
+      return ApiResult.failure(parseApiError(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<void>> updateCartProvider({
+    required int cartId,
+    required int providerId,
+  }) async {
+    try {
+      final token = await _bearerToken;
+      final response = await _dataSource.updateCartProvider(
+        token,
+        UpdateCartProviderRequestDto(cartId: cartId, providerId: providerId),
+      );
+      return (response.succeeded == true)
+          ? const ApiResult.success(null)
+          : ApiResult.failure(
+              _failureMessage(
+                errors: response.errors,
+                message: response.message,
+                fallback: 'Failed to update cart provider.',
+              ),
             );
     } catch (error) {
       return ApiResult.failure(parseApiError(error));
@@ -157,11 +206,11 @@ class CartRepositoryImpl implements CartRepository {
       return (response.succeeded == true && response.data != null)
           ? ApiResult.success(_mapCategoryServicesDtoToDomain(response))
           : ApiResult.failure(
-              (response.errors != null && response.errors!.isNotEmpty)
-                  ? response.errors!.join('\n')
-                  : response.message?.isNotEmpty == true
-                  ? response.message!
-                  : 'Failed to load category services.',
+              _failureMessage(
+                errors: response.errors,
+                message: response.message,
+                fallback: 'Failed to load category services.',
+              ),
             );
     } catch (error) {
       return ApiResult.failure(parseApiError(error));
@@ -191,11 +240,11 @@ class CartRepositoryImpl implements CartRepository {
         return ApiResult.success(providers);
       }
       return ApiResult.failure(
-        (response.errors != null && response.errors!.isNotEmpty)
-            ? response.errors!.join('\n')
-            : response.message?.isNotEmpty == true
-            ? response.message!
-            : 'Failed to load providers.',
+        _failureMessage(
+          errors: response.errors,
+          message: response.message,
+          fallback: 'Failed to load providers.',
+        ),
       );
     } catch (error) {
       return ApiResult.failure(parseApiError(error));

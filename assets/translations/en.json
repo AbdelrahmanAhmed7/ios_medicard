@@ -1,5 +1,6 @@
 {
   "auth": {
+    "welcomeTitle": "Welcome to Medicard",
     "register": {
       "title": "Create Account",
       "subtitle": "Please fill in your details to continue",
@@ -12,6 +13,7 @@
       "phoneNumber": "Phone Number",
       "phoneNumberHint": "Enter your phone number",
       "phoneNumberRequired": "Phone number is required",
+      "phoneNumberInvalid": "Enter a valid Egyptian mobile number",
       "gender": "Gender",
       "male": "Male",
       "female": "Female",
@@ -19,34 +21,50 @@
       "password": "Password",
       "passwordHint": "Enter your password",
       "passwordRequired": "Password is required",
+      "passwordPolicyInvalid": "Password does not meet the requirements",
+      "passwordRequirementsTitle": "Password must contain:",
+      "passwordMinLength": "At least {count} characters",
+      "passwordLetter": "One letter",
+      "passwordNumber": "One number",
+      "passwordSpecialCharacter": "One special character",
       "confirmPassword": "Confirm Password",
       "confirmPasswordHint": "Confirm your password",
       "confirmPasswordRequired": "Confirm password is required",
       "passwordsNotMatch": "Passwords do not match",
       "nationalId": "National ID",
       "nationalIdHint": "Enter your national ID",
+      "nationalIdInvalid": "National ID must be 14 digits",
       "passportNumber": "Passport Number",
       "passportNumberHint": "Enter your passport number",
+      "passportNumberInvalid": "Passport Number must be 6-20 letters or numbers",
       "registerButton": "Register",
+      "registrationSuccess": "Registration completed successfully",
       "fillAllFields": "Please fill in all required fields",
       "nationalIdOrPassportRequired": "Please provide either National ID or Passport Number",
       "alreadyHaveAccount": "Already have an account?",
       "loginNow": "Login Now"
     },
     "login": {
-      "title": "Welcome Back!",
+      "title": "Sign In",
       "subtitle": "Login to access your account",
+      "fillAllFields": "Please fill in all required fields",
       "cardNumber": "Card Number",
       "cardNumberHint": "Enter your card number",
       "cardNumberRequired": "Card number is required",
+      "mobileOrCardNumber": "Mobile/Medicard Number",
+      "phoneNumberRequired": "Phone number or Medicard number is required",
+      "phoneNumberInvalid": "Enter a valid Egyptian mobile number",
       "password": "Password",
       "passwordHint": "Enter your password",
       "passwordRequired": "Password is required",
       "forgotPassword": "Forgot Password?",
       "loginButton": "Login",
+      "or": "Or",
       "orContinueWith": "Or continue with",
       "dontHaveAccount": "Don't have an account?",
-      "registerNow": "Register Now"
+      "registerNow": "Sign up",
+      "activateCard": "Activate Card",
+      "continueAsGuest": "Continue as Guest"
     }
   },
   "common": {
@@ -63,6 +81,7 @@
     "this_field_required": "This field is required"
   },
   "errors": {
+    "something_went_wrong": "Something went wrong. Please try again.",
     "not_found_error": "Data not found",
     "generic_error": "An unexpected error occurred"
   },
@@ -106,7 +125,12 @@
   "content": {
     "privacy_policy": "Privacy Policy",
     "refund_policy": "Refund Policy",
-    "terms_and_conditions": "Terms & Conditions"
+    "terms_and_conditions": "Terms & Conditions",
+    "load_failed_title": "Unable to load content",
+    "load_failed": "We could not load this page right now. Please try again.",
+    "empty_title": "No content available",
+    "empty_message": "{} is not available yet.",
+    "unable_to_open_link": "Unable to open this link"
   },
   "home": {
     "getting_location": "Getting location...",
@@ -134,7 +158,7 @@
     "pending": "Pending",
     "completed": "Completed",
     "nav_home": "Home",
-    "nav_ecard": "E-card",
+    "nav_ecard": "E card",
     "nav_activity": "Activity",
     "nav_profile": "Profile"
   },

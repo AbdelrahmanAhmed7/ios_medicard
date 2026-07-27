@@ -14,16 +14,32 @@ const kAuthBackground = Color(0xFFF5F7FA);
 
 class AuthFieldLabel extends StatelessWidget {
   final String text;
-  const AuthFieldLabel(this.text, {super.key});
+  final bool isRequired;
+
+  const AuthFieldLabel(this.text, {super.key, this.isRequired = false});
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: TextStyle(
-        fontSize: 13.sp,
-        color: kAuthGreyText,
-        fontWeight: FontWeight.w500,
+    final labelStyle = TextStyle(
+      fontSize: 13.sp,
+      color: kAuthGreyText,
+      fontWeight: FontWeight.w500,
+    );
+
+    return RichText(
+      text: TextSpan(
+        text: text,
+        style: labelStyle,
+        children: [
+          if (isRequired)
+            TextSpan(
+              text: ' *',
+              style: labelStyle.copyWith(
+                color: Colors.red,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+        ],
       ),
     );
   }

@@ -27,6 +27,7 @@ class ProviderServicesResponse {
 
 @JsonSerializable(explicitToJson: true)
 class ProviderServicesData {
+  final List<ProviderServicesGroup>? groups;
   final List<ProviderService>? items;
   final int? pageNumber;
   final int? pageSize;
@@ -34,6 +35,7 @@ class ProviderServicesData {
   final int? totalPages;
 
   ProviderServicesData({
+    this.groups,
     this.items,
     this.pageNumber,
     this.pageSize,
@@ -47,9 +49,23 @@ class ProviderServicesData {
   Map<String, dynamic> toJson() => _$ProviderServicesDataToJson(this);
 
   // Helper getters to keep existing code working
-  List<ProviderService>? get services => items;
+  List<ProviderService>? get services {
+    if (items != null) return items;
+    final groupedItems = groups
+        ?.expand(
+          (group) => (group.services ?? const <ProviderService>[]).map(
+            (service) => service.withCategoryId(group.categoryId),
+          ),
+        )
+        .toList();
+    return groupedItems?.isEmpty == true ? null : groupedItems;
+  }
+
   Pagination? get pagination {
-    if (pageNumber == null || pageSize == null || totalCount == null || totalPages == null) {
+    if (pageNumber == null ||
+        pageSize == null ||
+        totalCount == null ||
+        totalPages == null) {
       return null;
     }
     return Pagination(
@@ -63,6 +79,20 @@ class ProviderServicesData {
   }
 }
 
+@JsonSerializable(explicitToJson: true)
+class ProviderServicesGroup {
+  final int? categoryId;
+  final String? categoryName;
+  final List<ProviderService>? services;
+
+  ProviderServicesGroup({this.categoryId, this.categoryName, this.services});
+
+  factory ProviderServicesGroup.fromJson(Map<String, dynamic> json) =>
+      _$ProviderServicesGroupFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ProviderServicesGroupToJson(this);
+}
+
 @JsonSerializable()
 class ProviderService {
   final int? id;
@@ -71,6 +101,8 @@ class ProviderService {
   final double? priceAfter;
   final double? discountPercentage;
   final bool? isSpecialOffer;
+  final bool? isSelected;
+  final int? categoryId;
 
   ProviderService({
     this.id,
@@ -79,6 +111,8 @@ class ProviderService {
     this.priceAfter,
     this.discountPercentage,
     this.isSpecialOffer,
+    this.isSelected,
+    this.categoryId,
   });
 
   factory ProviderService.fromJson(Map<String, dynamic> json) =>
@@ -88,4 +122,26 @@ class ProviderService {
 
   // Helper getter to keep existing code working
   bool? get hasSpecialOffer => isSpecialOffer;
+
+  ProviderService withCategoryId(int? nextCategoryId) => ProviderService(
+    id: id,
+    serviceName: serviceName,
+    priceBefore: priceBefore,
+    priceAfter: priceAfter,
+    discountPercentage: discountPercentage,
+    isSpecialOffer: isSpecialOffer,
+    isSelected: isSelected,
+    categoryId: categoryId ?? nextCategoryId,
+  );
+
+  ProviderService copyWith({bool? isSelected}) => ProviderService(
+    id: id,
+    serviceName: serviceName,
+    priceBefore: priceBefore,
+    priceAfter: priceAfter,
+    discountPercentage: discountPercentage,
+    isSpecialOffer: isSpecialOffer,
+    isSelected: isSelected ?? this.isSelected,
+    categoryId: categoryId,
+  );
 }

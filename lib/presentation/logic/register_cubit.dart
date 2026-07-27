@@ -1,11 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/constants/api_result.dart';
-import '../../core/constants/constants.dart';
 import '../../core/auth/auth_session.dart';
 import '../../core/auth/auth_session_storage.dart';
 import '../../core/auth/jwt_helper.dart';
-import '../../core/helpers/shared_pref_helper.dart';
+import '../../core/network/dio_factory.dart';
 import '../../core/utils/api_error_parser.dart';
 import '../../data/auth_register_request_model.dart';
 import '../../domain/usecases/register_usecase.dart';
@@ -47,20 +46,31 @@ class RegisterCubit extends Cubit<RegisterState> {
       result.when(
         success: (response) async {
           final data = response.data;
-          if (data?.token != null) {
-            await SharedPrefHelper.setSecuredString(
-              SharedPrefKeys.userToken,
-              data!.token,
-            );
+          final token = data?.token;
+          final refreshToken = data?.refreshToken;
+          final refreshTokenExpiresAt = data?.refreshTokenExpiresAt;
+          final hasUsableSession =
+              token != null &&
+              token.isNotEmpty &&
+              refreshToken != null &&
+              refreshToken.isNotEmpty &&
+              refreshTokenExpiresAt != null &&
+              DateTime.now().toUtc().isBefore(refreshTokenExpiresAt.toUtc());
+
+          if (hasUsableSession) {
             await const AuthSessionStorage().saveSession(
               AuthSession(
-                accessToken: data.token,
-                refreshToken: data.refreshToken ?? '',
+                accessToken: token,
+                refreshToken: refreshToken,
                 accessTokenExpiresAt:
-                    data.expiresAt ?? getJwtExpiryDate(data.token),
-                refreshTokenExpiresAt: data.refreshTokenExpiresAt,
+                    data?.expiresAt ?? getJwtExpiryDate(token),
+                refreshTokenExpiresAt: refreshTokenExpiresAt,
               ),
             );
+            DioFactory.setTokenIntoHeaderAfterLogin(token);
+          } else {
+            await const AuthSessionStorage().clearSession();
+            DioFactory.clearTokenFromHeader();
           }
           emit(RegisterState.success(response));
         },

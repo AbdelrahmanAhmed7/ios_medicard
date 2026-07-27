@@ -50,14 +50,17 @@ class _CartRemoteDataSource implements CartRemoteDataSource {
   }
 
   @override
-  Future<CartDto> addToCart(String token, AddCartRequestDto request) async {
+  Future<UpdateCartProviderResponseDto> addToCart(
+    String token,
+    AddCartRequestDto request,
+  ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{r'Authorization': token};
     _headers.removeWhere((k, v) => v == null);
     final _data = <String, dynamic>{};
     _data.addAll(request.toJson());
-    final _options = _setStreamType<CartDto>(
+    final _options = _setStreamType<UpdateCartProviderResponseDto>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -68,9 +71,9 @@ class _CartRemoteDataSource implements CartRemoteDataSource {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late CartDto _value;
+    late UpdateCartProviderResponseDto _value;
     try {
-      _value = CartDto.fromJson(_result.data!);
+      _value = UpdateCartProviderResponseDto.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
       rethrow;
@@ -79,13 +82,16 @@ class _CartRemoteDataSource implements CartRemoteDataSource {
   }
 
   @override
-  Future<CartDto> removeFromCart(String token, int serviceId) async {
+  Future<UpdateCartProviderResponseDto> removeFromCart(
+    String token,
+    int serviceId,
+  ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{r'ServiceId': serviceId};
     final _headers = <String, dynamic>{r'Authorization': token};
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<CartDto>(
+    final _options = _setStreamType<UpdateCartProviderResponseDto>(
       Options(method: 'DELETE', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -96,9 +102,9 @@ class _CartRemoteDataSource implements CartRemoteDataSource {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late CartDto _value;
+    late UpdateCartProviderResponseDto _value;
     try {
-      _value = CartDto.fromJson(_result.data!);
+      _value = UpdateCartProviderResponseDto.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
       rethrow;
@@ -178,6 +184,38 @@ class _CartRemoteDataSource implements CartRemoteDataSource {
     late ChooseProvidersDto _value;
     try {
       _value = ChooseProvidersDto.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<UpdateCartProviderResponseDto> updateCartProvider(
+    String token,
+    UpdateCartProviderRequestDto request,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{r'Authorization': token};
+    _headers.removeWhere((k, v) => v == null);
+    final _data = <String, dynamic>{};
+    _data.addAll(request.toJson());
+    final _options = _setStreamType<UpdateCartProviderResponseDto>(
+      Options(method: 'PUT', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            'https://medicard-api-v2.medicardeg.com/update',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late UpdateCartProviderResponseDto _value;
+    try {
+      _value = UpdateCartProviderResponseDto.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
       rethrow;

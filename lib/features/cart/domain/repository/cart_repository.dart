@@ -10,8 +10,13 @@ abstract class CartRepository {
     required int categoryId,
     int? providerId,
     String? cardNumber,
+    double? price,
   });
   Future<ApiResult<void>> removeFromCart(int serviceId);
+  Future<ApiResult<void>> updateCartProvider({
+    required int cartId,
+    required int providerId,
+  });
   Future<ApiResult<CategoryServices>> getCategoryServices(int categoryId);
   Future<ApiResult<void>> clearCart();
   Future<ApiResult<List<ProviderOption>>> getChooseProviders();

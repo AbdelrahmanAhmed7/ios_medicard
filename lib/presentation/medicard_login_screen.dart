@@ -48,6 +48,26 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
     }
   }
 
+  String? _validatePhoneNumber(String? value) {
+    final phoneNumber = LanguageHelper.convertArabicToEnglishNumerals(
+      value?.trim() ?? '',
+    );
+
+    if (phoneNumber.isEmpty) {
+      return 'auth.login.phoneNumberRequired'.tr();
+    }
+
+    final cleanPhoneNumber = phoneNumber.startsWith('0')
+        ? phoneNumber.substring(1)
+        : phoneNumber;
+
+    if (!RegExp(r'^(10|11|12|15)[0-9]{8}$').hasMatch(cleanPhoneNumber)) {
+      return 'auth.login.phoneNumberInvalid'.tr();
+    }
+
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<MedicardLoginCubit, MedicardLoginState>(
@@ -87,7 +107,7 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // ── Blue Header ──────────────────────────────────────
-                    const AuthBlueHeader(title: 'Welcome to Medicard'),
+                    AuthBlueHeader(title: 'auth.welcomeTitle'.tr()),
 
                     // ── Form Section ─────────────────────────────────────
                     Padding(
@@ -99,7 +119,7 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
 
                           // Sign In title
                           Text(
-                            'Sign In',
+                            'auth.login.title'.tr(),
                             style: TextStyle(
                               fontSize: 24.sp,
                               fontWeight: FontWeight.bold,
@@ -109,7 +129,7 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
                           SizedBox(height: 24.h),
 
                           // Mobile/Medicard Number field
-                          const AuthFieldLabel('Mobile/Medicard Number'),
+                          AuthFieldLabel('auth.login.mobileOrCardNumber'.tr()),
                           SizedBox(height: 6.h),
                           _buildPhoneField(),
                           SizedBox(height: 16.h),
@@ -118,13 +138,13 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const AuthFieldLabel('Password'),
+                              AuthFieldLabel('auth.login.password'.tr()),
                               GestureDetector(
                                 onTap: () {
                                   // TODO: forgot password
                                 },
                                 child: Text(
-                                  'Forgot password?',
+                                  'auth.login.forgotPassword'.tr(),
                                   style: TextStyle(
                                     fontSize: 13.sp,
                                     color: kAuthBlue,
@@ -141,16 +161,17 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
                           Row(
                             children: [
                               Text(
-                                "Don't have an account ",
+                                'auth.login.dontHaveAccount'.tr(),
                                 style: TextStyle(
                                   fontSize: 13.sp,
                                   color: kAuthGreyText,
                                 ),
                               ),
+                              SizedBox(width: 4.w),
                               GestureDetector(
                                 onTap: () => context.push('/medicard-register'),
                                 child: Text(
-                                  'Sign up',
+                                  'auth.login.registerNow'.tr(),
                                   style: TextStyle(
                                     fontSize: 13.sp,
                                     color: kAuthBlue,
@@ -164,7 +185,7 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
 
                           // Next Button
                           AuthPrimaryButton(
-                            label: 'Sign In',
+                            label: 'auth.login.loginButton'.tr(),
                             isLoading: isLoading,
                             onPressed: () => _onLoginPressed(context),
                           ),
@@ -203,14 +224,10 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
     return TextFormField(
       controller: _phoneNumberController,
       keyboardType: TextInputType.phone,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       style: TextStyle(fontSize: 15.sp, color: Colors.black),
       decoration: authInputDecoration(hintText: '1920237338637'),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'auth.login.phoneNumberRequired'.tr();
-        }
-        return null;
-      },
+      validator: _validatePhoneNumber,
     );
   }
 
@@ -253,7 +270,7 @@ class _OrDivider extends StatelessWidget {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 12.w),
           child: Text(
-            'Or',
+            'auth.login.or'.tr(),
             style: TextStyle(fontSize: 13.sp, color: kAuthGreyText),
           ),
         ),
@@ -284,7 +301,7 @@ class _ActivateCardButton extends StatelessWidget {
           backgroundColor: Colors.white,
         ),
         child: Text(
-          'Activate Card',
+          'auth.login.activateCard'.tr(),
           style: TextStyle(
             fontSize: 16.sp,
             fontWeight: FontWeight.bold,
@@ -316,7 +333,7 @@ class _ContinueAsGuestButton extends StatelessWidget {
           ),
         ),
         child: Text(
-          'Continue as Guest',
+          'auth.login.continueAsGuest'.tr(),
           style: TextStyle(
             fontSize: 16.sp,
             fontWeight: FontWeight.w600,

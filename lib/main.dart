@@ -14,6 +14,7 @@ import 'core/services/app_language_manager.dart';
 import 'core/network/connectivity_service.dart';
 import 'core/routing/app_router.dart';
 import 'core/theming/font_manager.dart';
+import 'firebase_options.dart';
 import 'features/notifications/push_notification_service.dart';
 
 void main() async {
@@ -25,7 +26,7 @@ void main() async {
   await EasyLocalization.ensureInitialized();
 
   // Step 2: Initialize Firebase
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // Step 3: Initialize Push Notifications
   await PushNotificationService.instance.initialize();

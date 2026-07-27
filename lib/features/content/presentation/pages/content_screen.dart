@@ -1,12 +1,19 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_html/flutter_html.dart';
 import '../../../../core/di/service_locator.dart';
-import '../../../../core/theming/app_toast.dart';
+import '../../../../core/services/url_launcher_service.dart';
+import '../../../../core/theming/app_colors.dart';
+import '../../../../core/theming/app_snack_bar.dart';
+import '../../../../core/theming/app_text_styles.dart';
 import '../../domain/models/content_type.dart';
 import '../cubit/content_cubit.dart';
 import '../cubit/content_state.dart';
+import '../utils/content_link_handler.dart';
 import '../widgets/content_shimmer.dart';
 import '../widgets/content_error_view.dart';
 
@@ -20,97 +27,188 @@ class ContentScreen extends StatefulWidget {
 }
 
 class _ContentScreenState extends State<ContentScreen> {
-  String _getPageTitle() {
-    switch (widget.contentType) {
-      case ContentType.privacyPolicy:
-        return 'content.privacy_policy'.tr();
-      case ContentType.refundPolicy:
-        return 'content.refund_policy'.tr();
-      case ContentType.termsAndConditions:
-        return 'content.terms_and_conditions'.tr();
-    }
+  late final ContentLinkHandler _linkHandler;
+
+  @override
+  void initState() {
+    super.initState();
+    _linkHandler = ContentLinkHandler(UrlLauncherService());
   }
 
   @override
   Widget build(BuildContext context) {
-    final statusBarHeight = MediaQuery.of(context).padding.top;
+    final isRtl = context.locale.languageCode.toLowerCase() == 'ar';
 
     return BlocProvider(
       create: (_) => sl<ContentCubit>()..loadContent(widget.contentType),
-      child: BlocConsumer<ContentCubit, ContentState>(
-        listener: (context, state) {
-          state.maybeWhen(
-            failed: (error) => showErrorToast(error),
-            orElse: () {},
-          );
-        },
-        builder: (context, state) {
-          return state.when(
-            initial: () => const SizedBox.shrink(),
-            loading: () => const ContentShimmer(),
-            success: (data) {
-              return Scaffold(
-                backgroundColor: const Color(0xFFF8F9FA),
-                body: Column(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF2D5FA6),
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(20),
-                          bottomRight: Radius.circular(20),
-                        ),
-                      ),
-                      padding: EdgeInsetsDirectional.fromSTEB(
-                        16.w,
-                        statusBarHeight + 12.h,
-                        16.w,
-                        20.h,
-                      ),
-                      child: Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-                            onPressed: () => Navigator.of(context).pop(),
-                          ),
-                          Expanded(
-                            child: Text(
-                              _getPageTitle(),
-                              style: TextStyle(
-                                fontSize: 20.sp,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                          SizedBox(width: 40.w),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
-                        child: Text(
-                          data.description ?? '',
-                          style: TextStyle(
-                            fontSize: 15.sp,
-                            color: const Color(0xFF1A1A2E),
-                            height: 1.7,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-            failed: (_) => ContentErrorView(
-              onRetry: () => context.read<ContentCubit>().loadContent(widget.contentType),
+      child: Directionality(
+        textDirection: isRtl ? ui.TextDirection.rtl : ui.TextDirection.ltr,
+        child: Scaffold(
+          backgroundColor: AppColors.lightGreyClr,
+          appBar: AppBar(
+            backgroundColor: AppColors.blueClr,
+            foregroundColor: AppColors.whiteClr,
+            centerTitle: true,
+            elevation: 0,
+            title: Text(
+              widget.contentType.titleKey.tr(),
+              style: AppTextStyles.font20WhiteSemiBold(context),
             ),
-          );
-        },
+          ),
+          body: SafeArea(
+            child: BlocBuilder<ContentCubit, ContentState>(
+              builder: (context, state) {
+                return state.when(
+                  initial: () => const ContentShimmer(),
+                  loading: () => const ContentShimmer(),
+                  success: (data) {
+                    final html = data.description.trim();
+                    if (html.isEmpty) {
+                      return _ContentEmptyView(contentType: widget.contentType);
+                    }
+                    return _HtmlContentView(
+                      html: html,
+                      isRtl: isRtl,
+                      linkHandler: _linkHandler,
+                    );
+                  },
+                  failed: (error) => ContentErrorView(
+                    message: error.tr(),
+                    onRetry: () =>
+                        context.read<ContentCubit>().retry(widget.contentType),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HtmlContentView extends StatelessWidget {
+  final String html;
+  final bool isRtl;
+  final ContentLinkHandler linkHandler;
+
+  const _HtmlContentView({
+    required this.html,
+    required this.isRtl,
+    required this.linkHandler,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textAlign = isRtl ? TextAlign.right : TextAlign.left;
+    final fontFamily = Theme.of(context).textTheme.bodyMedium?.fontFamily;
+
+    return SingleChildScrollView(
+      padding: EdgeInsetsDirectional.fromSTEB(20.w, 20.h, 20.w, 32.h),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 720),
+          child: Html(
+            data: html,
+            onLinkTap: (url, _, _) async {
+              final opened = await linkHandler.handle(context, url);
+              if (!opened && context.mounted) {
+                showAppSnackBar(
+                  context,
+                  'content.unable_to_open_link'.tr(),
+                  type: SnackBarType.error,
+                );
+              }
+            },
+            style: {
+              '*': Style(
+                fontFamily: fontFamily,
+                color: AppColors.blackClr,
+                direction: isRtl ? ui.TextDirection.rtl : ui.TextDirection.ltr,
+                textAlign: textAlign,
+              ),
+              'body': Style(
+                margin: Margins.zero,
+                padding: HtmlPaddings.zero,
+                fontSize: FontSize(16.sp),
+                lineHeight: const LineHeight(1.7),
+              ),
+              'header': Style(margin: Margins.only(bottom: 18.h)),
+              'footer': Style(margin: Margins.only(top: 24.h)),
+              'section': Style(margin: Margins.only(bottom: 20.h)),
+              'div': Style(margin: Margins.only(bottom: 12.h)),
+              'h1': Style(
+                margin: Margins.only(bottom: 18.h),
+                fontSize: FontSize(24.sp),
+                fontWeight: FontWeight.w800,
+                color: AppColors.blackClr,
+                lineHeight: const LineHeight(1.3),
+              ),
+              'h2': Style(
+                margin: Margins.only(top: 20.h, bottom: 10.h),
+                fontSize: FontSize(19.sp),
+                fontWeight: FontWeight.w700,
+                color: AppColors.blueClr,
+                lineHeight: const LineHeight(1.4),
+              ),
+              'p': Style(
+                margin: Margins.only(bottom: 12.h),
+                fontSize: FontSize(16.sp),
+                lineHeight: const LineHeight(1.7),
+                whiteSpace: WhiteSpace.pre,
+              ),
+              'ul': Style(
+                margin: Margins.only(bottom: 14.h),
+                padding: isRtl
+                    ? HtmlPaddings.only(right: 22.w)
+                    : HtmlPaddings.only(left: 22.w),
+              ),
+              'li': Style(
+                margin: Margins.only(bottom: 8.h),
+                fontSize: FontSize(16.sp),
+                lineHeight: const LineHeight(1.65),
+              ),
+              'a': Style(
+                color: AppColors.primaryClr,
+                textDecoration: TextDecoration.underline,
+                fontWeight: FontWeight.w600,
+              ),
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ContentEmptyView extends StatelessWidget {
+  final ContentType contentType;
+
+  const _ContentEmptyView({required this.contentType});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 32.w),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.article_outlined, size: 56.sp, color: AppColors.blueClr),
+            SizedBox(height: 16.h),
+            Text(
+              'content.empty_title'.tr(),
+              style: AppTextStyles.font18BlackSemiBold(context),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              'content.empty_message'.tr(args: [contentType.titleKey.tr()]),
+              style: AppTextStyles.font14GreyRegular(context),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

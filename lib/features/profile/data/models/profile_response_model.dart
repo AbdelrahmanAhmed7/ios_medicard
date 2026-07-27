@@ -50,4 +50,26 @@ class ProfileData {
       _$ProfileDataFromJson(json);
 
   Map<String, dynamic> toJson() => _$ProfileDataToJson(this);
+
+  ProfileData copyWith({
+    String? firstName,
+    String? lastName,
+    String? phoneNumber,
+    String? nationalId,
+    String? passportNumber,
+    bool? isMale,
+    String? birthDate,
+    String? imageUrl,
+  }) {
+    return ProfileData(
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      nationalId: nationalId ?? this.nationalId,
+      passportNumber: passportNumber ?? this.passportNumber,
+      isMale: isMale ?? this.isMale,
+      birthDate: birthDate ?? this.birthDate,
+      imageUrl: imageUrl ?? this.imageUrl,
+    );
+  }
 }

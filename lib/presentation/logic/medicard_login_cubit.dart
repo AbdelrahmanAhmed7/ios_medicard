@@ -6,6 +6,7 @@ import '../../core/auth/auth_session.dart';
 import '../../core/auth/auth_session_storage.dart';
 import '../../core/auth/jwt_helper.dart';
 import '../../core/helpers/shared_pref_helper.dart';
+import '../../core/network/dio_factory.dart';
 import '../../core/utils/api_error_parser.dart';
 import '../../data/auth_login_request_model.dart';
 import '../../domain/usecases/login_card_usecase.dart';
@@ -36,20 +37,22 @@ class MedicardLoginCubit extends Cubit<MedicardLoginState> {
       result.when(
         success: (response) async {
           final data = response.data;
-          if (data?.token != null) {
+          final token = data?.token;
+          if (token != null && token.isNotEmpty) {
             await SharedPrefHelper.setSecuredString(
               SharedPrefKeys.userToken,
-              data!.token,
+              token,
             );
             await const AuthSessionStorage().saveSession(
               AuthSession(
-                accessToken: data.token,
-                refreshToken: data.refreshToken ?? '',
+                accessToken: token,
+                refreshToken: data?.refreshToken ?? '',
                 accessTokenExpiresAt:
-                    data.expiresAt ?? getJwtExpiryDate(data.token),
-                refreshTokenExpiresAt: data.refreshTokenExpiresAt,
+                    data?.expiresAt ?? getJwtExpiryDate(token),
+                refreshTokenExpiresAt: data?.refreshTokenExpiresAt,
               ),
             );
+            DioFactory.setTokenIntoHeaderAfterLogin(token);
           }
           emit(MedicardLoginState.success(response));
         },

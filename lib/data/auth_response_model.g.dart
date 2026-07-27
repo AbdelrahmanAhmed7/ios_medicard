@@ -12,7 +12,7 @@ AuthResponseModel _$AuthResponseModelFromJson(Map<String, dynamic> json) =>
       errors: (json['errors'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
-      succeeded: json['succeeded'] as bool,
+      succeeded: _readSucceeded(json, 'succeeded') as bool? ?? false,
       message: json['message'] as String?,
       data: json['data'] == null
           ? null
@@ -30,7 +30,7 @@ Map<String, dynamic> _$AuthResponseModelToJson(AuthResponseModel instance) =>
 
 AuthTokenDataModel _$AuthTokenDataModelFromJson(Map<String, dynamic> json) =>
     AuthTokenDataModel(
-      token: json['token'] as String,
+      token: json['token'] as String?,
       expiresAt: AuthTokenDataModel._parseDateTimeOrNull(
         json['expiresAt'] as String?,
       ),

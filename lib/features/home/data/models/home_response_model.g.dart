@@ -123,6 +123,7 @@ Map<String, dynamic> _$HomeNearestProviderToJson(
 HomePackage _$HomePackageFromJson(Map<String, dynamic> json) => HomePackage(
   packageId: (json['packageId'] as num?)?.toInt(),
   providerId: (json['providerId'] as num?)?.toInt(),
+  providerBranchId: (json['providerBranchId'] as num?)?.toInt(),
   providerName: json['providerName'] as String?,
   name: json['name'] as String?,
   imageUrl: json['imageUrl'] as String?,
@@ -137,6 +138,7 @@ Map<String, dynamic> _$HomePackageToJson(HomePackage instance) =>
     <String, dynamic>{
       'packageId': instance.packageId,
       'providerId': instance.providerId,
+      'providerBranchId': instance.providerBranchId,
       'providerName': instance.providerName,
       'name': instance.name,
       'imageUrl': instance.imageUrl,

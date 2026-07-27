@@ -1,4 +1,7 @@
+import 'package:flutter/foundation.dart';
+
 import '../../core/constants/api_result.dart';
+import '../../core/utils/api_error_parser.dart';
 import '../../network/data/city_response_model.dart';
 import '../../network/data/government_response_model.dart';
 import '../../network/data/network_category_response_model.dart';
@@ -13,6 +16,14 @@ class MedicardNetworkRepository {
 
   MedicardNetworkRepository(this._apiService);
 
+  String _cleanError(Object error) => parseApiError(error);
+
+  void _logDebugError(String operation, Object error) {
+    if (kDebugMode) {
+      debugPrint('[$operation] ${_cleanError(error)}');
+    }
+  }
+
   Future<ApiResult<NetworkCategoryResponse>> getCategories(String lang) async {
     try {
       final response = await _apiService.getCategories(lang);
@@ -22,7 +33,8 @@ class MedicardNetworkRepository {
         return ApiResult.failure(response.message);
       }
     } catch (e) {
-      return ApiResult.failure(e.toString());
+      _logDebugError('getCategories', e);
+      return ApiResult.failure(_cleanError(e));
     }
   }
 
@@ -59,7 +71,8 @@ class MedicardNetworkRepository {
         return ApiResult.failure(response.message);
       }
     } catch (e) {
-      return ApiResult.failure(e.toString());
+      _logDebugError('searchProviders', e);
+      return ApiResult.failure(_cleanError(e));
     }
   }
 
@@ -80,7 +93,8 @@ class MedicardNetworkRepository {
         return ApiResult.failure(response.message);
       }
     } catch (e) {
-      return ApiResult.failure(e.toString());
+      _logDebugError('getGovernments', e);
+      return ApiResult.failure(_cleanError(e));
     }
   }
 
@@ -103,7 +117,8 @@ class MedicardNetworkRepository {
         return ApiResult.failure(response.message);
       }
     } catch (e) {
-      return ApiResult.failure(e.toString());
+      _logDebugError('getCitiesByGovernment', e);
+      return ApiResult.failure(_cleanError(e));
     }
   }
 
@@ -118,7 +133,8 @@ class MedicardNetworkRepository {
         return ApiResult.failure(response.message);
       }
     } catch (e) {
-      return ApiResult.failure(e.toString());
+      _logDebugError('getTopProvidersForSlider', e);
+      return ApiResult.failure(_cleanError(e));
     }
   }
 
@@ -127,7 +143,12 @@ class MedicardNetworkRepository {
   }) async {
     try {
       final response = await _apiService.getProviderPage(providerId);
-      print('🟡 getProviderPage FULL RESPONSE JSON: ${response.toJson()}');
+      if (kDebugMode) {
+        debugPrint(
+          '[getProviderPage] loaded providerId=$providerId '
+          '(succeeded=${response.succeeded})',
+        );
+      }
       if (response.succeeded == true) {
         return ApiResult.success(response);
       } else {
@@ -135,10 +156,27 @@ class MedicardNetworkRepository {
           response.message ?? 'Failed to load provider page',
         );
       }
-    } catch (e, s) {
-      print('getProviderPage error: $e');
-      print('Stack trace: $s');
-      return ApiResult.failure(e.toString());
+    } catch (e) {
+      _logDebugError('getProviderPage', e);
+      return ApiResult.failure(_cleanError(e));
+    }
+  }
+
+  Future<ApiResult<List<ProviderBranch>>> getProviderBranchLocations({
+    required int providerId,
+  }) async {
+    try {
+      final response = await _apiService.getProviderBranchLocations(providerId);
+      if (response.succeeded == true) {
+        return ApiResult.success(response.data ?? []);
+      } else {
+        return ApiResult.failure(
+          response.message ?? 'Failed to load provider branches',
+        );
+      }
+    } catch (e) {
+      _logDebugError('getProviderBranchLocations', e);
+      return ApiResult.failure(_cleanError(e));
     }
   }
 
@@ -162,10 +200,9 @@ class MedicardNetworkRepository {
           response.message ?? 'Failed to load provider services',
         );
       }
-    } catch (e, s) {
-      print('getProviderServices error: $e');
-      print('Stack trace: $s');
-      return ApiResult.failure(e.toString());
+    } catch (e) {
+      _logDebugError('getProviderServices', e);
+      return ApiResult.failure(_cleanError(e));
     }
   }
 
@@ -187,10 +224,9 @@ class MedicardNetworkRepository {
           response.message ?? 'Failed to load provider reviews',
         );
       }
-    } catch (e, s) {
-      print('getProviderReviews error: $e');
-      print('Stack trace: $s');
-      return ApiResult.failure(e.toString());
+    } catch (e) {
+      _logDebugError('getProviderReviews', e);
+      return ApiResult.failure(_cleanError(e));
     }
   }
 
@@ -212,10 +248,9 @@ class MedicardNetworkRepository {
           response.message ?? 'Failed to load provider packages',
         );
       }
-    } catch (e, s) {
-      print('getProviderPackages error: $e');
-      print('Stack trace: $s');
-      return ApiResult.failure(e.toString());
+    } catch (e) {
+      _logDebugError('getProviderPackages', e);
+      return ApiResult.failure(_cleanError(e));
     }
   }
 
@@ -232,7 +267,8 @@ class MedicardNetworkRepository {
         );
       }
     } catch (e) {
-      return ApiResult.failure(e.toString());
+      _logDebugError('getPackageDetails', e);
+      return ApiResult.failure(_cleanError(e));
     }
   }
 }

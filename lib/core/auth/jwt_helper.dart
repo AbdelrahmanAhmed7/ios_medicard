@@ -19,10 +19,15 @@ DateTime? getJwtExpiryDate(String token) {
     final exp = payloadMap['exp'];
     if (exp == null) return null;
 
-    return DateTime.fromMillisecondsSinceEpoch(
-      (exp as int) * 1000,
-      isUtc: true,
-    );
+    final seconds = switch (exp) {
+      int value => value,
+      num value => value.toInt(),
+      String value => int.tryParse(value),
+      _ => null,
+    };
+    if (seconds == null) return null;
+
+    return DateTime.fromMillisecondsSinceEpoch(seconds * 1000, isUtc: true);
   } catch (_) {
     return null;
   }

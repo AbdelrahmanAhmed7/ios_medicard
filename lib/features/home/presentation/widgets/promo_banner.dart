@@ -1,16 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../data/home_mock_data.dart';
 
 class PromoBannerWidget extends StatefulWidget {
   final List<PromoBanner> banners;
 
-  const PromoBannerWidget({
-    super.key,
-    required this.banners,
-  });
+  const PromoBannerWidget({super.key, required this.banners});
 
   @override
   State<PromoBannerWidget> createState() => _PromoBannerWidgetState();
@@ -70,17 +68,26 @@ class _PromoBannerWidgetState extends State<PromoBannerWidget> {
               setState(() => _currentPage = index);
             },
             itemBuilder: (context, index) {
+              final banner = widget.banners[index];
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: CachedNetworkImage(
-                    imageUrl: widget.banners[index].imageUrl,
-                    width: double.infinity,
-                    height: 201,
-                    fit: BoxFit.cover,
-                    errorWidget: (context, url, error) =>
-                        const SizedBox.shrink(),
+                child: GestureDetector(
+                  onTap: banner.providerId == null
+                      ? null
+                      : () => context.push(
+                          '/provider-page',
+                          extra: banner.providerId,
+                        ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: CachedNetworkImage(
+                      imageUrl: banner.imageUrl,
+                      width: double.infinity,
+                      height: 201,
+                      fit: BoxFit.cover,
+                      errorWidget: (context, url, error) =>
+                          const SizedBox.shrink(),
+                    ),
                   ),
                 ),
               );

@@ -179,6 +179,15 @@ class SearchCubit extends Cubit<SearchState> {
     required int categoryId,
   }) async {
     if (isClosed) return;
+    if (serviceId <= 0 || categoryId <= 0) {
+      emit(
+        state.copyWith(
+          cartActionError:
+              'Service data is incomplete. Please refresh and try again.',
+        ),
+      );
+      return;
+    }
     if (state.pendingServiceIds.contains(serviceId)) {
       if (kDebugMode) {
         debugPrint('[SearchCubit] duplicate add ignored service=$serviceId');
@@ -199,6 +208,9 @@ class SearchCubit extends Cubit<SearchState> {
     final result = await _cartRepository.addToCart(
       serviceId: serviceId,
       categoryId: categoryId,
+      providerId: null,
+      cardNumber: null,
+      price: null,
     );
 
     if (isClosed) return;
@@ -243,6 +255,15 @@ class SearchCubit extends Cubit<SearchState> {
     required int categoryId,
   }) async {
     if (isClosed) return;
+    if (serviceId <= 0 || categoryId <= 0) {
+      emit(
+        state.copyWith(
+          cartActionError:
+              'Service data is incomplete. Please refresh and try again.',
+        ),
+      );
+      return;
+    }
     if (state.pendingServiceIds.contains(serviceId)) {
       if (kDebugMode) {
         debugPrint('[SearchCubit] duplicate remove ignored service=$serviceId');

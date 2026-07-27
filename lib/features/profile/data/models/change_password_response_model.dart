@@ -5,7 +5,7 @@ part 'change_password_response_model.g.dart';
 @JsonSerializable()
 class ChangePasswordResponseModel {
   final int? httpStatusCode;
-  final List<String>? errors;
+  final dynamic errors;
   final bool? succeeded;
   final bool? success;
   final String? message;

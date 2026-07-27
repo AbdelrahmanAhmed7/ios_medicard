@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:medicard/core/auth/auth_session_storage.dart';
 import 'package:medicard/core/constants/constants.dart';
 import 'package:medicard/core/cubit/localization_cubit.dart';
 import 'package:medicard/core/helpers/shared_pref_helper.dart';
@@ -11,6 +14,7 @@ import 'package:medicard/core/network/dio_factory.dart';
 import 'package:medicard/core/widgets/app_blue_header.dart';
 import '../../../../core/widgets/auth_shared_widgets.dart';
 import '../../data/models/profile_response_model.dart';
+import '../cubit/profile_cubit.dart';
 
 class ProfileContent extends StatelessWidget {
   final ProfileData data;
@@ -150,12 +154,10 @@ class ProfileContent extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 20.w),
             child: OutlinedButton(
               onPressed: () async {
-                // Clear all session data from secure storage.
-                await SharedPrefHelper.clearAllSecuredData();
+                await const AuthSessionStorage().clearSession();
                 await SharedPrefHelper.removeData(
                   SharedPrefKeys.medicardCardNo,
                 );
-                // Remove the token from the in-memory Dio header.
                 DioFactory.clearTokenFromHeader();
                 if (context.mounted) context.go('/medicard-login');
               },
@@ -198,10 +200,6 @@ class _UserInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final imageUrl = data.imageUrl;
-    final hasImage =
-        imageUrl != null &&
-        imageUrl.isNotEmpty &&
-        Uri.parse(imageUrl).pathSegments.where((s) => s.isNotEmpty).isNotEmpty;
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
@@ -217,35 +215,7 @@ class _UserInfoCard extends StatelessWidget {
               padding: EdgeInsets.all(16.w),
               child: Row(
                 children: [
-                  hasImage
-                      ? ClipOval(
-                          child: CachedNetworkImage(
-                            imageUrl: imageUrl,
-                            width: 64.r,
-                            height: 64.r,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) =>
-                                Container(color: Colors.grey[300]),
-                            errorWidget: (context, url, error) => CircleAvatar(
-                              radius: 32.r,
-                              backgroundColor: Colors.grey[300],
-                              child: Icon(
-                                Icons.person,
-                                color: Colors.white,
-                                size: 32.sp,
-                              ),
-                            ),
-                          ),
-                        )
-                      : CircleAvatar(
-                          radius: 32.r,
-                          backgroundColor: Colors.grey[300],
-                          child: Icon(
-                            Icons.person,
-                            color: Colors.white,
-                            size: 32.sp,
-                          ),
-                        ),
+                  _ProfileAvatar(imageUrl: imageUrl),
                   SizedBox(width: 16.w),
                   Expanded(
                     child: Column(
@@ -281,7 +251,10 @@ class _UserInfoCard extends StatelessWidget {
                 onTap: () {
                   context.push(
                     '/medicard-edit-profile-new',
-                    extra: {'profileData': data},
+                    extra: {
+                      'profileData': data,
+                      'profileCubit': context.read<ProfileCubit>(),
+                    },
                   );
                 },
                 child: Padding(
@@ -297,6 +270,52 @@ class _UserInfoCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _ProfileAvatar extends StatelessWidget {
+  final String? imageUrl;
+
+  const _ProfileAvatar({required this.imageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    final image = imageUrl?.trim();
+    if (image == null || image.isEmpty) return _fallbackAvatar();
+
+    final file = File(image);
+    if (!image.startsWith('http') && file.existsSync()) {
+      return ClipOval(
+        child: Image.file(file, width: 64.r, height: 64.r, fit: BoxFit.cover),
+      );
+    }
+
+    final uri = Uri.tryParse(image);
+    final hasRemoteImage =
+        uri != null &&
+        (uri.isScheme('http') || uri.isScheme('https')) &&
+        uri.pathSegments.where((s) => s.isNotEmpty).isNotEmpty;
+
+    if (!hasRemoteImage) return _fallbackAvatar();
+
+    return ClipOval(
+      child: CachedNetworkImage(
+        imageUrl: image,
+        width: 64.r,
+        height: 64.r,
+        fit: BoxFit.cover,
+        placeholder: (context, url) => Container(color: Colors.grey[300]),
+        errorWidget: (context, url, error) => _fallbackAvatar(),
+      ),
+    );
+  }
+
+  Widget _fallbackAvatar() {
+    return CircleAvatar(
+      radius: 32.r,
+      backgroundColor: Colors.grey[300],
+      child: Icon(Icons.person, color: Colors.white, size: 32.sp),
     );
   }
 }
@@ -351,12 +370,8 @@ class _Item extends StatelessWidget {
   final String? route;
   final Map<String, dynamic>? routeExtra;
 
-  const _Item({
-    this.icon,
-    required this.label,
-    this.trailing,
-    this.route,
-  }) : routeExtra = null;
+  const _Item({this.icon, required this.label, this.trailing, this.route})
+    : routeExtra = null;
 
   @override
   Widget build(BuildContext context) {

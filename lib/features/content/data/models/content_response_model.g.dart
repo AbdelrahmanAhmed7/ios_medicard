@@ -29,8 +29,10 @@ Map<String, dynamic> _$ContentResponseModelToJson(
 };
 
 ContentData _$ContentDataFromJson(Map<String, dynamic> json) => ContentData(
-  id: (json['id'] as num?)?.toInt(),
-  description: json['description'] as String?,
+  id: ContentData._idFromJson(json['id']),
+  description: json['description'] == null
+      ? ''
+      : ContentData._descriptionFromJson(json['description']),
 );
 
 Map<String, dynamic> _$ContentDataToJson(ContentData instance) =>
