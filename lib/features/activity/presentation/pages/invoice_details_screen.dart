@@ -330,28 +330,6 @@ class _DetailsActions extends StatelessWidget {
         SizedBox(
           width: double.infinity,
           height: 50.h,
-          child: ElevatedButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.download_outlined),
-            label: const Text('Download Results'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF3872B1),
-              foregroundColor: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(9.r),
-              ),
-              textStyle: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ),
-        SizedBox(height: 10.h),
-        SizedBox(
-          width: double.infinity,
-          height: 50.h,
           child: OutlinedButton(
             onPressed: canReview
                 ? () => showDialog<void>(

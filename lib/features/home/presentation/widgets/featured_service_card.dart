@@ -353,6 +353,8 @@ class _PackageDetailsSheetContent extends StatelessWidget {
     final priceBefore = details?.priceBefore ?? fallback.originalPrice;
     final priceAfter = details?.priceAfter ?? fallback.discountedPrice;
 
+    final bottomPadding = MediaQuery.of(context).padding.bottom + 18;
+
     return ListView(
       padding: EdgeInsets.zero,
       shrinkWrap: true,
@@ -453,6 +455,7 @@ class _PackageDetailsSheetContent extends StatelessWidget {
                   child: const Text('Book'),
                 ),
               ),
+              SizedBox(height: bottomPadding),
             ],
           ),
         ),

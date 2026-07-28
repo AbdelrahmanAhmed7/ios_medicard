@@ -311,21 +311,15 @@ class _InvoiceActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isUsed = item.isUsed;
-
     return InkWell(
       onTap: () => context.push('/invoice-details', extra: item),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            isUsed ? Icons.download_outlined : Icons.calendar_month_outlined,
-            size: 16.r,
-            color: kAuthBlue,
-          ),
+          Icon(Icons.receipt_long_outlined, size: 16.r, color: kAuthBlue),
           SizedBox(width: 4.w),
           Text(
-            (isUsed ? 'activity.download_results' : 'activity.book').tr(),
+            'activity.details'.tr(),
             style: TextStyle(
               fontSize: 13.sp,
               fontWeight: FontWeight.w500,

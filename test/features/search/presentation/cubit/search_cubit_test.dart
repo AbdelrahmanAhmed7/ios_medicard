@@ -7,6 +7,7 @@ import 'package:medicard/features/cart/domain/models/category_counter.dart';
 import 'package:medicard/features/cart/domain/models/category_services.dart';
 import 'package:medicard/features/cart/domain/models/provider_option.dart';
 import 'package:medicard/features/cart/domain/repository/cart_repository.dart';
+import 'package:medicard/features/cart/domain/services/cart_sync_service.dart';
 import 'package:medicard/features/search/data/models/category_model.dart';
 import 'package:medicard/features/search/data/models/category_services_response_model.dart';
 import 'package:medicard/features/search/data/models/lookup_model.dart';
@@ -33,6 +34,7 @@ void main() {
         GetCategoryServicesUseCase(searchRepository),
         GetServiceCategoriesUseCase(searchRepository),
         cartRepository,
+        CartSyncService(),
       );
     });
 

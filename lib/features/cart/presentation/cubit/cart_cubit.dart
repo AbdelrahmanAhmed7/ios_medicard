@@ -10,6 +10,7 @@ import '../../domain/models/cart.dart';
 import '../../domain/models/cart_item.dart';
 import '../../domain/models/provider_option.dart';
 import '../../domain/repository/cart_repository.dart';
+import '../../domain/services/cart_sync_service.dart';
 import 'cart_state.dart';
 
 class CartCubit extends Cubit<CartState> {
@@ -17,6 +18,7 @@ class CartCubit extends Cubit<CartState> {
   final InvoiceRepository _invoiceRepository;
   final FamilyMembersRepository _familyMembersRepository;
   final MedicardNetworkRepository _networkRepository;
+  final CartSyncService _cartSyncService;
   final int? providerId;
 
   CartCubit(
@@ -24,8 +26,10 @@ class CartCubit extends Cubit<CartState> {
     this._invoiceRepository,
     this._familyMembersRepository,
     this._networkRepository, {
+    required CartSyncService cartSyncService,
     this.providerId,
-  }) : super(const CartState());
+  }) : _cartSyncService = cartSyncService,
+       super(const CartState());
 
   Future<void> loadCategoryServices(int categoryId) async {
     emit(
@@ -79,6 +83,11 @@ class CartCubit extends Cubit<CartState> {
       success: (_) {
         // Reload category services to get updated isSelected
         loadCategoryServices(categoryId);
+        _cartSyncService.serviceSelectionChanged(
+          serviceId: serviceId,
+          categoryId: categoryId,
+          isSelected: true,
+        );
         emit(state.copyWith(pendingServiceIds: newPendingIds));
       },
       failure: (error) {
@@ -113,9 +122,12 @@ class CartCubit extends Cubit<CartState> {
             resetCartError: true,
           ),
         );
-        if (nextCart == null) {
-          loadCategoryServices(categoryId);
-        }
+        _cartSyncService.serviceSelectionChanged(
+          serviceId: serviceId,
+          categoryId: categoryId,
+          isSelected: false,
+        );
+        loadCategoryServices(categoryId);
       },
       failure: (error) {
         emit(state.copyWith(pendingServiceIds: newPendingIds));
@@ -194,9 +206,25 @@ class CartCubit extends Cubit<CartState> {
   }
 
   Future<void> clearCart() async {
-    await _repository.clearCart();
-    // Reload the cart so the UI reflects the cleared state.
-    await loadCart();
+    if (isClosed) return;
+    emit(state.copyWith(isCartLoading: true, resetCartError: true));
+    final result = await _repository.clearCart();
+    if (isClosed) return;
+    result.when(
+      success: (_) {
+        emit(
+          state.copyWith(
+            cart: const Cart.empty(),
+            isCartLoading: false,
+            resetCartError: true,
+          ),
+        );
+        _cartSyncService.cartCleared();
+      },
+      failure: (error) {
+        emit(state.copyWith(cartError: error, isCartLoading: false));
+      },
+    );
   }
 
   // ── Choose Providers ────────────────────────────────────────────────────────
@@ -531,6 +559,7 @@ class CartCubit extends Cubit<CartState> {
             createdInvoicePaymentLink: invoice.paymentLink,
           ),
         );
+        _cartSyncService.cartCleared();
         _syncCartAfterInvoiceCreation();
         return true;
       },

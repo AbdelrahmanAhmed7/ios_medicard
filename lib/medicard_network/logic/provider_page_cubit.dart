@@ -6,6 +6,7 @@ import '../../core/constants/api_result.dart';
 import '../../features/activity/domain/repositories/invoice_repository.dart';
 import '../../features/activity/domain/models/created_invoice.dart';
 import '../../features/cart/domain/repository/cart_repository.dart';
+import '../../features/cart/domain/services/cart_sync_service.dart';
 import '../../network/data/provider_page_response_model.dart';
 import '../../network/data/provider_services_response_model.dart';
 import '../repository/medicard_network_repository.dart';
@@ -15,6 +16,7 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
   final MedicardNetworkRepository _medicardRepository;
   final InvoiceRepository _invoiceRepository;
   final CartRepository _cartRepository;
+  final CartSyncService _cartSyncService;
   final int providerId;
 
   static const int _pageSize = 12;
@@ -24,13 +26,17 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
   int _packagesCurrentPage = 1;
   int _reviewsCurrentPage = 1;
   Timer? _debounceTimer;
+  StreamSubscription<CartSyncEvent>? _cartSyncSubscription;
 
   ProviderPageCubit(
     this._medicardRepository,
     this._invoiceRepository,
     this._cartRepository,
+    this._cartSyncService,
     this.providerId,
-  ) : super(const ProviderPageState());
+  ) : super(const ProviderPageState()) {
+    _cartSyncSubscription = _cartSyncService.stream.listen(_onCartSyncEvent);
+  }
 
   Future<void> init() async => loadProviderPage();
 
@@ -285,6 +291,11 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
           isSelected: true,
           pendingCartActionIds: pending,
         );
+        _cartSyncService.serviceSelectionChanged(
+          serviceId: serviceId,
+          categoryId: resolvedCategoryId,
+          isSelected: true,
+        );
       },
       failure: (message) {
         final alreadyInCart =
@@ -295,6 +306,11 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
             serviceId: serviceId,
             isSelected: true,
             pendingCartActionIds: pending,
+          );
+          _cartSyncService.serviceSelectionChanged(
+            serviceId: serviceId,
+            categoryId: resolvedCategoryId,
+            isSelected: true,
           );
           return;
         }
@@ -328,6 +344,10 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
           serviceId: serviceId,
           isSelected: false,
           pendingCartActionIds: pending,
+        );
+        _cartSyncService.serviceSelectionChanged(
+          serviceId: serviceId,
+          isSelected: false,
         );
       },
       failure: (message) {
@@ -500,6 +520,31 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
     );
   }
 
+  void _onCartSyncEvent(CartSyncEvent event) {
+    if (isClosed) return;
+    if (event.cartCleared) {
+      _fullServices = _fullServices
+          .map((service) => service.copyWith(isSelected: false))
+          .toList();
+      emit(
+        state.copyWith(
+          fullServices: _fullServices,
+          services: _filterServices(_fullServices, state.searchQuery),
+        ),
+      );
+      return;
+    }
+
+    final serviceId = event.serviceId;
+    final isSelected = event.isSelected;
+    if (serviceId == null || isSelected == null) return;
+    _setServiceSelected(
+      serviceId: serviceId,
+      isSelected: isSelected,
+      pendingCartActionIds: state.pendingCartActionIds,
+    );
+  }
+
   List<ProviderPackage> _filterPackages(
     List<ProviderPackage> packages,
     String? query,
@@ -529,6 +574,7 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
   @override
   Future<void> close() {
     _debounceTimer?.cancel();
+    _cartSyncSubscription?.cancel();
     return super.close();
   }
 }

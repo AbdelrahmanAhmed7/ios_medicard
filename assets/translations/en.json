@@ -80,6 +80,14 @@
     "retry": "Retry",
     "this_field_required": "This field is required"
   },
+  "search": {
+    "filter": "Filter",
+    "reset": "Reset",
+    "apply_filters": "Apply Filters",
+    "no_services_found": "No services found",
+    "no_providers_found": "No providers found",
+    "try_different_keyword": "Try a different keyword or clear filters."
+  },
   "errors": {
     "something_went_wrong": "Something went wrong. Please try again.",
     "not_found_error": "Data not found",
@@ -209,8 +217,34 @@
     "call": "Call",
     "address": "Address",
     "total_services": "Total Services",
+    "services_count": "{} Services",
     "reviews": "Reviews",
     "special_offer": "Special Offer"
+  },
+  "cart": {
+    "view_cart": "View Cart",
+    "choose_provider": "Choose Provider",
+    "providers_available": "{} providers available",
+    "no_providers_available": "There are no providers available for your cart items.",
+    "checkout": "Checkout",
+    "order_for": "Order For",
+    "branch_location": "Branch Location",
+    "payment_method": "Payment Method",
+    "payment_summary": "Payment Summary",
+    "card_owner": "Card owner",
+    "loading_patients": "Loading patients...",
+    "select_patient": "Select The Patient",
+    "loading_branches": "Loading branches...",
+    "cash": "Cash",
+    "visa": "Visa",
+    "provider": "Provider",
+    "package": "Package",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "total_amount": "Total amount",
+    "continue_payment": "Continue Payment",
+    "pay_with_visa": "Pay with Visa",
+    "pay": "Pay"
   },
   "activity": {
     "pending": "Pending",
@@ -218,7 +252,7 @@
     "no_items": "No items found",
     "status_pending": "Pending",
     "status_used": "Used",
-    "download_results": "Download results",
+    "details": "Details",
     "book": "Book"
   }
 }

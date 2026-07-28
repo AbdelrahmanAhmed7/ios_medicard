@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -10,9 +11,9 @@ class FilterBottomSheet extends StatelessWidget {
   const FilterBottomSheet({super.key});
 
   static const List<_SortOption> _sortOptions = [
-    _SortOption(value: 0, label: 'Highest Offer'),
-    _SortOption(value: 1, label: 'Nearest'),
-    _SortOption(value: 2, label: 'Highest Rating'),
+    _SortOption(value: 0, labelKey: 'sort_filter.highest_offer'),
+    _SortOption(value: 1, labelKey: 'sort_filter.nearest'),
+    _SortOption(value: 2, labelKey: 'sort_filter.highest_rating'),
   ];
 
   @override
@@ -56,7 +57,7 @@ class FilterBottomSheet extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Filter',
+                      'search.filter'.tr(),
                       style: TextStyle(
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w700,
@@ -72,7 +73,7 @@ class FilterBottomSheet extends StatelessWidget {
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                       child: Text(
-                        'Reset',
+                        'search.reset'.tr(),
                         style: TextStyle(
                           fontFamily: 'Inter',
                           fontWeight: FontWeight.w500,
@@ -86,11 +87,11 @@ class FilterBottomSheet extends StatelessWidget {
                 SizedBox(height: 16.h),
 
                 // Sort By Section
-                const _SectionTitle(title: 'Sort By'),
+                _SectionTitle(title: 'sort_filter.sort_by'.tr()),
                 SizedBox(height: 8.h),
                 ..._sortOptions.map(
                   (option) => _SortOptionTile(
-                    label: option.label,
+                    label: option.labelKey.tr(),
                     value: option.value,
                     groupValue: state.selectedSortBy,
                     onTap: () => filterCubit.selectSortBy(option.value),
@@ -99,13 +100,13 @@ class FilterBottomSheet extends StatelessWidget {
                 SizedBox(height: 20.h),
 
                 // Location Section
-                const _SectionTitle(title: 'Location'),
+                _SectionTitle(title: 'sort_filter.location'.tr()),
                 SizedBox(height: 12.h),
                 Row(
                   children: [
                     Expanded(
                       child: _LookupDropdown(
-                        hint: 'Governorate',
+                        hint: 'sort_filter.government'.tr(),
                         isLoading: state.isLoadingGovernorates,
                         items: state.governorates
                             .map(
@@ -125,7 +126,7 @@ class FilterBottomSheet extends StatelessWidget {
                     SizedBox(width: 12.w),
                     Expanded(
                       child: _LookupDropdown(
-                        hint: 'City',
+                        hint: 'sort_filter.city'.tr(),
                         isLoading: state.isLoadingCities,
                         isDisabled: state.selectedGovernorateId == null,
                         items: state.cities
@@ -170,7 +171,7 @@ class FilterBottomSheet extends StatelessWidget {
                       Navigator.of(context).pop();
                     },
                     child: Text(
-                      'Apply Filters',
+                      'search.apply_filters'.tr(),
                       style: TextStyle(
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w600,
@@ -338,6 +339,6 @@ class _LookupDropdown extends StatelessWidget {
 
 class _SortOption {
   final int value;
-  final String label;
-  const _SortOption({required this.value, required this.label});
+  final String labelKey;
+  const _SortOption({required this.value, required this.labelKey});
 }

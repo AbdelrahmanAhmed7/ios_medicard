@@ -56,7 +56,11 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                   ),
                 ),
                 if (state.getCartItemCount() > 0)
-                  _buildViewCartBar(context, state),
+                  SafeArea(
+                    top: false,
+                    minimum: EdgeInsets.fromLTRB(12.w, 0, 12.w, 12.h),
+                    child: _buildViewCartBar(context, state),
+                  ),
               ],
             );
           },
@@ -76,7 +80,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
       ),
       child: Container(
         width: double.infinity,
-        margin: EdgeInsets.all(12.w),
+        margin: EdgeInsets.zero,
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
         decoration: BoxDecoration(
           color: const Color(0xFF3872B1),
@@ -105,7 +109,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
             SizedBox(width: 16.w),
             Expanded(
               child: Text(
-                'View Cart',
+                'cart.view_cart'.tr(),
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18.sp,
@@ -1314,7 +1318,13 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                                         ),
                                       ),
                                     ),
-                                    SizedBox(height: 10.h),
+                                    SizedBox(
+                                      height:
+                                          MediaQuery.of(
+                                            context,
+                                          ).padding.bottom +
+                                          16.h,
+                                    ),
                                   ],
                                 ),
                         ),
@@ -1415,14 +1425,36 @@ class _ProviderInfoRow extends StatelessWidget {
               SizedBox(height: 4.h),
               GestureDetector(
                 onTap: onBranchTap,
-                child: Text(
-                  selectedBranch?.branchName ??
-                      'provider_page.select_branch'.tr(),
-                  style: TextStyle(
-                    fontSize: 13.sp,
-                    color: Colors.white.withAlpha(230),
-                    decoration: TextDecoration.underline,
-                    fontWeight: FontWeight.w500,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 5.h),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withAlpha(34),
+                    borderRadius: BorderRadius.circular(8.r),
+                    border: Border.all(color: Colors.white.withAlpha(150)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.location_on_outlined,
+                        color: Colors.white,
+                        size: 14.sp,
+                      ),
+                      SizedBox(width: 4.w),
+                      Flexible(
+                        child: Text(
+                          selectedBranch?.branchName ??
+                              'provider_page.select_branch'.tr(),
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -1436,7 +1468,9 @@ class _ProviderInfoRow extends StatelessWidget {
                   ),
                   SizedBox(width: 4.w),
                   Text(
-                    '${data.servicesCount ?? 0} Services',
+                    'provider_page.services_count'.tr(
+                      args: ['${data.servicesCount ?? 0}'],
+                    ),
                     style: TextStyle(color: Colors.white, fontSize: 12.sp),
                   ),
                   if (data.phones != null && data.phones!.isNotEmpty) ...[

@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -21,9 +22,11 @@ class ChooseProviderScreen extends StatelessWidget {
           body: Column(
             children: [
               AppBlueHeader(
-                title: 'Choose Provider',
+                title: 'cart.choose_provider'.tr(),
                 subtitle: state.providers.isNotEmpty
-                    ? '${state.providers.length} providers available'
+                    ? 'cart.providers_available'.tr(
+                        args: ['${state.providers.length}'],
+                      )
                     : null,
               ),
               Expanded(child: _buildBody(context, state)),
@@ -511,7 +514,7 @@ class _EmptyView extends StatelessWidget {
           ),
           SizedBox(height: 16.h),
           Text(
-            'No providers found',
+            'search.no_providers_found'.tr(),
             style: TextStyle(
               fontSize: 17.sp,
               fontWeight: FontWeight.w600,
@@ -520,7 +523,7 @@ class _EmptyView extends StatelessWidget {
           ),
           SizedBox(height: 8.h),
           Text(
-            'There are no providers available for your cart items.',
+            'cart.no_providers_available'.tr(),
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 13.sp, color: const Color(0xFF9CA3AF)),
           ),
@@ -565,8 +568,8 @@ class _ErrorView extends StatelessWidget {
                 ),
                 elevation: 0,
               ),
-              child: const Text(
-                'Retry',
+              child: Text(
+                'common.retry'.tr(),
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   color: Colors.white,

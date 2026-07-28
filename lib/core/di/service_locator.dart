@@ -58,6 +58,7 @@ import '../../features/activity/presentation/cubit/activity_cubit.dart';
 import '../../features/cart/data/api/cart_remote_data_source.dart';
 import '../../features/cart/data/repository/cart_repository_impl.dart';
 import '../../features/cart/domain/repository/cart_repository.dart';
+import '../../features/cart/domain/services/cart_sync_service.dart';
 import '../../features/cart/presentation/cubit/cart_cubit.dart';
 import '../../medicard_network/logic/medicard_network_cubit.dart';
 import '../../medicard_network/logic/provider_page_cubit.dart';
@@ -143,6 +144,7 @@ Future<void> setupServiceLocator() async {
 
   // ── 7. Repositories ───────────────────────────────────────────────────────
   sl.registerLazySingleton<CartRepository>(() => CartRepositoryImpl(sl()));
+  sl.registerLazySingleton<CartSyncService>(() => CartSyncService());
   sl.registerLazySingleton<InvoiceRepository>(
     () => InvoiceRepositoryImpl(sl()),
   );
@@ -226,11 +228,17 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory<RegisterCubit>(() => RegisterCubit(sl()));
   sl.registerFactory<MedicardNetworkCubit>(() => MedicardNetworkCubit(sl()));
   sl.registerFactoryParam<ProviderPageCubit, int, void>(
-    (providerId, _) => ProviderPageCubit(sl(), sl(), sl(), providerId),
+    (providerId, _) => ProviderPageCubit(sl(), sl(), sl(), sl(), providerId),
   );
   sl.registerFactoryParam<CartCubit, int?, void>(
-    (providerId, _) =>
-        CartCubit(sl(), sl(), sl(), sl(), providerId: providerId),
+    (providerId, _) => CartCubit(
+      sl(),
+      sl(),
+      sl(),
+      sl(),
+      cartSyncService: sl(),
+      providerId: providerId,
+    ),
   );
   sl.registerFactory<HomeCubit>(() => HomeCubit(sl(), sl(), sl()));
   sl.registerFactory<ActivityCubit>(() => ActivityCubit(sl()));
@@ -243,7 +251,7 @@ Future<void> setupServiceLocator() async {
 
   // Search cubits
   sl.registerFactory<SearchCubit>(
-    () => SearchCubit(sl(), sl(), sl(), sl(), sl()),
+    () => SearchCubit(sl(), sl(), sl(), sl(), sl(), sl()),
   );
   sl.registerFactory<FilterCubit>(() => FilterCubit(sl(), sl()));
 

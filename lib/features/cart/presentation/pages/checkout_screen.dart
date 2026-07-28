@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -71,7 +72,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             final paymentLink = state.createdInvoicePaymentLink;
             if (paymentLink != null && paymentLink.isNotEmpty) {
               final opened = await UrlLauncherService().launchURL(paymentLink);
-              if (!opened && context.mounted) {
+              if (!context.mounted) return;
+              if (opened) {
+                context.go('/medicard-home?tab=activity');
+              } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Could not open payment link.')),
                 );
@@ -89,7 +93,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           return Column(
             children: [
               AppBlueHeader(
-                title: 'Checkout',
+                title: 'cart.checkout'.tr(),
                 bottomRadius: 18,
                 onBack: () => context.pop(),
               ),
@@ -125,19 +129,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     return ListView(
       padding: EdgeInsets.fromLTRB(14.w, 18.h, 14.w, 24.h),
       children: [
-        _SectionTitle(text: 'Order For'),
+        _SectionTitle(text: 'cart.order_for'.tr()),
         SizedBox(height: 8.h),
         _PatientDropdown(state: state),
         SizedBox(height: 22.h),
-        _SectionTitle(text: 'Branch Location'),
+        _SectionTitle(text: 'cart.branch_location'.tr()),
         SizedBox(height: 8.h),
         _BranchSelector(state: state),
         SizedBox(height: 22.h),
-        _SectionTitle(text: 'Payment Method'),
+        _SectionTitle(text: 'cart.payment_method'.tr()),
         SizedBox(height: 8.h),
         _PaymentDropdown(state: state),
         SizedBox(height: 24.h),
-        const _SectionTitle(text: 'Payment Summary'),
+        _SectionTitle(text: 'cart.payment_summary'.tr()),
         SizedBox(height: 12.h),
         _PaymentSummary(state: state),
         SizedBox(height: 22.h),
@@ -159,7 +163,7 @@ class _PatientDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = <DropdownMenuItem<int>>[
-      const DropdownMenuItem(value: 0, child: Text('Card owner')),
+      DropdownMenuItem(value: 0, child: Text('cart.card_owner'.tr())),
       ...state.familyMembers.map(
         (member) => DropdownMenuItem(
           value: member.id ?? -1,
@@ -176,8 +180,8 @@ class _PatientDropdown extends StatelessWidget {
           icon: const Icon(Icons.keyboard_arrow_down_rounded),
           items: items,
           hint: state.isFamilyMembersLoading
-              ? const Text('Loading patients...')
-              : const Text('Select The Patient'),
+              ? Text('cart.loading_patients'.tr())
+              : Text('cart.select_patient'.tr()),
           onChanged: state.isFamilyMembersLoading
               ? null
               : (id) {
@@ -230,8 +234,8 @@ class _BranchSelector extends StatelessWidget {
                 icon: const Icon(Icons.keyboard_arrow_down_rounded),
                 hint: Text(
                   state.isCheckoutLoading
-                      ? 'Loading branches...'
-                      : 'Select branch',
+                      ? 'cart.loading_branches'.tr()
+                      : 'provider_page.select_branch'.tr(),
                 ),
                 items: state.checkoutBranches
                     .map(
@@ -339,14 +343,14 @@ class _PaymentDropdown extends StatelessWidget {
           value: state.paymentMethod,
           isExpanded: true,
           icon: const Icon(Icons.keyboard_arrow_down_rounded),
-          items: const [
+          items: [
             DropdownMenuItem(
               value: CartPaymentMethod.cash,
-              child: Text('Cash'),
+              child: Text('cart.cash'.tr()),
             ),
             DropdownMenuItem(
               value: CartPaymentMethod.visa,
-              child: Text('Visa'),
+              child: Text('cart.visa'.tr()),
             ),
           ],
           onChanged: (method) {
@@ -390,21 +394,27 @@ class _PaymentSummary extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _SummaryRow(label: 'Provider', value: provider?.providerName ?? '-'),
+          _SummaryRow(
+            label: 'cart.provider'.tr(),
+            value: provider?.providerName ?? '-',
+          ),
           if (isPackageCheckout)
             _SummaryRow(
-              label: 'Package',
+              label: 'cart.package'.tr(),
               value: state.checkoutPackageName ?? '-',
             ),
-          _SummaryRow(label: 'Subtotal', value: 'EGP ${_money(subtotal)}'),
           _SummaryRow(
-            label: 'Discount',
+            label: 'cart.subtotal'.tr(),
+            value: 'EGP ${_money(subtotal)}',
+          ),
+          _SummaryRow(
+            label: 'cart.discount'.tr(),
             value: '- EGP ${_money(discount)}',
             valueColor: const Color(0xFF10B981),
           ),
           Divider(height: 20.h, color: const Color(0xFFD7D7D7)),
           _SummaryRow(
-            label: 'Total amount',
+            label: 'cart.total_amount'.tr(),
             value: 'EGP ${_money(total)}',
             isBold: true,
           ),
@@ -431,7 +441,14 @@ class _PayButton extends StatelessWidget {
         onPressed: isBusy
             ? null
             : hasPaymentLink
-            ? () => UrlLauncherService().launchURL(paymentLink)
+            ? () async {
+                final opened = await UrlLauncherService().launchURL(
+                  paymentLink,
+                );
+                if (opened && context.mounted) {
+                  context.go('/medicard-home?tab=activity');
+                }
+              }
             : () {
                 final cubit = context.read<CartCubit>();
                 if (state.checkoutPackageId != null) {
@@ -460,10 +477,10 @@ class _PayButton extends StatelessWidget {
               )
             : Text(
                 hasPaymentLink
-                    ? 'Continue Payment'
+                    ? 'cart.continue_payment'.tr()
                     : state.paymentMethod == CartPaymentMethod.visa
-                    ? 'Pay with Visa'
-                    : 'Pay',
+                    ? 'cart.pay_with_visa'.tr()
+                    : 'cart.pay'.tr(),
                 style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w600),
               ),
       ),
@@ -588,7 +605,7 @@ class _ErrorView extends StatelessWidget {
                 backgroundColor: const Color(0xFF3872B1),
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Retry'),
+              child: Text('common.retry'.tr()),
             ),
           ],
         ),

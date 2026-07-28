@@ -40,7 +40,7 @@ List<AppointmentModel> mapAppointments(List<HomePendingAppointment> raw) {
           providerName: _textOrEmpty(a.providerName),
           service: _textOrEmpty(a.service),
           branch: _textOrEmpty(a.branchName),
-          status: _textOrEmpty(a.status),
+          status: _appointmentStatusText(a.status),
           date: _textOrEmpty(a.date),
         );
       })
@@ -93,3 +93,16 @@ bool _hasAnyText(List<String?> values) => values.any(_hasText);
 bool _hasText(String? value) => value != null && value.trim().isNotEmpty;
 
 String _textOrEmpty(String? value) => value?.trim() ?? '';
+
+String _appointmentStatusText(String? status) {
+  final value = status?.trim();
+  if (value == null || value.isEmpty) return '';
+
+  switch (value.toLowerCase()) {
+    case '2':
+    case 'pending':
+      return 'Pending';
+    default:
+      return value;
+  }
+}

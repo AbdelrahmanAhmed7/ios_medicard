@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -50,7 +51,9 @@ class _CartScreenState extends State<CartScreen> {
                   );
                 }
                 if (items.isEmpty) {
-                  return const _EmptyCartView();
+                  return _EmptyCartView(
+                    onExplore: () => context.go('/medicard-home'),
+                  );
                 }
                 return _CartBody(
                   items: items,
@@ -58,6 +61,7 @@ class _CartScreenState extends State<CartScreen> {
                   initialProviderId: widget.initialProviderId,
                   initialBranch: widget.initialBranch,
                   syncError: state.cartError,
+                  isBusy: state.isCartLoading,
                 );
               },
             ),
@@ -76,6 +80,7 @@ class _CartBody extends StatelessWidget {
   final int? initialProviderId;
   final ProviderBranch? initialBranch;
   final String? syncError;
+  final bool isBusy;
 
   const _CartBody({
     required this.items,
@@ -83,6 +88,7 @@ class _CartBody extends StatelessWidget {
     this.initialProviderId,
     this.initialBranch,
     this.syncError,
+    required this.isBusy,
   });
 
   @override
@@ -100,6 +106,8 @@ class _CartBody extends StatelessWidget {
                 _CartSyncWarning(message: syncError!),
                 SizedBox(height: 12.h),
               ],
+              _CartActionsHeader(itemCount: items.length, isBusy: isBusy),
+              SizedBox(height: 14.h),
               // ── Category badges row (إذا أردت الإبقاء عليها كما هي باللوجيك)
               if (categoryCounters.isNotEmpty) ...[
                 _CategoryBadgesRow(counters: categoryCounters),
@@ -123,6 +131,149 @@ class _CartBody extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+class _CartActionsHeader extends StatelessWidget {
+  final int itemCount;
+  final bool isBusy;
+
+  const _CartActionsHeader({required this.itemCount, required this.isBusy});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            '$itemCount ${itemCount == 1 ? 'item' : 'items'} in cart',
+            style: TextStyle(
+              fontSize: 15.sp,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF1F2937),
+            ),
+          ),
+        ),
+        TextButton.icon(
+          onPressed: isBusy ? null : () => _showClearCartSheet(context),
+          icon: isBusy
+              ? SizedBox(
+                  width: 16.r,
+                  height: 16.r,
+                  child: const CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Icon(Icons.delete_sweep_outlined, size: 18.sp),
+          label: const Text('Clear cart'),
+          style: TextButton.styleFrom(
+            foregroundColor: const Color(0xFFDC2626),
+            disabledForegroundColor: const Color(0xFF94A3B8),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+Future<void> _showClearCartSheet(BuildContext context) async {
+  final cubit = context.read<CartCubit>();
+  final confirmed = await showModalBottomSheet<bool>(
+    context: context,
+    backgroundColor: Colors.white,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(18.r)),
+    ),
+    builder: (sheetContext) {
+      return SafeArea(
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(20.w, 18.h, 20.w, 20.h),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 42.w,
+                height: 4.h,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE5E7EB),
+                  borderRadius: BorderRadius.circular(4.r),
+                ),
+              ),
+              SizedBox(height: 18.h),
+              Container(
+                width: 54.r,
+                height: 54.r,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFEE2E2),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.delete_outline_rounded,
+                  color: const Color(0xFFDC2626),
+                  size: 28.sp,
+                ),
+              ),
+              SizedBox(height: 14.h),
+              Text(
+                'Clear cart?',
+                style: TextStyle(
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF111827),
+                ),
+              ),
+              SizedBox(height: 8.h),
+              Text(
+                'All selected services will be removed from your cart.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  height: 1.35,
+                  color: const Color(0xFF6B7280),
+                ),
+              ),
+              SizedBox(height: 20.h),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(sheetContext).pop(false),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF334155),
+                        side: const BorderSide(color: Color(0xFFD1D5DB)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.r),
+                        ),
+                        minimumSize: Size.fromHeight(48.h),
+                      ),
+                      child: const Text('Cancel'),
+                    ),
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(sheetContext).pop(true),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFDC2626),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.r),
+                        ),
+                        minimumSize: Size.fromHeight(48.h),
+                      ),
+                      child: const Text('Clear cart'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+
+  if (confirmed == true) {
+    cubit.clearCart();
   }
 }
 
@@ -568,7 +719,9 @@ class _CartBottomBar extends StatelessWidget {
                 elevation: 0,
               ),
               child: Text(
-                hasAssigned ? 'Checkout' : 'Choose Provider',
+                hasAssigned
+                    ? 'cart.checkout'.tr()
+                    : 'cart.choose_provider'.tr(),
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600, // خط عريض وواضح
@@ -586,33 +739,75 @@ class _CartBottomBar extends StatelessWidget {
 // ─── Empty & error states ─────────────────────────────────────────────────────
 
 class _EmptyCartView extends StatelessWidget {
-  const _EmptyCartView();
+  final VoidCallback onExplore;
+
+  const _EmptyCartView({required this.onExplore});
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.shopping_cart_outlined,
-            size: 72.sp,
-            color: const Color(0xFFD1D5DB),
+          Container(
+            width: 108.r,
+            height: 108.r,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 18,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Icon(
+              Icons.shopping_cart_checkout_rounded,
+              size: 50.sp,
+              color: const Color(0xFF3872B1),
+            ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: 22.h),
           Text(
             'Your cart is empty',
+            textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFF6B7280),
+              fontSize: 22.sp,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF111827),
             ),
           ),
           SizedBox(height: 8.h),
           Text(
-            'Add services from a provider page to get started.',
+            'Choose services from providers and they will appear here before checkout.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14.sp, color: const Color(0xFF9CA3AF)),
+            style: TextStyle(
+              fontSize: 14.sp,
+              height: 1.4,
+              color: const Color(0xFF6B7280),
+            ),
+          ),
+          SizedBox(height: 22.h),
+          SizedBox(
+            width: double.infinity,
+            height: 50.h,
+            child: ElevatedButton.icon(
+              onPressed: onExplore,
+              icon: Icon(Icons.search_rounded, size: 19.sp),
+              label: const Text('Explore services'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF3872B1),
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+              ),
+            ),
           ),
         ],
       ),

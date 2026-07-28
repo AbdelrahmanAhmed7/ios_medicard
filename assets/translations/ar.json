@@ -80,6 +80,14 @@
     "retry": "إعادة المحاولة",
     "this_field_required": "هذا الحقل مطلوب"
   },
+  "search": {
+    "filter": "تصفية",
+    "reset": "إعادة ضبط",
+    "apply_filters": "تطبيق الفلاتر",
+    "no_services_found": "لا توجد خدمات",
+    "no_providers_found": "لا يوجد مقدمو خدمة",
+    "try_different_keyword": "جرّب كلمة بحث مختلفة أو امسح الفلاتر."
+  },
   "errors": {
     "something_went_wrong": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
     "not_found_error": "لم يتم العثور على البيانات",
@@ -209,8 +217,34 @@
     "call": "اتصال",
     "address": "العنوان",
     "total_services": "إجمالي الخدمات",
+    "services_count": "{} خدمة",
     "reviews": "التقييمات",
     "special_offer": "عرض خاص"
+  },
+  "cart": {
+    "view_cart": "عرض السلة",
+    "choose_provider": "اختر مقدم الخدمة",
+    "providers_available": "{} مقدم خدمة متاح",
+    "no_providers_available": "لا يوجد مقدمو خدمة متاحون لعناصر السلة.",
+    "checkout": "الدفع",
+    "order_for": "الطلب لـ",
+    "branch_location": "موقع الفرع",
+    "payment_method": "طريقة الدفع",
+    "payment_summary": "ملخص الدفع",
+    "card_owner": "صاحب الكارت",
+    "loading_patients": "جاري تحميل المرضى...",
+    "select_patient": "اختر المريض",
+    "loading_branches": "جاري تحميل الفروع...",
+    "cash": "كاش",
+    "visa": "فيزا",
+    "provider": "مقدم الخدمة",
+    "package": "الباقة",
+    "subtotal": "الإجمالي قبل الخصم",
+    "discount": "الخصم",
+    "total_amount": "الإجمالي",
+    "continue_payment": "استكمال الدفع",
+    "pay_with_visa": "ادفع بالفيزا",
+    "pay": "ادفع"
   },
   "activity": {
     "pending": "في الانتظار",
@@ -218,7 +252,7 @@
     "no_items": "لا توجد عناصر",
     "status_pending": "في الانتظار",
     "status_used": "مستخدمة",
-    "download_results": "تحميل النتائج",
+    "details": "التفاصيل",
     "book": "حجز"
   }
 }

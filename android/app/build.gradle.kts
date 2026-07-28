@@ -16,6 +16,15 @@ if (keyPropertiesFile.exists()) {
     keyProperties.load(FileInputStream(keyPropertiesFile))
 }
 
+fun signingProperty(name: String): String? =
+    keyProperties.getProperty(name)?.takeIf { it.isNotBlank() }
+
+val hasReleaseSigningConfig =
+    signingProperty("keyAlias") != null &&
+        signingProperty("keyPassword") != null &&
+        signingProperty("storeFile") != null &&
+        signingProperty("storePassword") != null
+
 android {
     namespace = "com.khusm.medicard"
     compileSdk = flutter.compileSdkVersion
@@ -41,17 +50,23 @@ android {
     }
 
     signingConfigs {
-        create("release") {
-            keyAlias = keyProperties["keyAlias"] as String
-            keyPassword = keyProperties["keyPassword"] as String
-            storeFile = file(keyProperties["storeFile"] as String)
-            storePassword = keyProperties["storePassword"] as String
+        if (hasReleaseSigningConfig) {
+            create("release") {
+                keyAlias = signingProperty("keyAlias")
+                keyPassword = signingProperty("keyPassword")
+                storeFile = file(signingProperty("storeFile")!!)
+                storePassword = signingProperty("storePassword")
+            }
         }
     }
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = if (hasReleaseSigningConfig) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
             isMinifyEnabled = false
             isShrinkResources = false
         }

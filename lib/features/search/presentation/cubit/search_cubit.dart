@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/api_result.dart';
 import '../../../cart/domain/repository/cart_repository.dart';
+import '../../../cart/domain/services/cart_sync_service.dart';
 import '../../data/models/category_services_response_model.dart';
 import '../../domain/use_cases/get_categories_use_case.dart';
 import '../../domain/use_cases/get_category_services_use_case.dart';
@@ -16,12 +19,14 @@ class SearchCubit extends Cubit<SearchState> {
   final GetCategoryServicesUseCase _getCategoryServicesUseCase;
   final GetServiceCategoriesUseCase _getServiceCategoriesUseCase;
   final CartRepository _cartRepository;
+  final CartSyncService _cartSyncService;
 
   static const int _pageSize = 15;
 
   int? _governorateId;
   int? _cityId;
   int? _sortBy;
+  StreamSubscription<CartSyncEvent>? _cartSyncSubscription;
 
   SearchCubit(
     this._searchProvidersUseCase,
@@ -29,7 +34,10 @@ class SearchCubit extends Cubit<SearchState> {
     this._getCategoryServicesUseCase,
     this._getServiceCategoriesUseCase,
     this._cartRepository,
-  ) : super(const SearchState());
+    this._cartSyncService,
+  ) : super(const SearchState()) {
+    _cartSyncSubscription = _cartSyncService.stream.listen(_onCartSyncEvent);
+  }
 
   Future<void> init({double? lat, double? lng, int? categoryId}) async {
     if (isClosed) return;
@@ -238,6 +246,11 @@ class SearchCubit extends Cubit<SearchState> {
           isSelected: true,
           pendingServiceIds: pending,
         );
+        _cartSyncService.serviceSelectionChanged(
+          serviceId: serviceId,
+          categoryId: categoryId,
+          isSelected: true,
+        );
         _loadCartCounters();
       },
       failure: (message) {
@@ -250,6 +263,11 @@ class SearchCubit extends Cubit<SearchState> {
             categoryId: categoryId,
             isSelected: true,
             pendingServiceIds: pending,
+          );
+          _cartSyncService.serviceSelectionChanged(
+            serviceId: serviceId,
+            categoryId: categoryId,
+            isSelected: true,
           );
           return;
         }
@@ -308,6 +326,11 @@ class SearchCubit extends Cubit<SearchState> {
           categoryId: categoryId,
           isSelected: false,
           pendingServiceIds: pending,
+        );
+        _cartSyncService.serviceSelectionChanged(
+          serviceId: serviceId,
+          categoryId: categoryId,
+          isSelected: false,
         );
         _loadCartCounters();
       },
@@ -513,5 +536,118 @@ class SearchCubit extends Cubit<SearchState> {
       if (service.serviceId == serviceId) return service.isSelected == true;
     }
     return null;
+  }
+
+  void _onCartSyncEvent(CartSyncEvent event) {
+    if (isClosed) return;
+    if (event.cartCleared) {
+      _emitAllServicesUnselected();
+      _loadCartCounters();
+      return;
+    }
+
+    final serviceId = event.serviceId;
+    final isSelected = event.isSelected;
+    if (serviceId == null || isSelected == null) return;
+
+    final categoryId = event.categoryId;
+    if (categoryId != null) {
+      _emitLocalServiceSelection(
+        serviceId: serviceId,
+        categoryId: categoryId,
+        isSelected: isSelected,
+        pendingServiceIds: state.pendingServiceIds,
+      );
+    } else {
+      _emitServiceSelectionInLoadedCategories(
+        serviceId: serviceId,
+        isSelected: isSelected,
+      );
+    }
+    _loadCartCounters();
+  }
+
+  void _emitServiceSelectionInLoadedCategories({
+    required int serviceId,
+    required bool isSelected,
+  }) {
+    var emitted = false;
+    for (final entry in state.servicesByCategoryId.entries) {
+      if (_serviceSelection(entry.value, serviceId) == null) continue;
+      _emitLocalServiceSelection(
+        serviceId: serviceId,
+        categoryId: entry.key,
+        isSelected: isSelected,
+        pendingServiceIds: state.pendingServiceIds,
+      );
+      emitted = true;
+    }
+    if (!emitted && state.servicesData?.categoryId != null) {
+      _emitLocalServiceSelection(
+        serviceId: serviceId,
+        categoryId: state.servicesData!.categoryId!,
+        isSelected: isSelected,
+        pendingServiceIds: state.pendingServiceIds,
+      );
+    }
+  }
+
+  void _emitAllServicesUnselected() {
+    final cachedCategories = <int, CategoryServicesDataModel>{};
+    for (final entry in state.servicesByCategoryId.entries) {
+      cachedCategories[entry.key] = _copyAllCategoryServicesSelection(
+        entry.value,
+        isSelected: false,
+      );
+    }
+
+    final visibleCategoryId = state.servicesData?.categoryId;
+    final visibleData = visibleCategoryId == null
+        ? state.servicesData
+        : cachedCategories[visibleCategoryId] ?? state.servicesData;
+
+    emit(
+      state.copyWith(
+        servicesByCategoryId: cachedCategories,
+        servicesData: visibleData,
+        services: visibleData?.services?.items ?? const [],
+        categorySelectedCounts: const {},
+      ),
+    );
+  }
+
+  CategoryServicesDataModel _copyAllCategoryServicesSelection(
+    CategoryServicesDataModel data, {
+    required bool isSelected,
+  }) {
+    final services = data.services;
+    if (services == null) return data;
+    return CategoryServicesDataModel(
+      categoryId: data.categoryId,
+      categoryName: data.categoryName,
+      totalSelectedCount: isSelected ? data.totalSelectedCount : 0,
+      services: PagedServicesModel(
+        items: (services.items ?? const <ServiceItemModel>[])
+            .map(
+              (service) => ServiceItemModel(
+                serviceId: service.serviceId,
+                serviceNameEn: service.serviceNameEn,
+                serviceNameAr: service.serviceNameAr,
+                isSelected: isSelected,
+              ),
+            )
+            .toList(growable: false),
+        pageNumber: services.pageNumber,
+        pageSize: services.pageSize,
+        totalCount: services.totalCount,
+        totalPages: services.totalPages,
+      ),
+    );
+  }
+
+  @override
+  Future<void> close() {
+    _cartSyncSubscription?.cancel();
+    return super.close();
   }
 }

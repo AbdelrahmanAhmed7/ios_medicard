@@ -135,9 +135,9 @@ class _SearchScreenState extends State<SearchScreen>
                 unselectedLabelColor: const Color(0xFF6B7280),
                 indicatorColor: const Color(0xFF2D5FA6),
                 indicatorWeight: 2.5.h,
-                tabs: const [
-                  Tab(text: 'Provider'),
-                  Tab(text: 'Services'),
+                tabs: [
+                  Tab(text: 'home.providers'.tr()),
+                  Tab(text: 'home.services'.tr()),
                 ],
               ),
             ),
@@ -508,7 +508,7 @@ class _ServicesTabState extends State<_ServicesTab> {
             ),
             SizedBox(height: 12.h),
             Text(
-              'No Services Found',
+              'search.no_services_found'.tr(),
               style: TextStyle(
                 fontFamily: 'Inter',
                 fontSize: 16.sp,
@@ -562,7 +562,7 @@ class _ServicesTabState extends State<_ServicesTab> {
                   minimumSize: Size(120.w, 40.h),
                 ),
                 child: Text(
-                  'Retry',
+                  'common.retry'.tr(),
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 14.sp,
@@ -588,7 +588,7 @@ class _ServicesTabState extends State<_ServicesTab> {
             ),
             SizedBox(height: 12.h),
             Text(
-              'No Services Found',
+              'search.no_services_found'.tr(),
               style: TextStyle(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
@@ -607,7 +607,7 @@ class _ServicesTabState extends State<_ServicesTab> {
         16.w,
         12.h,
         16.w,
-        totalSelected > 0 ? 80.h : 16.h,
+        totalSelected > 0 ? MediaQuery.of(context).padding.bottom + 92.h : 16.h,
       ),
       itemCount: state.services.length,
       itemBuilder: (context, index) {
@@ -798,7 +798,7 @@ class _ChooseProviderBar extends StatelessWidget {
         16.w,
         0,
         16.w,
-        MediaQuery.of(context).padding.bottom + 10.h,
+        MediaQuery.of(context).padding.bottom + 14.h,
       ),
       child: GestureDetector(
         onTap: () => context.push('/choose-provider'),
@@ -838,7 +838,7 @@ class _ChooseProviderBar extends StatelessWidget {
               ),
               SizedBox(width: 10.w),
               Text(
-                'Choose Provider',
+                'cart.choose_provider'.tr(),
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 15.sp,
@@ -869,7 +869,7 @@ class _EmptyView extends StatelessWidget {
           ),
           SizedBox(height: 12.h),
           Text(
-            'No providers found',
+            'search.no_providers_found'.tr(),
             style: TextStyle(
               fontFamily: 'Inter',
               fontSize: 15.sp,
@@ -879,7 +879,7 @@ class _EmptyView extends StatelessWidget {
           ),
           SizedBox(height: 6.h),
           Text(
-            'Try a different keyword or clear filters.',
+            'search.try_different_keyword'.tr(),
             style: TextStyle(
               fontFamily: 'Inter',
               fontSize: 13.sp,
@@ -933,7 +933,7 @@ class _ErrorView extends StatelessWidget {
                 minimumSize: Size(120.w, 40.h),
               ),
               child: Text(
-                'Retry',
+                'common.retry'.tr(),
                 style: TextStyle(
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w600,
