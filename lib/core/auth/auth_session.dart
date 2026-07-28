@@ -21,8 +21,13 @@ class AuthSession {
   bool get hasRefreshToken => refreshToken.trim().isNotEmpty;
 
   /// Returns true when the refresh token is missing or already past expiry.
+  ///
+  /// Some API responses provide a refresh token without an expiry timestamp.
+  /// In that case we keep the session and let the refresh endpoint be the
+  /// source of truth instead of logging the user out on every app restart.
   bool get isRefreshTokenExpired {
-    if (refreshTokenExpiresAt == null) return true;
+    if (!hasRefreshToken) return true;
+    if (refreshTokenExpiresAt == null) return false;
     return DateTime.now().toUtc().isAfter(refreshTokenExpiresAt!.toUtc());
   }
 

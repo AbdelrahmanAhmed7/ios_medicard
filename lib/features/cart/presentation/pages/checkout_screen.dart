@@ -1,9 +1,11 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../../../../core/services/url_launcher_service.dart';
 import '../../../../core/widgets/app_blue_header.dart';
@@ -16,8 +18,20 @@ import 'order_confirmed_screen.dart';
 class CheckoutScreen extends StatefulWidget {
   final int? initialProviderId;
   final ProviderBranch? initialBranch;
+  final int? packageId;
+  final String? packageName;
+  final double? packagePriceBefore;
+  final double? packagePriceAfter;
 
-  const CheckoutScreen({super.key, this.initialProviderId, this.initialBranch});
+  const CheckoutScreen({
+    super.key,
+    this.initialProviderId,
+    this.initialBranch,
+    this.packageId,
+    this.packageName,
+    this.packagePriceBefore,
+    this.packagePriceAfter,
+  });
 
   @override
   State<CheckoutScreen> createState() => _CheckoutScreenState();
@@ -30,6 +44,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     context.read<CartCubit>().loadCheckout(
       initialProviderId: widget.initialProviderId,
       initialBranch: widget.initialBranch,
+      packageId: widget.packageId,
+      packageName: widget.packageName,
+      packagePriceBefore: widget.packagePriceBefore,
+      packagePriceAfter: widget.packagePriceAfter,
     );
   }
 
@@ -58,6 +76,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   const SnackBar(content: Text('Could not open payment link.')),
                 );
               }
+              return;
             }
             if (!context.mounted) return;
             context.go(
@@ -95,6 +114,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         onRetry: () => context.read<CartCubit>().loadCheckout(
           initialProviderId: widget.initialProviderId,
           initialBranch: widget.initialBranch,
+          packageId: widget.packageId,
+          packageName: widget.packageName,
+          packagePriceBefore: widget.packagePriceBefore,
+          packagePriceAfter: widget.packagePriceAfter,
         ),
       );
     }
@@ -247,7 +270,7 @@ class _MapPreview extends StatelessWidget {
     final latitude = branch.latitude;
     final longitude = branch.longitude;
     final hasLocation = latitude != null && longitude != null;
-    final imageUrl = hasLocation ? _staticMapUrl(latitude, longitude) : null;
+    final point = hasLocation ? LatLng(latitude, longitude) : null;
 
     return GestureDetector(
       onTap: () {
@@ -262,23 +285,44 @@ class _MapPreview extends StatelessWidget {
           width: double.infinity,
           height: 146.h,
           color: const Color(0xFFE5E7EB),
-          child: imageUrl == null
+          child: point == null
               ? const Center(child: Icon(Icons.map_outlined))
-              : Image.network(
-                  imageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) =>
-                      const Center(child: Icon(Icons.map_outlined)),
+              : FlutterMap(
+                  options: MapOptions(
+                    initialCenter: point,
+                    initialZoom: 14,
+                    interactionOptions: const InteractionOptions(
+                      flags:
+                          InteractiveFlag.drag |
+                          InteractiveFlag.pinchZoom |
+                          InteractiveFlag.doubleTapZoom,
+                    ),
+                  ),
+                  children: [
+                    TileLayer(
+                      urlTemplate:
+                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      userAgentPackageName: 'com.example.medicard',
+                    ),
+                    MarkerLayer(
+                      markers: [
+                        Marker(
+                          point: point,
+                          width: 42.r,
+                          height: 42.r,
+                          child: Icon(
+                            Icons.location_on,
+                            color: const Color(0xFF3872B1),
+                            size: 38.sp,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
         ),
       ),
     );
-  }
-
-  String _staticMapUrl(double latitude, double longitude) {
-    return 'https://staticmap.openstreetmap.de/staticmap.php'
-        '?center=$latitude,$longitude&zoom=14&size=600x220'
-        '&markers=$latitude,$longitude,blue-pushpin';
   }
 }
 
@@ -324,8 +368,17 @@ class _PaymentSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = state.checkoutProvider;
-    final subtotal = provider?.totalPriceBefore ?? 0.0;
-    final total = provider?.totalPriceAfter ?? 0.0;
+    final isPackageCheckout = state.checkoutPackageId != null;
+    final subtotal = isPackageCheckout
+        ? state.checkoutPackagePriceBefore ??
+              state.checkoutPackagePriceAfter ??
+              0
+        : provider?.totalPriceBefore ?? 0.0;
+    final total = isPackageCheckout
+        ? state.checkoutPackagePriceAfter ??
+              state.checkoutPackagePriceBefore ??
+              0
+        : provider?.totalPriceAfter ?? 0.0;
     final discount = math.max<double>(0.0, subtotal - total);
 
     return Container(
@@ -338,6 +391,11 @@ class _PaymentSummary extends StatelessWidget {
       child: Column(
         children: [
           _SummaryRow(label: 'Provider', value: provider?.providerName ?? '-'),
+          if (isPackageCheckout)
+            _SummaryRow(
+              label: 'Package',
+              value: state.checkoutPackageName ?? '-',
+            ),
           _SummaryRow(label: 'Subtotal', value: 'EGP ${_money(subtotal)}'),
           _SummaryRow(
             label: 'Discount',
@@ -364,13 +422,24 @@ class _PayButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isBusy = state.isCreatingInvoice;
+    final paymentLink = state.createdInvoicePaymentLink;
+    final hasPaymentLink = paymentLink != null && paymentLink.isNotEmpty;
     return SizedBox(
       width: double.infinity,
       height: 52.h,
       child: ElevatedButton(
         onPressed: isBusy
             ? null
-            : () => context.read<CartCubit>().createCartInvoice(),
+            : hasPaymentLink
+            ? () => UrlLauncherService().launchURL(paymentLink)
+            : () {
+                final cubit = context.read<CartCubit>();
+                if (state.checkoutPackageId != null) {
+                  cubit.createPackageInvoice();
+                } else {
+                  cubit.createCartInvoice();
+                }
+              },
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF3872B1),
           disabledBackgroundColor: const Color(0xFFCBD5E1),
@@ -390,7 +459,9 @@ class _PayButton extends StatelessWidget {
                 ),
               )
             : Text(
-                state.paymentMethod == CartPaymentMethod.visa
+                hasPaymentLink
+                    ? 'Continue Payment'
+                    : state.paymentMethod == CartPaymentMethod.visa
                     ? 'Pay with Visa'
                     : 'Pay',
                 style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w600),

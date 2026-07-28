@@ -182,8 +182,12 @@ CategoryServicesDataModel _categoryData(int categoryId) {
     totalSelectedCount: 1,
     services: const PagedServicesModel(
       items: [
-        ServiceItemModel(serviceId: 1, serviceName: 'MRI', isSelected: true),
-        ServiceItemModel(serviceId: 2, serviceName: 'X-Ray', isSelected: false),
+        ServiceItemModel(serviceId: 1, serviceNameEn: 'MRI', isSelected: true),
+        ServiceItemModel(
+          serviceId: 2,
+          serviceNameEn: 'X-Ray',
+          isSelected: false,
+        ),
       ],
       pageNumber: 1,
       pageSize: 20,

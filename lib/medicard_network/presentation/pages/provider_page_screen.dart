@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/service_locator.dart';
-import '../../../../core/constants/api_result.dart';
 import '../../../../core/utils/error_state_widget.dart';
 import '../../../../core/widgets/app_blue_header.dart';
 import '../../../../network/data/provider_page_response_model.dart';
@@ -892,8 +891,6 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
     ProviderPackage packageData,
   ) {
     final packageId = packageData.id;
-    final isCreatingInvoice =
-        packageId != null && state.pendingPackageInvoiceIds.contains(packageId);
 
     return Container(
       decoration: BoxDecoration(
@@ -933,7 +930,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                     top: 6.w,
                     right: 6.w,
                     child: GestureDetector(
-                      onTap: packageId == null || isCreatingInvoice
+                      onTap: packageId == null
                           ? null
                           : () => _createPackageInvoice(
                               context,
@@ -951,19 +948,11 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                             width: 1.3,
                           ),
                         ),
-                        child: isCreatingInvoice
-                            ? Padding(
-                                padding: EdgeInsets.all(5.r),
-                                child: const CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Color(0xFF3872B1),
-                                ),
-                              )
-                            : Icon(
-                                Icons.add_rounded,
-                                color: const Color(0xFF3872B1),
-                                size: 20.sp,
-                              ),
+                        child: Icon(
+                          Icons.add_rounded,
+                          color: const Color(0xFF3872B1),
+                          size: 20.sp,
+                        ),
                       ),
                     ),
                   ),
@@ -1034,36 +1023,48 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
     ProviderPageCubit cubit,
     int packageId,
   ) async {
-    final branches = cubit.state.providerData?.branches;
+    final packageData = cubit.state.packages
+        .where((package) => package.id == packageId)
+        .firstOrNull;
+    if (packageData == null) return;
+    _openPackageCheckout(context, cubit.state, packageData);
+  }
+
+  void _openPackageCheckout(
+    BuildContext context,
+    ProviderPageState state,
+    ProviderPackage packageData, {
+    PackageDetailsData? details,
+  }) {
+    final packageId = details?.id ?? packageData.id;
+    if (packageId == null) return;
+
+    final branches = state.providerData?.branches;
     final branchId =
         _selectedBranch?.branchId ??
         ((branches != null && branches.isNotEmpty)
             ? branches.first.branchId
             : null);
+    final branch =
+        _selectedBranch ??
+        ((branches != null && branches.isNotEmpty) ? branches.first : null);
 
-    if (branchId == null) {
+    if (branchId == null || branch == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please select a branch first.')),
       );
       return;
     }
 
-    final result = await cubit.createInvoiceFromPackage(
-      packageId: packageId,
-      providerBranchId: branchId,
-    );
-
-    if (!context.mounted) return;
-    result.when(
-      success: (invoiceId) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Invoice #$invoiceId created successfully.')),
-        );
-      },
-      failure: (error) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(error)));
+    context.push(
+      '/checkout',
+      extra: {
+        'providerId': widget.providerId,
+        'selectedBranch': branch,
+        'packageId': packageId,
+        'packageName': details?.name ?? packageData.name,
+        'packagePriceBefore': details?.priceBefore ?? packageData.priceBefore,
+        'packagePriceAfter': details?.priceAfter ?? packageData.priceAfter,
       },
     );
   }
@@ -1096,10 +1097,9 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                 packageId,
               );
               final error = state.packageDetailsErrors[packageId];
-              final isCreatingInvoice = state.pendingPackageInvoiceIds.contains(
-                packageId,
+              final imageUrl = _packageImageUrl(
+                details?.image ?? packageData.imageUrl ?? '',
               );
-              final imageUrl = details?.image ?? packageData.imageUrl ?? '';
               final name = details?.name ?? packageData.name ?? '';
               final description =
                   details?.description ?? packageData.description ?? '';
@@ -1282,67 +1282,15 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                                       width: double.infinity,
                                       height: 50.h,
                                       child: ElevatedButton(
-                                        onPressed:
-                                            isLoading || isCreatingInvoice
+                                        onPressed: isLoading
                                             ? null
-                                            : () async {
-                                                final branches = state
-                                                    .providerData
-                                                    ?.branches;
-                                                final branchId =
-                                                    _selectedBranch?.branchId ??
-                                                    ((branches != null &&
-                                                            branches.isNotEmpty)
-                                                        ? branches
-                                                              .first
-                                                              .branchId
-                                                        : null);
-
-                                                if (branchId == null) {
-                                                  ScaffoldMessenger.of(
-                                                    context,
-                                                  ).showSnackBar(
-                                                    const SnackBar(
-                                                      content: Text(
-                                                        'Please select a branch first.',
-                                                      ),
-                                                    ),
-                                                  );
-                                                  return;
-                                                }
-
-                                                final result = await context
-                                                    .read<ProviderPageCubit>()
-                                                    .createInvoiceFromPackage(
-                                                      packageId: packageId,
-                                                      providerBranchId:
-                                                          branchId,
-                                                    );
-
-                                                if (!context.mounted) return;
-
-                                                result.when(
-                                                  success: (invoiceId) {
-                                                    Navigator.of(context).pop();
-                                                    ScaffoldMessenger.of(
-                                                      this.context,
-                                                    ).showSnackBar(
-                                                      SnackBar(
-                                                        content: Text(
-                                                          'Invoice #$invoiceId created successfully.',
-                                                        ),
-                                                      ),
-                                                    );
-                                                  },
-                                                  failure: (error) {
-                                                    ScaffoldMessenger.of(
-                                                      context,
-                                                    ).showSnackBar(
-                                                      SnackBar(
-                                                        content: Text(error),
-                                                      ),
-                                                    );
-                                                  },
+                                            : () {
+                                                Navigator.of(context).pop();
+                                                _openPackageCheckout(
+                                                  this.context,
+                                                  state,
+                                                  packageData,
+                                                  details: details,
                                                 );
                                               },
                                         style: ElevatedButton.styleFrom(
@@ -1357,23 +1305,13 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                                             ),
                                           ),
                                         ),
-                                        child: isCreatingInvoice
-                                            ? const SizedBox(
-                                                width: 22,
-                                                height: 22,
-                                                child:
-                                                    CircularProgressIndicator(
-                                                      strokeWidth: 2,
-                                                      color: Colors.white,
-                                                    ),
-                                              )
-                                            : Text(
-                                                'Add',
-                                                style: TextStyle(
-                                                  fontSize: 20.sp,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
+                                        child: Text(
+                                          'Add',
+                                          style: TextStyle(
+                                            fontSize: 20.sp,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                     SizedBox(height: 10.h),
@@ -1406,6 +1344,16 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
     if (selected != null && mounted) {
       setState(() => _selectedBranch = selected);
     }
+  }
+
+  String _packageImageUrl(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty || trimmed.startsWith('http')) return trimmed;
+    final normalized = trimmed.startsWith('/') ? trimmed.substring(1) : trimmed;
+    if (normalized.startsWith('uploads/')) {
+      return 'https://medicard-api-v2.medicardeg.com/$normalized';
+    }
+    return 'https://medicard-api-v2.medicardeg.com/uploads/providers/$normalized';
   }
 }
 

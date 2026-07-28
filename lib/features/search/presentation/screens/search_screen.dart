@@ -364,6 +364,9 @@ class _ServicesTab extends StatefulWidget {
 
 class _ServicesTabState extends State<_ServicesTab> {
   int? _selectedCategoryId;
+  bool _didAutoSelectCategory = false;
+  bool _isAutoSelectingCategory = false;
+  bool _didFinishAutoSelectCategory = false;
 
   @override
   Widget build(BuildContext context) {
@@ -374,10 +377,13 @@ class _ServicesTabState extends State<_ServicesTab> {
               current.isLoadingServiceCategories ||
           previous.categorySelectedCounts != current.categorySelectedCounts ||
           previous.isLoadingServices != current.isLoadingServices ||
+          previous.loadingServiceCategoryIds !=
+              current.loadingServiceCategoryIds ||
           previous.servicesError != current.servicesError ||
           previous.servicesData != current.servicesData ||
           previous.services != current.services,
       builder: (context, state) {
+        _autoSelectFirstCategoryWithData(context, state);
         final totalSelected = state.categorySelectedCounts.values.fold(
           0,
           (sum, c) => sum + c,
@@ -409,11 +415,6 @@ class _ServicesTabState extends State<_ServicesTab> {
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
                   child: Row(
                     children: [
-                      CategoryChip(
-                        category: null,
-                        isSelected: _selectedCategoryId == null,
-                        onTap: () => setState(() => _selectedCategoryId = null),
-                      ),
                       ...state.serviceCategories.map((cat) {
                         if (cat.id == null) return const SizedBox.shrink();
                         final count = state.categorySelectedCounts[cat.id] ?? 0;
@@ -453,11 +454,48 @@ class _ServicesTabState extends State<_ServicesTab> {
     );
   }
 
+  void _autoSelectFirstCategoryWithData(
+    BuildContext context,
+    SearchState state,
+  ) {
+    if (_didAutoSelectCategory ||
+        state.isLoadingServiceCategories ||
+        state.serviceCategories.isEmpty) {
+      return;
+    }
+    _didAutoSelectCategory = true;
+    _isAutoSelectingCategory = true;
+    _didFinishAutoSelectCategory = false;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      final selectedId = await context
+          .read<SearchCubit>()
+          .loadFirstServiceCategoryWithData();
+      if (!mounted) return;
+      setState(() {
+        _selectedCategoryId = selectedId;
+        _isAutoSelectingCategory = false;
+        _didFinishAutoSelectCategory = true;
+      });
+    });
+  }
+
   Widget _buildServicesBody(
     BuildContext context,
     SearchState state,
     int totalSelected,
   ) {
+    final isInitialServicesLoading =
+        state.isLoadingServiceCategories ||
+        state.isLoadingServices ||
+        state.loadingServiceCategoryIds.isNotEmpty ||
+        (_didAutoSelectCategory && !_didFinishAutoSelectCategory) ||
+        _isAutoSelectingCategory;
+
+    if (_selectedCategoryId == null && isInitialServicesLoading) {
+      return const SearchShimmer();
+    }
+
     if (_selectedCategoryId == null) {
       return Center(
         child: Column(
@@ -470,21 +508,12 @@ class _ServicesTabState extends State<_ServicesTab> {
             ),
             SizedBox(height: 12.h),
             Text(
-              'Select a Category',
+              'No Services Found',
               style: TextStyle(
                 fontFamily: 'Inter',
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
                 color: const Color(0xFF6B7280),
-              ),
-            ),
-            SizedBox(height: 6.h),
-            Text(
-              'Choose a category to view services',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 13.sp,
-                color: const Color(0xFF9CA3AF),
               ),
             ),
           ],
@@ -686,46 +715,36 @@ class _ServiceCard extends StatelessWidget {
                     color: const Color(0xFF111827),
                   ),
                 ),
-                SizedBox(height: 3.h),
-                Text(
-                  'صورة دم كاملة',
-                  style: TextStyle(
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w500,
-                    color: const Color(0xFF374151),
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 4.h),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFEF3C7),
-                    borderRadius: BorderRadius.circular(20.r),
-                    border: Border.all(
-                      color: const Color(0xFFFDE68A),
-                      width: 1,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.access_time_rounded,
-                        size: 12.sp,
-                        color: const Color(0xFFD97706),
-                      ),
-                      SizedBox(width: 4.w),
-                      Text(
-                        'No Fasting',
-                        style: TextStyle(
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xFFD97706),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                // Container(
+                //   padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 4.h),
+                //   decoration: BoxDecoration(
+                //     color: const Color(0xFFFEF3C7),
+                //     borderRadius: BorderRadius.circular(20.r),
+                //     border: Border.all(
+                //       color: const Color(0xFFFDE68A),
+                //       width: 1,
+                //     ),
+                //   ),
+                //   child: Row(
+                //     mainAxisSize: MainAxisSize.min,
+                //     children: [
+                //       Icon(
+                //         Icons.access_time_rounded,
+                //         size: 12.sp,
+                //         color: const Color(0xFFD97706),
+                //       ),
+                //       SizedBox(width: 4.w),
+                //       Text(
+                //         'No Fasting',
+                //         style: TextStyle(
+                //           fontSize: 11.sp,
+                //           fontWeight: FontWeight.w600,
+                //           color: const Color(0xFFD97706),
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ),
               ],
             ),
           ),

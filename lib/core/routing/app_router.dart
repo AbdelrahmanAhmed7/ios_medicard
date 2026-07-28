@@ -52,7 +52,7 @@ class AppRouter {
   ///
   /// Decision tree:
   /// 1. No session → check onboarding flag → /onboarding or /guest-home
-  /// 2. Refresh token expired → clear session → /medicard-login
+  /// 2. Refresh token definitely expired → clear session → /medicard-login
   /// 3. Access token still valid → /medicard-home
   /// 4. Access token expired but refresh token valid → attempt refresh
   ///    → success: /medicard-home | failure: /medicard-login
@@ -66,7 +66,8 @@ class AppRouter {
         return _loginOrOnboarding();
       }
 
-      // Refresh token is gone or expired — session is dead.
+      // If an old session only has an access token, keep it while it is still
+      // valid. Once expired there is no refresh token to recover it.
       if (!session.hasRefreshToken) {
         if (session.accessTokenExpiresAt != null &&
             session.isAccessTokenExpiredOrAboutToExpire) {
@@ -401,12 +402,22 @@ class AppRouter {
               final cubit = extra['cubit'] as CartCubit?;
               final providerId = extra['providerId'] as int?;
               final selectedBranch = extra['selectedBranch'] as ProviderBranch?;
+              final packageId = extra['packageId'] as int?;
+              final packageName = extra['packageName'] as String?;
+              final packagePriceBefore = (extra['packagePriceBefore'] as num?)
+                  ?.toDouble();
+              final packagePriceAfter = (extra['packagePriceAfter'] as num?)
+                  ?.toDouble();
               if (cubit != null) {
                 return BlocProvider.value(
                   value: cubit,
                   child: CheckoutScreen(
                     initialProviderId: providerId,
                     initialBranch: selectedBranch,
+                    packageId: packageId,
+                    packageName: packageName,
+                    packagePriceBefore: packagePriceBefore,
+                    packagePriceAfter: packagePriceAfter,
                   ),
                 );
               }
@@ -415,6 +426,10 @@ class AppRouter {
                 child: CheckoutScreen(
                   initialProviderId: providerId,
                   initialBranch: selectedBranch,
+                  packageId: packageId,
+                  packageName: packageName,
+                  packagePriceBefore: packagePriceBefore,
+                  packagePriceAfter: packagePriceAfter,
                 ),
               );
             }

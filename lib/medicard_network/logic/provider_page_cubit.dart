@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/constants/api_result.dart';
 import '../../features/activity/domain/repositories/invoice_repository.dart';
+import '../../features/activity/domain/models/created_invoice.dart';
 import '../../features/cart/domain/repository/cart_repository.dart';
 import '../../network/data/provider_page_response_model.dart';
 import '../../network/data/provider_services_response_model.dart';
@@ -337,9 +338,71 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
     );
   }
 
-  Future<void> togglePackageDetails(int packageId) async {}
+  Future<void> togglePackageDetails(int packageId) async {
+    if (isClosed ||
+        state.packageDetailsById.containsKey(packageId) ||
+        state.loadingPackageDetailsIds.contains(packageId)) {
+      return;
+    }
 
-  Future<ApiResult<String>> createInvoiceFromPackage({
+    emit(
+      state.copyWith(
+        loadingPackageDetailsIds: {
+          ...state.loadingPackageDetailsIds,
+          packageId,
+        },
+        packageDetailsErrors: Map<int, String>.from(state.packageDetailsErrors)
+          ..remove(packageId),
+      ),
+    );
+
+    final result = await _medicardRepository.getPackageDetails(
+      packageId: packageId,
+    );
+    if (isClosed) return;
+
+    final loadingIds = Set<int>.from(state.loadingPackageDetailsIds)
+      ..remove(packageId);
+    result.when(
+      success: (response) {
+        final details = response.data;
+        if (details == null) {
+          emit(
+            state.copyWith(
+              loadingPackageDetailsIds: loadingIds,
+              packageDetailsErrors: {
+                ...state.packageDetailsErrors,
+                packageId: 'Package details not found.',
+              },
+            ),
+          );
+          return;
+        }
+        emit(
+          state.copyWith(
+            loadingPackageDetailsIds: loadingIds,
+            packageDetailsById: {
+              ...state.packageDetailsById,
+              packageId: details,
+            },
+          ),
+        );
+      },
+      failure: (error) {
+        emit(
+          state.copyWith(
+            loadingPackageDetailsIds: loadingIds,
+            packageDetailsErrors: {
+              ...state.packageDetailsErrors,
+              packageId: error,
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Future<ApiResult<CreatedInvoice>> createInvoiceFromPackage({
     required int packageId,
     required int providerBranchId,
     bool isCash = true,

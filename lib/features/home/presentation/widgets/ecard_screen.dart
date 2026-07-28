@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../../core/constants/constants.dart';
+import '../../../../core/helpers/shared_pref_helper.dart';
 import '../../../../core/widgets/app_blue_header.dart';
 
 class ECardScreen extends StatefulWidget {
@@ -12,6 +14,24 @@ class ECardScreen extends StatefulWidget {
 
 class _ECardScreenState extends State<ECardScreen> {
   bool _hasCard = false;
+  bool _isLoadingCardState = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCardState();
+  }
+
+  Future<void> _loadCardState() async {
+    final hasCard = await SharedPrefHelper.getBool(
+      SharedPrefKeys.ecardHasActiveCard,
+    );
+    if (!mounted) return;
+    setState(() {
+      _hasCard = hasCard;
+      _isLoadingCardState = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,19 +42,20 @@ class _ECardScreenState extends State<ECardScreen> {
           const AppBlueHeader(
             title: 'E Card',
             showBack: false,
-            bottomRadius: 14,
-            contentHeight: 151,
-            padding: EdgeInsets.fromLTRB(18, 8, 18, 20),
+            contentHeight: kMainTabHeaderContentHeight,
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
           Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(15.w, 19.h, 15.w, 32.h),
-              child: _hasCard
-                  ? _ActiveCardView(
-                      onCancel: () => setState(() => _hasCard = false),
-                    )
-                  : _NoCardView(onSubscribe: _showPaymentSheet),
-            ),
+            child: _isLoadingCardState
+                ? const Center(
+                    child: CircularProgressIndicator(color: Color(0xFF3976B7)),
+                  )
+                : SingleChildScrollView(
+                    padding: EdgeInsets.fromLTRB(15.w, 19.h, 15.w, 32.h),
+                    child: _hasCard
+                        ? _ActiveCardView(onCancel: _cancelSubscription)
+                        : _NoCardView(onSubscribe: _showPaymentSheet),
+                  ),
           ),
         ],
       ),
@@ -48,13 +69,24 @@ class _ECardScreenState extends State<ECardScreen> {
       backgroundColor: Colors.transparent,
       builder: (context) {
         return _PaymentSheet(
-          onPay: () {
+          onPay: () async {
             Navigator.of(context).pop();
+            await SharedPrefHelper.setData(
+              SharedPrefKeys.ecardHasActiveCard,
+              true,
+            );
+            if (!mounted) return;
             setState(() => _hasCard = true);
           },
         );
       },
     );
+  }
+
+  Future<void> _cancelSubscription() async {
+    await SharedPrefHelper.setData(SharedPrefKeys.ecardHasActiveCard, false);
+    if (!mounted) return;
+    setState(() => _hasCard = false);
   }
 }
 
@@ -503,8 +535,8 @@ class _InfoTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 67.h,
-      padding: EdgeInsets.fromLTRB(11.w, 10.h, 8.w, 8.h),
+      height: 72.h,
+      padding: EdgeInsets.fromLTRB(11.w, 8.h, 8.w, 7.h),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(9.r),
@@ -521,14 +553,19 @@ class _InfoTile extends StatelessWidget {
               color: const Color(0xFF17223C),
               fontSize: 16.sp,
               fontWeight: FontWeight.w700,
+              height: 1.15,
             ),
           ),
-          SizedBox(height: 7.h),
+          SizedBox(height: 5.h),
           Text(
             value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(color: const Color(0xFF5B6273), fontSize: 14.sp),
+            style: TextStyle(
+              color: const Color(0xFF5B6273),
+              fontSize: 14.sp,
+              height: 1.15,
+            ),
           ),
         ],
       ),

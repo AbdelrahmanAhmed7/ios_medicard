@@ -94,8 +94,8 @@ class SearchCubit extends Cubit<SearchState> {
     );
   }
 
-  Future<void> loadCategoryServices(int categoryId) async {
-    if (isClosed) return;
+  Future<bool> loadCategoryServices(int categoryId) async {
+    if (isClosed) return false;
 
     final cached = state.servicesByCategoryId[categoryId];
     if (cached != null) {
@@ -110,7 +110,7 @@ class SearchCubit extends Cubit<SearchState> {
           clearServicesError: true,
         ),
       );
-      return;
+      return (cached.services?.items ?? const []).isNotEmpty;
     }
 
     if (state.loadingServiceCategoryIds.contains(categoryId)) {
@@ -119,7 +119,7 @@ class SearchCubit extends Cubit<SearchState> {
           '[SearchCubit] duplicate category load ignored category=$categoryId',
         );
       }
-      return;
+      return false;
     }
 
     if (kDebugMode) {
@@ -137,12 +137,12 @@ class SearchCubit extends Cubit<SearchState> {
     );
 
     final result = await _getCategoryServicesUseCase.call(categoryId);
-    if (isClosed) return;
+    if (isClosed) return false;
 
     final loadingIds = Set<int>.from(state.loadingServiceCategoryIds)
       ..remove(categoryId);
 
-    result.when(
+    return result.when(
       success: (data) {
         final counts = Map<int, int>.from(state.categorySelectedCounts);
         counts[categoryId] = data.totalSelectedCount ?? 0;
@@ -161,6 +161,7 @@ class SearchCubit extends Cubit<SearchState> {
             categorySelectedCounts: counts,
           ),
         );
+        return (data.services?.items ?? const []).isNotEmpty;
       },
       failure: (message) {
         emit(
@@ -170,8 +171,21 @@ class SearchCubit extends Cubit<SearchState> {
             servicesError: message,
           ),
         );
+        return false;
       },
     );
+  }
+
+  Future<int?> loadFirstServiceCategoryWithData() async {
+    if (isClosed) return null;
+    for (final category in state.serviceCategories) {
+      final categoryId = category.id;
+      if (categoryId == null) continue;
+      final hasServices = await loadCategoryServices(categoryId);
+      if (isClosed) return null;
+      if (hasServices) return categoryId;
+    }
+    return null;
   }
 
   Future<void> addServiceToCart({
@@ -224,6 +238,7 @@ class SearchCubit extends Cubit<SearchState> {
           isSelected: true,
           pendingServiceIds: pending,
         );
+        _loadCartCounters();
       },
       failure: (message) {
         final alreadyInCart =
@@ -294,6 +309,7 @@ class SearchCubit extends Cubit<SearchState> {
           isSelected: false,
           pendingServiceIds: pending,
         );
+        _loadCartCounters();
       },
       failure: (message) {
         if (kDebugMode) {
@@ -418,9 +434,11 @@ class SearchCubit extends Cubit<SearchState> {
     final counts = Map<int, int>.from(state.categorySelectedCounts);
     final oldCount = counts[categoryId] ?? currentData?.totalSelectedCount ?? 0;
     final previousSelection = _serviceSelection(currentData, serviceId);
-    counts[categoryId] = previousSelection == isSelected
-        ? oldCount
-        : _nextSelectedCount(oldCount, increment: isSelected);
+    counts[categoryId] =
+        updatedData?.totalSelectedCount ??
+        (previousSelection == isSelected
+            ? oldCount
+            : _nextSelectedCount(oldCount, increment: isSelected));
 
     if (kDebugMode) {
       debugPrint(
@@ -460,7 +478,8 @@ class SearchCubit extends Cubit<SearchState> {
           changed = true;
           return ServiceItemModel(
             serviceId: service.serviceId,
-            serviceName: service.serviceName,
+            serviceNameEn: service.serviceNameEn,
+            serviceNameAr: service.serviceNameAr,
             isSelected: isSelected,
           );
         })

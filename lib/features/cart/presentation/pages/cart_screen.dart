@@ -37,18 +37,18 @@ class _CartScreenState extends State<CartScreen> {
           Expanded(
             child: BlocBuilder<CartCubit, CartState>(
               builder: (context, state) {
-                if (state.isCartLoading) {
+                final items = state.cart?.items ?? [];
+                if (state.isCartLoading && items.isEmpty) {
                   return const Center(
                     child: CircularProgressIndicator(color: Color(0xFF3872B1)),
                   );
                 }
-                if (state.cartError != null) {
+                if (state.cartError != null && items.isEmpty) {
                   return _ErrorView(
                     message: state.cartError!,
                     onRetry: () => context.read<CartCubit>().loadCart(),
                   );
                 }
-                final items = state.cart?.items ?? [];
                 if (items.isEmpty) {
                   return const _EmptyCartView();
                 }
@@ -57,6 +57,7 @@ class _CartScreenState extends State<CartScreen> {
                   categoryCounters: state.cart?.categoryCounters ?? [],
                   initialProviderId: widget.initialProviderId,
                   initialBranch: widget.initialBranch,
+                  syncError: state.cartError,
                 );
               },
             ),
@@ -74,12 +75,14 @@ class _CartBody extends StatelessWidget {
   final List<CategoryCounter> categoryCounters;
   final int? initialProviderId;
   final ProviderBranch? initialBranch;
+  final String? syncError;
 
   const _CartBody({
     required this.items,
     required this.categoryCounters,
     this.initialProviderId,
     this.initialBranch,
+    this.syncError,
   });
 
   @override
@@ -93,6 +96,10 @@ class _CartBody extends StatelessWidget {
           child: ListView(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
             children: [
+              if (syncError != null) ...[
+                _CartSyncWarning(message: syncError!),
+                SizedBox(height: 12.h),
+              ],
               // ── Category badges row (إذا أردت الإبقاء عليها كما هي باللوجيك)
               if (categoryCounters.isNotEmpty) ...[
                 _CategoryBadgesRow(counters: categoryCounters),
@@ -154,6 +161,48 @@ class _CategoryBadgesRow extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _CartSyncWarning extends StatelessWidget {
+  final String message;
+
+  const _CartSyncWarning({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(12.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFBEB),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: const Color(0xFFFBBF24)),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.info_outline_rounded,
+            color: const Color(0xFFD97706),
+            size: 20.sp,
+          ),
+          SizedBox(width: 10.w),
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: const Color(0xFF92400E),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () => context.read<CartCubit>().loadCart(),
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
     );
   }
 }

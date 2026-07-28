@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/constants/api_result.dart';
 import '../../../../core/di/service_locator.dart';
-import '../../../../features/activity/domain/repositories/invoice_repository.dart';
 import '../../../../medicard_network/repository/medicard_network_repository.dart';
 import '../../../../network/data/provider_page_response_model.dart';
 import '../../domain/models/featured_service_model.dart';
@@ -302,23 +302,18 @@ class FeaturedServiceCard extends StatelessWidget {
       return;
     }
 
-    final result = await sl<InvoiceRepository>().createFromPackage(
-      packageId: packageId,
-      providerBranchId: branchId,
-    );
-    if (!context.mounted) return;
-
-    result.when(
-      success: (invoiceId) {
-        Navigator.of(context).maybePop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Invoice #$invoiceId created successfully.')),
-        );
-      },
-      failure: (error) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(error)));
+    context.push(
+      '/checkout',
+      extra: {
+        'providerId': service.providerId,
+        'selectedBranch': ProviderBranch(
+          branchId: branchId,
+          branchName: service.location,
+        ),
+        'packageId': packageId,
+        'packageName': service.serviceName,
+        'packagePriceBefore': service.originalPrice,
+        'packagePriceAfter': service.discountedPrice,
       },
     );
   }
@@ -466,7 +461,12 @@ class _PackageDetailsSheetContent extends StatelessWidget {
   }
 
   String _imageUrl(String value) {
-    if (value.startsWith('http')) return value;
-    return 'https://medicard-api-v2.medicardeg.com/$value';
+    final trimmed = value.trim();
+    if (trimmed.isEmpty || trimmed.startsWith('http')) return trimmed;
+    final normalized = trimmed.startsWith('/') ? trimmed.substring(1) : trimmed;
+    if (normalized.startsWith('uploads/')) {
+      return 'https://medicard-api-v2.medicardeg.com/$normalized';
+    }
+    return 'https://medicard-api-v2.medicardeg.com/uploads/providers/$normalized';
   }
 }

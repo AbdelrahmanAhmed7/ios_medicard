@@ -38,6 +38,10 @@ class CartState {
   final String? createInvoiceError;
   final String? createdInvoiceId;
   final String? createdInvoicePaymentLink;
+  final int? checkoutPackageId;
+  final String? checkoutPackageName;
+  final double? checkoutPackagePriceBefore;
+  final double? checkoutPackagePriceAfter;
 
   const CartState({
     this.cart,
@@ -67,6 +71,10 @@ class CartState {
     this.createInvoiceError,
     this.createdInvoiceId,
     this.createdInvoicePaymentLink,
+    this.checkoutPackageId,
+    this.checkoutPackageName,
+    this.checkoutPackagePriceBefore,
+    this.checkoutPackagePriceAfter,
   });
 
   CartState copyWith({
@@ -110,6 +118,14 @@ class CartState {
     bool resetCreatedInvoiceId = false,
     String? createdInvoicePaymentLink,
     bool resetCreatedInvoicePaymentLink = false,
+    int? checkoutPackageId,
+    bool resetCheckoutPackageId = false,
+    String? checkoutPackageName,
+    bool resetCheckoutPackageName = false,
+    double? checkoutPackagePriceBefore,
+    bool resetCheckoutPackagePriceBefore = false,
+    double? checkoutPackagePriceAfter,
+    bool resetCheckoutPackagePriceAfter = false,
   }) {
     return CartState(
       cart: cart ?? this.cart,
@@ -165,6 +181,18 @@ class CartState {
       createdInvoicePaymentLink: resetCreatedInvoicePaymentLink
           ? null
           : (createdInvoicePaymentLink ?? this.createdInvoicePaymentLink),
+      checkoutPackageId: resetCheckoutPackageId
+          ? null
+          : (checkoutPackageId ?? this.checkoutPackageId),
+      checkoutPackageName: resetCheckoutPackageName
+          ? null
+          : (checkoutPackageName ?? this.checkoutPackageName),
+      checkoutPackagePriceBefore: resetCheckoutPackagePriceBefore
+          ? null
+          : (checkoutPackagePriceBefore ?? this.checkoutPackagePriceBefore),
+      checkoutPackagePriceAfter: resetCheckoutPackagePriceAfter
+          ? null
+          : (checkoutPackagePriceAfter ?? this.checkoutPackagePriceAfter),
     );
   }
 }

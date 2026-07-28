@@ -124,16 +124,33 @@ class CartCubit extends Cubit<CartState> {
   }
 
   Future<void> loadCart() async {
+    if (isClosed) return;
     emit(state.copyWith(isCartLoading: true, resetCartError: true));
-    final result = await _repository.getCart();
+    final result = await _getCartWithRetry();
+    if (isClosed) return;
     result.when(
       success: (cart) {
-        emit(state.copyWith(cart: cart, isCartLoading: false));
+        emit(
+          state.copyWith(
+            cart: cart,
+            isCartLoading: false,
+            resetCartError: true,
+          ),
+        );
       },
       failure: (error) {
         emit(state.copyWith(cartError: error, isCartLoading: false));
       },
     );
+  }
+
+  Future<ApiResult<Cart>> _getCartWithRetry() async {
+    final first = await _repository.getCart();
+    final shouldRetry = first.when(success: (_) => false, failure: (_) => true);
+    if (!shouldRetry || isClosed) return first;
+    await Future<void>.delayed(const Duration(milliseconds: 350));
+    if (isClosed) return first;
+    return _repository.getCart();
   }
 
   Future<void> loadCartAndProviders() async {
@@ -233,6 +250,10 @@ class CartCubit extends Cubit<CartState> {
   Future<void> loadCheckout({
     int? initialProviderId,
     ProviderBranch? initialBranch,
+    int? packageId,
+    String? packageName,
+    double? packagePriceBefore,
+    double? packagePriceAfter,
   }) async {
     emit(
       state.copyWith(
@@ -242,11 +263,16 @@ class CartCubit extends Cubit<CartState> {
         resetFamilyMembersError: true,
         resetCreateInvoiceError: true,
         resetCreatedInvoiceId: true,
+        resetCreatedInvoicePaymentLink: true,
+        checkoutPackageId: packageId,
+        checkoutPackageName: packageName,
+        checkoutPackagePriceBefore: packagePriceBefore,
+        checkoutPackagePriceAfter: packagePriceAfter,
       ),
     );
 
     Cart? cart = state.cart;
-    if (cart == null) {
+    if (cart == null && packageId == null) {
       final cartResult = await _repository.getCart();
       final failed = cartResult.when(
         success: (loadedCart) {
@@ -272,8 +298,11 @@ class CartCubit extends Cubit<CartState> {
       cart: cart,
       initialProviderId: initialProviderId ?? providerId,
     );
+    final checkoutProvider =
+        selectedProvider ??
+        await _loadProviderOption(initialProviderId ?? providerId);
 
-    if (selectedProvider == null) {
+    if (checkoutProvider == null) {
       emit(
         state.copyWith(
           isCheckoutLoading: false,
@@ -284,14 +313,42 @@ class CartCubit extends Cubit<CartState> {
       return;
     }
 
-    emit(state.copyWith(checkoutProvider: selectedProvider));
+    emit(state.copyWith(checkoutProvider: checkoutProvider));
     await Future.wait([
       loadProviderBranches(
-        selectedProvider.providerId,
+        checkoutProvider.providerId,
         initialBranch: initialBranch,
       ),
       loadFamilyMembers(),
     ]);
+  }
+
+  Future<ProviderOption?> _loadProviderOption(int? providerId) async {
+    if (providerId == null) return null;
+    final result = await _networkRepository.getProviderPage(
+      providerId: providerId,
+    );
+    return result.maybeWhen(
+      success: (response) {
+        final data = response.data;
+        if (data == null) return null;
+        return ProviderOption(
+          providerId: data.id,
+          providerName: data.name,
+          coveredCount: 1,
+          uncoveredCount: 0,
+          totalCount: 1,
+          totalPriceBefore: state.checkoutPackagePriceBefore ?? 0,
+          totalPriceAfter:
+              state.checkoutPackagePriceAfter ??
+              state.checkoutPackagePriceBefore ??
+              0,
+          coveredServices: const [],
+          uncoveredServices: const [],
+        );
+      },
+      orElse: () => null,
+    );
   }
 
   ProviderOption? _resolveCheckoutProvider({
@@ -368,6 +425,7 @@ class CartCubit extends Cubit<CartState> {
     int providerId, {
     ProviderBranch? initialBranch,
   }) async {
+    if (isClosed) return;
     emit(
       state.copyWith(
         isCheckoutLoading: true,
@@ -379,6 +437,7 @@ class CartCubit extends Cubit<CartState> {
     final result = await _networkRepository.getProviderBranchLocations(
       providerId: providerId,
     );
+    if (isClosed) return;
     result.when(
       success: (branches) {
         ProviderBranch? selected;
@@ -411,6 +470,7 @@ class CartCubit extends Cubit<CartState> {
   }
 
   Future<void> loadFamilyMembers() async {
+    if (isClosed) return;
     emit(
       state.copyWith(
         isFamilyMembersLoading: true,
@@ -419,10 +479,12 @@ class CartCubit extends Cubit<CartState> {
     );
     try {
       final members = await _familyMembersRepository.getFamilyMembers();
+      if (isClosed) return;
       emit(
         state.copyWith(familyMembers: members, isFamilyMembersLoading: false),
       );
     } catch (error) {
+      if (isClosed) return;
       emit(
         state.copyWith(
           familyMembersError: parseApiError(error),
@@ -433,6 +495,7 @@ class CartCubit extends Cubit<CartState> {
   }
 
   Future<bool> createCartInvoice() async {
+    if (isClosed) return false;
     final provider = state.checkoutProvider;
     final branch = state.selectedBranch;
     if (provider == null) {
@@ -457,6 +520,7 @@ class CartCubit extends Cubit<CartState> {
       isCash: state.paymentMethod == CartPaymentMethod.cash,
       familyId: state.selectedFamilyMember?.id,
     );
+    if (isClosed) return false;
     final success = result.when(
       success: (invoice) {
         emit(
@@ -478,6 +542,52 @@ class CartCubit extends Cubit<CartState> {
       },
     );
     return success;
+  }
+
+  Future<bool> createPackageInvoice() async {
+    if (isClosed) return false;
+    final packageId = state.checkoutPackageId;
+    final branch = state.selectedBranch;
+    if (packageId == null) {
+      emit(state.copyWith(createInvoiceError: 'Package data is missing.'));
+      return false;
+    }
+    if (branch == null) {
+      emit(state.copyWith(createInvoiceError: 'Please choose a branch.'));
+      return false;
+    }
+    emit(
+      state.copyWith(
+        isCreatingInvoice: true,
+        resetCreateInvoiceError: true,
+        resetCreatedInvoiceId: true,
+        resetCreatedInvoicePaymentLink: true,
+      ),
+    );
+    final result = await _invoiceRepository.createFromPackage(
+      packageId: packageId,
+      providerBranchId: branch.branchId,
+      isCash: state.paymentMethod == CartPaymentMethod.cash,
+    );
+    if (isClosed) return false;
+    return result.when(
+      success: (invoice) {
+        emit(
+          state.copyWith(
+            isCreatingInvoice: false,
+            createdInvoiceId: invoice.invoiceId,
+            createdInvoicePaymentLink: invoice.paymentLink,
+          ),
+        );
+        return true;
+      },
+      failure: (error) {
+        emit(
+          state.copyWith(isCreatingInvoice: false, createInvoiceError: error),
+        );
+        return false;
+      },
+    );
   }
 
   Future<void> _syncCartAfterInvoiceCreation() async {

@@ -78,7 +78,7 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
   }
 
   @override
-  Future<ApiResult<String>> createFromPackage({
+  Future<ApiResult<CreatedInvoice>> createFromPackage({
     required int packageId,
     required int providerBranchId,
     bool isCash = true,
@@ -95,7 +95,7 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
       );
 
       if (response.succeeded == true && response.data != null) {
-        return ApiResult.success(response.data.toString());
+        return ApiResult.success(_createdInvoiceFromData(response.data));
       }
 
       return ApiResult.failure(

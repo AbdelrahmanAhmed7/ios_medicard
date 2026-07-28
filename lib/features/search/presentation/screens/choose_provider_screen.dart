@@ -414,12 +414,9 @@ class _ChooseProviderBottomBar extends StatelessWidget {
                               .assignProvider(provider);
                           if (context.mounted) {
                             if (didAssign) {
-                              context.go(
+                              context.pushReplacement(
                                 '/checkout',
-                                extra: {
-                                  'cubit': context.read<CartCubit>(),
-                                  'providerId': provider.providerId,
-                                },
+                                extra: {'providerId': provider.providerId},
                               );
                             } else {
                               final error = context

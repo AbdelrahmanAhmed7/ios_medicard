@@ -145,7 +145,7 @@ class _DetailsBody extends StatelessWidget {
           ],
         ),
         SizedBox(height: 68.h),
-        _DetailsActions(invoice: invoice),
+        _DetailsActions(invoice: invoice, details: details),
       ],
     );
   }
@@ -318,11 +318,13 @@ class _InfoRow extends StatelessWidget {
 
 class _DetailsActions extends StatelessWidget {
   final InvoiceItem invoice;
+  final InvoiceDetails details;
 
-  const _DetailsActions({required this.invoice});
+  const _DetailsActions({required this.invoice, required this.details});
 
   @override
   Widget build(BuildContext context) {
+    final canReview = _canLeaveReview(details.status);
     return Column(
       children: [
         SizedBox(
@@ -351,11 +353,15 @@ class _DetailsActions extends StatelessWidget {
           width: double.infinity,
           height: 50.h,
           child: OutlinedButton(
-            onPressed: () => showDialog<void>(
-              context: context,
-              barrierDismissible: true,
-              builder: (_) => _ReviewDialog(invoiceId: invoice.invoiceId),
-            ),
+            onPressed: canReview
+                ? () => showDialog<void>(
+                    context: context,
+                    barrierDismissible: true,
+                    builder: (_) => _ReviewDialog(invoiceId: invoice.invoiceId),
+                  )
+                : () => showInfoToast(
+                    'You need to use this invoice before leaving a review.',
+                  ),
             style: OutlinedButton.styleFrom(
               foregroundColor: const Color(0xFF2D6FB7),
               side: const BorderSide(color: Color(0xFF2D6FB7)),
@@ -372,6 +378,11 @@ class _DetailsActions extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  bool _canLeaveReview(String status) {
+    final normalized = status.trim().toLowerCase();
+    return normalized == 'used' || normalized == 'completed';
   }
 }
 

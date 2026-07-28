@@ -6,7 +6,7 @@ import '../models/invoice_item.dart';
 abstract class InvoiceRepository {
   Future<ApiResult<List<InvoiceItem>>> getMyInvoices();
 
-  Future<ApiResult<String>> createFromPackage({
+  Future<ApiResult<CreatedInvoice>> createFromPackage({
     required int packageId,
     required int providerBranchId,
     bool isCash = true,
