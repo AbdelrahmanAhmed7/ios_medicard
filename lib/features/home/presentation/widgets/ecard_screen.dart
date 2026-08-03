@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:easy_localization/easy_localization.dart';
 
-import '../../../../core/constants/constants.dart';
-import '../../../../core/helpers/shared_pref_helper.dart';
 import '../../../../core/widgets/app_blue_header.dart';
+import '../../../ecard/data/models/card_data_response_model.dart';
+import '../../../ecard/presentation/cubit/ecard_cubit.dart';
+import '../../../ecard/presentation/cubit/ecard_state.dart';
 
 class ECardScreen extends StatefulWidget {
   const ECardScreen({super.key});
@@ -13,23 +16,12 @@ class ECardScreen extends StatefulWidget {
 }
 
 class _ECardScreenState extends State<ECardScreen> {
-  bool _hasCard = false;
-  bool _isLoadingCardState = true;
-
   @override
   void initState() {
     super.initState();
-    _loadCardState();
-  }
-
-  Future<void> _loadCardState() async {
-    final hasCard = await SharedPrefHelper.getBool(
-      SharedPrefKeys.ecardHasActiveCard,
-    );
-    if (!mounted) return;
-    setState(() {
-      _hasCard = hasCard;
-      _isLoadingCardState = false;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<ECardCubit>().loadCardData();
     });
   }
 
@@ -39,786 +31,257 @@ class _ECardScreenState extends State<ECardScreen> {
       backgroundColor: const Color(0xFFF7F7F8),
       body: Column(
         children: [
-          const AppBlueHeader(
-            title: 'E Card',
+          AppBlueHeader(
+            title: 'ecard.title'.tr(),
             showBack: false,
             contentHeight: kMainTabHeaderContentHeight,
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
           Expanded(
-            child: _isLoadingCardState
-                ? const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF3976B7)),
-                  )
-                : SingleChildScrollView(
-                    padding: EdgeInsets.fromLTRB(15.w, 19.h, 15.w, 32.h),
-                    child: _hasCard
-                        ? _ActiveCardView(onCancel: _cancelSubscription)
-                        : _NoCardView(onSubscribe: _showPaymentSheet),
-                  ),
+            child: BlocBuilder<ECardCubit, ECardState>(
+              builder: (context, state) {
+                return state.when(
+                  initial: () => const _ECardLoading(),
+                  loading: () => const _ECardLoading(),
+                  loaded: (data) => data == null
+                      ? const _NoCardView()
+                      : _ActiveCardView(card: data),
+                  failed: (error) => _ECardErrorView(message: error),
+                );
+              },
+            ),
           ),
         ],
       ),
     );
   }
+}
 
-  void _showPaymentSheet() {
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return _PaymentSheet(
-          onPay: () async {
-            Navigator.of(context).pop();
-            await SharedPrefHelper.setData(
-              SharedPrefKeys.ecardHasActiveCard,
-              true,
-            );
-            if (!mounted) return;
-            setState(() => _hasCard = true);
-          },
-        );
-      },
+class _ECardLoading extends StatelessWidget {
+  const _ECardLoading();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: CircularProgressIndicator(color: Color(0xFF3976B7)),
     );
   }
+}
 
-  Future<void> _cancelSubscription() async {
-    await SharedPrefHelper.setData(SharedPrefKeys.ecardHasActiveCard, false);
-    if (!mounted) return;
-    setState(() => _hasCard = false);
+class _ECardErrorView extends StatelessWidget {
+  final String message;
+
+  const _ECardErrorView({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 24.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              color: const Color(0xFF9CA3AF),
+              size: 48.sp,
+            ),
+            SizedBox(height: 12.h),
+            Text(
+              message.isNotEmpty
+                  ? message
+                  : 'errors.something_went_wrong'.tr(),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: const Color(0xFF6B7280),
+                fontSize: 14.sp,
+              ),
+            ),
+            SizedBox(height: 16.h),
+            ElevatedButton(
+              onPressed: () =>
+                  context.read<ECardCubit>().loadCardData(forceRefresh: true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF3976B7),
+                foregroundColor: Colors.white,
+              ),
+              child: Text('common.retry'.tr()),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
 class _NoCardView extends StatelessWidget {
-  final VoidCallback onSubscribe;
-
-  const _NoCardView({required this.onSubscribe});
+  const _NoCardView();
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: double.infinity,
-          padding: EdgeInsets.fromLTRB(24.w, 29.h, 24.w, 37.h),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(13.r),
-            border: Border.all(color: const Color(0xFFCFE0F6)),
-          ),
-          child: Column(
-            children: [
-              Text(
-                "You don't have a card yet",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: const Color(0xFF111D37),
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.w800,
-                  height: 1.1,
-                ),
-              ),
-              SizedBox(height: 16.h),
-              Text(
-                'Get a MediCard to access 2,400+ doctors, labs,\n'
-                'pharmacies and gyms across Egypt with exclusive\n'
-                'member discounts.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: const Color(0xFF435579),
-                  fontSize: 12.sp,
-                  height: 1.18,
-                ),
-              ),
-            ],
-          ),
+    return SingleChildScrollView(
+      padding: EdgeInsets.fromLTRB(15.w, 19.h, 15.w, 32.h),
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.fromLTRB(24.w, 29.h, 24.w, 37.h),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(13.r),
+          border: Border.all(color: const Color(0xFFCFE0F6)),
         ),
-        SizedBox(height: 22.h),
-        Text(
-          'Choose Card',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 19.sp,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        SizedBox(height: 12.h),
-        SizedBox(
-          height: 270.h,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            clipBehavior: Clip.none,
-            children: [
-              _PlanCard(
-                name: 'STANDARD PLAN',
-                price: '299',
-                features: const [
-                  'Discounts on services',
-                  'Pharmacy discounts',
-                  'Search & booking',
-                ],
-                onSubscribe: onSubscribe,
-              ),
-              SizedBox(width: 13.w),
-              _PlanCard(
-                name: 'SILVER 50+',
-                price: '499',
-                badge: 'Save 20%',
-                tinted: true,
-                features: const [
-                  'All standard Privileges',
-                  'Monthly medication',
-                  'Home doctor visits',
-                  'Annual check-up',
-                  'Elderly care',
-                ],
-                onSubscribe: onSubscribe,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _PlanCard extends StatelessWidget {
-  final String name;
-  final String price;
-  final String? badge;
-  final bool tinted;
-  final List<String> features;
-  final VoidCallback onSubscribe;
-
-  const _PlanCard({
-    required this.name,
-    required this.price,
-    required this.features,
-    required this.onSubscribe,
-    this.badge,
-    this.tinted = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 190.w,
-      decoration: BoxDecoration(
-        color: tinted ? const Color(0xFFEAF2FF) : Colors.white,
-        borderRadius: BorderRadius.circular(7.r),
-        border: Border.all(color: const Color(0xFFD1D5DB)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(14.w, 15.h, 12.w, 7.h),
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: const Color(0xFF2D75D6),
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    SizedBox(height: 9.h),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          price,
-                          style: TextStyle(
-                            color: const Color(0xFF12213C),
-                            fontSize: 30.sp,
-                            fontWeight: FontWeight.w800,
-                            height: 0.95,
-                          ),
-                        ),
-                        SizedBox(width: 6.w),
-                        Padding(
-                          padding: EdgeInsets.only(top: 11.h),
-                          child: Text(
-                            'EGP',
-                            style: TextStyle(
-                              color: const Color(0xFF64748B),
-                              fontSize: 8.sp,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                if (badge != null)
-                  Positioned(
-                    top: -6.h,
-                    right: -8.w,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 7.w,
-                        vertical: 5.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFF0C2),
-                        borderRadius: BorderRadius.circular(6.r),
-                        border: Border.all(color: const Color(0xFFFFB23F)),
-                      ),
-                      child: Text(
-                        badge!,
-                        style: TextStyle(
-                          color: const Color(0xFFC66A00),
-                          fontSize: 9.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          const Divider(height: 1, color: Color(0xFFE1E4EA)),
-          Padding(
-            padding: EdgeInsets.fromLTRB(15.w, 10.h, 10.w, 0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: features
-                  .map(
-                    (feature) => Padding(
-                      padding: EdgeInsets.only(bottom: 8.h),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.check_rounded,
-                            size: 12.sp,
-                            color: const Color(0xFF00796B),
-                          ),
-                          SizedBox(width: 8.w),
-                          Expanded(
-                            child: Text(
-                              feature,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: const Color(0xFF425071),
-                                fontSize: 10.sp,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                  .toList(),
-            ),
-          ),
-          const Spacer(),
-          Padding(
-            padding: EdgeInsets.fromLTRB(10.w, 0, 10.w, 10.h),
-            child: SizedBox(
-              width: double.infinity,
-              height: 26.h,
-              child: ElevatedButton(
-                onPressed: onSubscribe,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3976B7),
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.r),
-                  ),
-                  padding: EdgeInsets.zero,
-                ),
-                child: Text(
-                  'Subscribe',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+        child: Column(
+          children: [
+            Text(
+              'ecard.no_card_title'.tr(),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: const Color(0xFF111D37),
+                fontSize: 20.sp,
+                fontWeight: FontWeight.w800,
+                height: 1.1,
               ),
             ),
-          ),
-        ],
+            SizedBox(height: 16.h),
+            Text(
+              'ecard.no_card_message'.tr(),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: const Color(0xFF435579),
+                fontSize: 12.sp,
+                height: 1.18,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
 class _ActiveCardView extends StatelessWidget {
-  final VoidCallback onCancel;
+  final CardData card;
 
-  const _ActiveCardView({required this.onCancel});
+  const _ActiveCardView({required this.card});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const _MediCardPreview(),
-        SizedBox(height: 15.h),
-        Row(
-          children: const [
-            Expanded(
-              child: _InfoTile(title: 'Plan', value: 'Standard'),
-            ),
-            SizedBox(width: 11),
-            Expanded(
-              child: _InfoTile(title: 'Expiry Date', value: '12/2027'),
-            ),
-            SizedBox(width: 11),
-            Expanded(
-              child: _InfoTile(title: 'Points', value: '250'),
-            ),
-          ],
-        ),
-        SizedBox(height: 16.h),
-        Container(
-          width: double.infinity,
-          padding: EdgeInsets.fromLTRB(16.w, 15.h, 16.w, 5.h),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(11.r),
-            border: Border.all(color: const Color(0xFFCFE0F6)),
-          ),
-          child: Column(
-            children: const [
-              _BenefitRow(text: 'Discounts on services'),
-              _BenefitRow(text: 'Pharmacy discounts'),
-              _BenefitRow(text: 'Search & booking'),
-            ],
-          ),
-        ),
-        SizedBox(height: 77.h),
-        SizedBox(
-          width: double.infinity,
-          height: 49.h,
-          child: OutlinedButton(
-            onPressed: onCancel,
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.red,
-              side: const BorderSide(color: Colors.red),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(11.r),
-              ),
-            ),
-            child: Text(
-              'Cancel Subscription',
-              style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w400),
-            ),
-          ),
-        ),
-      ],
+    return SingleChildScrollView(
+      padding: EdgeInsets.fromLTRB(15.w, 24.h, 15.w, 32.h),
+      child: _MediCardPreview(card: card),
     );
   }
 }
 
 class _MediCardPreview extends StatelessWidget {
-  const _MediCardPreview();
+  final CardData card;
+
+  const _MediCardPreview({required this.card});
+
+  static const _assetPath = 'assets/ecard/card_background.jpg';
+  static const _aspectRatio = 1024 / 596;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: 188.h,
-      padding: EdgeInsets.fromLTRB(29.w, 30.h, 22.w, 20.h),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18.r),
-        gradient: const LinearGradient(
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-          colors: [Color(0xFF347EDD), Color(0xFF174B8B)],
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'MediCard',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.w300,
-                      letterSpacing: 0,
+    final name = card.fullName;
+    final plan = (card.planType ?? '').trim();
+    final number = card.formattedCardNumber;
+    final expiry = card.formattedExpiry;
+
+    return AspectRatio(
+      aspectRatio: _aspectRatio,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16.r),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Image.asset(
+              _assetPath,
+              fit: BoxFit.cover,
+              alignment: Alignment.center,
+            ),
+            if (plan.isNotEmpty)
+              Positioned(
+                top: 16.h,
+                right: 16.w,
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 10.w,
+                    vertical: 5.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(8.r),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.35),
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsets.only(left: 30.w),
-                    child: Text(
-                      'Powered by U Khusm',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.72),
-                        fontSize: 5.sp,
-                        fontWeight: FontWeight.w400,
-                      ),
+                  child: Text(
+                    plan,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+            Positioned(
+              left: 24.w,
+              right: 24.w,
+              top: 88.h,
+              child: Text(
+                number.isEmpty ? '—' : number,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.2,
+                ),
+              ),
+            ),
+            Positioned(
+              left: 24.w,
+              right: 110.w,
+              bottom: 18.h,
+              child: Text(
+                name.isEmpty ? '—' : name,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w700,
+                  height: 1.2,
+                ),
+              ),
+            ),
+            Positioned(
+              right: 18.w,
+              bottom: 18.h,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    'ecard.expiry_date'.tr(),
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.75),
+                      fontSize: 9.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    expiry,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ],
               ),
-              const Spacer(),
-              Container(
-                width: 41.w,
-                height: 27.h,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFC914),
-                  borderRadius: BorderRadius.circular(5.r),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 29.h),
-          Text(
-            '4823 ••••  ••••  7614',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w500,
-              letterSpacing: 0.2,
             ),
-          ),
-          const Spacer(),
-          Row(
-            children: [
-              Text(
-                'Ahmed Hassan',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const Spacer(),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 5.h),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFDDEEFF),
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: Text(
-                  'Standard',
-                  style: TextStyle(
-                    color: const Color(0xFF2E6DB7),
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InfoTile extends StatelessWidget {
-  final String title;
-  final String value;
-
-  const _InfoTile({required this.title, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 72.h,
-      padding: EdgeInsets.fromLTRB(11.w, 8.h, 8.w, 7.h),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(9.r),
-        border: Border.all(color: const Color(0xFFCFE0F6)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: const Color(0xFF17223C),
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w700,
-              height: 1.15,
-            ),
-          ),
-          SizedBox(height: 5.h),
-          Text(
-            value,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: const Color(0xFF5B6273),
-              fontSize: 14.sp,
-              height: 1.15,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _BenefitRow extends StatelessWidget {
-  final String text;
-
-  const _BenefitRow({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 20.h),
-      child: Row(
-        children: [
-          Icon(
-            Icons.check_rounded,
-            color: const Color(0xFF00796B),
-            size: 22.sp,
-          ),
-          SizedBox(width: 15.w),
-          Text(
-            text,
-            style: TextStyle(color: const Color(0xFF425071), fontSize: 15.sp),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PaymentSheet extends StatelessWidget {
-  final VoidCallback onPay;
-
-  const _PaymentSheet({required this.onPay});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.fromLTRB(
-        24.w,
-        8.h,
-        24.w,
-        MediaQuery.viewPaddingOf(context).bottom + 24.h,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(13.r)),
-        border: Border.all(color: const Color(0xFFC9CDD4)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: Container(
-              width: 134.w,
-              height: 4.h,
-              decoration: BoxDecoration(
-                color: const Color(0xFFC9C9C9),
-                borderRadius: BorderRadius.circular(2.r),
-              ),
-            ),
-          ),
-          SizedBox(height: 31.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Total Amount',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 22.sp,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              Text(
-                'EGP 200.34',
-                style: TextStyle(
-                  color: const Color(0xFF3976B7),
-                  fontSize: 24.sp,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 32.h),
-          Text(
-            'Payment Method',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          SizedBox(height: 13.h),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(13.r),
-              border: Border.all(color: const Color(0xFFD1D5DB)),
-            ),
-            child: Column(
-              children: const [
-                _PaymentMethodRow(
-                  icon: _VisaIcon(),
-                  title: 'Debit Card',
-                  subtitle: '•••• 4242',
-                  selected: true,
-                ),
-                Divider(height: 1, color: Color(0xFFD1D5DB)),
-                _PaymentMethodRow(
-                  icon: _CashIcon(),
-                  title: 'Cash',
-                  selected: false,
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 22.h),
-          SizedBox(
-            width: double.infinity,
-            height: 49.h,
-            child: ElevatedButton(
-              onPressed: onPay,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF3976B7),
-                foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-              ),
-              child: Text(
-                'Pay',
-                style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w500),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PaymentMethodRow extends StatelessWidget {
-  final Widget icon;
-  final String title;
-  final String? subtitle;
-  final bool selected;
-
-  const _PaymentMethodRow({
-    required this.icon,
-    required this.title,
-    required this.selected,
-    this.subtitle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 60.h,
-      child: Row(
-        children: [
-          SizedBox(width: 16.w),
-          icon,
-          SizedBox(width: 8.w),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: const Color(0xFF17223C),
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                if (subtitle != null)
-                  Text(
-                    subtitle!,
-                    style: TextStyle(
-                      color: const Color(0xFF6B7280),
-                      fontSize: 12.sp,
-                      height: 1.05,
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          Icon(
-            selected ? Icons.radio_button_checked : Icons.radio_button_off,
-            color: selected ? const Color(0xFF3976B7) : const Color(0xFF8B8F98),
-            size: 22.sp,
-          ),
-          SizedBox(width: 16.w),
-        ],
-      ),
-    );
-  }
-}
-
-class _VisaIcon extends StatelessWidget {
-  const _VisaIcon();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 35.w,
-      height: 22.h,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: const Color(0xFFD1D5DB)),
-      ),
-      child: Text(
-        'VISA',
-        style: TextStyle(
-          color: const Color(0xFF25348B),
-          fontSize: 10.sp,
-          fontWeight: FontWeight.w900,
-          fontStyle: FontStyle.italic,
-        ),
-      ),
-    );
-  }
-}
-
-class _CashIcon extends StatelessWidget {
-  const _CashIcon();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 35.w,
-      height: 18.h,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: const Color(0xFF6BA56D),
-        border: Border.all(color: const Color(0xFFA9C99E)),
-      ),
-      child: Container(
-        width: 20.w,
-        height: 10.h,
-        decoration: BoxDecoration(
-          color: const Color(0xFF7FBF7E),
-          borderRadius: BorderRadius.circular(8.r),
-          border: Border.all(color: const Color(0xFFE6F3E1), width: 0.8),
+          ],
         ),
       ),
     );

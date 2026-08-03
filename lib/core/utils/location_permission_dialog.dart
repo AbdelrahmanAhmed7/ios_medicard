@@ -41,18 +41,15 @@ class LocationPermissionDialog extends StatelessWidget {
               SizedBox(height: 32.h),
               _EnableLocationButton(
                 onPressed: () async {
+                  onEnablePressed?.call();
                   Navigator.of(context).pop();
-
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    onEnablePressed?.call();
-                  });
                 },
               ),
               SizedBox(height: 12.h),
               _MaybeLaterButton(
                 onPressed: () {
-                  Navigator.of(context).pop();
                   onMaybeLaterPressed?.call();
+                  Navigator.of(context).pop();
                 },
               ),
             ],

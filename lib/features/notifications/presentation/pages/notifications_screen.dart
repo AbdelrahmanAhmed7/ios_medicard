@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import '../../../../core/widgets/app_blue_header.dart';
 import '../cubit/notifivation_cubit.dart';
@@ -16,8 +17,7 @@ class NotificationsScreen extends StatefulWidget {
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
   final ScrollController _scrollController = ScrollController();
-  int _selectedIndex =
-      1;
+  int _selectedIndex = 1;
 
   @override
   void initState() {
@@ -49,7 +49,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       body: Column(
         children: [
           AppBlueHeader(
-            title: 'Notifications',
+            title: 'notifications.title'.tr(),
             bottomChild: _NotificationsTabsHeader(
               selectedIndex: _selectedIndex,
               onTabSelected: (index) => setState(() => _selectedIndex = index),
@@ -71,9 +71,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 if (state.error != null && state.items.isEmpty) {
                   return _NotificationsMessage(
                     icon: Icons.error_outline,
-                    title: 'Could not load notifications',
+                    title: 'notifications.load_failed_title'.tr(),
                     message: state.error!,
-                    actionLabel: 'Retry',
+                    actionLabel: 'common.retry'.tr(),
                     onAction: context
                         .read<NotificationCubit>()
                         .getNotifications,
@@ -86,11 +86,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         ? Icons.notifications_none
                         : Icons.mark_email_read_outlined,
                     title: _selectedIndex == 0
-                        ? 'No notifications yet'
-                        : 'No unread notifications',
+                        ? 'notifications.empty_title'.tr()
+                        : 'notifications.empty_unread_title'.tr(),
                     message: _selectedIndex == 0
-                        ? 'New updates will show up here.'
-                        : 'Everything is caught up.',
+                        ? 'notifications.empty_message'.tr()
+                        : 'notifications.empty_unread_message'.tr(),
                   );
                 }
 
@@ -156,13 +156,13 @@ class _NotificationsTabsHeader extends StatelessWidget {
           Row(
             children: [
               _NotificationTab(
-                title: 'All',
+                title: 'notifications.all'.tr(),
                 isSelected: selectedIndex == 0,
                 onTap: () => onTabSelected(0),
               ),
               SizedBox(width: 32.w),
               _NotificationTab(
-                title: 'Unread',
+                title: 'notifications.unread'.tr(),
                 isSelected: selectedIndex == 1,
                 onTap: () => onTabSelected(1),
               ),
@@ -193,14 +193,12 @@ class _NotificationsTabsHeader extends StatelessWidget {
                   ),
                   SizedBox(width: 6.w),
                   Text(
-                    'Mark all read',
+                    'notifications.mark_all_read'.tr(),
                     style: TextStyle(
                       fontFamily: 'Roboto',
                       fontWeight: FontWeight.w500,
                       fontSize: 13.sp,
-                      color: const Color(
-                        0xFF1E293B,
-                      ),
+                      color: const Color(0xFF1E293B),
                     ),
                   ),
                 ],

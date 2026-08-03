@@ -22,9 +22,15 @@ class _InvoiceRemoteDataSource implements InvoiceRemoteDataSource {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<InvoicesResponseDto> getMyInvoices() async {
+  Future<InvoicesResponseDto> getMyInvoices({
+    int pageNumber = 1,
+    int pageSize = 10,
+  }) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'pageNumber': pageNumber,
+      r'pageSize': pageSize,
+    };
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<InvoicesResponseDto>(

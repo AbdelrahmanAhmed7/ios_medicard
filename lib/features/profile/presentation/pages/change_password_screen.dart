@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import '../../../../core/utils/language_helper.dart';
 import '../../../../core/widgets/auth_shared_widgets.dart';
@@ -54,9 +55,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     final password = LanguageHelper.convertArabicToEnglishNumerals(
       value?.trim() ?? '',
     );
-    if (password.isEmpty) return 'New password is required';
+    if (password.isEmpty) return 'change_password.new_password_required'.tr();
     if (!_isPasswordValid(password)) {
-      return 'Password must contain at least 8 characters, one letter, one number, and one special character';
+      return 'change_password.password_policy_invalid'.tr();
     }
     return null;
   }
@@ -78,8 +79,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         state.maybeWhen(
           success: () {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Password changed successfully'),
+              SnackBar(
+                content: Text('change_password.success'.tr()),
                 backgroundColor: Colors.green,
               ),
             );
@@ -132,7 +133,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         ),
                         SizedBox(width: 8.w),
                         Text(
-                          'Change Password',
+                          'profile.change_password'.tr(),
                           style: TextStyle(
                             fontSize: 20.sp,
                             fontWeight: FontWeight.w700,
@@ -150,17 +151,19 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _FieldLabel('Current Password'),
+                        _FieldLabel('change_password.current_password'.tr()),
                         _buildPasswordField(
                           controller: _currentPasswordController,
-                          hintText: 'Enter current password',
+                          hintText: 'change_password.current_password_hint'
+                              .tr(),
                           showPassword: _showCurrentPassword,
                           onToggle: () => setState(
                             () => _showCurrentPassword = !_showCurrentPassword,
                           ),
                           validator: (v) {
                             if (v == null || v.trim().isEmpty) {
-                              return 'Current password is required';
+                              return 'change_password.current_password_required'
+                                  .tr();
                             }
                             return null;
                           },
@@ -168,10 +171,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
                         SizedBox(height: 16.h),
 
-                        _FieldLabel('New Password'),
+                        _FieldLabel('change_password.new_password'.tr()),
                         _buildPasswordField(
                           controller: _newPasswordController,
-                          hintText: 'Enter new password',
+                          hintText: 'change_password.new_password_hint'.tr(),
                           showPassword: _showNewPassword,
                           onToggle: () => setState(
                             () => _showNewPassword = !_showNewPassword,
@@ -181,10 +184,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
                         SizedBox(height: 16.h),
 
-                        _FieldLabel('Confirm New Password'),
+                        _FieldLabel(
+                          'change_password.confirm_new_password'.tr(),
+                        ),
                         _buildPasswordField(
                           controller: _confirmPasswordController,
-                          hintText: 'Re-enter new password',
+                          hintText: 'change_password.confirm_new_password_hint'
+                              .tr(),
                           showPassword: _showConfirmPassword,
                           onToggle: () => setState(
                             () => _showConfirmPassword = !_showConfirmPassword,
@@ -199,10 +205,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                                   _newPasswordController.text.trim(),
                                 );
                             if (confirmPassword.isEmpty) {
-                              return 'Please confirm your new password';
+                              return 'change_password.confirm_new_password_required'
+                                  .tr();
                             }
                             if (confirmPassword != newPassword) {
-                              return 'Passwords do not match';
+                              return 'auth.register.passwordsNotMatch'.tr();
                             }
                             return null;
                           },
@@ -217,7 +224,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                               orElse: () => false,
                             );
                             return AuthPrimaryButton(
-                              label: 'Save',
+                              label: 'common.save'.tr(),
                               isLoading: isLoading,
                               onPressed: isLoading ? () {} : _submit,
                             );

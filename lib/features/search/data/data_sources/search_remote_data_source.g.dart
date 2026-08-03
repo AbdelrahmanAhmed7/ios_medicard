@@ -22,8 +22,7 @@ class _SearchRemoteDataSource implements SearchRemoteDataSource {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<SearchResponseModel> searchProviders(
-    String token, {
+  Future<SearchResponseModel> searchProviders({
     String? keyword,
     int? categoryId,
     int? governorateId,
@@ -51,8 +50,7 @@ class _SearchRemoteDataSource implements SearchRemoteDataSource {
       r'PageSize': pageSize,
     };
     queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{r'Authorization': token};
-    _headers.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<SearchResponseModel>(
       Options(method: 'GET', headers: _headers, extra: _extra)
@@ -76,11 +74,10 @@ class _SearchRemoteDataSource implements SearchRemoteDataSource {
   }
 
   @override
-  Future<CategoryResponseModel> getCategories(String token) async {
+  Future<CategoryResponseModel> getCategories() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{r'Authorization': token};
-    _headers.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<CategoryResponseModel>(
       Options(method: 'GET', headers: _headers, extra: _extra)
@@ -104,11 +101,10 @@ class _SearchRemoteDataSource implements SearchRemoteDataSource {
   }
 
   @override
-  Future<CategoryResponseModel> getServiceCategories(String token) async {
+  Future<CategoryResponseModel> getServiceCategories() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{r'Authorization': token};
-    _headers.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<CategoryResponseModel>(
       Options(method: 'GET', headers: _headers, extra: _extra)
@@ -132,11 +128,10 @@ class _SearchRemoteDataSource implements SearchRemoteDataSource {
   }
 
   @override
-  Future<LookupResponseModel> getGovernorates(String token) async {
+  Future<LookupResponseModel> getGovernorates() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{r'Authorization': token};
-    _headers.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<LookupResponseModel>(
       Options(method: 'GET', headers: _headers, extra: _extra)
@@ -160,11 +155,10 @@ class _SearchRemoteDataSource implements SearchRemoteDataSource {
   }
 
   @override
-  Future<LookupResponseModel> getCities(String token, int governorateId) async {
+  Future<LookupResponseModel> getCities(int governorateId) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{r'governorateId': governorateId};
-    final _headers = <String, dynamic>{r'Authorization': token};
-    _headers.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<LookupResponseModel>(
       Options(method: 'GET', headers: _headers, extra: _extra)
@@ -189,13 +183,13 @@ class _SearchRemoteDataSource implements SearchRemoteDataSource {
 
   @override
   Future<CategoryServicesResponseModel> getCategoryServices(
-    String token,
     int categoryId,
+    Map<String, dynamic> extras,
   ) async {
     final _extra = <String, dynamic>{};
+    _extra.addAll(extras);
     final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{r'Authorization': token};
-    _headers.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<CategoryServicesResponseModel>(
       Options(method: 'GET', headers: _headers, extra: _extra)

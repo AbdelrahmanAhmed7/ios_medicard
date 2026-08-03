@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
+import '../../../../core/utils/api_error_parser.dart';
 import '../../domain/repository/activate_card_repository.dart';
 import '../models/activate_card_request_model.dart';
 import '../models/activate_card_response_model.dart';
@@ -36,11 +37,11 @@ class ActivateCardRepositoryImpl implements ActivateCardRepository {
             errorsList ??
             (decodedResponse.message.isNotEmpty
                 ? decodedResponse.message
-                : 'Something went wrong');
+                : parseApiError(''));
         return Left(errorMessage);
       }
     } catch (e) {
-      return Left('Something went wrong');
+      return Left(parseApiError(e));
     }
   }
 }

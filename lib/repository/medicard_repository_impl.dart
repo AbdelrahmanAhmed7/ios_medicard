@@ -26,6 +26,7 @@ import '../features/profile/data/models/change_language_request_model.dart';
 import '../features/profile/data/models/change_language_response_model.dart';
 import '../features/guest_home/data/models/guest_home_response_model.dart';
 import '../features/profile/data/models/profile_response_model.dart';
+import '../features/ecard/data/models/card_data_response_model.dart';
 import '../service/medicard_api_service.dart';
 
 class MedicardRepositoryImpl implements MedicardRepository {
@@ -57,7 +58,7 @@ class MedicardRepositoryImpl implements MedicardRepository {
         (lower.contains('incorrect') ||
             lower.contains('invalid') ||
             lower.contains('wrong'))) {
-      return 'Current password is incorrect';
+      return parseApiError(message);
     }
     return message;
   }
@@ -91,7 +92,7 @@ class MedicardRepositoryImpl implements MedicardRepository {
         ? response.message!
         : response.data?.message?.isNotEmpty == true
         ? response.data!.message!
-        : 'Something went wrong';
+        : parseApiError('');
   }
 
   @override
@@ -303,6 +304,35 @@ class MedicardRepositoryImpl implements MedicardRepository {
     } catch (error) {
       if (kDebugMode) {
         debugPrint('[ProfileRepository] profile request exception: $error');
+      }
+      return ApiResult.failure(parseApiError(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<CardDataResponseModel>> getCardData() async {
+    try {
+      if (kDebugMode) debugPrint('[ECardRepository] requesting card data');
+      final response = await _apiService.getCardData();
+      if (kDebugMode) {
+        debugPrint(
+          '[ECardRepository] card-data received '
+          '(succeeded=${response.succeeded}, hasData=${response.data != null})',
+        );
+      }
+
+      // Backend may return card payload with succeeded=false; treat data presence
+      // as success, and null data as an empty (no-card) result.
+      final hasHardErrors =
+          response.errors != null && response.errors!.isNotEmpty;
+      if (hasHardErrors && response.data == null) {
+        return ApiResult.failure(response.errors!.join('\n'));
+      }
+
+      return ApiResult.success(response);
+    } catch (error) {
+      if (kDebugMode) {
+        debugPrint('[ECardRepository] card-data request exception: $error');
       }
       return ApiResult.failure(parseApiError(error));
     }

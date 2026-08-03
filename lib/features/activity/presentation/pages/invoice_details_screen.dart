@@ -53,7 +53,7 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
       body: Column(
         children: [
           AppBlueHeader(
-            title: 'Appointment Details',
+            title: 'activity.appointment_details'.tr(),
             bottomRadius: 18,
             onBack: () => context.pop(),
           ),
@@ -72,7 +72,7 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
                     child: Padding(
                       padding: EdgeInsets.all(24.w),
                       child: Text(
-                        _error ?? 'Failed to load invoice details.',
+                        _error ?? 'activity.invoice_details_load_failed'.tr(),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -96,8 +96,11 @@ class _DetailsBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final formattedDate = DateFormat('dd MMM yyyy').format(details.date);
-    final servicesText = _servicesText(details.services);
+    final formattedDate = DateFormat(
+      'dd MMM yyyy',
+      context.locale.toString(),
+    ).format(details.date);
+    final servicesText = _servicesText(context, details.services);
 
     return ListView(
       padding: EdgeInsets.fromLTRB(16.w, 18.h, 16.w, 22.h),
@@ -106,7 +109,7 @@ class _DetailsBody extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                'Order Number #MC-${details.invoiceId}',
+                'activity.order_number'.tr(args: ['MC-${details.invoiceId}']),
                 style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700),
               ),
             ),
@@ -118,28 +121,30 @@ class _DetailsBody extends StatelessWidget {
           children: [
             _ProviderHeader(invoice: invoice),
             const Divider(height: 1, color: Color(0xFFD5D5D5)),
-            _InfoRow(label: 'Date', value: formattedDate),
+            _InfoRow(label: 'activity.date'.tr(), value: formattedDate),
             const Divider(height: 1, color: Color(0xFFD5D5D5)),
-            _InfoRow(label: 'Service', value: servicesText),
+            _InfoRow(label: 'activity.service'.tr(), value: servicesText),
           ],
         ),
         SizedBox(height: 28.h),
         _InfoCard(
           children: [
             _InfoRow(
-              label: 'Subtotal',
-              value: 'EGP ${_money(details.totalBefore)}',
+              label: 'cart.subtotal'.tr(),
+              value: 'cart.egp_amount'.tr(args: [_money(details.totalBefore)]),
             ),
             const Divider(height: 1, color: Color(0xFFD5D5D5)),
             _InfoRow(
-              label: 'Discount',
-              value: '- EGP ${_money(math.max(0, details.discount))}',
+              label: 'cart.discount'.tr(),
+              value: 'cart.negative_egp_amount'.tr(
+                args: [_money(math.max(0, details.discount))],
+              ),
               valueColor: const Color(0xFF10A75A),
             ),
             const Divider(height: 1, color: Color(0xFFD5D5D5)),
             _InfoRow(
-              label: 'Total amount',
-              value: 'EGP ${_money(details.totalAfter)}',
+              label: 'cart.total_amount'.tr(),
+              value: 'cart.egp_amount'.tr(args: [_money(details.totalAfter)]),
               isBold: true,
             ),
           ],
@@ -150,13 +155,18 @@ class _DetailsBody extends StatelessWidget {
     );
   }
 
-  String _servicesText(List<InvoiceServiceItem> services) {
+  String _servicesText(
+    BuildContext context,
+    List<InvoiceServiceItem> services,
+  ) {
     if (services.isEmpty) return '-';
     if (services.length <= 2) {
       return services.map((service) => service.serviceName).join(', ');
     }
     final firstTwo = services.take(2).map((service) => service.serviceName);
-    return '${firstTwo.join(', ')} +${services.length - 2} more';
+    return 'activity.services_more'.tr(
+      args: [firstTwo.join(', '), '${services.length - 2}'],
+    );
   }
 }
 
@@ -180,7 +190,7 @@ class _StatusBadge extends StatelessWidget {
         border: Border.all(color: color.withAlpha(120)),
       ),
       child: Text(
-        isCompleted ? 'Completed' : status,
+        isCompleted ? 'home.completed'.tr() : _localizedStatus(status),
         style: TextStyle(fontSize: 13.sp, color: color),
       ),
     );
@@ -338,7 +348,7 @@ class _DetailsActions extends StatelessWidget {
                     builder: (_) => _ReviewDialog(invoiceId: invoice.invoiceId),
                   )
                 : () => showInfoToast(
-                    'You need to use this invoice before leaving a review.',
+                    'activity.review_requires_used_invoice'.tr(),
                   ),
             style: OutlinedButton.styleFrom(
               foregroundColor: const Color(0xFF2D6FB7),
@@ -351,7 +361,7 @@ class _DetailsActions extends StatelessWidget {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            child: const Text('Leave Review'),
+            child: Text('activity.leave_review'.tr()),
           ),
         ),
       ],
@@ -397,7 +407,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
     result.when(
       success: (_) {
         context.pop();
-        showSuccessToast('Review submitted successfully.');
+        showSuccessToast('activity.review_submitted_successfully'.tr());
       },
       failure: (message) => showErrorToast(message),
     );
@@ -421,7 +431,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
               ),
             ),
             Text(
-              'Share Your Review',
+              'activity.share_your_review'.tr(),
               style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w700),
             ),
             SizedBox(height: 14.h),
@@ -447,7 +457,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
               minLines: 5,
               maxLines: 5,
               decoration: InputDecoration(
-                hintText: 'Input text',
+                hintText: 'activity.review_input_hint'.tr(),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10.r),
                 ),
@@ -469,7 +479,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
                 ),
                 child: _isSubmitting
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text('Submit'),
+                    : Text('activity.submit'.tr()),
               ),
             ),
           ],
@@ -481,4 +491,14 @@ class _ReviewDialogState extends State<_ReviewDialog> {
 
 String _money(double value) {
   return value % 1 == 0 ? value.toStringAsFixed(0) : value.toStringAsFixed(2);
+}
+
+String _localizedStatus(String status) {
+  final normalized = status.trim().toLowerCase();
+  return switch (normalized) {
+    'pending' => 'activity.status_pending'.tr(),
+    'used' => 'activity.status_used'.tr(),
+    'completed' => 'home.completed'.tr(),
+    _ => status,
+  };
 }

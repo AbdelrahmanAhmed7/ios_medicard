@@ -71,7 +71,7 @@ class HomeCubit extends Cubit<HomeState> {
         }
         if (kDebugMode) {
           debugPrint(
-            '[HomeCubit] location resolved (available=${result.hasCoordinates})',
+            '[HomeCubit] location resolved (status=${result.status.name}, available=${result.hasCoordinates})',
           );
         }
       }

@@ -7,6 +7,10 @@ part 'activity_state.freezed.dart';
 class ActivityState with _$ActivityState {
   const factory ActivityState.initial() = _Initial;
   const factory ActivityState.loading() = _Loading;
-  const factory ActivityState.success(List<InvoiceItem> invoices) = _Success;
+  const factory ActivityState.success({
+    required List<InvoiceItem> invoices,
+    @Default(false) bool isLoadingMore,
+    @Default(false) bool hasMore,
+  }) = _Success;
   const factory ActivityState.failure(String error) = _Failure;
 }

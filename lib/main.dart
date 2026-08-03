@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -9,6 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:video_player/video_player.dart';
 
 import 'core/cubit/app_refresh_cubit.dart';
 import 'core/cubit/localization_cubit.dart';
@@ -107,6 +109,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late final GoRouter _router;
+  var _showSplash = true;
 
   @override
   void initState() {
@@ -138,22 +141,122 @@ class _MyAppState extends State<MyApp> {
           designSize: const Size(375, 812),
           minTextAdapt: true,
           splitScreenMode: true,
-          child: MaterialApp.router(
-            debugShowCheckedModeBanner: false,
-            routerConfig: _router,
-            title: 'MediCard',
-            theme: ThemeData(
-              fontFamily: FontManager.getFontFamily(context),
-              useMaterial3: true,
-            ),
-            localizationsDelegates: context.localizationDelegates,
-            supportedLocales: context.supportedLocales,
-            locale: context.locale,
-            builder: (context, child) {
-              return child!;
-            },
+          child: Stack(
+            textDirection: ui.TextDirection.ltr,
+            children: [
+              MaterialApp.router(
+                debugShowCheckedModeBanner: false,
+                routerConfig: _router,
+                title: 'MediCard',
+                theme: ThemeData(
+                  fontFamily: FontManager.getFontFamily(context),
+                  useMaterial3: true,
+                ),
+                localizationsDelegates: context.localizationDelegates,
+                supportedLocales: context.supportedLocales,
+                locale: context.locale,
+                builder: (context, child) {
+                  return child!;
+                },
+              ),
+              if (_showSplash)
+                AppVideoSplash(
+                  onFinished: () {
+                    if (!mounted) return;
+                    setState(() => _showSplash = false);
+                  },
+                ),
+            ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class AppVideoSplash extends StatefulWidget {
+  final VoidCallback onFinished;
+
+  const AppVideoSplash({super.key, required this.onFinished});
+
+  @override
+  State<AppVideoSplash> createState() => _AppVideoSplashState();
+}
+
+class _AppVideoSplashState extends State<AppVideoSplash> {
+  static const _assetPath =
+      'assets/splash/animate_logo_on_white_background_3sec.mp4';
+
+  late final VideoPlayerController _controller;
+  Timer? _fallbackTimer;
+  var _isReady = false;
+  var _didFinish = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.asset(_assetPath)
+      ..setLooping(false)
+      ..initialize()
+          .then((_) {
+            if (!mounted) return;
+            setState(() => _isReady = true);
+            _controller
+              ..addListener(_handleVideoProgress)
+              ..play();
+          })
+          .catchError((error, stackTrace) {
+            if (kDebugMode) {
+              debugPrint('[Startup] Splash video failed: $error');
+              debugPrintStack(stackTrace: stackTrace);
+            }
+            _finish();
+          });
+
+    _fallbackTimer = Timer(const Duration(seconds: 4), _finish);
+  }
+
+  void _handleVideoProgress() {
+    final value = _controller.value;
+    if (!value.isInitialized || value.isPlaying) return;
+
+    final duration = value.duration;
+    final position = value.position;
+    if (duration != Duration.zero &&
+        position >= duration - const Duration(milliseconds: 120)) {
+      _finish();
+    }
+  }
+
+  void _finish() {
+    if (_didFinish) return;
+    _didFinish = true;
+    widget.onFinished();
+  }
+
+  @override
+  void dispose() {
+    _fallbackTimer?.cancel();
+    _controller.removeListener(_handleVideoProgress);
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: Colors.white,
+      child: SizedBox.expand(
+        child: _isReady
+            ? FittedBox(
+                fit: BoxFit.cover,
+                child: SizedBox(
+                  width: _controller.value.size.width,
+                  height: _controller.value.size.height,
+                  child: VideoPlayer(_controller),
+                ),
+              )
+            : const SizedBox.shrink(),
       ),
     );
   }

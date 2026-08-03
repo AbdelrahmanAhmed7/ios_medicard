@@ -12,6 +12,7 @@ import '../features/guest_home/data/models/guest_home_response_model.dart';
 import '../features/profile/data/models/change_password_response_model.dart';
 import '../features/profile/data/models/change_language_response_model.dart';
 import '../features/profile/data/models/profile_response_model.dart';
+import '../features/ecard/data/models/card_data_response_model.dart';
 
 abstract class MedicardRepository {
   Future<ApiResult<AuthResponseModel>> register(
@@ -45,6 +46,9 @@ abstract class MedicardRepository {
   });
 
   Future<ApiResult<ProfileResponseModel>> getProfile();
+
+  Future<ApiResult<CardDataResponseModel>> getCardData();
+
   Future<ApiResult<ProfileResponseModel>> updateProfileV2({
     required String firstName,
     required String lastName,

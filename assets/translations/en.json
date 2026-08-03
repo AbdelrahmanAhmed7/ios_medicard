@@ -18,6 +18,7 @@
       "male": "Male",
       "female": "Female",
       "birthDate": "Date of Birth",
+      "birthDateInvalid": "Enter a valid date of birth",
       "password": "Password",
       "passwordHint": "Enter your password",
       "passwordRequired": "Password is required",
@@ -51,9 +52,11 @@
       "cardNumber": "Card Number",
       "cardNumberHint": "Enter your card number",
       "cardNumberRequired": "Card number is required",
-      "mobileOrCardNumber": "Mobile/Medicard Number",
-      "phoneNumberRequired": "Phone number or Medicard number is required",
+      "mobileOrCardNumber": "Mobile / Medicard Number",
+      "identifierHint": "Mobile or Medicard number",
+      "phoneNumberRequired": "Mobile or Medicard number is required",
       "phoneNumberInvalid": "Enter a valid Egyptian mobile number",
+      "identifierInvalid": "Enter a valid mobile or Medicard number",
       "password": "Password",
       "passwordHint": "Enter your password",
       "passwordRequired": "Password is required",
@@ -65,6 +68,11 @@
       "registerNow": "Sign up",
       "activateCard": "Activate Card",
       "continueAsGuest": "Continue as Guest"
+    },
+    "signup": {
+      "validation": {
+        "phone_hint": "Enter your phone number"
+      }
     }
   },
   "common": {
@@ -78,7 +86,19 @@
     "required": "Required",
     "error": "Error",
     "retry": "Retry",
-    "this_field_required": "This field is required"
+    "this_field_required": "This field is required",
+    "skip": "Skip",
+    "next": "Next",
+    "hotline": "Hotline",
+    "mobile_landline": "Mobile / Landline"
+  },
+  "activate_card": {
+    "title": "Activate Card",
+    "subtitle": "Fill in your details to activate your Medicard",
+    "activate": "Activate",
+    "success": "Card activated successfully",
+    "national_id_optional_hint": "Enter your national ID (optional)",
+    "passport_number_optional_hint": "Enter your passport number (optional)"
   },
   "search": {
     "filter": "Filter",
@@ -89,9 +109,26 @@
     "try_different_keyword": "Try a different keyword or clear filters."
   },
   "errors": {
-    "something_went_wrong": "Something went wrong. Please try again.",
+    "something_went_wrong": "We could not complete your request right now. Please try again shortly.",
+    "network_error": "Could not connect to the internet. Please check your connection and try again.",
+    "timeout_error": "The connection is taking longer than expected. Please try again.",
+    "session_expired": "Your session has expired. Please sign in again.",
+    "forbidden_error": "You do not have permission to perform this action.",
+    "server_error": "The service is temporarily unavailable. Please try again shortly.",
+    "validation_failed": "Please check the entered data and try again.",
+    "action_unavailable": "This action is currently unavailable. Please try again later.",
+    "bad_request": "Please check the entered data and try again.",
+    "connection_error": "Could not connect to the service. Please try again.",
+    "connection_timeout": "The connection is taking longer than expected. Please try again.",
+    "no_internet": "Please check your internet connection and try again.",
+    "unauthorized": "Your session has expired. Please sign in again.",
+    "access_denied": "You do not have permission to access this content.",
+    "not_found": "The requested data was not found.",
     "not_found_error": "Data not found",
-    "generic_error": "An unexpected error occurred"
+    "generic_error": "We could not complete your request right now. Please try again shortly.",
+    "request_failed": "We could not complete your request right now. Please try again shortly.",
+    "temporary_service_issue": "The service is temporarily unavailable. Please try again shortly.",
+    "try_again_later": "Please try again shortly."
   },
   "profile": {
     "my_profile": "My profile",
@@ -107,6 +144,9 @@
     "language": "Language",
     "arabic": "العربية",
     "english": "English",
+    "updated_successfully": "Profile updated successfully",
+    "language_changed_successfully": "Language changed successfully",
+    "profile_data_unavailable": "Profile data is unavailable right now.",
     "standard_plan": "Standard plan",
     "phone_number": "Phone Number",
     "national_id": "National ID",
@@ -115,6 +155,20 @@
     "date_of_birth": "Date of Birth",
     "male": "Male",
     "female": "Female"
+  },
+  "change_password": {
+    "current_password": "Current Password",
+    "current_password_hint": "Enter current password",
+    "current_password_required": "Current password is required",
+    "current_password_incorrect": "Current password is incorrect",
+    "new_password": "New Password",
+    "new_password_hint": "Enter new password",
+    "new_password_required": "New password is required",
+    "confirm_new_password": "Confirm New Password",
+    "confirm_new_password_hint": "Re-enter new password",
+    "confirm_new_password_required": "Please confirm your new password",
+    "password_policy_invalid": "Password must contain at least 8 characters, one letter, one number, and one special character",
+    "success": "Password changed successfully"
   },
   "edit_profile": {
     "first_name": "First Name",
@@ -129,6 +183,18 @@
     "female": "Female",
     "select_an_option": "Select an option",
     "could_not_pick_image": "Could not pick image"
+  },
+  "medicard_edit_profile": {
+    "phone": "Phone Number"
+  },
+  "dialog": {
+    "got_it": "Got it"
+  },
+  "location_permission": {
+    "title": "Allow location access",
+    "message": "We need your location to show nearby providers.",
+    "enable_button": "Enable location",
+    "maybe_later": "Maybe later"
   },
   "content": {
     "privacy_policy": "Privacy Policy",
@@ -151,14 +217,14 @@
     "featured_services": "Featured Services",
     "no_data_available": "No data available",
     "pull_down_refresh": "Pull down to refresh and check again.",
-    "something_went_wrong": "Something went wrong",
+    "something_went_wrong": "We could not load this information right now.",
     "network_error_title": "Unable to load Home",
     "no_internet_message": "Please check your internet connection and try again.",
     "connection_timeout_message": "The connection is taking longer than expected. Please try again.",
     "transfer_timeout_message": "The request took too long to complete. Please try again.",
     "server_error_message": "We could not load the home data right now. Please try again shortly.",
     "unauthorized_message": "Your session has expired. Please sign in again.",
-    "unknown_error_message": "Something went wrong. Please try again.",
+    "unknown_error_message": "We could not load this information right now. Please try again shortly.",
     "retrying": "Retrying...",
     "refresh_failed": "Could not refresh Home. Your current data is still available.",
     "user_not_active": "Your account is not active",
@@ -169,6 +235,50 @@
     "nav_ecard": "E card",
     "nav_activity": "Activity",
     "nav_profile": "Profile"
+  },
+  "guest_home": {
+    "explore_health_services": "Explore health services"
+  },
+  "network": {
+    "title": "Provider Network",
+    "search_placeholder": "Search doctor, pharmacy, or lab...",
+    "search_customization": "Search customization",
+    "services_and_discounts": "Services and discounts",
+    "available_services_discounts": "Available services and discounts",
+    "categories": "Categories",
+    "category_count": "{} categories",
+    "provider_count": "{} providers",
+    "results_count": "{} results",
+    "loading_providers": "Loading providers...",
+    "no_results": "No results found",
+    "no_results_for": "No results for {}",
+    "try_different_search": "Try a different search term.",
+    "try_changing_filters": "Try changing the filters.",
+    "clear_filters": "Clear filters",
+    "sort": "Sort",
+    "highest_discount": "Highest discount",
+    "government": "Government",
+    "city": "City",
+    "all": "All",
+    "call": "Call",
+    "directions": "Directions",
+    "location_and_address": "Location and address",
+    "location_access_denied_body": "Location access is denied. You can enable it from settings.",
+    "location_service_body": "Please enable location services to show nearby results.",
+    "location_banner_denied": "Location access is disabled.",
+    "location_banner_retry": "Retry",
+    "open_app_settings": "Open app settings",
+    "open_settings": "Open settings",
+    "search_instead_in": "Search instead in {}",
+    "more": "More",
+    "km": "{} km",
+    "meters": "{} m",
+    "clinic_suggestion": "Clinics",
+    "dental_suggestion": "Dental",
+    "hospital_suggestion": "Hospitals",
+    "lab_suggestion": "Labs",
+    "pharmacy_suggestion": "Pharmacies",
+    "scan_suggestion": "Scans"
   },
   "sort_filter": {
     "sort_by": "Sort By",
@@ -218,10 +328,18 @@
     "address": "Address",
     "total_services": "Total Services",
     "services_count": "{} Services",
+    "open_map": "Open map",
     "reviews": "Reviews",
-    "special_offer": "Special Offer"
+    "special_offer": "Special Offer",
+    "packages": "Packages",
+    "no_packages_found": "No packages found",
+    "no_reviews_found": "No reviews found",
+    "select_branch_first": "Please select a branch first.",
+    "no_provider_branch_found": "No provider branch found for this package.",
+    "tests_included": "Tests included"
   },
   "cart": {
+    "title": "Cart",
     "view_cart": "View Cart",
     "choose_provider": "Choose Provider",
     "providers_available": "{} providers available",
@@ -244,15 +362,72 @@
     "total_amount": "Total amount",
     "continue_payment": "Continue Payment",
     "pay_with_visa": "Pay with Visa",
-    "pay": "Pay"
+    "pay": "Pay",
+    "egp_currency": "EGP",
+    "items_in_cart": "{} items in cart",
+    "clear_cart": "Clear cart",
+    "clear_cart_question": "Clear cart?",
+    "clear_cart_confirmation": "All selected services will be removed from your cart.",
+    "categories": "Categories",
+    "no_provider_selected": "No provider selected",
+    "discount_percent": "{}% off",
+    "egp_amount": "EGP {}",
+    "negative_egp_amount": "- EGP {}",
+    "price_unavailable": "Price unavailable",
+    "some_items_need_provider": "Some items need a provider. Tap to choose",
+    "empty_title": "Your cart is empty",
+    "empty_message": "Choose services from providers and they will appear here before checkout.",
+    "explore_services": "Explore services",
+    "could_not_open_payment_link": "Could not open payment link.",
+    "some_prices_missing": "Some cart items are still missing prices. Please choose providers for them and try again."
   },
   "activity": {
     "pending": "Pending",
     "used": "Used",
     "no_items": "No items found",
+    "empty_pending_title": "No pending appointments",
+    "empty_pending_message": "Your upcoming bookings and unpaid invoices will appear here.",
+    "empty_used_title": "No used invoices",
+    "empty_used_message": "Completed visits and used invoices will appear here.",
     "status_pending": "Pending",
     "status_used": "Used",
     "details": "Details",
-    "book": "Book"
+    "book": "Book",
+    "appointment_details": "Appointment Details",
+    "invoice_details_load_failed": "Failed to load invoice details.",
+    "order_number": "Order Number #{}",
+    "date": "Date",
+    "service": "Service",
+    "services_more": "{} +{} more",
+    "leave_review": "Leave Review",
+    "review_requires_used_invoice": "You need to use this invoice before leaving a review.",
+    "share_your_review": "Share Your Review",
+    "review_input_hint": "Input text",
+    "submit": "Submit",
+    "review_submitted_successfully": "Review submitted successfully."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "all": "All",
+    "unread": "Unread",
+    "mark_all_read": "Mark all read",
+    "load_failed_title": "Could not load notifications",
+    "empty_title": "No notifications yet",
+    "empty_unread_title": "No unread notifications",
+    "empty_message": "New updates will show up here.",
+    "empty_unread_message": "Everything is caught up.",
+    "now": "now",
+    "minutes_ago": "{}m",
+    "hours_ago": "{}h",
+    "days_ago": "{}d",
+    "weeks_ago": "{}w",
+    "months_ago": "{}mo",
+    "years_ago": "{}y"
+  },
+  "ecard": {
+    "title": "E Card",
+    "no_card_title": "You don't have a card yet",
+    "no_card_message": "Get a MediCard to access 2,400+ doctors, labs, pharmacies and gyms across Egypt with exclusive member discounts.",
+    "expiry_date": "Expiry"
   }
 }

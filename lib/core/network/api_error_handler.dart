@@ -43,12 +43,12 @@ class ErrorHandler {
                 : "Endpoint not found.";
           case 500:
             return context != null
-                ? 'errors.internal_server_error'.tr()
-                : "Internal server error.";
+                ? 'errors.temporary_service_issue'.tr()
+                : "The service is temporarily unavailable. Please try again shortly.";
           default:
             return context != null
-                ? 'errors.unexpected_error'.tr()
-                : "Unexpected server error.";
+                ? 'errors.request_failed'.tr()
+                : "We could not complete your request right now. Please try again shortly.";
         }
       }
 
@@ -68,12 +68,12 @@ class ErrorHandler {
       }
 
       return context != null
-          ? 'errors.something_went_wrong'.tr()
-          : "Something went wrong. Please try again.";
+          ? 'errors.request_failed'.tr()
+          : "We could not complete your request right now. Please try again shortly.";
     } else {
       return context != null
-          ? 'errors.unexpected_error_occurred'.tr()
-          : "Unexpected error occurred.";
+          ? 'errors.request_failed'.tr()
+          : "We could not complete your request right now. Please try again shortly.";
     }
   }
 }

@@ -26,6 +26,7 @@ class SearchCubit extends Cubit<SearchState> {
   int? _governorateId;
   int? _cityId;
   int? _sortBy;
+  var _enableCartFeatures = true;
   StreamSubscription<CartSyncEvent>? _cartSyncSubscription;
 
   SearchCubit(
@@ -39,8 +40,16 @@ class SearchCubit extends Cubit<SearchState> {
     _cartSyncSubscription = _cartSyncService.stream.listen(_onCartSyncEvent);
   }
 
-  Future<void> init({double? lat, double? lng, int? categoryId}) async {
+  bool get enableCartFeatures => _enableCartFeatures;
+
+  Future<void> init({
+    double? lat,
+    double? lng,
+    int? categoryId,
+    bool enableCartFeatures = true,
+  }) async {
     if (isClosed) return;
+    _enableCartFeatures = enableCartFeatures;
     emit(
       state.copyWith(
         userLatitude: lat,
@@ -52,7 +61,7 @@ class SearchCubit extends Cubit<SearchState> {
     await Future.wait([
       _loadCategories(),
       _loadServiceCategories(),
-      _loadCartCounters(),
+      if (_enableCartFeatures) _loadCartCounters(),
       search(),
     ]);
   }
@@ -144,7 +153,10 @@ class SearchCubit extends Cubit<SearchState> {
       ),
     );
 
-    final result = await _getCategoryServicesUseCase.call(categoryId);
+    final result = await _getCategoryServicesUseCase.call(
+      categoryId,
+      skipAuthInterceptor: !_enableCartFeatures,
+    );
     if (isClosed) return false;
 
     final loadingIds = Set<int>.from(state.loadingServiceCategoryIds)
@@ -201,6 +213,14 @@ class SearchCubit extends Cubit<SearchState> {
     required int categoryId,
   }) async {
     if (isClosed) return;
+    if (!_enableCartFeatures) {
+      emit(
+        state.copyWith(
+          cartActionError: 'Please login to add services to your cart.',
+        ),
+      );
+      return;
+    }
     if (serviceId <= 0 || categoryId <= 0) {
       emit(
         state.copyWith(
@@ -288,6 +308,12 @@ class SearchCubit extends Cubit<SearchState> {
     required int categoryId,
   }) async {
     if (isClosed) return;
+    if (!_enableCartFeatures) {
+      emit(
+        state.copyWith(cartActionError: 'Please login to update your cart.'),
+      );
+      return;
+    }
     if (serviceId <= 0 || categoryId <= 0) {
       emit(
         state.copyWith(

@@ -6,6 +6,8 @@ import '../../domain/use_cases/get_governorates_use_case.dart';
 import 'filter_state.dart';
 
 class FilterCubit extends Cubit<FilterState> {
+  static const Set<int> _supportedSortValues = {1, 2};
+
   final GetGovernoratesUseCase _getGovernoratesUseCase;
   final GetCitiesUseCase _getCitiesUseCase;
 
@@ -74,6 +76,8 @@ class FilterCubit extends Cubit<FilterState> {
   void selectSortBy(int? sortBy) {
     if (isClosed) return;
     if (sortBy == null) {
+      emit(state.copyWith(clearSortBy: true));
+    } else if (!_supportedSortValues.contains(sortBy)) {
       emit(state.copyWith(clearSortBy: true));
     } else {
       // Toggle off if same value is tapped again

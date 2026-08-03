@@ -77,7 +77,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 context.go('/medicard-home?tab=activity');
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Could not open payment link.')),
+                  SnackBar(
+                    content: Text('cart.could_not_open_payment_link'.tr()),
+                  ),
                 );
               }
               return;
@@ -405,17 +407,17 @@ class _PaymentSummary extends StatelessWidget {
             ),
           _SummaryRow(
             label: 'cart.subtotal'.tr(),
-            value: 'EGP ${_money(subtotal)}',
+            value: 'cart.egp_amount'.tr(args: [_money(subtotal)]),
           ),
           _SummaryRow(
             label: 'cart.discount'.tr(),
-            value: '- EGP ${_money(discount)}',
+            value: 'cart.negative_egp_amount'.tr(args: [_money(discount)]),
             valueColor: const Color(0xFF10B981),
           ),
           Divider(height: 20.h, color: const Color(0xFFD7D7D7)),
           _SummaryRow(
             label: 'cart.total_amount'.tr(),
-            value: 'EGP ${_money(total)}',
+            value: 'cart.egp_amount'.tr(args: [_money(total)]),
             isBold: true,
           ),
         ],

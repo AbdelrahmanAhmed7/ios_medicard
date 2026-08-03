@@ -20,7 +20,7 @@ class MedicardLoginCubit extends Cubit<MedicardLoginState> {
 
   Future<void> login({
     String? cardNumber,
-    required String phoneNumber,
+    String? phoneNumber,
     required String password,
   }) async {
     emit(const MedicardLoginState.loading());

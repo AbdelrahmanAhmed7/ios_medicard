@@ -58,23 +58,38 @@ class LocationCubit extends Cubit<LocationState> {
       return;
     }
 
+    final latitude = result.latitude!;
+    final longitude = result.longitude!;
+
     try {
-      final latitude = result.latitude!;
-      final longitude = result.longitude!;
       final placemarks = await placemarkFromCoordinates(latitude, longitude);
 
       if (isClosed) return;
 
       final name = _locationNameFromPlacemarks(placemarks);
       if (name == null) {
-        emit(const LocationError('Location unavailable'));
+        emit(
+          LocationLoaded(
+            name: _fallbackLocationName(latitude, longitude),
+            latitude: latitude,
+            longitude: longitude,
+          ),
+        );
         return;
       }
 
-      emit(LocationLoaded(name: name, latitude: latitude, longitude: longitude));
+      emit(
+        LocationLoaded(name: name, latitude: latitude, longitude: longitude),
+      );
     } catch (_) {
       if (!isClosed) {
-        emit(const LocationError('Location unavailable'));
+        emit(
+          LocationLoaded(
+            name: _fallbackLocationName(latitude, longitude),
+            latitude: latitude,
+            longitude: longitude,
+          ),
+        );
       }
     }
   }
@@ -102,5 +117,9 @@ class LocationCubit extends Cubit<LocationState> {
     }
 
     return uniqueParts.isNotEmpty ? uniqueParts.join(', ') : null;
+  }
+
+  String _fallbackLocationName(double latitude, double longitude) {
+    return '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
   }
 }

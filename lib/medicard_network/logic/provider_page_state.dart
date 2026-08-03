@@ -3,6 +3,12 @@ import '../../network/data/provider_services_response_model.dart';
 
 enum ProviderViewType { services, packages, reviews }
 
+/// Catalog-only views shown in the packages/services dropdown.
+const Set<ProviderViewType> kProviderCatalogViews = {
+  ProviderViewType.services,
+  ProviderViewType.packages,
+};
+
 class CategoryTab {
   final int categoryId;
   final String categoryName;
@@ -53,6 +59,9 @@ class ProviderPageState {
   final String? reviewsError;
 
   final ProviderViewType currentView;
+  /// Last services/packages selection for the catalog dropdown.
+  /// Never set to [ProviderViewType.reviews].
+  final ProviderViewType catalogView;
   final String? searchQuery;
   final Set<int> pendingCartActionIds;
   final Set<int> pendingPackageInvoiceIds;
@@ -85,12 +94,23 @@ class ProviderPageState {
     this.reviewsHasMore = true,
     this.reviewsError,
     this.currentView = ProviderViewType.services,
+    this.catalogView = ProviderViewType.services,
     this.searchQuery,
     this.pendingCartActionIds = const {},
     this.pendingPackageInvoiceIds = const {},
   });
 
   dynamic get selectedTab => null;
+
+  int get displayServicesCount {
+    if (fullServices.isNotEmpty) return fullServices.length;
+    final embeddedServices = providerData?.services;
+    if (embeddedServices != null && embeddedServices.isNotEmpty) {
+      return embeddedServices.length;
+    }
+    return providerData?.servicesCount ?? 0;
+  }
+
   bool isServiceInCart(int serviceId) {
     return fullServices.any(
       (service) => service.id == serviceId && service.isSelected == true,
@@ -138,6 +158,7 @@ class ProviderPageState {
     String? reviewsError,
     bool resetReviewsError = false,
     ProviderViewType? currentView,
+    ProviderViewType? catalogView,
     String? searchQuery,
     bool resetSearchQuery = false,
     Set<int>? pendingCartActionIds,
@@ -185,6 +206,7 @@ class ProviderPageState {
           ? null
           : (reviewsError ?? this.reviewsError),
       currentView: currentView ?? this.currentView,
+      catalogView: catalogView ?? this.catalogView,
       searchQuery: resetSearchQuery ? null : (searchQuery ?? this.searchQuery),
       pendingCartActionIds: pendingCartActionIds ?? this.pendingCartActionIds,
       pendingPackageInvoiceIds:

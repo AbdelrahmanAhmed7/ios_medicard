@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -106,14 +107,26 @@ class NotificationCard extends StatelessWidget {
   String _formatRelativeTime(DateTime dateTime) {
     final difference = DateTime.now().difference(dateTime);
 
-    if (difference.inMinutes < 1) return 'now';
-    if (difference.inMinutes < 60) return '${difference.inMinutes}m';
-    if (difference.inHours < 24) return '${difference.inHours}h';
-    if (difference.inDays < 7) return '${difference.inDays}d';
-    if (difference.inDays < 30) return '${difference.inDays ~/ 7}w';
-    if (difference.inDays < 365) return '${difference.inDays ~/ 30}mo';
+    if (difference.inMinutes < 1) return 'notifications.now'.tr();
+    if (difference.inMinutes < 60) {
+      return 'notifications.minutes_ago'.tr(args: ['${difference.inMinutes}']);
+    }
+    if (difference.inHours < 24) {
+      return 'notifications.hours_ago'.tr(args: ['${difference.inHours}']);
+    }
+    if (difference.inDays < 7) {
+      return 'notifications.days_ago'.tr(args: ['${difference.inDays}']);
+    }
+    if (difference.inDays < 30) {
+      return 'notifications.weeks_ago'.tr(args: ['${difference.inDays ~/ 7}']);
+    }
+    if (difference.inDays < 365) {
+      return 'notifications.months_ago'.tr(
+        args: ['${difference.inDays ~/ 30}'],
+      );
+    }
 
-    return '${difference.inDays ~/ 365}y';
+    return 'notifications.years_ago'.tr(args: ['${difference.inDays ~/ 365}']);
   }
 }
 

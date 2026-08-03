@@ -19,6 +19,7 @@ class SearchScreen extends StatefulWidget {
   final double? userLongitude;
   final int? categoryId;
   final int initialTabIndex;
+  final bool enableCartFeatures;
 
   const SearchScreen({
     super.key,
@@ -26,6 +27,7 @@ class SearchScreen extends StatefulWidget {
     this.userLongitude,
     this.categoryId,
     this.initialTabIndex = 0,
+    this.enableCartFeatures = true,
   });
 
   @override
@@ -52,6 +54,7 @@ class _SearchScreenState extends State<SearchScreen>
         lat: widget.userLatitude,
         lng: widget.userLongitude,
         categoryId: widget.categoryId,
+        enableCartFeatures: widget.enableCartFeatures,
       );
       context.read<FilterCubit>().loadGovernorates();
     });
@@ -146,7 +149,7 @@ class _SearchScreenState extends State<SearchScreen>
                 controller: _tabController,
                 children: [
                   _ProvidersTab(scrollController: _scrollController),
-                  const _ServicesTab(),
+                  _ServicesTab(enableCartFeatures: widget.enableCartFeatures),
                 ],
               ),
             ),
@@ -356,7 +359,9 @@ class _ResultsBody extends StatelessWidget {
 }
 
 class _ServicesTab extends StatefulWidget {
-  const _ServicesTab();
+  final bool enableCartFeatures;
+
+  const _ServicesTab({required this.enableCartFeatures});
 
   @override
   State<_ServicesTab> createState() => _ServicesTabState();
@@ -383,7 +388,7 @@ class _ServicesTabState extends State<_ServicesTab> {
           previous.servicesData != current.servicesData ||
           previous.services != current.services,
       builder: (context, state) {
-        _autoSelectFirstCategoryWithData(context, state);
+        _autoSelectFirstCategory(context, state);
         final totalSelected = state.categorySelectedCounts.values.fold(
           0,
           (sum, c) => sum + c,
@@ -438,7 +443,7 @@ class _ServicesTabState extends State<_ServicesTab> {
               child: Stack(
                 children: [
                   _buildServicesBody(context, state, totalSelected),
-                  if (totalSelected > 0)
+                  if (widget.enableCartFeatures && totalSelected > 0)
                     Positioned(
                       left: 0,
                       right: 0,
@@ -454,26 +459,29 @@ class _ServicesTabState extends State<_ServicesTab> {
     );
   }
 
-  void _autoSelectFirstCategoryWithData(
-    BuildContext context,
-    SearchState state,
-  ) {
+  void _autoSelectFirstCategory(BuildContext context, SearchState state) {
     if (_didAutoSelectCategory ||
         state.isLoadingServiceCategories ||
         state.serviceCategories.isEmpty) {
       return;
     }
+
+    final firstCategoryId = state.serviceCategories
+        .map((category) => category.id)
+        .whereType<int>()
+        .firstOrNull;
+    if (firstCategoryId == null) return;
+
     _didAutoSelectCategory = true;
     _isAutoSelectingCategory = true;
     _didFinishAutoSelectCategory = false;
+    _selectedCategoryId = firstCategoryId;
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
-      final selectedId = await context
-          .read<SearchCubit>()
-          .loadFirstServiceCategoryWithData();
+      await context.read<SearchCubit>().loadCategoryServices(firstCategoryId);
       if (!mounted) return;
       setState(() {
-        _selectedCategoryId = selectedId;
         _isAutoSelectingCategory = false;
         _didFinishAutoSelectCategory = true;
       });
@@ -648,6 +656,10 @@ class _ServiceCardConnector extends StatelessWidget {
           isSelected: isSelected,
           isPending: isPending,
           onToggle: () {
+            if (!context.read<SearchCubit>().enableCartFeatures) {
+              context.push('/medicard-login');
+              return;
+            }
             if (isSelected) {
               context.read<SearchCubit>().removeServiceFromCart(
                 serviceId: serviceId,

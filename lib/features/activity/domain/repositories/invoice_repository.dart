@@ -1,10 +1,13 @@
 import '../../../../core/constants/api_result.dart';
 import '../models/created_invoice.dart';
 import '../models/invoice_details.dart';
-import '../models/invoice_item.dart';
+import '../models/invoices_page.dart';
 
 abstract class InvoiceRepository {
-  Future<ApiResult<List<InvoiceItem>>> getMyInvoices();
+  Future<ApiResult<InvoicesPage>> getMyInvoices({
+    int pageNumber = 1,
+    int pageSize = 10,
+  });
 
   Future<ApiResult<CreatedInvoice>> createFromPackage({
     required int packageId,

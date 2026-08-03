@@ -18,6 +18,7 @@
       "male": "ذكر",
       "female": "أنثى",
       "birthDate": "تاريخ الميلاد",
+      "birthDateInvalid": "أدخل تاريخ ميلاد صحيح",
       "password": "كلمة المرور",
       "passwordHint": "أدخل كلمة المرور",
       "passwordRequired": "كلمة المرور مطلوبة",
@@ -51,9 +52,11 @@
       "cardNumber": "رقم الكارت",
       "cardNumberHint": "أدخل رقم الكارت",
       "cardNumberRequired": "رقم الكارت مطلوب",
-      "mobileOrCardNumber": "رقم الموبايل/ميديكارد",
-      "phoneNumberRequired": "رقم الهاتف أو رقم ميديكارد مطلوب",
+      "mobileOrCardNumber": "رقم الموبايل / ميديكارد",
+      "identifierHint": "رقم الموبايل أو رقم ميديكارد",
+      "phoneNumberRequired": "رقم الموبايل أو رقم ميديكارد مطلوب",
       "phoneNumberInvalid": "أدخل رقم هاتف محمول مصري صحيح",
+      "identifierInvalid": "أدخل رقم موبايل أو رقم ميديكارد صحيح",
       "password": "كلمة المرور",
       "passwordHint": "أدخل كلمة المرور",
       "passwordRequired": "كلمة المرور مطلوبة",
@@ -65,6 +68,11 @@
       "registerNow": "إنشاء حساب",
       "activateCard": "تفعيل الكارت",
       "continueAsGuest": "المتابعة كزائر"
+    },
+    "signup": {
+      "validation": {
+        "phone_hint": "أدخل رقم هاتفك"
+      }
     }
   },
   "common": {
@@ -78,7 +86,19 @@
     "required": "مطلوب",
     "error": "حدث خطأ",
     "retry": "إعادة المحاولة",
-    "this_field_required": "هذا الحقل مطلوب"
+    "this_field_required": "هذا الحقل مطلوب",
+    "skip": "تخطي",
+    "next": "التالي",
+    "hotline": "الخط الساخن",
+    "mobile_landline": "موبايل / أرضي"
+  },
+  "activate_card": {
+    "title": "تفعيل الكارت",
+    "subtitle": "املأ بياناتك لتفعيل كارت ميديكارد",
+    "activate": "تفعيل",
+    "success": "تم تفعيل الكارت بنجاح",
+    "national_id_optional_hint": "أدخل الرقم القومي (اختياري)",
+    "passport_number_optional_hint": "أدخل رقم جواز السفر (اختياري)"
   },
   "search": {
     "filter": "تصفية",
@@ -89,9 +109,26 @@
     "try_different_keyword": "جرّب كلمة بحث مختلفة أو امسح الفلاتر."
   },
   "errors": {
-    "something_went_wrong": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+    "something_went_wrong": "تعذر إكمال الطلب حالياً. يرجى المحاولة بعد قليل.",
+    "network_error": "تعذر الاتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.",
+    "timeout_error": "استغرق الاتصال وقتاً أطول من المتوقع. يرجى المحاولة مرة أخرى.",
+    "session_expired": "انتهت صلاحية جلستك. يرجى تسجيل الدخول مرة أخرى.",
+    "forbidden_error": "ليس لديك صلاحية لتنفيذ هذا الإجراء.",
+    "server_error": "الخدمة غير متاحة مؤقتاً. يرجى المحاولة بعد قليل.",
+    "validation_failed": "يرجى مراجعة البيانات المدخلة والمحاولة مرة أخرى.",
+    "action_unavailable": "هذا الإجراء غير متاح حالياً. يرجى المحاولة لاحقاً.",
+    "bad_request": "يرجى مراجعة البيانات المدخلة والمحاولة مرة أخرى.",
+    "connection_error": "تعذر الاتصال بالخدمة. يرجى المحاولة مرة أخرى.",
+    "connection_timeout": "استغرق الاتصال وقتاً أطول من المتوقع. يرجى المحاولة مرة أخرى.",
+    "no_internet": "يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.",
+    "unauthorized": "انتهت صلاحية جلستك. يرجى تسجيل الدخول مرة أخرى.",
+    "access_denied": "ليس لديك صلاحية للوصول إلى هذا المحتوى.",
+    "not_found": "لم يتم العثور على البيانات المطلوبة.",
     "not_found_error": "لم يتم العثور على البيانات",
-    "generic_error": "حدث خطأ غير متوقع"
+    "generic_error": "تعذر إكمال الطلب حالياً. يرجى المحاولة بعد قليل.",
+    "request_failed": "تعذر إكمال الطلب حالياً. يرجى المحاولة بعد قليل.",
+    "temporary_service_issue": "الخدمة غير متاحة مؤقتاً. يرجى المحاولة بعد قليل.",
+    "try_again_later": "يرجى المحاولة بعد قليل."
   },
   "profile": {
     "my_profile": "حسابي",
@@ -107,6 +144,9 @@
     "language": "اللغة",
     "arabic": "العربية",
     "english": "English",
+    "updated_successfully": "تم تحديث الملف الشخصي بنجاح",
+    "language_changed_successfully": "تم تغيير اللغة بنجاح",
+    "profile_data_unavailable": "بيانات الملف الشخصي غير متاحة حالياً.",
     "standard_plan": "الباقة القياسية",
     "phone_number": "رقم الهاتف",
     "national_id": "الرقم القومي",
@@ -115,6 +155,20 @@
     "date_of_birth": "تاريخ الميلاد",
     "male": "ذكر",
     "female": "أنثى"
+  },
+  "change_password": {
+    "current_password": "كلمة المرور الحالية",
+    "current_password_hint": "أدخل كلمة المرور الحالية",
+    "current_password_required": "كلمة المرور الحالية مطلوبة",
+    "current_password_incorrect": "كلمة المرور الحالية غير صحيحة",
+    "new_password": "كلمة المرور الجديدة",
+    "new_password_hint": "أدخل كلمة المرور الجديدة",
+    "new_password_required": "كلمة المرور الجديدة مطلوبة",
+    "confirm_new_password": "تأكيد كلمة المرور الجديدة",
+    "confirm_new_password_hint": "أعد إدخال كلمة المرور الجديدة",
+    "confirm_new_password_required": "يرجى تأكيد كلمة المرور الجديدة",
+    "password_policy_invalid": "يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل، وحرف، ورقم، ورمز خاص",
+    "success": "تم تغيير كلمة المرور بنجاح"
   },
   "edit_profile": {
     "first_name": "الاسم الأول",
@@ -129,6 +183,18 @@
     "female": "أنثى",
     "select_an_option": "اختر خيار",
     "could_not_pick_image": "تعذر اختيار الصورة"
+  },
+  "medicard_edit_profile": {
+    "phone": "رقم الهاتف"
+  },
+  "dialog": {
+    "got_it": "حسناً"
+  },
+  "location_permission": {
+    "title": "السماح بالوصول للموقع",
+    "message": "نحتاج إلى موقعك لعرض أقرب مقدمي الخدمة لك.",
+    "enable_button": "تفعيل الموقع",
+    "maybe_later": "ربما لاحقاً"
   },
   "content": {
     "privacy_policy": "سياسة الخصوصية",
@@ -151,14 +217,14 @@
     "featured_services": "الخدمات المميزة",
     "no_data_available": "لا توجد بيانات",
     "pull_down_refresh": "اسحب للأسفل للتحديث والتحقق مرة أخرى.",
-    "something_went_wrong": "حدث خطأ ما",
+    "something_went_wrong": "تعذر تحميل هذه البيانات حالياً.",
     "network_error_title": "تعذر تحميل الصفحة الرئيسية",
     "no_internet_message": "يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.",
     "connection_timeout_message": "يستغرق الاتصال وقتًا أطول من المتوقع. يرجى المحاولة مرة أخرى.",
     "transfer_timeout_message": "استغرق الطلب وقتًا طويلًا حتى يكتمل. يرجى المحاولة مرة أخرى.",
     "server_error_message": "تعذر تحميل بيانات الصفحة الرئيسية الآن. يرجى المحاولة بعد قليل.",
     "unauthorized_message": "انتهت صلاحية جلستك. يرجى تسجيل الدخول مرة أخرى.",
-    "unknown_error_message": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+    "unknown_error_message": "تعذر تحميل هذه البيانات حالياً. يرجى المحاولة بعد قليل.",
     "retrying": "جارٍ إعادة المحاولة...",
     "refresh_failed": "تعذر تحديث الصفحة الرئيسية. لا تزال بياناتك الحالية متاحة.",
     "user_not_active": "حسابك غير نشط",
@@ -166,9 +232,53 @@
     "pending": "المعلقة",
     "completed": "المكتملة",
     "nav_home": "الرئيسية",
-    "nav_ecard": "البطاقة الإلكترونية",
+    "nav_ecard": "بطاقتي",
     "nav_activity": "المواعيد",
     "nav_profile": "حسابي"
+  },
+  "guest_home": {
+    "explore_health_services": "استكشف الخدمات الصحية"
+  },
+  "network": {
+    "title": "شبكة مقدمي الخدمة",
+    "search_placeholder": "ابحث عن طبيب أو صيدلية أو معمل...",
+    "search_customization": "تخصيص البحث",
+    "services_and_discounts": "الخدمات والخصومات",
+    "available_services_discounts": "الخدمات والخصومات المتاحة",
+    "categories": "التصنيفات",
+    "category_count": "{} تصنيف",
+    "provider_count": "{} مقدم خدمة",
+    "results_count": "{} نتيجة",
+    "loading_providers": "جاري تحميل مقدمي الخدمة...",
+    "no_results": "لا توجد نتائج",
+    "no_results_for": "لا توجد نتائج لـ {}",
+    "try_different_search": "جرّب كلمة بحث مختلفة.",
+    "try_changing_filters": "جرّب تغيير الفلاتر.",
+    "clear_filters": "مسح الفلاتر",
+    "sort": "ترتيب",
+    "highest_discount": "أعلى خصم",
+    "government": "المحافظة",
+    "city": "المدينة",
+    "all": "الكل",
+    "call": "اتصال",
+    "directions": "الاتجاهات",
+    "location_and_address": "الموقع والعنوان",
+    "location_access_denied_body": "تم رفض الوصول للموقع. يمكنك تفعيله من الإعدادات.",
+    "location_service_body": "يرجى تفعيل خدمة الموقع لعرض النتائج الأقرب إليك.",
+    "location_banner_denied": "الوصول للموقع غير مفعل.",
+    "location_banner_retry": "إعادة المحاولة",
+    "open_app_settings": "فتح إعدادات التطبيق",
+    "open_settings": "فتح الإعدادات",
+    "search_instead_in": "البحث بدلاً من ذلك في {}",
+    "more": "المزيد",
+    "km": "{} كم",
+    "meters": "{} م",
+    "clinic_suggestion": "عيادات",
+    "dental_suggestion": "أسنان",
+    "hospital_suggestion": "مستشفيات",
+    "lab_suggestion": "معامل",
+    "pharmacy_suggestion": "صيدليات",
+    "scan_suggestion": "أشعة"
   },
   "sort_filter": {
     "sort_by": "ترتيب حسب",
@@ -218,10 +328,18 @@
     "address": "العنوان",
     "total_services": "إجمالي الخدمات",
     "services_count": "{} خدمة",
+    "open_map": "فتح الخريطة",
     "reviews": "التقييمات",
-    "special_offer": "عرض خاص"
+    "special_offer": "عرض خاص",
+    "packages": "الباقات",
+    "no_packages_found": "لا توجد باقات",
+    "no_reviews_found": "لا توجد تقييمات",
+    "select_branch_first": "يرجى اختيار الفرع أولاً.",
+    "no_provider_branch_found": "لم يتم العثور على فرع لهذه الباقة.",
+    "tests_included": "الفحوصات المتضمنة"
   },
   "cart": {
+    "title": "السلة",
     "view_cart": "عرض السلة",
     "choose_provider": "اختر مقدم الخدمة",
     "providers_available": "{} مقدم خدمة متاح",
@@ -244,15 +362,72 @@
     "total_amount": "الإجمالي",
     "continue_payment": "استكمال الدفع",
     "pay_with_visa": "ادفع بالفيزا",
-    "pay": "ادفع"
+    "pay": "ادفع",
+    "egp_currency": "جنيه",
+    "items_in_cart": "{} عنصر في السلة",
+    "clear_cart": "مسح السلة",
+    "clear_cart_question": "مسح السلة؟",
+    "clear_cart_confirmation": "سيتم حذف جميع الخدمات المحددة من السلة.",
+    "categories": "التصنيفات",
+    "no_provider_selected": "لم يتم اختيار مقدم خدمة",
+    "discount_percent": "خصم {}%",
+    "egp_amount": "{} جنيه",
+    "negative_egp_amount": "- {} جنيه",
+    "price_unavailable": "السعر غير متاح",
+    "some_items_need_provider": "بعض العناصر تحتاج إلى مقدم خدمة. اضغط للاختيار",
+    "empty_title": "السلة فارغة",
+    "empty_message": "اختر الخدمات من مقدمي الخدمة وستظهر هنا قبل الدفع.",
+    "explore_services": "استكشف الخدمات",
+    "could_not_open_payment_link": "تعذر فتح رابط الدفع.",
+    "some_prices_missing": "بعض عناصر السلة لا تحتوي على أسعار بعد. يرجى اختيار مقدمي الخدمة والمحاولة مرة أخرى."
   },
   "activity": {
     "pending": "في الانتظار",
     "used": "مستخدمة",
     "no_items": "لا توجد عناصر",
+    "empty_pending_title": "لا توجد مواعيد قادمة",
+    "empty_pending_message": "ستظهر هنا الحجوزات القادمة والفواتير غير المستخدمة.",
+    "empty_used_title": "لا توجد فواتير مستخدمة",
+    "empty_used_message": "ستظهر هنا الزيارات المكتملة والفواتير المستخدمة.",
     "status_pending": "في الانتظار",
     "status_used": "مستخدمة",
     "details": "التفاصيل",
-    "book": "حجز"
+    "book": "حجز",
+    "appointment_details": "تفاصيل الموعد",
+    "invoice_details_load_failed": "تعذر تحميل تفاصيل الفاتورة.",
+    "order_number": "رقم الطلب #{}",
+    "date": "التاريخ",
+    "service": "الخدمة",
+    "services_more": "{} +{} أخرى",
+    "leave_review": "إضافة تقييم",
+    "review_requires_used_invoice": "يجب استخدام هذه الفاتورة قبل إضافة تقييم.",
+    "share_your_review": "شارك تقييمك",
+    "review_input_hint": "اكتب تقييمك",
+    "submit": "إرسال",
+    "review_submitted_successfully": "تم إرسال التقييم بنجاح."
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "all": "الكل",
+    "unread": "غير المقروءة",
+    "mark_all_read": "تحديد الكل كمقروء",
+    "load_failed_title": "تعذر تحميل الإشعارات",
+    "empty_title": "لا توجد إشعارات بعد",
+    "empty_unread_title": "لا توجد إشعارات غير مقروءة",
+    "empty_message": "ستظهر التحديثات الجديدة هنا.",
+    "empty_unread_message": "كل الإشعارات مقروءة.",
+    "now": "الآن",
+    "minutes_ago": "{} د",
+    "hours_ago": "{} س",
+    "days_ago": "{} ي",
+    "weeks_ago": "{} أ",
+    "months_ago": "{} ش",
+    "years_ago": "{} سنة"
+  },
+  "ecard": {
+    "title": "بطاقتي",
+    "no_card_title": "ليس لديك كارت بعد",
+    "no_card_message": "احصل على ميديكارد للوصول إلى أكثر من 2400 طبيب ومعمل وصيدلية ونادٍ رياضي في مصر مع خصومات حصرية للأعضاء.",
+    "expiry_date": "الانتهاء"
   }
 }

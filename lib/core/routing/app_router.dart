@@ -260,6 +260,8 @@ class AppRouter {
             final lng = extra?['userLongitude'] as double?;
             final categoryId = extra?['categoryId'] as int?;
             final initialTabIndex = extra?['initialTabIndex'] as int? ?? 0;
+            final enableCartFeatures =
+                extra?['enableCartFeatures'] as bool? ?? true;
             return MultiBlocProvider(
               providers: [
                 BlocProvider(create: (_) => sl<SearchCubit>()),
@@ -270,6 +272,7 @@ class AppRouter {
                 userLongitude: lng,
                 categoryId: categoryId,
                 initialTabIndex: initialTabIndex,
+                enableCartFeatures: enableCartFeatures,
               ),
             );
           },
@@ -281,6 +284,8 @@ class AppRouter {
             final lat = extra?['userLatitude'] as double?;
             final lng = extra?['userLongitude'] as double?;
             final categoryId = extra?['categoryId'] as int?;
+            final enableCartFeatures =
+                extra?['enableCartFeatures'] as bool? ?? true;
             return MultiBlocProvider(
               providers: [
                 BlocProvider(create: (_) => sl<SearchCubit>()),
@@ -291,6 +296,7 @@ class AppRouter {
                 userLongitude: lng,
                 categoryId: categoryId,
                 initialTabIndex: 0,
+                enableCartFeatures: enableCartFeatures,
               ),
             );
           },
@@ -302,6 +308,8 @@ class AppRouter {
             final lat = extra?['userLatitude'] as double?;
             final lng = extra?['userLongitude'] as double?;
             final categoryId = extra?['categoryId'] as int?;
+            final enableCartFeatures =
+                extra?['enableCartFeatures'] as bool? ?? true;
             return MultiBlocProvider(
               providers: [
                 BlocProvider(create: (_) => sl<SearchCubit>()),
@@ -312,6 +320,7 @@ class AppRouter {
                 userLongitude: lng,
                 categoryId: categoryId,
                 initialTabIndex: 1,
+                enableCartFeatures: enableCartFeatures,
               ),
             );
           },

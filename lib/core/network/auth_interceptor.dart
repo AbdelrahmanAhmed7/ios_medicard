@@ -5,7 +5,17 @@ import '../auth/auth_refresh_service.dart';
 import '../auth/auth_session_storage.dart';
 
 /// Paths that must NEVER receive an [Authorization] header.
-const _publicPaths = {'Auth/login', 'Auth/register', 'Auth/refresh-token'};
+const _publicPaths = {
+  'Auth/login',
+  'Auth/register',
+  'Auth/refresh-token',
+  'GuestMobileHome/guest',
+  'Lookups/categories',
+  'Lookups/governorates',
+  'Lookups/cities',
+  'CategoryService/categories',
+  'Search/providers',
+};
 
 bool _isPublicPath(String path) {
   for (final p in _publicPaths) {

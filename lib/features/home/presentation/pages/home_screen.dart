@@ -8,7 +8,9 @@ import '../../../../core/cubit/app_refresh_cubit.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/theming/app_toast.dart';
 import '../../../../core/theming/app_snack_bar.dart';
+import '../../../../core/utils/location_permission_dialog.dart';
 import '../../../../features/activity/presentation/cubit/activity_cubit.dart';
+import '../../../../features/ecard/presentation/cubit/ecard_cubit.dart';
 import '../../../../features/profile/presentation/cubit/profile_cubit.dart';
 import '../../../../features/profile/presentation/cubit/profile_state.dart';
 import '../../../../features/profile/presentation/widgets/profile_content.dart';
@@ -18,6 +20,7 @@ import '../../data/models/home_response_model.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
 import '../cubit/location_cubit.dart';
+import '../cubit/location_state.dart';
 import '../mappers/home_mappers.dart';
 import '../widgets/activity_screen.dart';
 import '../widgets/ecard_screen.dart';
@@ -43,6 +46,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late int _currentIndex;
+  bool _locationLoadStarted = false;
+  bool _homeLoadStarted = false;
 
   @override
   void initState() {
@@ -54,9 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<HomeCubit>(
-          create: (context) => sl<HomeCubit>()..getHomeData(),
-        ),
+        BlocProvider<HomeCubit>(create: (context) => sl<HomeCubit>()),
         BlocProvider<ProfileCubit>(
           create: (context) {
             if (kDebugMode) {
@@ -65,12 +68,11 @@ class _HomeScreenState extends State<HomeScreen> {
             return sl<ProfileCubit>();
           },
         ),
-        BlocProvider<LocationCubit>(
-          create: (context) => sl<LocationCubit>()..loadLocation(),
-        ),
+        BlocProvider<LocationCubit>(create: (context) => sl<LocationCubit>()),
         BlocProvider<ActivityCubit>(
           create: (context) => sl<ActivityCubit>()..loadInvoices(),
         ),
+        BlocProvider<ECardCubit>(create: (context) => sl<ECardCubit>()),
         BlocProvider<AppRefreshCubit>.value(value: sl<AppRefreshCubit>()),
       ],
       child: MultiBlocListener(
@@ -80,6 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
               state.maybeWhen(
                 languageChanged: () {
                   context.read<HomeCubit>().getHomeData();
+                  context.read<ECardCubit>().loadCardData(forceRefresh: true);
                   if (_currentIndex == 3) {
                     context.read<ProfileCubit>().loadProfile(
                       forceRefresh: true,
@@ -90,39 +93,77 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             },
           ),
-        ],
-        child: PopScope(
-          canPop: _currentIndex == 0,
-          onPopInvokedWithResult: (didPop, result) {
-            if (didPop || _currentIndex == 0) return;
-            setState(() => _currentIndex = 0);
-          },
-          child: Scaffold(
-            backgroundColor: Colors.white,
-            body: IndexedStack(
-              index: _currentIndex,
-              children: const [
-                _HomeBody(),
-                ECardScreen(),
-                ActivityScreen(),
-                _ProfileBody(),
-              ],
-            ),
-            bottomNavigationBar: Builder(
-              builder: (providerContext) => HomeBottomNav(
-                currentIndex: _currentIndex,
-                onTap: (i) {
-                  if (i == 3) {
-                    if (kDebugMode) {
-                      debugPrint('[ProfileFlow] Profile tab opened');
-                    }
-                    providerContext.read<ProfileCubit>().loadProfile();
-                  }
-                  if (i != _currentIndex) setState(() => _currentIndex = i);
-                },
-              ),
-            ),
+          BlocListener<LocationCubit, LocationState>(
+            listener: (context, state) {
+              if (state is LocationLoaded || state is LocationError) {
+                final refresh = _homeLoadStarted;
+                _homeLoadStarted = true;
+                context.read<HomeCubit>().getHomeData(refresh: refresh);
+              }
+            },
           ),
+        ],
+        child: Builder(
+          builder: (context) {
+            final locationCubit = context.read<LocationCubit>();
+            locationCubit.onShowRationaleDialog = (completer) {
+              void completeOnce(bool value) {
+                if (!completer.isCompleted) {
+                  completer.complete(value);
+                }
+              }
+
+              LocationPermissionDialog.show(
+                context,
+                onEnablePressed: () => completeOnce(true),
+                onMaybeLaterPressed: () => completeOnce(false),
+              );
+            };
+            if (!_locationLoadStarted) {
+              _locationLoadStarted = true;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  context.read<LocationCubit>().loadLocation();
+                }
+              });
+            }
+
+            return PopScope(
+              canPop: _currentIndex == 0,
+              onPopInvokedWithResult: (didPop, result) {
+                if (didPop || _currentIndex == 0) return;
+                setState(() => _currentIndex = 0);
+              },
+              child: Scaffold(
+                backgroundColor: Colors.white,
+                body: IndexedStack(
+                  index: _currentIndex,
+                  children: const [
+                    _HomeBody(),
+                    ECardScreen(),
+                    ActivityScreen(),
+                    _ProfileBody(),
+                  ],
+                ),
+                bottomNavigationBar: Builder(
+                  builder: (providerContext) => HomeBottomNav(
+                    currentIndex: _currentIndex,
+                    onTap: (i) {
+                      if (i == 3) {
+                        if (kDebugMode) {
+                          debugPrint('[ProfileFlow] Profile tab opened');
+                        }
+                        providerContext.read<ProfileCubit>().loadProfile();
+                      }
+                      if (i != _currentIndex) {
+                        setState(() => _currentIndex = i);
+                      }
+                    },
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );

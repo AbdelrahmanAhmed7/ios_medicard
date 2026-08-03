@@ -14,8 +14,7 @@ abstract class SearchRemoteDataSource {
       _SearchRemoteDataSource;
 
   @GET('Search/providers')
-  Future<SearchResponseModel> searchProviders(
-    @Header('Authorization') String token, {
+  Future<SearchResponseModel> searchProviders({
     @Query('Keyword') String? keyword,
     @Query('CategoryId') int? categoryId,
     @Query('GovernorateId') int? governorateId,
@@ -30,29 +29,22 @@ abstract class SearchRemoteDataSource {
   });
 
   @GET('Lookups/categories')
-  Future<CategoryResponseModel> getCategories(
-    @Header('Authorization') String token,
-  );
+  Future<CategoryResponseModel> getCategories();
 
   @GET('CategoryService/categories')
-  Future<CategoryResponseModel> getServiceCategories(
-    @Header('Authorization') String token,
-  );
+  Future<CategoryResponseModel> getServiceCategories();
 
   @GET('Lookups/governorates')
-  Future<LookupResponseModel> getGovernorates(
-    @Header('Authorization') String token,
-  );
+  Future<LookupResponseModel> getGovernorates();
 
   @GET('Lookups/cities')
   Future<LookupResponseModel> getCities(
-    @Header('Authorization') String token,
     @Query('governorateId') int governorateId,
   );
 
   @GET('Cart/category/{categoryId}/services')
   Future<CategoryServicesResponseModel> getCategoryServices(
-    @Header('Authorization') String token,
     @Path('categoryId') int categoryId,
+    @Extras() Map<String, dynamic> extras,
   );
 }

@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:medicard/core/network/app_failure.dart';
 
 String parseApiError(dynamic error) {
@@ -43,8 +45,13 @@ String parseApiError(dynamic error) {
       final statusMessage = _messageForStatusCode(statusCode);
       if (statusMessage != null) return statusMessage;
     }
-  } catch (_) {}
-  return 'Something went wrong. Please try again.';
+  } catch (parseError, stackTrace) {
+    if (kDebugMode) {
+      debugPrint('[ApiErrorParser] Failed to parse error: $parseError');
+      debugPrint('$stackTrace');
+    }
+  }
+  return 'errors.request_failed'.tr();
 }
 
 String _extractMessages(dynamic value) {
@@ -69,39 +76,57 @@ String friendlyApiMessage(String message) {
   final normalized = message.trim();
   final lower = normalized.toLowerCase();
 
+  if (_isGenericMessage(normalized)) {
+    return 'errors.request_failed'.tr();
+  }
+
   if (lower.contains('cartitempricemissing') ||
       lower.contains('cart item price missing')) {
-    return 'Some cart items are still missing prices. Please choose providers for them and try again.';
+    return 'cart.some_prices_missing'.tr();
   }
 
   if (lower.contains('current password') &&
       (lower.contains('incorrect') ||
           lower.contains('invalid') ||
           lower.contains('wrong'))) {
-    return 'Current password is incorrect';
+    return 'change_password.current_password_incorrect'.tr();
   }
 
   if (lower.contains('password') &&
       (lower.contains('incorrect') ||
           lower.contains('invalid') ||
           lower.contains('wrong'))) {
-    return 'Current password is incorrect';
+    return 'change_password.current_password_incorrect'.tr();
   }
 
   return normalized;
 }
 
+bool _isGenericMessage(String message) {
+  final lower = message.trim().toLowerCase();
+  return lower == 'something went wrong' ||
+      lower == 'something went wrong. please try again.' ||
+      lower == 'an unexpected error occurred' ||
+      lower == 'unexpected error occurred.' ||
+      lower == 'حدث خطأ غير متوقع' ||
+      lower == 'حدث خطأ ما. يرجى المحاولة مرة أخرى.' ||
+      lower.contains('unexpected error') ||
+      lower.contains('unknown error') ||
+      lower.contains('internal error') ||
+      lower.contains('an unexpected error occurred');
+}
+
 String? _messageForStatusCode(int? statusCode) {
   if (statusCode != null && statusCode >= 500) {
-    return 'Server error. Please try again later.';
+    return 'errors.temporary_service_issue'.tr();
   }
 
   return switch (statusCode) {
-    400 => 'Please check the entered data and try again.',
-    401 => 'Your session has expired. Please log in again.',
-    403 => 'You do not have permission to perform this action.',
-    404 => 'The requested service is unavailable.',
-    405 => 'This action is currently unavailable. Please try again later.',
+    400 => 'errors.validation_failed'.tr(),
+    401 => 'errors.session_expired'.tr(),
+    403 => 'errors.forbidden_error'.tr(),
+    404 => 'errors.not_found_error'.tr(),
+    405 => 'errors.action_unavailable'.tr(),
     _ => null,
   };
 }

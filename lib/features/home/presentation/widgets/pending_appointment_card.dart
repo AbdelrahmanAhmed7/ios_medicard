@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
@@ -156,7 +157,7 @@ class _StatusBadge extends StatelessWidget {
           const SizedBox(width: 4),
           Flexible(
             child: Text(
-              status,
+              _localizedStatus(status),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
@@ -170,5 +171,14 @@ class _StatusBadge extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _localizedStatus(String status) {
+    return switch (status.trim().toLowerCase()) {
+      'pending' => 'home.pending'.tr(),
+      'completed' => 'home.completed'.tr(),
+      'used' => 'activity.status_used'.tr(),
+      _ => status,
+    };
   }
 }

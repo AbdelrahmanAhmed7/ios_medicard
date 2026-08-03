@@ -140,6 +140,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
           : state.providerData != null
           ? _ProviderInfoRow(
               data: state.providerData!,
+              servicesCount: state.displayServicesCount,
               selectedBranch: _selectedBranch,
               onBranchTap: () =>
                   _openBranchSelector(state.providerData!.branches),
@@ -154,10 +155,6 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
     ProviderPageState state,
     ProviderPageCubit cubit,
   ) {
-    final dropdownValue = state.currentView == ProviderViewType.reviews
-        ? null
-        : state.currentView;
-
     return Row(
       children: [
         Expanded(
@@ -173,7 +170,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
               decoration: InputDecoration(
                 filled: true,
                 fillColor: Colors.white,
-                hintText: 'Test',
+                hintText: 'provider_page.search_services'.tr(),
                 hintStyle: TextStyle(
                   color: const Color(0xFF9CA3AF),
                   fontSize: 14.sp,
@@ -203,11 +200,15 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<ProviderViewType>(
-              value: dropdownValue,
+              // Catalog-only control. While reviews content is open, keep value
+              // null so re-selecting Services/Packages can exit reviews.
+              value: state.currentView == ProviderViewType.reviews
+                  ? null
+                  : state.catalogView,
               hint: Text(
-                state.currentView == ProviderViewType.reviews
-                    ? 'Reviews'
-                    : 'Services',
+                state.catalogView == ProviderViewType.packages
+                    ? 'provider_page.packages'.tr()
+                    : 'provider_page.services'.tr(),
                 style: TextStyle(
                   color: const Color(0xFF64748B),
                   fontSize: 14.sp,
@@ -224,7 +225,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                 DropdownMenuItem(
                   value: ProviderViewType.services,
                   child: Text(
-                    'Services',
+                    'provider_page.services'.tr(),
                     style: TextStyle(
                       color: const Color(0xFF64748B),
                       fontSize: 14.sp,
@@ -235,7 +236,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                 DropdownMenuItem(
                   value: ProviderViewType.packages,
                   child: Text(
-                    'Packages',
+                    'provider_page.packages'.tr(),
                     style: TextStyle(
                       color: const Color(0xFF64748B),
                       fontSize: 14.sp,
@@ -722,7 +723,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
       );
     }
     if (state.packages.isEmpty) {
-      return Center(child: Text('No packages found'.tr()));
+      return Center(child: Text('provider_page.no_packages_found'.tr()));
     }
     return NotificationListener<ScrollNotification>(
       onNotification: (scrollInfo) {
@@ -783,7 +784,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
       );
     }
     if (state.reviews.isEmpty) {
-      return Center(child: Text('No reviews found'.tr()));
+      return Center(child: Text('provider_page.no_reviews_found'.tr()));
     }
 
     return NotificationListener<ScrollNotification>(
@@ -1055,7 +1056,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
 
     if (branchId == null || branch == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a branch first.')),
+        SnackBar(content: Text('provider_page.select_branch_first'.tr())),
       );
       return;
     }
@@ -1371,12 +1372,14 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
 
 class _ProviderInfoRow extends StatelessWidget {
   final ProviderPageData data;
+  final int servicesCount;
   final ProviderBranch? selectedBranch;
   final VoidCallback onBranchTap;
   final VoidCallback onRatingTap;
 
   const _ProviderInfoRow({
     required this.data,
+    required this.servicesCount,
     required this.selectedBranch,
     required this.onBranchTap,
     required this.onRatingTap,
@@ -1468,9 +1471,7 @@ class _ProviderInfoRow extends StatelessWidget {
                   ),
                   SizedBox(width: 4.w),
                   Text(
-                    'provider_page.services_count'.tr(
-                      args: ['${data.servicesCount ?? 0}'],
-                    ),
+                    'provider_page.services_count'.tr(args: ['$servicesCount']),
                     style: TextStyle(color: Colors.white, fontSize: 12.sp),
                   ),
                   if (data.phones != null && data.phones!.isNotEmpty) ...[

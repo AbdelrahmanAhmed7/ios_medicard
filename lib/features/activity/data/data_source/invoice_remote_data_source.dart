@@ -16,7 +16,10 @@ abstract class InvoiceRemoteDataSource {
       _InvoiceRemoteDataSource;
 
   @GET('Invoice/my-invoices')
-  Future<InvoicesResponseDto> getMyInvoices();
+  Future<InvoicesResponseDto> getMyInvoices({
+    @Query('pageNumber') int pageNumber = 1,
+    @Query('pageSize') int pageSize = 10,
+  });
 
   @POST('Invoice/from-package')
   Future<CreateInvoiceResponseDto> createFromPackage(

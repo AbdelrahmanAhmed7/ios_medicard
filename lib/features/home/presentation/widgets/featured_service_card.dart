@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/constants/api_result.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../medicard_network/repository/medicard_network_repository.dart';
@@ -297,7 +298,7 @@ class FeaturedServiceCard extends StatelessWidget {
     if (!context.mounted) return;
     if (branchId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No provider branch found for package.')),
+        SnackBar(content: Text('provider_page.no_provider_branch_found'.tr())),
       );
       return;
     }
@@ -394,9 +395,12 @@ class _PackageDetailsSheetContent extends StatelessWidget {
               ),
               if (serviceNames.isNotEmpty) ...[
                 const SizedBox(height: 20),
-                const Text(
-                  'Tests included',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                Text(
+                  'provider_page.tests_included'.tr(),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 const SizedBox(height: 10),
                 ...List.generate(
@@ -413,9 +417,9 @@ class _PackageDetailsSheetContent extends StatelessWidget {
               const SizedBox(height: 22),
               Row(
                 children: [
-                  const Text(
-                    'Total',
-                    style: TextStyle(
+                  Text(
+                    'cart.total_amount'.tr(),
+                    style: const TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF64748B),
@@ -423,14 +427,14 @@ class _PackageDetailsSheetContent extends StatelessWidget {
                   ),
                   const Spacer(),
                   Text(
-                    '${priceBefore.toInt()} EGP',
+                    'cart.egp_amount'.tr(args: ['${priceBefore.toInt()}']),
                     style: const TextStyle(
                       decoration: TextDecoration.lineThrough,
                     ),
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    '${priceAfter.toInt()} EGP',
+                    'cart.egp_amount'.tr(args: ['${priceAfter.toInt()}']),
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -452,7 +456,7 @@ class _PackageDetailsSheetContent extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: const Text('Book'),
+                  child: Text('activity.book'.tr()),
                 ),
               ),
               SizedBox(height: bottomPadding),

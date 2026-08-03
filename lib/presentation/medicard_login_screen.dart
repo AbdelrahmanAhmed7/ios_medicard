@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/theming/app_toast.dart';
@@ -19,13 +20,13 @@ class MediCardLoginScreen extends StatefulWidget {
 
 class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _phoneNumberController = TextEditingController();
+  final _loginIdentifierController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
   @override
   void dispose() {
-    _phoneNumberController.dispose();
+    _loginIdentifierController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -33,14 +34,16 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
   void _onLoginPressed(BuildContext context) {
     FocusScope.of(context).unfocus();
     if (_formKey.currentState!.validate()) {
-      final phoneNumber = LanguageHelper.convertArabicToEnglishNumerals(
-        _phoneNumberController.text.trim(),
+      final identifier = LanguageHelper.convertArabicToEnglishNumerals(
+        _loginIdentifierController.text.trim(),
       );
       final password = LanguageHelper.convertArabicToEnglishNumerals(
         _passwordController.text.trim(),
       );
+      final loginIdentifier = _parseLoginIdentifier(identifier);
       context.read<MedicardLoginCubit>().login(
-        phoneNumber: phoneNumber,
+        cardNumber: loginIdentifier.cardNumber,
+        phoneNumber: loginIdentifier.phoneNumber,
         password: password,
       );
     } else {
@@ -48,24 +51,24 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
     }
   }
 
-  String? _validatePhoneNumber(String? value) {
-    final phoneNumber = LanguageHelper.convertArabicToEnglishNumerals(
+  String? _validateLoginIdentifier(String? value) {
+    final identifier = LanguageHelper.convertArabicToEnglishNumerals(
       value?.trim() ?? '',
     );
 
-    if (phoneNumber.isEmpty) {
+    if (identifier.isEmpty) {
       return 'auth.login.phoneNumberRequired'.tr();
     }
 
-    final cleanPhoneNumber = phoneNumber.startsWith('0')
-        ? phoneNumber.substring(1)
-        : phoneNumber;
-
-    if (!RegExp(r'^(10|11|12|15)[0-9]{8}$').hasMatch(cleanPhoneNumber)) {
-      return 'auth.login.phoneNumberInvalid'.tr();
+    if (_isEgyptianMobile(identifier)) {
+      return null;
     }
 
-    return null;
+    if (_isPotentialCardNumber(identifier)) {
+      return null;
+    }
+
+    return 'auth.login.identifierInvalid'.tr();
   }
 
   @override
@@ -222,12 +225,20 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
 
   Widget _buildPhoneField() {
     return TextFormField(
-      controller: _phoneNumberController,
-      keyboardType: TextInputType.phone,
+      controller: _loginIdentifierController,
+      keyboardType: TextInputType.text,
+      textCapitalization: TextCapitalization.characters,
+      maxLength: 12,
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9\-]')),
+        LengthLimitingTextInputFormatter(12),
+      ],
       autovalidateMode: AutovalidateMode.onUserInteraction,
       style: TextStyle(fontSize: 15.sp, color: Colors.black),
-      decoration: authInputDecoration(hintText: '1920237338637'),
-      validator: _validatePhoneNumber,
+      decoration: authInputDecoration(
+        hintText: 'auth.login.identifierHint'.tr(),
+      ).copyWith(counterText: ''),
+      validator: _validateLoginIdentifier,
     );
   }
 
@@ -257,6 +268,30 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
       },
     );
   }
+}
+
+class _LoginIdentifier {
+  final String? cardNumber;
+  final String? phoneNumber;
+
+  const _LoginIdentifier({this.cardNumber, this.phoneNumber});
+}
+
+_LoginIdentifier _parseLoginIdentifier(String raw) {
+  final identifier = raw.trim();
+  if (_isEgyptianMobile(identifier)) {
+    return _LoginIdentifier(phoneNumber: identifier);
+  }
+  return _LoginIdentifier(cardNumber: identifier);
+}
+
+bool _isEgyptianMobile(String value) {
+  final cleanPhoneNumber = value.startsWith('0') ? value.substring(1) : value;
+  return RegExp(r'^(10|11|12|15)[0-9]{8}$').hasMatch(cleanPhoneNumber);
+}
+
+bool _isPotentialCardNumber(String value) {
+  return RegExp(r'^[A-Za-z0-9][A-Za-z0-9\-]{3,11}$').hasMatch(value);
 }
 
 // ── Or Divider ──────────────────────────────────────────────────────────────

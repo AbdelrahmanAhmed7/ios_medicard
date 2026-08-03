@@ -13,6 +13,10 @@ class HomeBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Register this widget as a localization dependent so persistent shells
+    // rebuild immediately when EasyLocalization changes locale.
+    context.locale;
+
     final bottomSafePadding = MediaQuery.viewPaddingOf(context).bottom;
     final items = <_NavItem>[
       _NavItem(icon: Icons.home_outlined, labelKey: 'home.nav_home'),
@@ -94,7 +98,7 @@ class _NavColumn extends StatelessWidget {
             Icon(item.icon, size: 24, color: color),
             const SizedBox(height: 7),
             Text(
-              item.labelKey.tr(),
+              item.labelKey.tr(context: context),
               style: TextStyle(
                 fontFamily: 'Inter',
                 color: color,

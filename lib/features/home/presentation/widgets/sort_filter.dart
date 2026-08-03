@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 
-enum SortOption { highestOffer, nearest, highestRating }
+enum SortOption { nearest, highestRating }
 
 class SortFilterSheet extends StatefulWidget {
   const SortFilterSheet({super.key});
@@ -55,9 +55,11 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
             ),
           ),
           const SizedBox(height: 12),
-          _buildCheckItem('sort_filter.highest_offer'.tr(), SortOption.highestOffer),
           _buildCheckItem('sort_filter.nearest'.tr(), SortOption.nearest),
-          _buildCheckItem('sort_filter.highest_rating'.tr(), SortOption.highestRating),
+          _buildCheckItem(
+            'sort_filter.highest_rating'.tr(),
+            SortOption.highestRating,
+          ),
           const SizedBox(height: 20),
 
           // Location
@@ -196,20 +198,24 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
             ),
           ),
           isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down_rounded,
-              color: Color(0xFF6B7280)),
+          icon: const Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color: Color(0xFF6B7280),
+          ),
           items: items
-              .map((e) => DropdownMenuItem(
-            value: e,
-            child: Text(
-              e,
-              style: const TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 13,
-                color: Color(0xFF1A1A2E),
-              ),
-            ),
-          ))
+              .map(
+                (e) => DropdownMenuItem(
+                  value: e,
+                  child: Text(
+                    e,
+                    style: const TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 13,
+                      color: Color(0xFF1A1A2E),
+                    ),
+                  ),
+                ),
+              )
               .toList(),
           onChanged: onChanged,
         ),

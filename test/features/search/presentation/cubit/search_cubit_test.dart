@@ -248,6 +248,7 @@ class _FakeSearchRepository implements SearchRepository {
   @override
   Future<ApiResult<CategoryServicesDataModel>> getCategoryServices(
     int categoryId,
+    bool skipAuthInterceptor,
   ) {
     categoryServiceCalls[categoryId] =
         (categoryServiceCalls[categoryId] ?? 0) + 1;

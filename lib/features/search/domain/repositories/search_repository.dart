@@ -29,5 +29,6 @@ abstract class SearchRepository {
 
   Future<ApiResult<CategoryServicesDataModel>> getCategoryServices(
     int categoryId,
+    bool skipAuthInterceptor,
   );
 }

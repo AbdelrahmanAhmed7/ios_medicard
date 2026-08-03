@@ -215,11 +215,11 @@ class CartCubit extends Cubit<CartState> {
         emit(
           state.copyWith(
             cart: const Cart.empty(),
-            isCartLoading: false,
             resetCartError: true,
           ),
         );
         _cartSyncService.cartCleared();
+        loadCart();
       },
       failure: (error) {
         emit(state.copyWith(cartError: error, isCartLoading: false));

@@ -9,8 +9,7 @@ part of 'category_service_dto.dart';
 CategoryServiceDto _$CategoryServiceDtoFromJson(Map<String, dynamic> json) =>
     CategoryServiceDto(
       serviceId: (json['serviceId'] as num?)?.toInt(),
-      serviceNameEn:
-          json['serviceNameEn'] as String? ?? json['serviceName'] as String?,
+      serviceNameEn: json['serviceNameEn'] as String?,
       serviceNameAr: json['serviceNameAr'] as String?,
       isSelected: json['isSelected'] as bool?,
     );

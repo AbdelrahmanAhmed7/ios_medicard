@@ -6,6 +6,7 @@ import '../../data/models/guest_home_response_model.dart';
 List<ProviderModel> mapGuestProviders(List<GuestNearestProvider> raw) {
   return raw.where((p) => _hasText(p.providerName)).map((p) {
     return ProviderModel(
+      providerId: p.providerId,
       imageUrl: _textOrEmpty(p.providerImageUrl),
       name: _textOrEmpty(p.providerName),
       rating: 0.0,
@@ -41,6 +42,8 @@ List<FeaturedServiceModel> mapGuestPackages(List<GuestPackage> raw) {
       )
       .map((package) {
         return FeaturedServiceModel(
+          packageId: package.packageId,
+          providerId: package.providerId,
           imageUrl: _textOrEmpty(package.imageUrl),
           providerLogoUrl: '',
           providerName: _textOrEmpty(package.providerName),

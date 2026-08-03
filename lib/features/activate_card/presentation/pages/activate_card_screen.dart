@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_localization/easy_localization.dart';
 
+import '../../../../../core/utils/language_helper.dart';
 import '../../data/models/activate_card_request_model.dart';
 import '../../data/repository/activate_card_repository_impl.dart';
 import '../../domain/usecases/activate_card_usecase.dart';
@@ -19,7 +22,10 @@ class ActivateCardScreen extends StatefulWidget {
 }
 
 class _ActivateCardScreenState extends State<ActivateCardScreen> {
+  static const int _passwordMinLength = 8;
+
   final _formKey = GlobalKey<FormState>();
+  final _nationalIdFieldKey = GlobalKey<FormFieldState<String>>();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _cardNumberController = TextEditingController();
@@ -59,7 +65,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
             showSuccessToast(
               state.response.message.isNotEmpty
                   ? state.response.message
-                  : 'Card activated successfully',
+                  : 'activate_card.success'.tr(),
             );
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (mounted) context.go('/medicard-login');
@@ -85,7 +91,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                     AuthBlueHeader(
                       showBackButton: true,
                       onBack: () => context.pop(),
-                      title: 'Welcome to Medicard',
+                      title: 'auth.welcomeTitle'.tr(),
                     ),
 
                     // ── Form Section ────────────────────────────────────
@@ -97,7 +103,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                           SizedBox(height: 28.h),
 
                           Text(
-                            'Activate Your Card',
+                            'activate_card.title'.tr(),
                             style: TextStyle(
                               fontSize: 24.sp,
                               fontWeight: FontWeight.bold,
@@ -106,7 +112,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                           ),
                           SizedBox(height: 6.h),
                           Text(
-                            'Fill in your details to activate your Medicard',
+                            'activate_card.subtitle'.tr(),
                             style: TextStyle(
                               fontSize: 13.sp,
                               color: kAuthGreyText,
@@ -115,78 +121,132 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                           SizedBox(height: 24.h),
 
                           // First Name
-                          const AuthFieldLabel('First Name'),
+                          AuthFieldLabel('auth.register.firstName'.tr()),
                           SizedBox(height: 6.h),
                           _buildTextField(
                             controller: _firstNameController,
-                            hintText: 'Enter your first name',
+                            hintText: 'auth.register.firstNameHint'.tr(),
+                            keyboardType: TextInputType.name,
+                            maxLength: 30,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r"[A-Za-z\u0600-\u06FF\s'-]"),
+                              ),
+                              LengthLimitingTextInputFormatter(30),
+                            ],
+                            validator: _validateFirstName,
                           ),
                           SizedBox(height: 16.h),
 
                           // Last Name
-                          const AuthFieldLabel('Last Name'),
+                          AuthFieldLabel('auth.register.lastName'.tr()),
                           SizedBox(height: 6.h),
                           _buildTextField(
                             controller: _lastNameController,
-                            hintText: 'Enter your last name',
+                            hintText: 'auth.register.lastNameHint'.tr(),
+                            keyboardType: TextInputType.name,
+                            maxLength: 30,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r"[A-Za-z\u0600-\u06FF\s'-]"),
+                              ),
+                              LengthLimitingTextInputFormatter(30),
+                            ],
+                            validator: _validateLastName,
                           ),
                           SizedBox(height: 16.h),
 
                           // Card Number
-                          const AuthFieldLabel('Card Number'),
+                          AuthFieldLabel('auth.login.cardNumber'.tr()),
                           SizedBox(height: 6.h),
                           _buildTextField(
                             controller: _cardNumberController,
-                            hintText: 'Enter your card number',
-                            keyboardType: TextInputType.number,
+                            hintText: 'auth.login.cardNumberHint'.tr(),
+                            keyboardType: TextInputType.text,
+                            textCapitalization: TextCapitalization.characters,
+                            maxLength: 12,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r'[A-Za-z0-9\-]'),
+                              ),
+                              LengthLimitingTextInputFormatter(12),
+                            ],
+                            validator: _validateCardNumber,
                           ),
                           SizedBox(height: 16.h),
 
                           // Gender
-                          const AuthFieldLabel('Gender'),
+                          AuthFieldLabel('auth.register.gender'.tr()),
                           SizedBox(height: 6.h),
                           _buildGenderSelector(),
                           SizedBox(height: 16.h),
 
                           // Phone Number
-                          const AuthFieldLabel('Phone Number'),
+                          AuthFieldLabel('auth.register.phoneNumber'.tr()),
                           SizedBox(height: 6.h),
                           _buildTextField(
                             controller: _phoneNumberController,
-                            hintText: 'Enter your phone number',
+                            hintText: 'auth.register.phoneNumberHint'.tr(),
                             keyboardType: TextInputType.phone,
+                            maxLength: 11,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(11),
+                            ],
+                            validator: _validatePhoneNumber,
                           ),
                           SizedBox(height: 16.h),
 
                           // National ID
-                          const AuthFieldLabel('National ID'),
+                          AuthFieldLabel('auth.register.nationalId'.tr()),
                           SizedBox(height: 6.h),
                           _buildTextField(
                             controller: _nationalIdController,
-                            hintText: 'Enter your national ID (optional)',
+                            hintText: 'activate_card.national_id_optional_hint'
+                                .tr(),
                             keyboardType: TextInputType.number,
                             required: false,
+                            maxLength: 14,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(14),
+                            ],
+                            validator: _validateNationalId,
                           ),
                           SizedBox(height: 16.h),
 
                           // Passport Number
-                          const AuthFieldLabel('Passport Number'),
+                          AuthFieldLabel('auth.register.passportNumber'.tr()),
                           SizedBox(height: 6.h),
                           _buildTextField(
                             controller: _passportNumberController,
-                            hintText: 'Enter your passport number (optional)',
+                            hintText:
+                                'activate_card.passport_number_optional_hint'
+                                    .tr(),
                             required: false,
+                            textCapitalization: TextCapitalization.characters,
+                            maxLength: 20,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r'[A-Za-z0-9]'),
+                              ),
+                              LengthLimitingTextInputFormatter(20),
+                            ],
+                            onChanged: (_) {
+                              _nationalIdFieldKey.currentState?.validate();
+                            },
+                            validator: _validatePassportNumber,
                           ),
                           SizedBox(height: 16.h),
 
                           // Birth Date
-                          const AuthFieldLabel('Birth Date'),
+                          AuthFieldLabel('auth.register.birthDate'.tr()),
                           SizedBox(height: 6.h),
                           _buildBirthDatePicker(context),
                           SizedBox(height: 16.h),
 
                           // Password
-                          const AuthFieldLabel('Password'),
+                          AuthFieldLabel('auth.register.password'.tr()),
                           SizedBox(height: 6.h),
                           _buildPasswordField(
                             controller: _passwordController,
@@ -199,7 +259,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                           SizedBox(height: 16.h),
 
                           // Confirm Password
-                          const AuthFieldLabel('Confirm Password'),
+                          AuthFieldLabel('auth.register.confirmPassword'.tr()),
                           SizedBox(height: 6.h),
                           _buildPasswordField(
                             controller: _confirmPasswordController,
@@ -211,10 +271,11 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'This field is required';
+                                return 'common.this_field_required'.tr();
                               }
-                              if (value != _passwordController.text) {
-                                return 'Passwords do not match';
+                              if (_normalize(value) !=
+                                  _normalize(_passwordController.text)) {
+                                return 'auth.register.passwordsNotMatch'.tr();
                               }
                               return null;
                             },
@@ -226,7 +287,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                             builder: (context, state) {
                               final isLoading = state is ActivateCardLoading;
                               return AuthPrimaryButton(
-                                label: 'Activate',
+                                label: 'activate_card.activate'.tr(),
                                 isLoading: isLoading,
                                 onPressed: () {
                                   if (_formKey.currentState!.validate()) {
@@ -234,32 +295,44 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                                         .read<ActivateCardCubit>()
                                         .activateCard(
                                           ActivateCardRequestModel(
-                                            firstName:
-                                                _firstNameController.text,
-                                            lastName: _lastNameController.text,
-                                            cardNumber:
-                                                _cardNumberController.text,
+                                            firstName: _normalize(
+                                              _firstNameController.text,
+                                            ),
+                                            lastName: _normalize(
+                                              _lastNameController.text,
+                                            ),
+                                            cardNumber: _normalize(
+                                              _cardNumberController.text,
+                                            ),
                                             isMale: _isMale,
-                                            phoneNumber:
-                                                _phoneNumberController.text,
+                                            phoneNumber: _normalize(
+                                              _phoneNumberController.text,
+                                            ),
                                             birthDate:
                                                 _birthDateController.text,
-                                            password: _passwordController.text,
-                                            confirmPassword:
-                                                _confirmPasswordController.text,
+                                            password: _normalize(
+                                              _passwordController.text,
+                                            ),
+                                            confirmPassword: _normalize(
+                                              _confirmPasswordController.text,
+                                            ),
                                             nationalId:
                                                 _nationalIdController
                                                     .text
                                                     .isEmpty
                                                 ? null
-                                                : _nationalIdController.text,
+                                                : _normalize(
+                                                    _nationalIdController.text,
+                                                  ),
                                             passportNumber:
                                                 _passportNumberController
                                                     .text
                                                     .isEmpty
                                                 ? null
-                                                : _passportNumberController
-                                                      .text,
+                                                : _normalize(
+                                                    _passportNumberController
+                                                        .text,
+                                                  ),
                                           ),
                                         );
                                   }
@@ -275,7 +348,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                'Already have an account? ',
+                                'auth.register.alreadyHaveAccount'.tr(),
                                 style: TextStyle(
                                   fontSize: 13.sp,
                                   color: kAuthGreyText,
@@ -284,7 +357,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                               GestureDetector(
                                 onTap: () => context.go('/medicard-login'),
                                 child: Text(
-                                  'Sign in',
+                                  'auth.login.loginButton'.tr(),
                                   style: TextStyle(
                                     fontSize: 13.sp,
                                     color: kAuthBlue,
@@ -315,20 +388,35 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
     required String hintText,
     TextInputType? keyboardType,
     bool required = true,
+    int? maxLength,
+    TextCapitalization textCapitalization = TextCapitalization.none,
+    List<TextInputFormatter>? inputFormatters,
+    String? Function(String?)? validator,
+    ValueChanged<String>? onChanged,
   }) {
     return TextFormField(
+      key: controller == _nationalIdController ? _nationalIdFieldKey : null,
       controller: controller,
       keyboardType: keyboardType,
+      textCapitalization: textCapitalization,
+      maxLength: maxLength,
+      inputFormatters: inputFormatters,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       style: TextStyle(fontSize: 15.sp, color: Colors.black),
-      decoration: authInputDecoration(hintText: hintText),
-      validator: required
-          ? (value) {
-              if (value == null || value.isEmpty) {
-                return 'This field is required';
-              }
-              return null;
-            }
-          : null,
+      decoration: authInputDecoration(
+        hintText: hintText,
+      ).copyWith(counterText: ''),
+      onChanged: onChanged,
+      validator:
+          validator ??
+          (required
+              ? (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'common.this_field_required'.tr();
+                  }
+                  return null;
+                }
+              : null),
     );
   }
 
@@ -344,6 +432,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
     return TextFormField(
       controller: controller,
       obscureText: obscure,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       style: TextStyle(fontSize: 15.sp, color: Colors.black),
       decoration: authInputDecoration(
         hintText: hintText,
@@ -359,8 +448,12 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
       validator:
           validator ??
           (value) {
-            if (value == null || value.isEmpty) {
-              return 'This field is required';
+            final password = _normalize(value ?? '');
+            if (password.isEmpty) {
+              return 'auth.register.passwordRequired'.tr();
+            }
+            if (!_isPasswordValid(password)) {
+              return 'auth.register.passwordPolicyInvalid'.tr();
             }
             return null;
           },
@@ -373,11 +466,13 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
     return TextFormField(
       controller: _birthDateController,
       readOnly: true,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       style: TextStyle(fontSize: 15.sp, color: Colors.black),
       onTap: () async {
+        FocusScope.of(context).unfocus();
         final date = await showDatePicker(
           context: context,
-          initialDate: DateTime(2000),
+          initialDate: _selectedBirthDate,
           firstDate: DateTime(1900),
           lastDate: DateTime.now(),
           builder: (context, child) {
@@ -405,12 +500,97 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
         ),
       ),
       validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'This field is required';
+        final birthDate = _parseBirthDate(value);
+        if (birthDate == null) {
+          return 'common.this_field_required'.tr();
+        }
+        if (birthDate.isAfter(DateTime.now())) {
+          return 'auth.register.birthDateInvalid'.tr();
         }
         return null;
       },
     );
+  }
+
+  DateTime get _selectedBirthDate {
+    final selected = _parseBirthDate(_birthDateController.text);
+    return selected ?? DateTime(2000);
+  }
+
+  DateTime? _parseBirthDate(String? value) {
+    final text = value?.trim();
+    if (text == null || text.isEmpty) return null;
+    return DateTime.tryParse(text);
+  }
+
+  String? _validateFirstName(String? value) {
+    final name = value?.trim() ?? '';
+    if (name.isEmpty) return 'auth.register.firstNameRequired'.tr();
+    if (name.length < 2) return 'common.this_field_required'.tr();
+    return null;
+  }
+
+  String? _validateLastName(String? value) {
+    final name = value?.trim() ?? '';
+    if (name.isEmpty) return 'auth.register.lastNameRequired'.tr();
+    if (name.length < 2) return 'common.this_field_required'.tr();
+    return null;
+  }
+
+  String? _validateCardNumber(String? value) {
+    final cardNumber = _normalize(value ?? '');
+    if (cardNumber.isEmpty) return 'auth.login.cardNumberRequired'.tr();
+    if (!RegExp(r'^[A-Za-z0-9][A-Za-z0-9\-]{3,11}$').hasMatch(cardNumber)) {
+      return 'auth.login.identifierInvalid'.tr();
+    }
+    return null;
+  }
+
+  String? _validatePhoneNumber(String? value) {
+    final phoneNumber = _normalize(value ?? '');
+    if (phoneNumber.isEmpty) return 'auth.register.phoneNumberRequired'.tr();
+
+    final cleanPhoneNumber = phoneNumber.startsWith('0')
+        ? phoneNumber.substring(1)
+        : phoneNumber;
+    if (!RegExp(r'^(10|11|12|15)[0-9]{8}$').hasMatch(cleanPhoneNumber)) {
+      return 'auth.register.phoneNumberInvalid'.tr();
+    }
+    return null;
+  }
+
+  String? _validateNationalId(String? value) {
+    final nationalId = _normalize(value ?? '');
+    final passportNumber = _normalize(_passportNumberController.text);
+    if (nationalId.isEmpty) {
+      return passportNumber.isEmpty
+          ? 'auth.register.nationalIdOrPassportRequired'.tr()
+          : null;
+    }
+    if (!RegExp(r'^[0-9]{14}$').hasMatch(nationalId)) {
+      return 'auth.register.nationalIdInvalid'.tr();
+    }
+    return null;
+  }
+
+  String? _validatePassportNumber(String? value) {
+    final passportNumber = _normalize(value ?? '');
+    if (passportNumber.isEmpty) return null;
+    if (!RegExp(r'^[A-Za-z0-9]{6,20}$').hasMatch(passportNumber)) {
+      return 'auth.register.passportNumberInvalid'.tr();
+    }
+    return null;
+  }
+
+  bool _isPasswordValid(String password) {
+    return password.length >= _passwordMinLength &&
+        RegExp(r'[A-Za-z]').hasMatch(password) &&
+        RegExp(r'[0-9]').hasMatch(password) &&
+        RegExp(r'[!@#\$%^&*(),.?":{}|<>_\-+=\[\]\\;/`~]').hasMatch(password);
+  }
+
+  String _normalize(String value) {
+    return LanguageHelper.convertArabicToEnglishNumerals(value.trim());
   }
 
   // ── Gender Selector ─────────────────────────────────────────────────────────
@@ -426,13 +606,13 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
       child: Row(
         children: [
           AuthGenderOption(
-            label: 'Male',
+            label: 'auth.register.male'.tr(),
             selected: _isMale,
             onTap: () => setState(() => _isMale = true),
           ),
           SizedBox(width: 32.w),
           AuthGenderOption(
-            label: 'Female',
+            label: 'auth.register.female'.tr(),
             selected: !_isMale,
             onTap: () => setState(() => _isMale = false),
           ),

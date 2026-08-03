@@ -7,7 +7,10 @@ class GetCategoryServicesUseCase {
 
   GetCategoryServicesUseCase(this._repository);
 
-  Future<ApiResult<CategoryServicesDataModel>> call(int categoryId) async {
-    return _repository.getCategoryServices(categoryId);
+  Future<ApiResult<CategoryServicesDataModel>> call(
+    int categoryId, {
+    bool skipAuthInterceptor = false,
+  }) async {
+    return _repository.getCategoryServices(categoryId, skipAuthInterceptor);
   }
 }

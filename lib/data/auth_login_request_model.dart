@@ -2,15 +2,15 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'auth_login_request_model.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class AuthLoginRequestModel {
   final String? cardNumber;
-  final String phoneNumber;
+  final String? phoneNumber;
   final String password;
 
   const AuthLoginRequestModel({
     this.cardNumber,
-    required this.phoneNumber,
+    this.phoneNumber,
     required this.password,
   });
 

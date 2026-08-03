@@ -63,12 +63,19 @@ class QuickActionsRow extends StatelessWidget {
   }
 
   void _onActionTap(BuildContext context, QuickAction action) {
+    final isGuest = GoRouterState.of(context).uri.path == '/guest-home';
     switch (action.labelKey) {
       case 'home.services':
-        context.push('/search/services');
+        context.push(
+          '/search/services',
+          extra: {'enableCartFeatures': !isGuest},
+        );
         break;
       case 'home.providers':
-        context.push('/search/providers');
+        context.push(
+          '/search/providers',
+          extra: {'enableCartFeatures': !isGuest},
+        );
         break;
     }
   }

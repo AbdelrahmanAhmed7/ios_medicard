@@ -129,12 +129,12 @@ return failure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<InvoiceItem> invoices)?  success,TResult Function( String error)?  failure,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<InvoiceItem> invoices,  bool isLoadingMore,  bool hasMore)?  success,TResult Function( String error)?  failure,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Loading() when loading != null:
 return loading();case _Success() when success != null:
-return success(_that.invoices);case _Failure() when failure != null:
+return success(_that.invoices,_that.isLoadingMore,_that.hasMore);case _Failure() when failure != null:
 return failure(_that.error);case _:
   return orElse();
 
@@ -153,12 +153,12 @@ return failure(_that.error);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<InvoiceItem> invoices)  success,required TResult Function( String error)  failure,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<InvoiceItem> invoices,  bool isLoadingMore,  bool hasMore)  success,required TResult Function( String error)  failure,}) {final _that = this;
 switch (_that) {
 case _Initial():
 return initial();case _Loading():
 return loading();case _Success():
-return success(_that.invoices);case _Failure():
+return success(_that.invoices,_that.isLoadingMore,_that.hasMore);case _Failure():
 return failure(_that.error);case _:
   throw StateError('Unexpected subclass');
 
@@ -176,12 +176,12 @@ return failure(_that.error);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<InvoiceItem> invoices)?  success,TResult? Function( String error)?  failure,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<InvoiceItem> invoices,  bool isLoadingMore,  bool hasMore)?  success,TResult? Function( String error)?  failure,}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Loading() when loading != null:
 return loading();case _Success() when success != null:
-return success(_that.invoices);case _Failure() when failure != null:
+return success(_that.invoices,_that.isLoadingMore,_that.hasMore);case _Failure() when failure != null:
 return failure(_that.error);case _:
   return null;
 
@@ -258,7 +258,7 @@ String toString() {
 
 
 class _Success implements ActivityState {
-  const _Success( List<InvoiceItem> invoices): _invoices = invoices;
+  const _Success({required  List<InvoiceItem> invoices, this.isLoadingMore = false, this.hasMore = false}): _invoices = invoices;
   
 
  final  List<InvoiceItem> _invoices;
@@ -268,6 +268,8 @@ class _Success implements ActivityState {
   return EqualUnmodifiableListView(_invoices);
 }
 
+@JsonKey() final  bool isLoadingMore;
+@JsonKey() final  bool hasMore;
 
 /// Create a copy of ActivityState
 /// with the given fields replaced by the non-null parameter values.
@@ -279,16 +281,16 @@ _$SuccessCopyWith<_Success> get copyWith => __$SuccessCopyWithImpl<_Success>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Success&&const DeepCollectionEquality().equals(other._invoices, _invoices));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Success&&const DeepCollectionEquality().equals(other._invoices, _invoices)&&(identical(other.isLoadingMore, isLoadingMore) || other.isLoadingMore == isLoadingMore)&&(identical(other.hasMore, hasMore) || other.hasMore == hasMore));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_invoices));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_invoices),isLoadingMore,hasMore);
 
 @override
 String toString() {
-  return 'ActivityState.success(invoices: $invoices)';
+  return 'ActivityState.success(invoices: $invoices, isLoadingMore: $isLoadingMore, hasMore: $hasMore)';
 }
 
 
@@ -299,7 +301,7 @@ abstract mixin class _$SuccessCopyWith<$Res> implements $ActivityStateCopyWith<$
   factory _$SuccessCopyWith(_Success value, $Res Function(_Success) _then) = __$SuccessCopyWithImpl;
 @useResult
 $Res call({
- List<InvoiceItem> invoices
+ List<InvoiceItem> invoices, bool isLoadingMore, bool hasMore
 });
 
 
@@ -316,10 +318,12 @@ class __$SuccessCopyWithImpl<$Res>
 
 /// Create a copy of ActivityState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? invoices = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? invoices = null,Object? isLoadingMore = null,Object? hasMore = null,}) {
   return _then(_Success(
-null == invoices ? _self._invoices : invoices // ignore: cast_nullable_to_non_nullable
-as List<InvoiceItem>,
+invoices: null == invoices ? _self._invoices : invoices // ignore: cast_nullable_to_non_nullable
+as List<InvoiceItem>,isLoadingMore: null == isLoadingMore ? _self.isLoadingMore : isLoadingMore // ignore: cast_nullable_to_non_nullable
+as bool,hasMore: null == hasMore ? _self.hasMore : hasMore // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

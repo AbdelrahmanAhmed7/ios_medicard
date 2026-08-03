@@ -75,15 +75,29 @@ class _ActivityScreenState extends State<ActivityScreen>
                     error: error,
                     onRetry: () => context.read<ActivityCubit>().loadInvoices(),
                   ),
-                  success: (invoices) {
+                  success: (invoices, isLoadingMore, hasMore) {
                     final pending = invoices.where((i) => !i.isUsed).toList();
                     final used = invoices.where((i) => i.isUsed).toList();
 
                     return TabBarView(
                       controller: _tabController,
                       children: [
-                        _InvoiceList(items: pending),
-                        _InvoiceList(items: used),
+                        _InvoiceList(
+                          items: pending,
+                          emptyTitleKey: 'activity.empty_pending_title',
+                          emptyMessageKey: 'activity.empty_pending_message',
+                          emptyIcon: Icons.event_available_outlined,
+                          isLoadingMore: isLoadingMore,
+                          hasMore: hasMore,
+                        ),
+                        _InvoiceList(
+                          items: used,
+                          emptyTitleKey: 'activity.empty_used_title',
+                          emptyMessageKey: 'activity.empty_used_message',
+                          emptyIcon: Icons.receipt_long_outlined,
+                          isLoadingMore: isLoadingMore,
+                          hasMore: hasMore,
+                        ),
                       ],
                     );
                   },
@@ -134,27 +148,178 @@ class _ErrorView extends StatelessWidget {
   }
 }
 
-class _InvoiceList extends StatelessWidget {
+class _InvoiceList extends StatefulWidget {
   final List<InvoiceItem> items;
+  final String emptyTitleKey;
+  final String emptyMessageKey;
+  final IconData emptyIcon;
+  final bool isLoadingMore;
+  final bool hasMore;
 
-  const _InvoiceList({required this.items});
+  const _InvoiceList({
+    required this.items,
+    required this.emptyTitleKey,
+    required this.emptyMessageKey,
+    required this.emptyIcon,
+    required this.isLoadingMore,
+    required this.hasMore,
+  });
+
+  @override
+  State<_InvoiceList> createState() => _InvoiceListState();
+}
+
+class _InvoiceListState extends State<_InvoiceList> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _maybePrefetchMore());
+  }
+
+  @override
+  void didUpdateWidget(covariant _InvoiceList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.items.length != widget.items.length ||
+        oldWidget.hasMore != widget.hasMore ||
+        oldWidget.isLoadingMore != widget.isLoadingMore) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _maybePrefetchMore());
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController
+      ..removeListener(_onScroll)
+      ..dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final position = _scrollController.position;
+    if (position.pixels >= position.maxScrollExtent - 160.h) {
+      context.read<ActivityCubit>().loadMore();
+    }
+  }
+
+  /// When a filtered tab is short/empty but more pages exist, keep loading.
+  void _maybePrefetchMore() {
+    if (!mounted || !widget.hasMore || widget.isLoadingMore) return;
+    if (!_scrollController.hasClients) {
+      if (widget.items.isEmpty) {
+        context.read<ActivityCubit>().loadMore();
+      }
+      return;
+    }
+    final position = _scrollController.position;
+    if (!position.hasContentDimensions) return;
+    if (position.maxScrollExtent <= 0 ||
+        position.pixels >= position.maxScrollExtent - 160.h) {
+      context.read<ActivityCubit>().loadMore();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (items.isEmpty) {
-      return Center(
-        child: Text(
-          'activity.no_items'.tr(),
-          style: TextStyle(fontSize: 14.sp, color: const Color(0xFF6B7280)),
-        ),
+    if (widget.items.isEmpty && !widget.isLoadingMore && !widget.hasMore) {
+      return _ActivityEmptyView(
+        title: widget.emptyTitleKey.tr(),
+        message: widget.emptyMessageKey.tr(),
+        icon: widget.emptyIcon,
       );
     }
 
-    return ListView.separated(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-      itemCount: items.length,
-      separatorBuilder: (_, _) => SizedBox(height: 12.h),
-      itemBuilder: (context, index) => _InvoiceCard(item: items[index]),
+    if (widget.items.isEmpty && (widget.isLoadingMore || widget.hasMore)) {
+      return const Center(
+        child: CircularProgressIndicator(color: kAuthBlue),
+      );
+    }
+
+    final itemCount =
+        widget.items.length + (widget.isLoadingMore || widget.hasMore ? 1 : 0);
+
+    return RefreshIndicator(
+      color: kAuthBlue,
+      onRefresh: () => context.read<ActivityCubit>().loadInvoices(),
+      child: ListView.separated(
+        controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+        itemCount: itemCount,
+        separatorBuilder: (_, _) => SizedBox(height: 12.h),
+        itemBuilder: (context, index) {
+          if (index >= widget.items.length) {
+            return Padding(
+              padding: EdgeInsets.symmetric(vertical: 16.h),
+              child: Center(
+                child: widget.isLoadingMore
+                    ? const CircularProgressIndicator(color: kAuthBlue)
+                    : const SizedBox.shrink(),
+              ),
+            );
+          }
+          return _InvoiceCard(item: widget.items[index]);
+        },
+      ),
+    );
+  }
+}
+
+class _ActivityEmptyView extends StatelessWidget {
+  final String title;
+  final String message;
+  final IconData icon;
+
+  const _ActivityEmptyView({
+    required this.title,
+    required this.message,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 32.w),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 72.r,
+              height: 72.r,
+              decoration: BoxDecoration(
+                color: const Color(0xFFEFF6FF),
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFFD8E8FA)),
+              ),
+              child: Icon(icon, size: 34.r, color: kAuthBlue),
+            ),
+            SizedBox(height: 18.h),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF111827),
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14.sp,
+                height: 1.45,
+                color: const Color(0xFF6B7280),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

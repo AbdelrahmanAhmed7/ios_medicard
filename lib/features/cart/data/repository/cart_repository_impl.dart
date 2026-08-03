@@ -221,8 +221,16 @@ class CartRepositoryImpl implements CartRepository {
   Future<ApiResult<void>> clearCart() async {
     try {
       final token = await _bearerToken;
-      await _dataSource.clearCart(token);
-      return const ApiResult.success(null);
+      final response = await _dataSource.clearCart(token);
+      return (response.succeeded == true)
+          ? const ApiResult.success(null)
+          : ApiResult.failure(
+              _failureMessage(
+                errors: response.errors,
+                message: response.message,
+                fallback: 'Failed to clear cart.',
+              ),
+            );
     } catch (error) {
       return ApiResult.failure(parseApiError(error));
     }

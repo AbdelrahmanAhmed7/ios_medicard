@@ -1,8 +1,11 @@
+import 'package:flutter/foundation.dart';
+
 import '../../../../core/constants/api_result.dart';
 import '../../../../core/utils/api_error_parser.dart';
 import '../../domain/models/created_invoice.dart';
 import '../../domain/models/invoice_details.dart';
 import '../../domain/models/invoice_item.dart';
+import '../../domain/models/invoices_page.dart';
 import '../../domain/repositories/invoice_repository.dart';
 import '../data_source/invoice_remote_data_source.dart';
 import '../dto/create_cart_invoice_request_dto.dart';
@@ -45,12 +48,19 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
   }
 
   @override
-  Future<ApiResult<List<InvoiceItem>>> getMyInvoices() async {
+  Future<ApiResult<InvoicesPage>> getMyInvoices({
+    int pageNumber = 1,
+    int pageSize = 10,
+  }) async {
     try {
-      final response = await _dataSource.getMyInvoices();
+      final response = await _dataSource.getMyInvoices(
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+      );
 
-      if (response.succeeded == true && response.data != null) {
-        final items = response.data!
+      if (response.succeeded == true) {
+        final page = response.data;
+        final items = (page?.items ?? const [])
             .map(
               (dto) => InvoiceItem(
                 invoiceId: dto.invoiceId ?? 0,
@@ -62,14 +72,35 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
               ),
             )
             .toList();
-        return ApiResult.success(items);
+
+        final invoicesPage = InvoicesPage(
+          items: items,
+          pageNumber: page?.pageNumber ?? pageNumber,
+          pageSize: page?.pageSize ?? pageSize,
+          totalCount: page?.totalCount ?? items.length,
+          totalPages: page?.totalPages ?? 1,
+        );
+
+        if (kDebugMode) {
+          debugPrint(
+            '[Activity] invoices loaded page=${invoicesPage.pageNumber}/'
+            '${invoicesPage.totalPages} count=${items.length} '
+            'total=${invoicesPage.totalCount}',
+          );
+        }
+        return ApiResult.success(invoicesPage);
       }
 
+      if (kDebugMode) {
+        debugPrint(
+          '[Activity] invoices failed succeeded=${response.succeeded} message=${response.message} errors=${response.errors}',
+        );
+      }
       return ApiResult.failure(
         _failureMessage(
           errors: response.errors,
           message: response.message,
-          fallback: 'Failed to load invoices.',
+          fallback: '',
         ),
       );
     } catch (error) {
@@ -102,7 +133,7 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
         _failureMessage(
           errors: response.errors,
           message: response.message,
-          fallback: 'Failed to create invoice.',
+          fallback: '',
         ),
       );
     } catch (error) {
@@ -137,7 +168,7 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
         _failureMessage(
           errors: response.errors,
           message: response.message,
-          fallback: 'Failed to create invoice.',
+          fallback: '',
         ),
       );
     } catch (error) {
@@ -199,7 +230,7 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
         _failureMessage(
           errors: response.errors,
           message: response.message,
-          fallback: 'Failed to load invoice details.',
+          fallback: '',
         ),
       );
     } catch (error) {
@@ -230,7 +261,7 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
         _failureMessage(
           errors: response.errors,
           message: response.message,
-          fallback: 'Failed to submit review.',
+          fallback: '',
         ),
       );
     } catch (error) {

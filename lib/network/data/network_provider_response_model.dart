@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import 'network_category_response_model.dart';
@@ -10,7 +11,7 @@ class NetworkProviderResponse {
   final String timestamp;
   final String message;
   final NetworkProviderData? data;
-  
+
   NetworkProviderResponse({
     required this.success,
     required this.timestamp,
@@ -120,9 +121,9 @@ class NetworkProvider {
   String get formattedDistance {
     if (distance == null) return '';
     if (distance! < 1) {
-      return '${(distance! * 1000).toInt()} m';
+      return 'network.meters'.tr(args: ['${(distance! * 1000).toInt()}']);
     }
-    return '${distance!.toStringAsFixed(1)} km';
+    return 'network.km'.tr(args: [distance!.toStringAsFixed(1)]);
   }
 }
 
@@ -149,10 +150,7 @@ class UserLocation {
   final double latitude;
   final double longitude;
 
-  UserLocation({
-    required this.latitude,
-    required this.longitude,
-  });
+  UserLocation({required this.latitude, required this.longitude});
 
   factory UserLocation.fromJson(Map<String, dynamic> json) =>
       _$UserLocationFromJson(json);

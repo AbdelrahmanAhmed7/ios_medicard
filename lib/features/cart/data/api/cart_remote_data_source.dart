@@ -37,7 +37,9 @@ abstract class CartRemoteDataSource {
   );
 
   @POST('Cart/clear')
-  Future<void> clearCart(@Header('Authorization') String token);
+  Future<UpdateCartProviderResponseDto> clearCart(
+    @Header('Authorization') String token,
+  );
 
   @GET('Cart/choose-providers')
   Future<ChooseProvidersDto> getChooseProviders(

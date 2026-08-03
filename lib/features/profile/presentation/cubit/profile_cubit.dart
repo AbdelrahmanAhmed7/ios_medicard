@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/foundation.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:medicard/core/constants/api_result.dart';
 import 'package:medicard/core/theming/app_toast.dart';
 import 'package:medicard/core/utils/api_error_parser.dart';
@@ -71,7 +72,7 @@ class ProfileCubit extends Cubit<ProfileState> {
             if (kDebugMode) {
               debugPrint('[ProfileCubit] response contained no profile data');
             }
-            emit(const ProfileState.failed('Profile data is unavailable.'));
+            emit(ProfileState.failed('profile.profile_data_unavailable'.tr()));
             return;
           }
           if (kDebugMode) {
@@ -134,7 +135,7 @@ class ProfileCubit extends Cubit<ProfileState> {
             birthDate: birthDate,
             imageUrl: imagePath ?? responseData.imageUrl,
           );
-          showSuccessToast('Profile updated successfully');
+          showSuccessToast('profile.updated_successfully'.tr());
           if (isClosed) return;
           emit(ProfileState.updated(updatedData));
           didUpdate = true;
@@ -164,7 +165,7 @@ class ProfileCubit extends Cubit<ProfileState> {
       result.when(
         success: (response) {
           if (isClosed) return;
-          showSuccessToast('Language changed successfully');
+          showSuccessToast('profile.language_changed_successfully'.tr());
         },
         failure: (message) {
           if (isClosed) return;

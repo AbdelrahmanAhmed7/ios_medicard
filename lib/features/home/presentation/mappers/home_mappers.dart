@@ -101,7 +101,7 @@ String _appointmentStatusText(String? status) {
   switch (value.toLowerCase()) {
     case '2':
     case 'pending':
-      return 'Pending';
+      return 'pending';
     default:
       return value;
   }

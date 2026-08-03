@@ -73,8 +73,7 @@ Map<String, dynamic> _$PagedServicesModelToJson(PagedServicesModel instance) =>
 ServiceItemModel _$ServiceItemModelFromJson(Map<String, dynamic> json) =>
     ServiceItemModel(
       serviceId: (json['serviceId'] as num?)?.toInt(),
-      serviceNameEn:
-          json['serviceNameEn'] as String? ?? json['serviceName'] as String?,
+      serviceNameEn: json['serviceNameEn'] as String?,
       serviceNameAr: json['serviceNameAr'] as String?,
       isSelected: json['isSelected'] as bool?,
     );

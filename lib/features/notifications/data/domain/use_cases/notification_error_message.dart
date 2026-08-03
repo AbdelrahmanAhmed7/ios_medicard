@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import '../../../../../core/network/app_failure.dart';
+import '../../../../../core/utils/api_error_parser.dart';
 
 String notificationErrorMessage(Object error) {
   if (error is DioException) {
@@ -18,10 +20,10 @@ String notificationErrorMessage(Object error) {
 
   final message = error.toString();
   if (message.trim().isEmpty || message == 'null') {
-    return 'Something went wrong. Please try again.';
+    return parseApiError(message);
   }
 
-  return message;
+  return parseApiError(message);
 }
 
 String? _responseMessage(Object? data) {
@@ -47,21 +49,21 @@ String? _responseMessage(Object? data) {
 String _failureMessage(AppFailure failure) {
   switch (failure.type) {
     case AppFailureType.network:
-      return 'Connection error. Please check your internet connection.';
+      return 'errors.network_error'.tr();
     case AppFailureType.timeout:
     case AppFailureType.connectionTimeout:
     case AppFailureType.transferTimeout:
-      return 'Connection timeout. Please try again.';
+      return 'errors.timeout_error'.tr();
     case AppFailureType.unauthorized:
-      return 'Unauthorized. Please log in again.';
+      return 'errors.session_expired'.tr();
     case AppFailureType.forbidden:
-      return 'Access denied.';
+      return 'errors.forbidden_error'.tr();
     case AppFailureType.notFound:
-      return 'Endpoint not found.';
+      return 'errors.not_found_error'.tr();
     case AppFailureType.server:
-      return 'Server error. Please try again later.';
+      return 'errors.server_error'.tr();
     case AppFailureType.cancelled:
     case AppFailureType.unexpected:
-      return failure.message ?? 'Something went wrong. Please try again.';
+      return parseApiError(failure.message ?? '');
   }
 }

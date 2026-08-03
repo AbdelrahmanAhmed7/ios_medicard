@@ -1,6 +1,4 @@
 import '../../../../core/constants/api_result.dart';
-import '../../../../core/constants/constants.dart';
-import '../../../../core/helpers/shared_pref_helper.dart';
 import '../../../../core/utils/api_error_parser.dart';
 import '../../data/data_sources/search_remote_data_source.dart';
 import '../../data/models/category_model.dart';
@@ -13,13 +11,6 @@ class SearchRepositoryImpl implements SearchRepository {
   final SearchRemoteDataSource _dataSource;
 
   SearchRepositoryImpl(this._dataSource);
-
-  Future<String> get _bearerToken async {
-    final token = await SharedPrefHelper.getSecuredString(
-      SharedPrefKeys.userToken,
-    );
-    return 'Bearer $token';
-  }
 
   @override
   Future<ApiResult<List<SearchProviderModel>>> searchProviders({
@@ -36,9 +27,7 @@ class SearchRepositoryImpl implements SearchRepository {
     int? pageSize,
   }) async {
     try {
-      final token = await _bearerToken;
       final response = await _dataSource.searchProviders(
-        token,
         keyword: keyword,
         categoryId: categoryId,
         governorateId: governorateId,
@@ -68,8 +57,7 @@ class SearchRepositoryImpl implements SearchRepository {
   @override
   Future<ApiResult<List<CategoryModel>>> getCategories() async {
     try {
-      final token = await _bearerToken;
-      final response = await _dataSource.getCategories(token);
+      final response = await _dataSource.getCategories();
       return (response.succeeded == true && response.data != null)
           ? ApiResult.success(response.data!)
           : ApiResult.failure(
@@ -85,8 +73,7 @@ class SearchRepositoryImpl implements SearchRepository {
   @override
   Future<ApiResult<List<CategoryModel>>> getServiceCategories() async {
     try {
-      final token = await _bearerToken;
-      final response = await _dataSource.getServiceCategories(token);
+      final response = await _dataSource.getServiceCategories();
       return (response.succeeded == true && response.data != null)
           ? ApiResult.success(response.data!)
           : ApiResult.failure(
@@ -102,8 +89,7 @@ class SearchRepositoryImpl implements SearchRepository {
   @override
   Future<ApiResult<List<LookupModel>>> getGovernorates() async {
     try {
-      final token = await _bearerToken;
-      final response = await _dataSource.getGovernorates(token);
+      final response = await _dataSource.getGovernorates();
       return (response.succeeded == true && response.data != null)
           ? ApiResult.success(response.data!)
           : ApiResult.failure(
@@ -119,8 +105,7 @@ class SearchRepositoryImpl implements SearchRepository {
   @override
   Future<ApiResult<List<LookupModel>>> getCities(int governorateId) async {
     try {
-      final token = await _bearerToken;
-      final response = await _dataSource.getCities(token, governorateId);
+      final response = await _dataSource.getCities(governorateId);
       return (response.succeeded == true && response.data != null)
           ? ApiResult.success(response.data!)
           : ApiResult.failure(
@@ -136,10 +121,15 @@ class SearchRepositoryImpl implements SearchRepository {
   @override
   Future<ApiResult<CategoryServicesDataModel>> getCategoryServices(
     int categoryId,
+    bool skipAuthInterceptor,
   ) async {
     try {
-      final token = await _bearerToken;
-      final response = await _dataSource.getCategoryServices(token, categoryId);
+      final response = await _dataSource.getCategoryServices(
+        categoryId,
+        skipAuthInterceptor
+            ? {'skipAuthInterceptor': true}
+            : const <String, dynamic>{},
+      );
       return (response.succeeded == true && response.data != null)
           ? ApiResult.success(response.data!)
           : ApiResult.failure(

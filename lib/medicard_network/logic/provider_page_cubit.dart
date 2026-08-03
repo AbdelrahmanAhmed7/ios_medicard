@@ -476,7 +476,15 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
 
   Future<void> switchView(ProviderViewType view) async {
     if (isClosed) return;
-    emit(state.copyWith(currentView: view));
+
+    final isCatalogView = kProviderCatalogViews.contains(view);
+    emit(
+      state.copyWith(
+        currentView: view,
+        catalogView: isCatalogView ? view : null,
+      ),
+    );
+
     if (view == ProviderViewType.packages && state.packages.isEmpty) {
       await loadPackages(reset: true);
     } else if (view == ProviderViewType.reviews && state.reviews.isEmpty) {

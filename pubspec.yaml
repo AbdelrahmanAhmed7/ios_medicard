@@ -57,6 +57,7 @@ dependencies:
   mockito: ^5.7.0
   flutter_map: ^8.3.1
   latlong2: ^0.10.1
+  video_player: ^2.13.0
 
 dev_dependencies:
   flutter_test:
@@ -81,6 +82,7 @@ flutter:
     - assets/translations/
     - assets/onboarding/
     - assets/splash/
+    - assets/ecard/
     - assets/medi_logo.png
     - assets/Khusm Logo.png
 
@@ -104,15 +106,9 @@ flutter:
 
 # ── Native Splash Configuration ──────────────────────────────────────────────
 flutter_native_splash:
-  color: "#3872B1"
-  image: assets/splash/image.png
-  branding: assets/splash/brand.png
-  color_dark: "#3872B1"
-  image_dark: assets/splash/image.png
-  branding_dark: assets/splash/brand.png
+  color: "#FFFFFF"
+  color_dark: "#FFFFFF"
   android_12:
-    color: "#3872B1"
-    image: assets/splash/image.png
-    branding: assets/splash/brand.png
-    icon_background_color: "#3872B1"
+    color: "#FFFFFF"
+    icon_background_color: "#FFFFFF"
   web: false

@@ -34,7 +34,7 @@ class _CartScreenState extends State<CartScreen> {
       backgroundColor: const Color(0xFFF4F6F9), // لون مقارب لخلفية الصورة
       body: Column(
         children: [
-          const AppBlueHeader(title: 'Cart', bottomRadius: 20),
+          AppBlueHeader(title: 'cart.title'.tr(), bottomRadius: 20),
           Expanded(
             child: BlocBuilder<CartCubit, CartState>(
               builder: (context, state) {
@@ -146,7 +146,7 @@ class _CartActionsHeader extends StatelessWidget {
       children: [
         Expanded(
           child: Text(
-            '$itemCount ${itemCount == 1 ? 'item' : 'items'} in cart',
+            'cart.items_in_cart'.tr(args: ['$itemCount']),
             style: TextStyle(
               fontSize: 15.sp,
               fontWeight: FontWeight.w700,
@@ -163,7 +163,7 @@ class _CartActionsHeader extends StatelessWidget {
                   child: const CircularProgressIndicator(strokeWidth: 2),
                 )
               : Icon(Icons.delete_sweep_outlined, size: 18.sp),
-          label: const Text('Clear cart'),
+          label: Text('cart.clear_cart'.tr()),
           style: TextButton.styleFrom(
             foregroundColor: const Color(0xFFDC2626),
             disabledForegroundColor: const Color(0xFF94A3B8),
@@ -213,7 +213,7 @@ Future<void> _showClearCartSheet(BuildContext context) async {
               ),
               SizedBox(height: 14.h),
               Text(
-                'Clear cart?',
+                'cart.clear_cart_question'.tr(),
                 style: TextStyle(
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w700,
@@ -222,7 +222,7 @@ Future<void> _showClearCartSheet(BuildContext context) async {
               ),
               SizedBox(height: 8.h),
               Text(
-                'All selected services will be removed from your cart.',
+                'cart.clear_cart_confirmation'.tr(),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14.sp,
@@ -244,7 +244,7 @@ Future<void> _showClearCartSheet(BuildContext context) async {
                         ),
                         minimumSize: Size.fromHeight(48.h),
                       ),
-                      child: const Text('Cancel'),
+                      child: Text('common.cancel'.tr()),
                     ),
                   ),
                   SizedBox(width: 12.w),
@@ -260,7 +260,7 @@ Future<void> _showClearCartSheet(BuildContext context) async {
                         ),
                         minimumSize: Size.fromHeight(48.h),
                       ),
-                      child: const Text('Clear cart'),
+                      child: Text('cart.clear_cart'.tr()),
                     ),
                   ),
                 ],
@@ -290,7 +290,7 @@ class _CategoryBadgesRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Categories',
+          'cart.categories'.tr(),
           style: TextStyle(
             fontSize: 15.sp,
             fontWeight: FontWeight.w600,
@@ -350,7 +350,7 @@ class _CartSyncWarning extends StatelessWidget {
           ),
           TextButton(
             onPressed: () => context.read<CartCubit>().loadCart(),
-            child: const Text('Retry'),
+            child: Text('common.retry'.tr()),
           ),
         ],
       ),
@@ -520,7 +520,8 @@ class _CartItemCard extends StatelessWidget {
                               ),
                               SizedBox(width: 4.w),
                               Text(
-                                item.providerName ?? 'No provider selected',
+                                item.providerName ??
+                                    'cart.no_provider_selected'.tr(),
                                 style: TextStyle(
                                   fontSize: 11.sp,
                                   color: const Color(0xFFD97706),
@@ -548,7 +549,11 @@ class _CartItemCard extends StatelessWidget {
                               ),
                             ),
                             child: Text(
-                              '${item.discountPercentage!.toStringAsFixed(0)}%Off',
+                              'cart.discount_percent'.tr(
+                                args: [
+                                  item.discountPercentage!.toStringAsFixed(0),
+                                ],
+                              ),
                               style: TextStyle(
                                 color: const Color(0xFF3872B1),
                                 fontSize: 11.sp,
@@ -569,7 +574,9 @@ class _CartItemCard extends StatelessWidget {
                       children: [
                         if (item.priceBefore != null)
                           Text(
-                            '${item.priceBefore!.toStringAsFixed(0)} EGP',
+                            'cart.egp_amount'.tr(
+                              args: [item.priceBefore!.toStringAsFixed(0)],
+                            ),
                             style: TextStyle(
                               fontSize: 11.sp,
                               color: Colors.black, // نفس اللون في الصورة
@@ -582,7 +589,9 @@ class _CartItemCard extends StatelessWidget {
                           SizedBox(width: 6.w),
                         if (item.priceAfter != null)
                           Text(
-                            '${item.priceAfter!.toStringAsFixed(0)} EGP',
+                            'cart.egp_amount'.tr(
+                              args: [item.priceAfter!.toStringAsFixed(0)],
+                            ),
                             style: TextStyle(
                               fontSize: 14.sp,
                               fontWeight: FontWeight.bold,
@@ -595,7 +604,7 @@ class _CartItemCard extends StatelessWidget {
                     )
                   else
                     Text(
-                      'Price unavailable',
+                      'cart.price_unavailable'.tr(),
                       style: TextStyle(
                         fontSize: 12.sp,
                         color: const Color(0xFF94A3B8),
@@ -667,7 +676,7 @@ class _CartBottomBar extends StatelessWidget {
                     SizedBox(width: 10.w),
                     Expanded(
                       child: Text(
-                        'Some items need a provider — tap to choose',
+                        'cart.some_items_need_provider'.tr(),
                         style: TextStyle(
                           fontSize: 13.sp,
                           color: const Color(0xFFC2410C),
@@ -773,7 +782,7 @@ class _EmptyCartView extends StatelessWidget {
           ),
           SizedBox(height: 22.h),
           Text(
-            'Your cart is empty',
+            'cart.empty_title'.tr(),
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 22.sp,
@@ -783,7 +792,7 @@ class _EmptyCartView extends StatelessWidget {
           ),
           SizedBox(height: 8.h),
           Text(
-            'Choose services from providers and they will appear here before checkout.',
+            'cart.empty_message'.tr(),
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14.sp,
@@ -798,7 +807,7 @@ class _EmptyCartView extends StatelessWidget {
             child: ElevatedButton.icon(
               onPressed: onExplore,
               icon: Icon(Icons.search_rounded, size: 19.sp),
-              label: const Text('Explore services'),
+              label: Text('cart.explore_services'.tr()),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF3872B1),
                 foregroundColor: Colors.white,
@@ -850,8 +859,8 @@ class _ErrorView extends StatelessWidget {
                 ),
                 elevation: 0,
               ),
-              child: const Text(
-                'Retry',
+              child: Text(
+                'common.retry'.tr(),
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
