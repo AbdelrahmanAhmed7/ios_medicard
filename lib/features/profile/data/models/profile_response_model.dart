@@ -30,6 +30,7 @@ class ProfileData {
   final String? lastName;
   final String? phoneNumber;
   final String? nationalId;
+  final String? cardNumber;
   final String? passportNumber;
   final bool? isMale;
   final String? birthDate;
@@ -40,6 +41,7 @@ class ProfileData {
     this.lastName,
     this.phoneNumber,
     this.nationalId,
+    this.cardNumber,
     this.passportNumber,
     this.isMale,
     this.birthDate,
@@ -56,6 +58,7 @@ class ProfileData {
     String? lastName,
     String? phoneNumber,
     String? nationalId,
+    String? cardNumber,
     String? passportNumber,
     bool? isMale,
     String? birthDate,
@@ -66,6 +69,7 @@ class ProfileData {
       lastName: lastName ?? this.lastName,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       nationalId: nationalId ?? this.nationalId,
+      cardNumber: cardNumber ?? this.cardNumber,
       passportNumber: passportNumber ?? this.passportNumber,
       isMale: isMale ?? this.isMale,
       birthDate: birthDate ?? this.birthDate,

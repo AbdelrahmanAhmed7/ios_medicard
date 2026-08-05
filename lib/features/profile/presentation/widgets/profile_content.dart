@@ -12,6 +12,7 @@ import 'package:medicard/core/cubit/localization_cubit.dart';
 import 'package:medicard/core/helpers/shared_pref_helper.dart';
 import 'package:medicard/core/network/dio_factory.dart';
 import 'package:medicard/core/widgets/app_blue_header.dart';
+
 import '../../../../core/widgets/auth_shared_widgets.dart';
 import '../../data/models/profile_response_model.dart';
 import '../cubit/profile_cubit.dart';
@@ -83,6 +84,7 @@ class ProfileContent extends StatelessWidget {
             children: [
               _Item(
                 label: 'profile.help_center'.tr(),
+                route: '/help-center',
                 trailing: Icon(
                   Icons.chevron_right_rounded,
                   color: Colors.black54,
@@ -153,14 +155,7 @@ class ProfileContent extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 20.w),
             child: OutlinedButton(
-              onPressed: () async {
-                await const AuthSessionStorage().clearSession();
-                await SharedPrefHelper.removeData(
-                  SharedPrefKeys.medicardCardNo,
-                );
-                DioFactory.clearTokenFromHeader();
-                if (context.mounted) context.go('/medicard-login');
-              },
+              onPressed: () => showLogoutConfirmation(context),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Colors.red, width: 1.2),
                 minimumSize: Size(double.infinity, 50.h),
@@ -222,7 +217,10 @@ class _UserInfoCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '${data.firstName ?? 'Ahmed'} ${data.lastName ?? 'Mohamed'}',
+                          [
+                            data.firstName?.trim(),
+                            data.lastName?.trim(),
+                          ].where((s) => s != null && s.isNotEmpty).join(' '),
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: 17.sp,
@@ -473,5 +471,115 @@ class _LanguageItem extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// Shows a confirmation bottom sheet before logging out.
+/// Extracted as a top-level function so it can be reused from
+/// [ProfileContent] and [ProfileErrorView].
+Future<void> showLogoutConfirmation(BuildContext context) async {
+  final confirmed = await showModalBottomSheet<bool>(
+    context: context,
+    backgroundColor: Colors.white,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+    ),
+    builder: (sheetContext) {
+      return SafeArea(
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(20.w, 18.h, 20.w, 20.h),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle bar
+              Container(
+                width: 42.w,
+                height: 4.h,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE5E7EB),
+                  borderRadius: BorderRadius.circular(4.r),
+                ),
+              ),
+              SizedBox(height: 18.h),
+              // Icon
+              Container(
+                width: 54.r,
+                height: 54.r,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFEE2E2),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.logout_rounded,
+                  color: Colors.red,
+                  size: 26.sp,
+                ),
+              ),
+              SizedBox(height: 14.h),
+              Text(
+                'common.logout_confirm_title'.tr(),
+                style: TextStyle(
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF111827),
+                ),
+              ),
+              SizedBox(height: 8.h),
+              Text(
+                'common.logout_confirm_message'.tr(),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  height: 1.35,
+                  color: const Color(0xFF6B7280),
+                ),
+              ),
+              SizedBox(height: 20.h),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(sheetContext).pop(false),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF334155),
+                        side: const BorderSide(color: Color(0xFFD1D5DB)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.r),
+                        ),
+                        minimumSize: Size.fromHeight(48.h),
+                      ),
+                      child: Text('common.cancel'.tr()),
+                    ),
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(sheetContext).pop(true),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.r),
+                        ),
+                        minimumSize: Size.fromHeight(48.h),
+                      ),
+                      child: Text('common.logout'.tr()),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+
+  if (confirmed == true && context.mounted) {
+    await const AuthSessionStorage().clearSession();
+    await SharedPrefHelper.removeData(SharedPrefKeys.medicardCardNo);
+    DioFactory.clearTokenFromHeader();
+    if (context.mounted) context.go('/medicard-login');
   }
 }

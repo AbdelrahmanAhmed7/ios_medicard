@@ -71,16 +71,17 @@ abstract class MedicardApiService {
     @Part(name: "ProfileImage") MultipartFile? profileImage,
   );
 
-  @GET('/Profile')
+  // ── Profile v2 endpoints (new API) ────────────────────────────────────────
+
+  @GET('Profile')
   Future<ProfileResponseModel> getProfile();
 
   @GET('Profile/card-data')
   Future<CardDataResponseModel> getCardData();
 
-  @PUT('/Profile')
+  @PUT('Profile')
   @MultiPart()
   Future<ProfileResponseModel> updateProfileV2(
-    @Header('Authorization') String token,
     @Part(name: 'FirstName') String firstName,
     @Part(name: 'LastName') String lastName,
     @Part(name: 'PhoneNumber') String phoneNumber,
@@ -90,6 +91,8 @@ abstract class MedicardApiService {
     @Part(name: 'BirthDate') String birthDate,
     @Part(name: 'Image') MultipartFile? image,
   );
+
+  // ── Auth ──────────────────────────────────────────────────────────────────
 
   @POST('Auth/change-password')
   Future<ChangePasswordResponseModel> changePassword(
@@ -103,38 +106,38 @@ abstract class MedicardApiService {
     @Body() ChangeLanguageRequestModel body,
   );
 
+  // ── Content ───────────────────────────────────────────────────────────────
+
   @GET('/Content/{slug}')
   Future<ContentResponseModel> getContent(@Path('slug') String slug);
 
+  // ── Family Members ────────────────────────────────────────────────────────
+
   @GET('/FamilyMembers')
-  Future<GetFamilyMembersResponseModel> getFamilyMembers(
-    @Header('Authorization') String token,
-  );
+  Future<GetFamilyMembersResponseModel> getFamilyMembers();
 
   @GET('/FamilyMembers/{id}')
   Future<GetFamilyMemberResponseModel> getFamilyMember(
-    @Header('Authorization') String token,
     @Path('id') int id,
   );
 
   @POST('/FamilyMembers')
   Future<FamilyMemberOperationResponseModel> createFamilyMember(
-    @Header('Authorization') String token,
     @Body() CreateFamilyMemberRequestModel request,
   );
 
   @PUT('/FamilyMembers/{id}')
   Future<FamilyMemberOperationResponseModel> updateFamilyMember(
-    @Header('Authorization') String token,
     @Path('id') int id,
     @Body() CreateFamilyMemberRequestModel request,
   );
 
   @DELETE('/FamilyMembers/{id}')
   Future<FamilyMemberOperationResponseModel> deleteFamilyMember(
-    @Header('Authorization') String token,
     @Path('id') int id,
   );
+
+  // ── Guest Home ────────────────────────────────────────────────────────────
 
   @GET('/GuestMobileHome/guest')
   Future<GuestHomeResponseModel> getGuestHomeData(

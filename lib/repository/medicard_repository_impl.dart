@@ -360,11 +360,7 @@ class MedicardRepositoryImpl implements MedicardRepository {
           );
         }
       }
-      final token = await SharedPrefHelper.getSecuredString(
-        SharedPrefKeys.userToken,
-      );
       final response = await _apiService.updateProfileV2(
-        'Bearer $token',
         firstName.trim(),
         lastName.trim(),
         phoneNumber.trim(),
@@ -374,6 +370,13 @@ class MedicardRepositoryImpl implements MedicardRepository {
         birthDate,
         imagePart,
       );
+      if (kDebugMode) {
+        debugPrint(
+          '[ProfileRepository] updateProfileV2 response: succeeded=${response.succeeded}, message=${response.message}, hasData=${response.data != null}',
+        );
+      }
+      // The PUT endpoint returns succeeded=true with data=null on success.
+      // Treat any 2xx with succeeded=true as a successful update.
       return (response.succeeded == true)
           ? ApiResult.success(response)
           : ApiResult.failure(
@@ -384,6 +387,9 @@ class MedicardRepositoryImpl implements MedicardRepository {
                   : 'Failed to update profile.',
             );
     } catch (error) {
+      if (kDebugMode) {
+        debugPrint('[ProfileRepository] updateProfileV2 error: ${error.runtimeType} $error');
+      }
       return ApiResult.failure(parseApiError(error));
     }
   }

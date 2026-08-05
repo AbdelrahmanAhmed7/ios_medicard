@@ -98,12 +98,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final data = response.data;
     final token = data?.token;
     final refreshToken = data?.refreshToken;
-    final refreshTokenExpiresAt = data?.refreshTokenExpiresAt;
 
     if (token == null || token.isEmpty) return false;
     if (refreshToken == null || refreshToken.isEmpty) return false;
-    if (refreshTokenExpiresAt == null) return false;
-    return DateTime.now().toUtc().isBefore(refreshTokenExpiresAt.toUtc());
+    return true;
   }
 
   bool _isPasswordValid(String password) {

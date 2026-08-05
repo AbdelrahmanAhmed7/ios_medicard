@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:medicard/core/theming/app_toast.dart';
 import 'package:medicard/core/utils/api_error_parser.dart';
+import '../../data/models/family_member_model.dart';
 import '../../domain/repository/family_members_repository.dart';
 import 'family_members_state.dart';
 
@@ -30,6 +31,12 @@ class FamilyMembersCubit extends Cubit<FamilyMembersState> {
     String? imageUrl,
   }) async {
     if (isClosed) return;
+
+    final currentMembers = state.maybeWhen(
+      success: (members) => members,
+      orElse: () => <FamilyMemberModel>[],
+    );
+
     emit(const FamilyMembersState.creating());
     try {
       await repository.createFamilyMember(firstName, lastName, relation, imageUrl);
@@ -40,13 +47,9 @@ class FamilyMembersCubit extends Cubit<FamilyMembersState> {
     } catch (e) {
       if (isClosed) return;
       showErrorToast(parseApiError(e));
-      // Re-emit last success state to keep list visible
-      state.maybeWhen(
-        success: (members) => emit(FamilyMembersState.success(members)),
-        orElse: () => loadFamilyMembers(),
-      );
+      emit(FamilyMembersState.success(currentMembers));
     }
-  } 
+  }
 
   Future<void> updateFamilyMember({
     required int id,
@@ -56,6 +59,12 @@ class FamilyMembersCubit extends Cubit<FamilyMembersState> {
     String? imageUrl,
   }) async {
     if (isClosed) return;
+
+    final currentMembers = state.maybeWhen(
+      success: (members) => members,
+      orElse: () => <FamilyMemberModel>[],
+    );
+
     emit(const FamilyMembersState.updating());
     try {
       await repository.updateFamilyMember(id, firstName, lastName, relation, imageUrl);
@@ -66,16 +75,19 @@ class FamilyMembersCubit extends Cubit<FamilyMembersState> {
     } catch (e) {
       if (isClosed) return;
       showErrorToast(parseApiError(e));
-      // Re-emit last success state to keep list visible
-      state.maybeWhen(
-        success: (members) => emit(FamilyMembersState.success(members)),
-        orElse: () => loadFamilyMembers(),
-      );
+      emit(FamilyMembersState.success(currentMembers));
     }
   }
 
   Future<void> deleteFamilyMember({required int id}) async {
     if (isClosed) return;
+
+    // Keep a snapshot of the current list to restore on failure.
+    final currentMembers = state.maybeWhen(
+      success: (members) => members,
+      orElse: () => <FamilyMemberModel>[],
+    );
+
     emit(const FamilyMembersState.deleting());
     try {
       await repository.deleteFamilyMember(id);
@@ -86,11 +98,8 @@ class FamilyMembersCubit extends Cubit<FamilyMembersState> {
     } catch (e) {
       if (isClosed) return;
       showErrorToast(parseApiError(e));
-      // Re-emit last success state to keep list visible
-      state.maybeWhen(
-        success: (members) => emit(FamilyMembersState.success(members)),
-        orElse: () => loadFamilyMembers(),
-      );
+      // Restore the list that was visible before the delete attempt.
+      emit(FamilyMembersState.success(currentMembers));
     }
   }
 }

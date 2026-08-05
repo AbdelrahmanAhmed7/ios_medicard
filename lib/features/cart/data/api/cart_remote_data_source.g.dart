@@ -151,7 +151,7 @@ class _CartRemoteDataSource implements CartRemoteDataSource {
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<UpdateCartProviderResponseDto>(
-      Options(method: 'POST', headers: _headers, extra: _extra)
+      Options(method: 'DELETE', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
             'Cart/clear',

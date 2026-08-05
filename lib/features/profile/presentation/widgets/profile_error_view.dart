@@ -2,13 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:go_router/go_router.dart';
-import 'package:medicard/core/auth/auth_session_storage.dart';
-import 'package:medicard/core/constants/constants.dart';
-import 'package:medicard/core/helpers/shared_pref_helper.dart';
-import 'package:medicard/core/network/dio_factory.dart';
 import 'package:medicard/core/widgets/app_blue_header.dart';
 import '../cubit/profile_cubit.dart';
+import 'profile_content.dart';
 
 class ProfileErrorView extends StatelessWidget {
   const ProfileErrorView({super.key});
@@ -55,14 +51,7 @@ class ProfileErrorView extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 20.w),
             child: OutlinedButton(
-              onPressed: () async {
-                await const AuthSessionStorage().clearSession();
-                await SharedPrefHelper.removeData(
-                  SharedPrefKeys.medicardCardNo,
-                );
-                DioFactory.clearTokenFromHeader();
-                if (context.mounted) context.go('/medicard-login');
-              },
+              onPressed: () => showLogoutConfirmation(context),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Colors.red, width: 1.2),
                 minimumSize: Size(double.infinity, 50.h),

@@ -101,15 +101,19 @@ class CartRepositoryImpl implements CartRepository {
     try {
       final token = await _bearerToken;
       final response = await _dataSource.getCart(token);
-      return (response.succeeded == true && response.data != null)
-          ? ApiResult.success(_mapCartDtoToDomain(response))
-          : ApiResult.failure(
-              _failureMessage(
-                errors: response.errors,
-                message: response.message,
-                fallback: 'Failed to load cart.',
-              ),
-            );
+      // If the backend returns `succeeded: true` with `data: null` for an
+      // empty cart, treat it as an empty cart instead of an error.
+      if (response.succeeded == true) {
+        return ApiResult.success(_mapCartDtoToDomain(response));
+      }
+
+      return ApiResult.failure(
+        _failureMessage(
+          errors: response.errors,
+          message: response.message,
+          fallback: 'Failed to load cart.',
+        ),
+      );
     } catch (error) {
       if (kDebugMode) {
         debugPrint(
@@ -222,6 +226,11 @@ class CartRepositoryImpl implements CartRepository {
     try {
       final token = await _bearerToken;
       final response = await _dataSource.clearCart(token);
+      if (kDebugMode) {
+        debugPrint(
+          '[CartRepository] clearCart response: succeeded=${response.succeeded}, message=${response.message}',
+        );
+      }
       return (response.succeeded == true)
           ? const ApiResult.success(null)
           : ApiResult.failure(
@@ -232,6 +241,9 @@ class CartRepositoryImpl implements CartRepository {
               ),
             );
     } catch (error) {
+      if (kDebugMode) {
+        debugPrint('[CartRepository] clearCart error: ${error.runtimeType} $error');
+      }
       return ApiResult.failure(parseApiError(error));
     }
   }

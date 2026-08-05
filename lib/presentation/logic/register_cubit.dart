@@ -53,9 +53,7 @@ class RegisterCubit extends Cubit<RegisterState> {
               token != null &&
               token.isNotEmpty &&
               refreshToken != null &&
-              refreshToken.isNotEmpty &&
-              refreshTokenExpiresAt != null &&
-              DateTime.now().toUtc().isBefore(refreshTokenExpiresAt.toUtc());
+              refreshToken.isNotEmpty;
 
           if (hasUsableSession) {
             await const AuthSessionStorage().saveSession(

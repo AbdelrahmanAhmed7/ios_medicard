@@ -223,7 +223,7 @@ class _FamilyMemberListItem extends StatelessWidget {
                   id: member.id!,
                 );
               },
-              child: Text('common.delete_account'.tr()),
+              child: Text('common.delete'.tr()),
             ),
           ],
         );

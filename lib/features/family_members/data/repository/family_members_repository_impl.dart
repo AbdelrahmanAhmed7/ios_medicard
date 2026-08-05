@@ -1,5 +1,3 @@
-import 'package:medicard/core/constants/constants.dart';
-import 'package:medicard/core/helpers/shared_pref_helper.dart';
 import 'package:medicard/features/family_members/data/models/family_member_model.dart';
 import 'package:medicard/service/medicard_api_service.dart';
 import '../../domain/repository/family_members_repository.dart';
@@ -15,13 +13,12 @@ class FamilyMembersRepositoryImpl implements FamilyMembersRepository {
 
   @override
   Future<List<FamilyMemberModel>> getFamilyMembers() async {
-    final token = await SharedPrefHelper.getSecuredString(
-      SharedPrefKeys.userToken,
-    );
-    final GetFamilyMembersResponseModel response = await apiService
-        .getFamilyMembers('Bearer $token');
-    if (response.succeeded == true && response.data != null) {
-      return response.data!;
+    // Token is injected automatically by AuthInterceptor.
+    final GetFamilyMembersResponseModel response =
+        await apiService.getFamilyMembers();
+    if (response.succeeded == true) {
+      // data can be null or empty after deleting the last member — treat as []
+      return response.data ?? [];
     } else {
       throw Exception(
         response.errors?.join(', ') ?? 'Failed to get family members',
@@ -31,11 +28,8 @@ class FamilyMembersRepositoryImpl implements FamilyMembersRepository {
 
   @override
   Future<FamilyMemberModel> getFamilyMember(int id) async {
-    final token = await SharedPrefHelper.getSecuredString(
-      SharedPrefKeys.userToken,
-    );
-    final GetFamilyMemberResponseModel response = await apiService
-        .getFamilyMember('Bearer $token', id);
+    final GetFamilyMemberResponseModel response =
+        await apiService.getFamilyMember(id);
     if (response.succeeded == true && response.data != null) {
       return response.data!;
     } else {
@@ -52,9 +46,6 @@ class FamilyMembersRepositoryImpl implements FamilyMembersRepository {
     int relation,
     String? imageUrl,
   ) async {
-    final token = await SharedPrefHelper.getSecuredString(
-      SharedPrefKeys.userToken,
-    );
     final CreateFamilyMemberRequestModel request =
         CreateFamilyMemberRequestModel(
           firstName: firstName,
@@ -62,8 +53,8 @@ class FamilyMembersRepositoryImpl implements FamilyMembersRepository {
           relation: relation,
           imageUrl: imageUrl,
         );
-    final FamilyMemberOperationResponseModel response = await apiService
-        .createFamilyMember('Bearer $token', request);
+    final FamilyMemberOperationResponseModel response =
+        await apiService.createFamilyMember(request);
     if (response.succeeded != true) {
       throw Exception(
         response.errors?.join(', ') ?? 'Failed to create family member',
@@ -79,9 +70,6 @@ class FamilyMembersRepositoryImpl implements FamilyMembersRepository {
     int relation,
     String? imageUrl,
   ) async {
-    final token = await SharedPrefHelper.getSecuredString(
-      SharedPrefKeys.userToken,
-    );
     final CreateFamilyMemberRequestModel request =
         CreateFamilyMemberRequestModel(
           firstName: firstName,
@@ -89,8 +77,8 @@ class FamilyMembersRepositoryImpl implements FamilyMembersRepository {
           relation: relation,
           imageUrl: imageUrl,
         );
-    final FamilyMemberOperationResponseModel response = await apiService
-        .updateFamilyMember('Bearer $token', id, request);
+    final FamilyMemberOperationResponseModel response =
+        await apiService.updateFamilyMember(id, request);
     if (response.succeeded != true) {
       throw Exception(
         response.errors?.join(', ') ?? 'Failed to update family member',
@@ -100,11 +88,8 @@ class FamilyMembersRepositoryImpl implements FamilyMembersRepository {
 
   @override
   Future<void> deleteFamilyMember(int id) async {
-    final token = await SharedPrefHelper.getSecuredString(
-      SharedPrefKeys.userToken,
-    );
-    final FamilyMemberOperationResponseModel response = await apiService
-        .deleteFamilyMember('Bearer $token', id);
+    final FamilyMemberOperationResponseModel response =
+        await apiService.deleteFamilyMember(id);
     if (response.succeeded != true) {
       throw Exception(
         response.errors?.join(', ') ?? 'Failed to delete family member',

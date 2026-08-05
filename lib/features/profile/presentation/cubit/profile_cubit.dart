@@ -60,7 +60,12 @@ class ProfileCubit extends Cubit<ProfileState> {
 
   Future<void> _performProfileLoad() async {
     if (isClosed) return;
-    emit(const ProfileState.loading());
+    // Don't flash loading shimmer when called after an update — the ProfileContent
+    // is already visible with the current data. Only show loading on a cold fetch.
+    final isUpdating = state.maybeWhen(updating: (_) => true, orElse: () => false);
+    if (!isUpdating) {
+      emit(const ProfileState.loading());
+    }
     try {
       final result = await _getProfileUseCase.call();
       if (isClosed) return;
@@ -120,39 +125,28 @@ class ProfileCubit extends Cubit<ProfileState> {
         imagePath: imagePath,
       );
       if (isClosed) return false;
-      var didUpdate = false;
-      result.when(
-        success: (response) {
-          if (isClosed) return;
-          final responseData = response.data ?? currentData;
-          final updatedData = ProfileData(
-            firstName: firstName,
-            lastName: lastName,
-            phoneNumber: phoneNumber,
-            nationalId: nationalId,
-            passportNumber: passportNumber,
-            isMale: isMale,
-            birthDate: birthDate,
-            imageUrl: imagePath ?? responseData.imageUrl,
-          );
-          showSuccessToast('profile.updated_successfully'.tr());
-          if (isClosed) return;
-          emit(ProfileState.updated(updatedData));
-          didUpdate = true;
-        },
-        failure: (message) {
-          if (isClosed) return;
-          showErrorToast(message);
-          if (isClosed) return;
-          emit(ProfileState.success(currentData));
-        },
+
+      // Extract success/failure synchronously first.
+      final failure = result.when(
+        success: (_) => null,
+        failure: (message) => message,
       );
-      return didUpdate;
+
+      if (failure != null) {
+        showErrorToast(failure);
+        if (!isClosed) emit(ProfileState.success(currentData));
+        return false;
+      }
+
+      // PUT succeeded — re-fetch from API so the state reflects exactly
+      // what the backend persisted (imageUrl, cardNumber, etc.).
+      showSuccessToast('profile.updated_successfully'.tr());
+      await _performProfileLoad();
+      return true;
     } catch (e) {
       if (isClosed) return false;
       showErrorToast(parseApiError(e));
-      if (isClosed) return false;
-      emit(ProfileState.success(currentData));
+      if (!isClosed) emit(ProfileState.success(currentData));
       return false;
     }
   }

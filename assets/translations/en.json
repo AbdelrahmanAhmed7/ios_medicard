@@ -79,7 +79,10 @@
     "cancel": "Cancel",
     "save": "Save",
     "logout": "Logout",
+    "logout_confirm_title": "Logout",
+    "logout_confirm_message": "Are you sure you want to logout?",
     "delete_account": "Delete Account",
+    "delete": "Delete",
     "try_again": "Try Again",
     "apply": "Apply",
     "update": "Update",
@@ -175,6 +178,7 @@
     "last_name": "Last Name",
     "name": "Name",
     "card_number": "Card Number",
+    "passport_number": "Passport Number",
     "national_id": "National ID",
     "phone_number": "Phone Number",
     "date_of_birth": "Date of Birth",
@@ -429,5 +433,16 @@
     "no_card_title": "You don't have a card yet",
     "no_card_message": "Get a MediCard to access 2,400+ doctors, labs, pharmacies and gyms across Egypt with exclusive member discounts.",
     "expiry_date": "Expiry"
+  },
+  "help_center": {
+    "title": "Help Center",
+    "subtitle": "We're here to help you anytime",
+    "contact_us": "Contact Us",
+    "phone": "Phone",
+    "whatsapp": "WhatsApp",
+    "email": "Email",
+    "website": "Website",
+    "whatsapp_message": "Hello, I need help with MediCard.",
+    "email_subject": "Support Request - MediCard"
   }
 }

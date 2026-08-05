@@ -10,6 +10,7 @@ import '../../../../core/services/url_launcher_service.dart';
 import '../../../../core/theming/app_colors.dart';
 import '../../../../core/theming/app_snack_bar.dart';
 import '../../../../core/theming/app_text_styles.dart';
+import '../../../../core/widgets/app_blue_header.dart';
 import '../../domain/models/content_type.dart';
 import '../cubit/content_cubit.dart';
 import '../cubit/content_state.dart';
@@ -45,41 +46,39 @@ class _ContentScreenState extends State<ContentScreen> {
         textDirection: isRtl ? ui.TextDirection.rtl : ui.TextDirection.ltr,
         child: Scaffold(
           backgroundColor: AppColors.lightGreyClr,
-          appBar: AppBar(
-            backgroundColor: AppColors.blueClr,
-            foregroundColor: AppColors.whiteClr,
-            centerTitle: true,
-            elevation: 0,
-            title: Text(
-              widget.contentType.titleKey.tr(),
-              style: AppTextStyles.font20WhiteSemiBold(context),
-            ),
-          ),
-          body: SafeArea(
-            child: BlocBuilder<ContentCubit, ContentState>(
-              builder: (context, state) {
-                return state.when(
-                  initial: () => const ContentShimmer(),
-                  loading: () => const ContentShimmer(),
-                  success: (data) {
-                    final html = data.description.trim();
-                    if (html.isEmpty) {
-                      return _ContentEmptyView(contentType: widget.contentType);
-                    }
-                    return _HtmlContentView(
-                      html: html,
-                      isRtl: isRtl,
-                      linkHandler: _linkHandler,
-                    );
-                  },
-                  failed: (error) => ContentErrorView(
-                    message: error.tr(),
-                    onRetry: () =>
-                        context.read<ContentCubit>().retry(widget.contentType),
+          body: Column(
+            children: [
+              AppBlueHeader(title: widget.contentType.titleKey.tr()),
+              Expanded(
+                child: SafeArea(
+                  top: false,
+                  child: BlocBuilder<ContentCubit, ContentState>(
+                    builder: (context, state) {
+                      return state.when(
+                        initial: () => const ContentShimmer(),
+                        loading: () => const ContentShimmer(),
+                        success: (data) {
+                          final html = data.description.trim();
+                          if (html.isEmpty) {
+                            return _ContentEmptyView(contentType: widget.contentType);
+                          }
+                          return _HtmlContentView(
+                            html: html,
+                            isRtl: isRtl,
+                            linkHandler: _linkHandler,
+                          );
+                        },
+                        failed: (error) => ContentErrorView(
+                          message: error.tr(),
+                          onRetry: () =>
+                              context.read<ContentCubit>().retry(widget.contentType),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

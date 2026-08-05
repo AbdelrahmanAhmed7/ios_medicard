@@ -27,8 +27,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _phoneNumberController = TextEditingController();
   final _nationalIdController = TextEditingController();
   final _passportNumberController = TextEditingController();
+  // cardNumber is read-only — the backend does not allow updating it.
+  final _cardNumberController = TextEditingController();
 
-  String _birthDate = '2000-01-01';
+  String _birthDate = '';
   bool? _isMale;
   File? _pickedImage;
   final ImagePicker _picker = ImagePicker();
@@ -64,9 +66,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _selectBirthDate() async {
+    final initialDate = _birthDate.isNotEmpty
+        ? DateTime.tryParse(_birthDate) ?? DateTime(1990)
+        : DateTime(1990);
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.parse(_birthDate),
+      initialDate: initialDate,
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
       builder: (context, child) => Theme(
@@ -92,7 +97,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _phoneNumberController.text = widget.profileData.phoneNumber ?? '';
     _nationalIdController.text = widget.profileData.nationalId ?? '';
     _passportNumberController.text = widget.profileData.passportNumber ?? '';
-    _birthDate = widget.profileData.birthDate ?? '2000-01-01';
+    _cardNumberController.text = widget.profileData.cardNumber ?? '';
+    _birthDate = widget.profileData.birthDate ?? '';
     _isMale = widget.profileData.isMale;
   }
 
@@ -103,10 +109,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _phoneNumberController.dispose();
     _nationalIdController.dispose();
     _passportNumberController.dispose();
+    _cardNumberController.dispose();
     super.dispose();
   }
 
   Map<String, String> _getBirthDateParts() {
+    if (_birthDate.isEmpty) {
+      return {'day': 'DD', 'month': 'MM', 'year': 'YYYY'};
+    }
     try {
       final dateTime = DateTime.parse(_birthDate);
       return {
@@ -216,11 +226,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                       SizedBox(height: 14.h),
 
-                      // رقم الكارت (Passport or Card Number)
+                      // Card Number — read-only, backend does not allow updating
                       _FieldLabel('edit_profile.card_number'.tr()),
                       _buildTextField(
+                        controller: _cardNumberController,
+                        hintText: 'edit_profile.card_number'.tr(),
+                        required: false,
+                        readOnly: true,
+                      ),
+                      SizedBox(height: 14.h),
+
+                      // Passport Number
+                      _FieldLabel('edit_profile.passport_number'.tr()),
+                      _buildTextField(
                         controller: _passportNumberController,
-                        hintText: '1020212*****',
+                        hintText: 'edit_profile.passport_number'.tr(),
                         required: false,
                       ),
                       SizedBox(height: 14.h),
@@ -305,25 +325,36 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _saveProfile() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() => _isSaving = true);
-      final didUpdate = await context.read<ProfileCubit>().updateProfile(
-        firstName: _firstNameController.text.trim(),
-        lastName: _lastNameController.text.trim(),
-        phoneNumber: _phoneNumberController.text.trim(),
-        nationalId: _nationalIdController.text.trim(),
-        passportNumber: _passportNumberController.text.trim().isEmpty
-            ? null
-            : _passportNumberController.text.trim(),
-        isMale: _isMale ?? true,
-        birthDate: _birthDate,
-        imagePath: _pickedImage?.path,
-        currentData: widget.profileData,
-      );
-      if (!mounted) return;
-      setState(() => _isSaving = false);
-      if (didUpdate) context.pop();
-    }
+    if (_isSaving) return;
+    if (!_formKey.currentState!.validate()) return;
+
+    // If the user never changed the gender dropdown, use the value from the
+    // original API data rather than defaulting to a hardcoded value.
+    final isMaleToSend = _isMale ?? widget.profileData.isMale ?? true;
+    setState(() => _isSaving = true);
+
+    final cubit = context.read<ProfileCubit>();
+    final didUpdate = await cubit.updateProfile(
+      firstName: _firstNameController.text.trim(),
+      lastName: _lastNameController.text.trim(),
+      phoneNumber: _phoneNumberController.text.trim(),
+      nationalId: _nationalIdController.text.trim(),
+      passportNumber: _passportNumberController.text.trim().isEmpty
+          ? null
+          : _passportNumberController.text.trim(),
+      isMale: isMaleToSend,
+      birthDate: _birthDate,
+      imagePath: _pickedImage?.path,
+      currentData: widget.profileData,
+    );
+
+    if (!mounted) return;
+    setState(() => _isSaving = false);
+
+    // Pop immediately on success so the edit screen is dismissed before
+    // the cubit emits loading state (which would remove ProfileContent
+    // from the IndexedStack while we're still navigating).
+    if (didUpdate) context.pop();
   }
 
   // Returns true only when the URL points to an actual resource, not just a bare domain.
@@ -419,14 +450,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     required String hintText,
     TextInputType? keyboardType,
     bool required = true,
+    bool readOnly = false,
     String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
+      readOnly: readOnly,
       style: TextStyle(
         fontSize: 15.sp,
-        color: Colors.black,
+        color: readOnly ? Colors.grey.shade500 : Colors.black,
         fontWeight: FontWeight.w500,
       ),
       decoration: InputDecoration(
@@ -437,7 +470,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           fontWeight: FontWeight.w400,
         ),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: readOnly ? Colors.grey.shade100 : Colors.white,
         contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
@@ -445,7 +478,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: const BorderSide(color: kAuthBlue, width: 1.2),
+          borderSide: BorderSide(
+            color: readOnly ? Colors.grey.shade300 : kAuthBlue,
+            width: readOnly ? 1.0 : 1.2,
+          ),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),

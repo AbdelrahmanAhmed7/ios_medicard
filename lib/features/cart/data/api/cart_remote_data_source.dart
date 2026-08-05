@@ -36,7 +36,7 @@ abstract class CartRemoteDataSource {
     @Path('categoryId') int categoryId,
   );
 
-  @POST('Cart/clear')
+  @DELETE('Cart/clear')
   Future<UpdateCartProviderResponseDto> clearCart(
     @Header('Authorization') String token,
   );

@@ -283,7 +283,7 @@ class _MedicardApiService implements MedicardApiService {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/Profile',
+            'Profile',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -329,7 +329,6 @@ class _MedicardApiService implements MedicardApiService {
 
   @override
   Future<ProfileResponseModel> updateProfileV2(
-    String token,
     String firstName,
     String lastName,
     String phoneNumber,
@@ -342,8 +341,7 @@ class _MedicardApiService implements MedicardApiService {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{r'Authorization': token};
-    _headers.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
     final _data = FormData();
     _data.fields.add(MapEntry('FirstName', firstName));
     _data.fields.add(MapEntry('LastName', lastName));
@@ -366,7 +364,7 @@ class _MedicardApiService implements MedicardApiService {
           )
           .compose(
             _dio.options,
-            '/Profile',
+            'Profile',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -475,11 +473,10 @@ class _MedicardApiService implements MedicardApiService {
   }
 
   @override
-  Future<GetFamilyMembersResponseModel> getFamilyMembers(String token) async {
+  Future<GetFamilyMembersResponseModel> getFamilyMembers() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{r'Authorization': token};
-    _headers.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<GetFamilyMembersResponseModel>(
       Options(method: 'GET', headers: _headers, extra: _extra)
@@ -503,14 +500,10 @@ class _MedicardApiService implements MedicardApiService {
   }
 
   @override
-  Future<GetFamilyMemberResponseModel> getFamilyMember(
-    String token,
-    int id,
-  ) async {
+  Future<GetFamilyMemberResponseModel> getFamilyMember(int id) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{r'Authorization': token};
-    _headers.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<GetFamilyMemberResponseModel>(
       Options(method: 'GET', headers: _headers, extra: _extra)
@@ -535,13 +528,11 @@ class _MedicardApiService implements MedicardApiService {
 
   @override
   Future<FamilyMemberOperationResponseModel> createFamilyMember(
-    String token,
     CreateFamilyMemberRequestModel request,
   ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{r'Authorization': token};
-    _headers.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(request.toJson());
     final _options = _setStreamType<FamilyMemberOperationResponseModel>(
@@ -567,14 +558,12 @@ class _MedicardApiService implements MedicardApiService {
 
   @override
   Future<FamilyMemberOperationResponseModel> updateFamilyMember(
-    String token,
     int id,
     CreateFamilyMemberRequestModel request,
   ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{r'Authorization': token};
-    _headers.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(request.toJson());
     final _options = _setStreamType<FamilyMemberOperationResponseModel>(
@@ -599,14 +588,10 @@ class _MedicardApiService implements MedicardApiService {
   }
 
   @override
-  Future<FamilyMemberOperationResponseModel> deleteFamilyMember(
-    String token,
-    int id,
-  ) async {
+  Future<FamilyMemberOperationResponseModel> deleteFamilyMember(int id) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{r'Authorization': token};
-    _headers.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<FamilyMemberOperationResponseModel>(
       Options(method: 'DELETE', headers: _headers, extra: _extra)

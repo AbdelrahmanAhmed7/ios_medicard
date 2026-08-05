@@ -34,6 +34,7 @@ import '../widgets/nearest_section.dart';
 import '../widgets/pending_appointments_section.dart';
 import '../widgets/promo_banner.dart';
 import '../widgets/quick_actions_row.dart';
+import '../widgets/summer_promo_dialog.dart';
 
 class HomeScreen extends StatefulWidget {
   final int initialIndex;
@@ -53,6 +54,10 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex;
+    // Show the summer promo popup on first frame if within the promo window.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) SummerPromoDialog.maybeShow(context);
+    });
   }
 
   @override

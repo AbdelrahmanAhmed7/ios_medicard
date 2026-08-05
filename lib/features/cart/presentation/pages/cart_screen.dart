@@ -272,7 +272,7 @@ Future<void> _showClearCartSheet(BuildContext context) async {
     },
   );
 
-  if (confirmed == true) {
+  if (confirmed == true && !cubit.isClosed) {
     cubit.clearCart();
   }
 }

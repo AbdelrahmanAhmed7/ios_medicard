@@ -32,6 +32,7 @@ import '../../features/family_members/presentation/pages/family_members_list_scr
 import '../../features/family_members/presentation/pages/add_edit_family_member_screen.dart';
 import '../../features/family_members/data/models/family_member_model.dart';
 import '../../features/guest_home/presentation/pages/guest_home_screen.dart';
+import '../../features/help_center/presentation/pages/help_center_screen.dart';
 import '../../medicard_network/logic/medicard_network_cubit.dart';
 import '../../medicard_network/presentation/medicard_network_screen.dart';
 import '../../medicard_network/presentation/pages/provider_page_screen.dart';
@@ -324,6 +325,10 @@ class AppRouter {
               ),
             );
           },
+        ),
+        GoRoute(
+          path: '/help-center',
+          builder: (context, state) => const HelpCenterScreen(),
         ),
         GoRoute(
           path: '/privacy-policy',

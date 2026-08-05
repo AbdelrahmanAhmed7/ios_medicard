@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/api_result.dart';
 import '../../../../core/utils/api_error_parser.dart';
@@ -210,11 +211,18 @@ class CartCubit extends Cubit<CartState> {
     emit(state.copyWith(isCartLoading: true, resetCartError: true));
     final result = await _repository.clearCart();
     if (isClosed) return;
+    if (kDebugMode) {
+      result.when(
+        success: (_) => debugPrint('[CartCubit] clearCart succeeded'),
+        failure: (err) => debugPrint('[CartCubit] clearCart failed: $err'),
+      );
+    }
     result.when(
       success: (_) {
         emit(
           state.copyWith(
             cart: const Cart.empty(),
+            isCartLoading: false,
             resetCartError: true,
           ),
         );
