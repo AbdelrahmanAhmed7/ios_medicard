@@ -15,6 +15,10 @@ import '../data/card_update_profile_response_model.dart';
 import '../data/auth_register_request_model.dart';
 import '../data/auth_login_request_model.dart';
 import '../data/auth_response_model.dart';
+import '../features/auth/data/models/send_otp_request_model.dart';
+import '../features/auth/data/models/verify_otp_request_model.dart';
+import '../features/auth/data/models/reset_password_request_model.dart';
+import '../features/auth/data/models/otp_response_model.dart';
 import '../domain/medicard_repository.dart';
 import '../features/home/data/models/home_response_model.dart';
 import '../features/home/domain/models/home_failure.dart';
@@ -121,6 +125,70 @@ class MedicardRepositoryImpl implements MedicardRepository {
       return _isLoginSuccess(response)
           ? ApiResult.success(response)
           : ApiResult.failure(_authFailureMessage(response));
+    } catch (error) {
+      return ApiResult.failure(parseApiError(error));
+    }
+  }
+
+  String _otpFailureMessage(OtpResponseModel response) {
+    return (response.errors != null && response.errors!.isNotEmpty)
+        ? response.errors!.join('\n')
+        : response.message?.isNotEmpty == true
+        ? response.message!
+        : 'Operation failed.';
+  }
+
+  @override
+  Future<ApiResult<OtpResponseModel>> sendOtp(String phoneNumber) async {
+    try {
+      if (kDebugMode) debugPrint('[AuthRepository] sending OTP');
+      final response = await _apiService.sendOtp(
+        SendOtpRequestModel(phoneNumber: phoneNumber),
+      );
+      return (response.succeeded == true && response.data != null)
+          ? ApiResult.success(response)
+          : ApiResult.failure(_otpFailureMessage(response));
+    } catch (error) {
+      return ApiResult.failure(parseApiError(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<OtpResponseModel>> verifyOtp({
+    required String phoneNumber,
+    required String otp,
+  }) async {
+    try {
+      if (kDebugMode) debugPrint('[AuthRepository] verifying OTP');
+      final response = await _apiService.verifyOtp(
+        VerifyOtpRequestModel(phoneNumber: phoneNumber, otp: otp),
+      );
+      return (response.succeeded == true && response.data != null)
+          ? ApiResult.success(response)
+          : ApiResult.failure(_otpFailureMessage(response));
+    } catch (error) {
+      return ApiResult.failure(parseApiError(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<OtpResponseModel>> resetPassword({
+    required String phoneNumber,
+    required String password,
+    required String confirmPassword,
+  }) async {
+    try {
+      if (kDebugMode) debugPrint('[AuthRepository] resetting password');
+      final response = await _apiService.resetPassword(
+        ResetPasswordRequestModel(
+          phoneNumber: phoneNumber,
+          password: password,
+          confirmPassword: confirmPassword,
+        ),
+      );
+      return (response.succeeded == true)
+          ? ApiResult.success(response)
+          : ApiResult.failure(_otpFailureMessage(response));
     } catch (error) {
       return ApiResult.failure(parseApiError(error));
     }

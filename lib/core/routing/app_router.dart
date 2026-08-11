@@ -43,6 +43,10 @@ import '../../presentation/logic/medicard_login_cubit.dart';
 import '../../presentation/logic/register_cubit.dart';
 import '../../presentation/medicard_login_screen.dart';
 import '../../presentation/register_screen.dart';
+import '../../features/auth/presentation/cubit/forgot_password_cubit.dart';
+import '../../features/auth/presentation/screens/forgot_password_screen.dart';
+import '../../features/auth/presentation/screens/otp_verification_screen.dart';
+import '../../features/auth/presentation/screens/reset_password_screen.dart';
 import '../constants/constants.dart';
 import '../di/service_locator.dart';
 import '../helpers/shared_pref_helper.dart';
@@ -179,6 +183,41 @@ class AppRouter {
             return BlocProvider(
               create: (_) => sl<RegisterCubit>(),
               child: const RegisterScreen(),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/forgot-password',
+          builder: (context, state) {
+            return BlocProvider(
+              create: (_) => sl<ForgotPasswordCubit>(),
+              child: const ForgotPasswordScreen(),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/forgot-password/verify',
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>;
+            return BlocProvider(
+              create: (_) => sl<ForgotPasswordCubit>(),
+              child: OtpVerificationScreen(
+                phoneNumber: extra['phoneNumber'] as String,
+                otp: extra['otp'] as String,
+              ),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/forgot-password/reset',
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>;
+            return BlocProvider(
+              create: (_) => sl<ForgotPasswordCubit>(),
+              child: ResetPasswordScreen(
+                phoneNumber: extra['phoneNumber'] as String,
+                token: extra['token'] as String,
+              ),
             );
           },
         ),

@@ -13,6 +13,10 @@ import '../features/profile/data/models/change_password_response_model.dart';
 import '../features/profile/data/models/change_language_request_model.dart';
 import '../features/profile/data/models/profile_response_model.dart';
 import '../features/profile/data/models/member_card_activation_response_model.dart';
+import '../features/auth/data/models/send_otp_request_model.dart';
+import '../features/auth/data/models/verify_otp_request_model.dart';
+import '../features/auth/data/models/reset_password_request_model.dart';
+import '../features/auth/data/models/otp_response_model.dart';
 import '../features/ecard/data/models/card_data_response_model.dart';
 import '../features/content/data/models/content_response_model.dart';
 import '../features/family_members/data/models/get_family_members_response_model.dart';
@@ -32,6 +36,17 @@ abstract class MedicardApiService {
 
   @POST("Auth/login")
   Future<AuthResponseModel> login(@Body() AuthLoginRequestModel request);
+
+  @POST('Auth/forgot-password/send-otp')
+  Future<OtpResponseModel> sendOtp(@Body() SendOtpRequestModel request);
+
+  @POST('Auth/forgot-password/verify-otp')
+  Future<OtpResponseModel> verifyOtp(@Body() VerifyOtpRequestModel request);
+
+  @POST('Auth/forgot-password/reset')
+  Future<OtpResponseModel> resetPassword(
+    @Body() ResetPasswordRequestModel request,
+  );
 
   @GET("{lang}/Home/GetHomeInfo")
   Future<CardHomeInfoResponseModel> getHomeInfo(

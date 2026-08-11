@@ -14,6 +14,10 @@ import '../../domain/usecases/get_support_contacts_usecase.dart';
 import '../../domain/usecases/login_card_usecase.dart';
 import '../../domain/usecases/register_usecase.dart';
 import '../../domain/usecases/update_profile_usecase.dart';
+import '../../features/auth/domain/usecases/send_otp_usecase.dart';
+import '../../features/auth/domain/usecases/verify_otp_usecase.dart';
+import '../../features/auth/domain/usecases/reset_password_usecase.dart';
+import '../../features/auth/presentation/cubit/forgot_password_cubit.dart';
 import '../../features/home/domain/usecases/get_home_data_usecase.dart';
 import '../../features/home/presentation/cubit/home_cubit.dart';
 import '../../features/home/presentation/cubit/location_cubit.dart';
@@ -175,6 +179,9 @@ Future<void> setupServiceLocator() async {
   // ── 8. Use cases ──────────────────────────────────────────────────────────
   sl.registerFactory<LoginCardUseCase>(() => LoginCardUseCase(sl()));
   sl.registerFactory<RegisterUseCase>(() => RegisterUseCase(sl()));
+  sl.registerFactory<SendOtpUseCase>(() => SendOtpUseCase(sl()));
+  sl.registerFactory<VerifyOtpUseCase>(() => VerifyOtpUseCase(sl()));
+  sl.registerFactory<ResetPasswordUseCase>(() => ResetPasswordUseCase(sl()));
   sl.registerFactory<GetHomeInfoUseCase>(() => GetHomeInfoUseCase(sl()));
   sl.registerFactory<GetPersonalInfoUseCase>(
     () => GetPersonalInfoUseCase(sl()),
@@ -231,6 +238,9 @@ Future<void> setupServiceLocator() async {
 
   // ── 9. Cubits ─────────────────────────────────────────────────────────────
   sl.registerFactory<MedicardLoginCubit>(() => MedicardLoginCubit(sl()));
+  sl.registerFactory<ForgotPasswordCubit>(
+    () => ForgotPasswordCubit(sl(), sl(), sl()),
+  );
   sl.registerFactory<RegisterCubit>(() => RegisterCubit(sl()));
   sl.registerFactoryParam<ProviderPageCubit, int, void>(
     (providerId, _) => ProviderPageCubit(sl(), sl(), sl(), sl(), providerId),

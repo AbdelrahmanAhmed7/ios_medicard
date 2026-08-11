@@ -13,6 +13,7 @@ import '../features/profile/data/models/change_password_response_model.dart';
 import '../features/profile/data/models/change_language_response_model.dart';
 import '../features/profile/data/models/profile_response_model.dart';
 import '../features/profile/data/models/member_card_activation_response_model.dart';
+import '../features/auth/data/models/otp_response_model.dart';
 import '../features/ecard/data/models/card_data_response_model.dart';
 
 abstract class MedicardRepository {
@@ -21,6 +22,19 @@ abstract class MedicardRepository {
   );
 
   Future<ApiResult<AuthResponseModel>> login(AuthLoginRequestModel request);
+
+  Future<ApiResult<OtpResponseModel>> sendOtp(String phoneNumber);
+
+  Future<ApiResult<OtpResponseModel>> verifyOtp({
+    required String phoneNumber,
+    required String otp,
+  });
+
+  Future<ApiResult<OtpResponseModel>> resetPassword({
+    required String phoneNumber,
+    required String password,
+    required String confirmPassword,
+  });
 
   Future<ApiResult<CardHomeInfoResponseModel>> getHomeInfo(
     String cardNo,

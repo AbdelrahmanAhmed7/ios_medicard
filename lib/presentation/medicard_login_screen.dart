@@ -146,7 +146,7 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
                               AuthFieldLabel('auth.login.password'.tr()),
                               GestureDetector(
                                 onTap: () {
-                                  // TODO: forgot password
+                                  context.push('/forgot-password');
                                 },
                                 child: Text(
                                   'auth.login.forgotPassword'.tr(),

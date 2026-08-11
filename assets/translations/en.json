@@ -73,6 +73,36 @@
       "validation": {
         "phone_hint": "Enter your phone number"
       }
+    },
+    "forgot": {
+      "title": "Forgot Password",
+      "subtitle": "Enter your registered phone number and we will send you a one-time verification code.",
+      "phone_label": "Phone Number",
+      "phone_hint": "Enter your phone number",
+      "phone_required": "Phone number is required",
+      "phone_invalid": "Enter a valid Egyptian mobile number",
+      "send_otp": "Send OTP",
+      "otp_not_received": "We could not generate an OTP. Please try again.",
+      "otp_title": "Enter OTP",
+      "otp_subtitle": "A verification code was sent to {}",
+      "otp_preview": "Test code: {} — will be hidden in {}s",
+      "otp_label": "Verification Code",
+      "otp_hint": "Enter the verification code",
+      "otp_required": "Verification code is required",
+      "otp_invalid": "Enter a valid verification code",
+      "verify": "Verify",
+      "resend": "Resend OTP",
+      "reset_title": "Reset Password",
+      "reset_subtitle": "Enter your new password below.",
+      "new_password": "New Password",
+      "new_password_hint": "Enter your new password",
+      "confirm_password": "Confirm New Password",
+      "confirm_hint": "Re-enter your new password",
+      "password_required": "Password is required",
+      "confirm_required": "Confirm password is required",
+      "password_mismatch": "Passwords do not match",
+      "reset_button": "Reset Password",
+      "reset_success": "Password reset successfully. Please log in."
     }
   },
   "common": {
