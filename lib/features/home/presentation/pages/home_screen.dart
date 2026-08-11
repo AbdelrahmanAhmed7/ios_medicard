@@ -33,14 +33,20 @@ import '../widgets/home_header.dart';
 import '../widgets/home_shimmer.dart';
 import '../widgets/nearest_section.dart';
 import '../widgets/pending_appointments_section.dart';
+import '../widgets/payment_success_dialog.dart';
 import '../widgets/promo_banner.dart';
 import '../widgets/quick_actions_row.dart';
 import '../widgets/summer_promo_dialog.dart';
 
 class HomeScreen extends StatefulWidget {
   final int initialIndex;
+  final bool showPaymentSuccessDialog;
 
-  const HomeScreen({super.key, this.initialIndex = 0});
+  const HomeScreen({
+    super.key,
+    this.initialIndex = 0,
+    this.showPaymentSuccessDialog = false,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -57,7 +63,12 @@ class _HomeScreenState extends State<HomeScreen> {
     _currentIndex = widget.initialIndex;
     // Show the summer promo popup on first frame if within the promo window.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) SummerPromoDialog.maybeShow(context);
+      if (!mounted) return;
+      if (widget.showPaymentSuccessDialog) {
+        PaymentSuccessDialog.maybeShow(context);
+        return;
+      }
+      SummerPromoDialog.maybeShow(context);
     });
   }
 

@@ -52,6 +52,7 @@
       "cardNumber": "رقم الكارت",
       "cardNumberHint": "أدخل رقم الكارت",
       "cardNumberRequired": "رقم الكارت مطلوب",
+      "cardNumberInvalid": "رقم الكارت يجب أن يتكون من 12 رقمًا",
       "mobileOrCardNumber": "رقم الموبايل / ميديكارد",
       "identifierHint": "رقم الموبايل أو رقم ميديكارد",
       "phoneNumberRequired": "رقم الموبايل أو رقم ميديكارد مطلوب",
@@ -122,6 +123,7 @@
     "this_field_required": "هذا الحقل مطلوب",
     "skip": "تخطي",
     "next": "التالي",
+    "ok": "حسناً",
     "hotline": "الخط الساخن",
     "mobile_landline": "موبايل / أرضي"
   },
@@ -386,6 +388,8 @@
     "empty_message": "اختر الخدمات من مقدمي الخدمة وستظهر هنا قبل الدفع.",
     "explore_services": "استكشف الخدمات",
     "could_not_open_payment_link": "تعذر فتح رابط الدفع.",
+    "payment_success": "تم الدفع بنجاح",
+    "payment_success_message": "تمت عملية الدفع بنجاح.",
     "some_prices_missing": "بعض عناصر السلة لا تحتوي على أسعار بعد. يرجى اختيار مقدمي الخدمة والمحاولة مرة أخرى.",
     "service_not_available": "هذه الخدمة غير متاحة حالياً. برجاء المحاولة لاحقاً."
   },

@@ -1,7 +1,8 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:path/path.dart' show basename;
+import 'package:http_parser/http_parser.dart' show MediaType;
+
 import '../core/constants/api_result.dart';
 import '../core/constants/constants.dart';
 import '../core/helpers/shared_pref_helper.dart';
@@ -458,7 +459,16 @@ class MedicardRepositoryImpl implements MedicardRepository {
       final hasHardErrors =
           response.errors != null && response.errors!.isNotEmpty;
       if (hasHardErrors && response.data == null) {
-        return ApiResult.failure(response.errors!.join('\n'));
+        // 404 "MemberCardNotFound" means the member has no card yet — surface
+        // the friendly no-card state instead of a retryable error.
+        final isNoCard =
+            response.httpStatusCode == 404 ||
+            (response.errors!.any(
+              (error) => error.toLowerCase().contains('membercardnotfound'),
+            ));
+        if (!isNoCard) {
+          return ApiResult.failure(response.errors!.join('\n'));
+        }
       }
 
       return ApiResult.success(response);
@@ -488,24 +498,42 @@ class MedicardRepositoryImpl implements MedicardRepository {
       if (imagePath != null) {
         final file = File(imagePath);
         if (await file.exists()) {
-          imagePart = await MultipartFile.fromFile(
-            imagePath,
-            filename: basename(imagePath),
-          );
+          // Read the bytes eagerly so the temp file (from image_picker) can't
+          // disappear or be locked between now and the actual HTTP send.
+          // image_picker's imageQuality compression always outputs JPEG bytes
+          // regardless of the original extension (.heic on iOS), so we
+          // hard-code image/jpeg as the content type.
+          final bytes = await file.readAsBytes();
+          if (bytes.isNotEmpty) {
+            imagePart = MultipartFile.fromBytes(
+              bytes,
+              filename: 'profile_image.jpg',
+              contentType: MediaType('image', 'jpeg'),
+            );
+          }
+          if (kDebugMode) {
+            debugPrint(
+              '[ProfileRepository] image bytes read: ${bytes.length} bytes from $imagePath',
+            );
+          }
+        } else {
+          if (kDebugMode) {
+            debugPrint('[ProfileRepository] image file not found: $imagePath');
+          }
         }
       }
       if (imagePart == null) {
-        // The backend always expects an Image part. An empty part removes the
-        // photo; otherwise the current photo is re-sent so it is kept.
+        // No new image selected — pass null so the Image field is omitted
+        // entirely from the multipart body. The backend treats a missing Image
+        // field as "keep the current photo unchanged".
+        // Only send an empty part when the user explicitly asked to remove it;
+        // the dedicated DELETE endpoint is preferred for that, but this path
+        // handles the edge case where removeImage=true is passed here.
         if (removeImage) {
           imagePart = MultipartFile.fromBytes(const [], filename: '');
-        } else if (currentImageUrl != null &&
-            _hasValidImageUrl(currentImageUrl)) {
-          imagePart = await _downloadImageFile(currentImageUrl);
-          imagePart ??= MultipartFile.fromBytes(const [], filename: '');
-        } else {
-          imagePart = MultipartFile.fromBytes(const [], filename: '');
         }
+        // Otherwise leave imagePart = null — the generated code skips the
+        // Image field when null, which tells the backend to leave it as-is.
       }
       final response = await _apiService.updateProfileV2(
         firstName.trim(),
@@ -519,7 +547,7 @@ class MedicardRepositoryImpl implements MedicardRepository {
       );
       if (kDebugMode) {
         debugPrint(
-          '[ProfileRepository] updateProfileV2 response: succeeded=${response.succeeded}, message=${response.message}, hasData=${response.data != null}',
+          '[ProfileRepository] updateProfileV2 response: succeeded=${response.succeeded}, message=${response.message}, hasData=${response.data != null}, imageUrl=${response.data?.imageUrl}',
         );
       }
       // The PUT endpoint returns succeeded=true with data=null on success.
@@ -538,34 +566,6 @@ class MedicardRepositoryImpl implements MedicardRepository {
         debugPrint('[ProfileRepository] updateProfileV2 error: ${error.runtimeType} $error');
       }
       return ApiResult.failure(parseApiError(error));
-    }
-  }
-
-  bool _hasValidImageUrl(String? url) {
-    if (url == null || url.isEmpty) return false;
-    final uri = Uri.tryParse(url);
-    if (uri == null) return false;
-    final pathSegments = uri.pathSegments.where((s) => s.isNotEmpty).toList();
-    return pathSegments.isNotEmpty;
-  }
-
-  Future<MultipartFile?> _downloadImageFile(String url) async {
-    try {
-      final response = await Dio().get<List<int>>(
-        url,
-        options: Options(
-          responseType: ResponseType.bytes,
-          headers: const {'Accept': 'image/*, */*;q=0.8'},
-        ),
-      );
-      final bytes = response.data;
-      if (bytes == null || bytes.isEmpty) return null;
-      return MultipartFile.fromBytes(bytes, filename: 'profile_pic');
-    } catch (error) {
-      if (kDebugMode) {
-        debugPrint('[ProfileRepository] download current image failed: $error');
-      }
-      return null;
     }
   }
 

@@ -83,6 +83,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
             behavior: HitTestBehavior.opaque,
             child: Form(
               key: _formKey,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,13 +163,10 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                           _buildTextField(
                             controller: _cardNumberController,
                             hintText: 'auth.login.cardNumberHint'.tr(),
-                            keyboardType: TextInputType.text,
-                            textCapitalization: TextCapitalization.characters,
+                            keyboardType: TextInputType.number,
                             maxLength: 12,
                             inputFormatters: [
-                              FilteringTextInputFormatter.allow(
-                                RegExp(r'[A-Za-z0-9\-]'),
-                              ),
+                              FilteringTextInputFormatter.digitsOnly,
                               LengthLimitingTextInputFormatter(12),
                             ],
                             validator: _validateCardNumber,
@@ -290,10 +288,15 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                                 label: 'activate_card.activate'.tr(),
                                 isLoading: isLoading,
                                 onPressed: () {
-                                  if (_formKey.currentState!.validate()) {
-                                    context
-                                        .read<ActivateCardCubit>()
-                                        .activateCard(
+                                  if (!_formKey.currentState!.validate()) {
+                                    showErrorToast(
+                                      'errors.validation_failed'.tr(),
+                                    );
+                                    return;
+                                  }
+                                  context
+                                      .read<ActivateCardCubit>()
+                                      .activateCard(
                                           ActivateCardRequestModel(
                                             firstName: _normalize(
                                               _firstNameController.text,
@@ -335,7 +338,6 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                                                   ),
                                           ),
                                         );
-                                  }
                                 },
                               );
                             },
@@ -540,8 +542,8 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
   String? _validateCardNumber(String? value) {
     final cardNumber = _normalize(value ?? '');
     if (cardNumber.isEmpty) return 'auth.login.cardNumberRequired'.tr();
-    if (!RegExp(r'^[A-Za-z0-9][A-Za-z0-9\-]{3,11}$').hasMatch(cardNumber)) {
-      return 'auth.login.identifierInvalid'.tr();
+    if (!RegExp(r'^[0-9]{12}$').hasMatch(cardNumber)) {
+      return 'auth.login.cardNumberInvalid'.tr();
     }
     return null;
   }
@@ -567,10 +569,21 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
           ? 'auth.register.nationalIdOrPassportRequired'.tr()
           : null;
     }
-    if (!RegExp(r'^[0-9]{14}$').hasMatch(nationalId)) {
+    if (!_isValidNationalId(nationalId)) {
       return 'auth.register.nationalIdInvalid'.tr();
     }
     return null;
+  }
+
+  bool _isValidNationalId(String nationalId) {
+    if (!RegExp(r'^[0-9]{14}$').hasMatch(nationalId)) return false;
+    final century = nationalId[0];
+    if (century != '2' && century != '3') return false;
+    final month = int.tryParse(nationalId.substring(3, 5));
+    if (month == null || month < 1 || month > 12) return false;
+    final day = int.tryParse(nationalId.substring(5, 7));
+    if (day == null || day < 1 || day > 31) return false;
+    return true;
   }
 
   String? _validatePassportNumber(String? value) {

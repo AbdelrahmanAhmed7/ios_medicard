@@ -25,13 +25,28 @@ class ResetPasswordScreen extends StatefulWidget {
 
 class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _confirmFieldKey = GlobalKey<FormFieldState<String>>();
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
 
   @override
+  void initState() {
+    super.initState();
+    _passwordController.addListener(_onPasswordChanged);
+  }
+
+  void _onPasswordChanged() {
+    if (_confirmController.text.isNotEmpty) {
+      _confirmFieldKey.currentState?.validate();
+    }
+    setState(() {});
+  }
+
+  @override
   void dispose() {
+    _passwordController.removeListener(_onPasswordChanged);
     _passwordController.dispose();
     _confirmController.dispose();
     super.dispose();
@@ -95,6 +110,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             child: SingleChildScrollView(
               child: Form(
                 key: _formKey,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -144,6 +160,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           AuthFieldLabel('auth.forgot.confirm_password'.tr()),
                           SizedBox(height: 6.h),
                           TextFormField(
+                            key: _confirmFieldKey,
                             controller: _confirmController,
                             obscureText: _obscureConfirm,
                             validator: _validateConfirm,

@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -181,6 +182,7 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
                     padding: EdgeInsets.symmetric(horizontal: 20.w),
                     child: Form(
                       key: _formKey,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -188,24 +190,24 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
                           _buildTextField(
                             controller: _firstNameController,
                             hint: 'edit_profile.first_name'.tr(),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'common.required'.tr();
-                              }
-                              return null;
-                            },
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r"[\p{L} .'\-]", unicode: true),
+                              ),
+                            ],
+                            validator: _validateName,
                           ),
                           SizedBox(height: 14.h),
                           _FieldLabel('edit_profile.last_name'.tr()),
                           _buildTextField(
                             controller: _lastNameController,
                             hint: 'edit_profile.last_name'.tr(),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'common.required'.tr();
-                              }
-                              return null;
-                            },
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r"[\p{L} .'\-]", unicode: true),
+                              ),
+                            ],
+                            validator: _validateName,
                           ),
                           SizedBox(height: 14.h),
                           _FieldLabel('family_members.relation'.tr()),
@@ -235,10 +237,12 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
     required TextEditingController controller,
     required String hint,
     String? Function(String?)? validator,
+    List<TextInputFormatter>? inputFormatters,
   }) {
     return TextFormField(
       controller: controller,
       validator: validator,
+      inputFormatters: inputFormatters,
       style: TextStyle(
         fontSize: 15.sp,
         color: Colors.black,
@@ -246,6 +250,15 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
       ),
       decoration: authInputDecoration(hintText: hint),
     );
+  }
+
+  String? _validateName(String? value) {
+    final name = value?.trim() ?? '';
+    if (name.isEmpty) return 'common.required'.tr();
+    if (name.length < 2) return 'edit_profile.invalid_name'.tr();
+    final validNamePattern = RegExp(r"^[\p{L}][\p{L} .'\-]*$", unicode: true);
+    if (!validNamePattern.hasMatch(name)) return 'edit_profile.invalid_name'.tr();
+    return null;
   }
 
   Widget _buildRelationDropdown() {

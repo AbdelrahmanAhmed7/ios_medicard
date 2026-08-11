@@ -237,7 +237,12 @@ class AppRouter {
           path: '/medicard-home',
           builder: (context, state) {
             final tab = state.uri.queryParameters['tab'];
-            return HomeScreen(initialIndex: tab == 'activity' ? 2 : 0);
+            final paymentSuccess =
+                state.uri.queryParameters['paymentSuccess'] == 'true';
+            return HomeScreen(
+              initialIndex: tab == 'activity' ? 2 : 0,
+              showPaymentSuccessDialog: paymentSuccess,
+            );
           },
         ),
         GoRoute(

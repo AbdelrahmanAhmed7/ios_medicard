@@ -20,6 +20,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   static const int _passwordMinLength = 8;
 
   final _formKey = GlobalKey<FormState>();
+  final _confirmPasswordFieldKey = GlobalKey<FormFieldState<String>>();
   final _currentPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -29,7 +30,21 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   bool _showConfirmPassword = false;
 
   @override
+  void initState() {
+    super.initState();
+    _newPasswordController.addListener(_onNewPasswordChanged);
+  }
+
+  void _onNewPasswordChanged() {
+    if (_confirmPasswordController.text.isNotEmpty) {
+      _confirmPasswordFieldKey.currentState?.validate();
+    }
+    setState(() {});
+  }
+
+  @override
   void dispose() {
+    _newPasswordController.removeListener(_onNewPasswordChanged);
     _currentPasswordController.dispose();
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
@@ -101,6 +116,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           behavior: HitTestBehavior.opaque,
           child: Form(
             key: _formKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -188,6 +204,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           'change_password.confirm_new_password'.tr(),
                         ),
                         _buildPasswordField(
+                          fieldKey: _confirmPasswordFieldKey,
                           controller: _confirmPasswordController,
                           hintText: 'change_password.confirm_new_password_hint'
                               .tr(),
@@ -245,6 +262,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   }
 
   Widget _buildPasswordField({
+    Key? fieldKey,
     required TextEditingController controller,
     required String hintText,
     required bool showPassword,
@@ -252,6 +270,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     required String? Function(String?) validator,
   }) {
     return TextFormField(
+      key: fieldKey,
       controller: controller,
       obscureText: !showPassword,
       style: TextStyle(

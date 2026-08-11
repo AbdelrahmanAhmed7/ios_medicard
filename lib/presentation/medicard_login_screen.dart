@@ -108,6 +108,7 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
             child: SingleChildScrollView(
               child: Form(
                 key: _formKey,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

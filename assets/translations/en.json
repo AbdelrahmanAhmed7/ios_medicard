@@ -52,6 +52,7 @@
       "cardNumber": "Card Number",
       "cardNumberHint": "Enter your card number",
       "cardNumberRequired": "Card number is required",
+      "cardNumberInvalid": "Card number must be exactly 12 digits",
       "mobileOrCardNumber": "Mobile / Medicard Number",
       "identifierHint": "Mobile or Medicard number",
       "phoneNumberRequired": "Mobile or Medicard number is required",
@@ -122,6 +123,7 @@
     "this_field_required": "This field is required",
     "skip": "Skip",
     "next": "Next",
+    "ok": "OK",
     "hotline": "Hotline",
     "mobile_landline": "Mobile / Landline"
   },
@@ -386,6 +388,8 @@
     "empty_message": "Choose services from providers and they will appear here before checkout.",
     "explore_services": "Explore services",
     "could_not_open_payment_link": "Could not open payment link.",
+    "payment_success": "Payment Successful",
+    "payment_success_message": "Your payment has been completed successfully.",
     "some_prices_missing": "Some cart items are still missing prices. Please choose providers for them and try again.",
     "service_not_available": "This service is currently unavailable. Please try again later."
   },

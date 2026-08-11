@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/service_locator.dart';
+import '../../../../core/services/url_launcher_service.dart';
 import '../../../../core/utils/error_state_widget.dart';
 import '../../../../core/widgets/app_blue_header.dart';
 import '../../../../network/data/provider_page_response_model.dart';
@@ -1476,15 +1477,27 @@ class _ProviderInfoRow extends StatelessWidget {
                   ),
                   if (data.phones != null && data.phones!.isNotEmpty) ...[
                     SizedBox(width: 14.w),
-                    Icon(
-                      Icons.phone_in_talk_rounded,
-                      color: Colors.white70,
-                      size: 14.sp,
-                    ),
-                    SizedBox(width: 4.w),
-                    Text(
-                      data.phones!.first,
-                      style: TextStyle(color: Colors.white, fontSize: 12.sp),
+                    GestureDetector(
+                      onTap: () =>
+                          UrlLauncherService().makePhoneCall(data.phones!.first),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.phone_in_talk_rounded,
+                            color: Colors.white70,
+                            size: 14.sp,
+                          ),
+                          SizedBox(width: 4.w),
+                          Text(
+                            data.phones!.first,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12.sp,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ],

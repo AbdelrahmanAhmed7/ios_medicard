@@ -9,17 +9,28 @@ String parseApiError(dynamic error) {
       return friendlyApiMessage(error);
     }
 
-    if (error is AppFailure && error.message?.trim().isNotEmpty == true) {
-      return friendlyApiMessage(error.message!);
+    if (error is AppFailure) {
+      if (error.message?.trim().isNotEmpty == true) {
+        return friendlyApiMessage(error.message!);
+      }
+      final failureMessage = _messageForAppFailure(error);
+      if (failureMessage != null) return failureMessage;
     }
 
     if (error is DioException) {
       final data = error.response?.data;
       final statusCode = error.response?.statusCode;
       final mappedError = error.error;
-      if (mappedError is AppFailure &&
-          mappedError.message?.trim().isNotEmpty == true) {
-        return friendlyApiMessage(mappedError.message!);
+
+      // Server errors (>= 500) always fall back to a friendly generic
+      // message — the server response body is usually a raw technical message.
+      if (statusCode != null && statusCode >= 500) {
+        return 'errors.temporary_service_issue'.tr();
+      }
+
+      if (mappedError is AppFailure) {
+        final failureMessage = _messageForAppFailure(mappedError);
+        if (failureMessage != null) return failureMessage;
       }
 
       if (data is Map) {
@@ -133,5 +144,20 @@ String? _messageForStatusCode(int? statusCode) {
     404 => 'errors.not_found_error'.tr(),
     405 => 'errors.action_unavailable'.tr(),
     _ => null,
+  };
+}
+
+String? _messageForAppFailure(AppFailure failure) {
+  return switch (failure.type) {
+    AppFailureType.network => 'errors.network_error'.tr(),
+    AppFailureType.timeout ||
+    AppFailureType.connectionTimeout ||
+    AppFailureType.transferTimeout => 'errors.timeout_error'.tr(),
+    AppFailureType.unauthorized => 'errors.session_expired'.tr(),
+    AppFailureType.forbidden => 'errors.forbidden_error'.tr(),
+    AppFailureType.notFound => 'errors.not_found_error'.tr(),
+    AppFailureType.server => 'errors.temporary_service_issue'.tr(),
+    AppFailureType.cancelled => null,
+    AppFailureType.unexpected => null,
   };
 }

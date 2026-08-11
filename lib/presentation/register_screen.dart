@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -121,6 +122,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   bool _hasSpecialCharacter(String password) =>
       RegExp(r'[!@#\$%^&*(),.?":{}|<>_\-+=\[\]\\;/`~]').hasMatch(password);
+
+  String? _validateName(String? value, {required String requiredKey}) {
+    final name = value?.trim() ?? '';
+    if (name.isEmpty) return requiredKey.tr();
+    if (name.length < 2) return 'edit_profile.invalid_name'.tr();
+    final validNamePattern = RegExp(r"^[\p{L}][\p{L} .'\-]*$", unicode: true);
+    if (!validNamePattern.hasMatch(name)) return 'edit_profile.invalid_name'.tr();
+    return null;
+  }
 
   String? _validatePhoneNumber(String? value) {
     final phoneNumber = LanguageHelper.convertArabicToEnglishNumerals(
@@ -285,6 +295,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             behavior: HitTestBehavior.opaque,
             child: Form(
               key: _formKey,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -338,10 +349,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       controller: _firstNameController,
                                       hintText: 'auth.register.firstNameHint'
                                           .tr(),
-                                      validator: (v) => (v == null || v.isEmpty)
-                                          ? 'auth.register.firstNameRequired'
-                                                .tr()
-                                          : null,
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.allow(
+                                          RegExp(r"[\p{L} .'\-]", unicode: true),
+                                        ),
+                                      ],
+                                      validator: (v) => _validateName(
+                                        v,
+                                        requiredKey:
+                                            'auth.register.firstNameRequired',
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -360,10 +377,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       controller: _lastNameController,
                                       hintText: 'auth.register.lastNameHint'
                                           .tr(),
-                                      validator: (v) => (v == null || v.isEmpty)
-                                          ? 'auth.register.lastNameRequired'
-                                                .tr()
-                                          : null,
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.allow(
+                                          RegExp(r"[\p{L} .'\-]", unicode: true),
+                                        ),
+                                      ],
+                                      validator: (v) => _validateName(
+                                        v,
+                                        requiredKey:
+                                            'auth.register.lastNameRequired',
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -537,6 +560,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     String? Function(String?)? validator,
     ValueChanged<String>? onChanged,
     AutovalidateMode? autovalidateMode,
+    List<TextInputFormatter>? inputFormatters,
   }) {
     return TextFormField(
       key: fieldKey,
@@ -544,6 +568,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       keyboardType: keyboardType,
       autovalidateMode: autovalidateMode,
       onChanged: onChanged,
+      inputFormatters: inputFormatters,
       style: TextStyle(fontSize: 15.sp, color: Colors.black),
       decoration: authInputDecoration(hintText: hintText),
       validator:

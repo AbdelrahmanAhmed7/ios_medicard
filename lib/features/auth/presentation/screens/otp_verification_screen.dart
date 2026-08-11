@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -33,7 +34,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   final _formKey = GlobalKey<FormState>();
   final _otpController = TextEditingController();
   Timer? _timer;
-  late String _currentOtp = widget.otp;
   bool _showOtp = true;
   int _secondsLeft = _displaySeconds;
 
@@ -67,7 +67,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   void _restartCountdown(String otp) {
     _timer?.cancel();
     setState(() {
-      _currentOtp = otp;
       _showOtp = true;
       _secondsLeft = _displaySeconds;
     });
@@ -106,10 +105,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           otpVerified: (phoneNumber, token) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (!mounted) return;
-              context.pushReplacement('/forgot-password/reset', extra: {
-                'phoneNumber': phoneNumber,
-                'token': token,
-              });
+              context.pushReplacement(
+                '/forgot-password/reset',
+                extra: {'phoneNumber': phoneNumber, 'token': token},
+              );
             });
           },
           failed: (error) {
@@ -133,6 +132,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
             child: SingleChildScrollView(
               child: Form(
                 key: _formKey,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -148,8 +148,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                         children: [
                           SizedBox(height: 28.h),
                           Text(
-                            'auth.forgot.otp_subtitle'
-                                .tr(args: [widget.phoneNumber]),
+                            'auth.forgot.otp_subtitle'.tr(
+                              args: [widget.phoneNumber],
+                            ),
                             style: TextStyle(
                               fontSize: 15.sp,
                               color: kAuthGreyText,

@@ -3,11 +3,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../core/utils/language_helper.dart';
 import '../../../../core/widgets/auth_shared_widgets.dart';
 import '../../data/models/profile_response_model.dart';
 import '../cubit/profile_cubit.dart';
@@ -30,6 +32,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _passportNumberController = TextEditingController();
   // cardNumber is read-only — the backend does not allow updating it.
   final _cardNumberController = TextEditingController();
+  final _birthDateController = TextEditingController();
 
   String _birthDate = '';
   bool? _isMale;
@@ -277,6 +280,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       setState(() {
         _birthDate =
             '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
+        _birthDateController.text = _birthDate;
       });
     }
   }
@@ -291,6 +295,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _passportNumberController.text = widget.profileData.passportNumber ?? '';
     _cardNumberController.text = widget.profileData.cardNumber ?? '';
     _birthDate = widget.profileData.birthDate ?? '';
+    _birthDateController.text = _birthDate;
     _isMale = widget.profileData.isMale;
   }
 
@@ -302,6 +307,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _nationalIdController.dispose();
     _passportNumberController.dispose();
     _cardNumberController.dispose();
+    _birthDateController.dispose();
     super.dispose();
   }
 
@@ -329,27 +335,32 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return null;
   }
 
-  Map<String, String> _getBirthDateParts() {
-    if (_birthDate.isEmpty) {
-      return {'day': 'DD', 'month': 'MM', 'year': 'YYYY'};
+  String? _validateCardNumber(String? value) {
+    final cardNumber = LanguageHelper.convertArabicToEnglishNumerals(
+      (value ?? '').trim(),
+    );
+    if (cardNumber.isEmpty) return null;
+    if (!RegExp(r'^[0-9]{12}$').hasMatch(cardNumber)) {
+      return 'auth.login.cardNumberInvalid'.tr();
     }
-    try {
-      final dateTime = DateTime.parse(_birthDate);
-      return {
-        'day': dateTime.day.toString().padLeft(2, '0'),
-        'month': dateTime.month.toString().padLeft(2, '0'),
-        'year': dateTime.year.toString(),
-      };
-    } catch (_) {
-      return {'day': 'DD', 'month': 'MM', 'year': 'YYYY'};
+    return null;
+  }
+
+  String? _validateNationalId(String? value) {
+    final nationalId = LanguageHelper.convertArabicToEnglishNumerals(
+      (value ?? '').trim(),
+    );
+    if (nationalId.isEmpty) return null;
+    if (!RegExp(r'^[0-9]{14}$').hasMatch(nationalId)) {
+      return 'auth.register.nationalIdInvalid'.tr();
     }
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
     final statusBarHeight = MediaQuery.of(context).padding.top;
     final bottomPadding = MediaQuery.of(context).padding.bottom;
-    final dateParts = _getBirthDateParts();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
@@ -358,6 +369,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         behavior: HitTestBehavior.opaque,
         child: Form(
           key: _formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -419,6 +431,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   controller: _firstNameController,
                                   hintText: 'edit_profile.first_name'.tr(),
                                   validator: _validateName,
+                                  inputFormatters: [_lettersOnly()],
                                 ),
                               ],
                             ),
@@ -433,6 +446,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   controller: _lastNameController,
                                   hintText: 'edit_profile.last_name'.tr(),
                                   validator: _validateName,
+                                  inputFormatters: [_lettersOnly()],
                                 ),
                               ],
                             ),
@@ -441,13 +455,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                       SizedBox(height: 14.h),
 
-                      // Card Number — read-only, backend does not allow updating
+                      // Card Number — optional; the backend does not update it
                       _FieldLabel('edit_profile.card_number'.tr()),
                       _buildTextField(
                         controller: _cardNumberController,
                         hintText: 'edit_profile.card_number'.tr(),
                         required: false,
-                        readOnly: true,
+                        keyboardType: TextInputType.number,
+                        maxLength: 12,
+                        inputFormatters: [_digitsOnly(maxDigits: 12)],
+                        validator: _validateCardNumber,
                       ),
                       SizedBox(height: 14.h),
 
@@ -466,6 +483,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         controller: _nationalIdController,
                         hintText: 'edit_profile.national_id'.tr(),
                         keyboardType: TextInputType.number,
+                        maxLength: 14,
+                        inputFormatters: [_digitsOnly(maxDigits: 14)],
+                        validator: _validateNationalId,
                       ),
                       SizedBox(height: 14.h),
 
@@ -506,14 +526,71 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       _FieldLabel('edit_profile.date_of_birth'.tr()),
                       GestureDetector(
                         onTap: _selectBirthDate,
-                        child: Row(
-                          children: [
-                            _buildDatePartBox(dateParts['month']!, 'MM'),
-                            SizedBox(width: 10.w),
-                            _buildDatePartBox(dateParts['day']!, 'DD'),
-                            SizedBox(width: 10.w),
-                            _buildDatePartBox(dateParts['year']!, 'YY'),
-                          ],
+                        child: AbsorbPointer(
+                          child: TextFormField(
+                            controller: _birthDateController,
+                            readOnly: true,
+                            style: TextStyle(
+                              fontSize: 15.sp,
+                              color: _birthDate.isEmpty
+                                  ? Colors.grey.shade400
+                                  : Colors.black,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: 'edit_profile.date_of_birth'.tr(),
+                              hintStyle: TextStyle(
+                                fontSize: 14.sp,
+                                color: Colors.grey.shade400,
+                                fontWeight: FontWeight.w400,
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 16.w,
+                                vertical: 14.h,
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12.r),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade300,
+                                  width: 1,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12.r),
+                                borderSide: const BorderSide(
+                                  color: kAuthBlue,
+                                  width: 1.2,
+                                ),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12.r),
+                                borderSide: const BorderSide(
+                                  color: Colors.red,
+                                  width: 1,
+                                ),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12.r),
+                                borderSide: const BorderSide(
+                                  color: Colors.red,
+                                  width: 1.2,
+                                ),
+                              ),
+                              suffixIcon: Icon(
+                                Icons.calendar_today_outlined,
+                                color: kAuthGreyText,
+                                size: 18.sp,
+                              ),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'common.required'.tr();
+                              }
+                              return null;
+                            },
+                          ),
                         ),
                       ),
                       SizedBox(height: 14.h),
@@ -542,7 +619,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void> _saveProfile() async {
     if (_isSaving) return;
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('errors.validation_failed'.tr())),
+      );
+      return;
+    }
 
     // If the user never changed the gender dropdown, use the value from the
     // original API data rather than defaulting to a hardcoded value.
@@ -554,7 +636,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       firstName: _firstNameController.text.trim(),
       lastName: _lastNameController.text.trim(),
       phoneNumber: _phoneNumberController.text.trim(),
-      nationalId: _nationalIdController.text.trim(),
+      nationalId: LanguageHelper.convertArabicToEnglishNumerals(
+        _nationalIdController.text.trim(),
+      ),
       passportNumber: _passportNumberController.text.trim().isEmpty
           ? null
           : _passportNumberController.text.trim(),
@@ -682,18 +766,41 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
+  TextInputFormatter _digitsOnly({required int maxDigits}) {
+    return TextInputFormatter.withFunction((oldValue, newValue) {
+      final normalized = LanguageHelper.convertArabicToEnglishNumerals(
+        newValue.text.replaceAll(RegExp(r'[^0-9]'), ''),
+      );
+      if (normalized.length > maxDigits) return oldValue;
+      return newValue.copyWith(
+        text: normalized,
+        selection: TextSelection.collapsed(offset: normalized.length),
+      );
+    });
+  }
+
+  TextInputFormatter _lettersOnly() {
+    return FilteringTextInputFormatter.allow(
+      RegExp(r"[\p{L} .'\-]", unicode: true),
+    );
+  }
+
   Widget _buildTextField({
     required TextEditingController controller,
     required String hintText,
     TextInputType? keyboardType,
     bool required = true,
     bool readOnly = false,
+    int? maxLength,
+    List<TextInputFormatter>? inputFormatters,
     String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
       readOnly: readOnly,
+      maxLength: maxLength,
+      inputFormatters: inputFormatters,
       style: TextStyle(
         fontSize: 15.sp,
         color: readOnly ? Colors.grey.shade500 : Colors.black,
@@ -706,6 +813,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           color: Colors.grey.shade400,
           fontWeight: FontWeight.w400,
         ),
+        counterText: '',
         filled: true,
         fillColor: readOnly ? Colors.grey.shade100 : Colors.white,
         contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
@@ -734,40 +842,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           (required
               ? (v) => (v == null || v.isEmpty) ? 'common.required'.tr() : null
               : null),
-    );
-  }
-
-  Widget _buildDatePartBox(String value, String placeholder) {
-    return Expanded(
-      child: Container(
-        height: 50.h,
-        padding: EdgeInsets.symmetric(horizontal: 14.w),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: Colors.grey.shade300),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 15.sp,
-                color: value == placeholder
-                    ? Colors.grey.shade400
-                    : Colors.black,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            Icon(
-              Icons.keyboard_arrow_down_rounded,
-              color: Colors.grey.shade500,
-              size: 20.sp,
-            ),
-          ],
-        ),
-      ),
     );
   }
 

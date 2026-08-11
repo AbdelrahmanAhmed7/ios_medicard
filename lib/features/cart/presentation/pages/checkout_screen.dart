@@ -74,7 +74,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               final opened = await UrlLauncherService().launchURL(paymentLink);
               if (!context.mounted) return;
               if (opened) {
-                context.go('/medicard-home?tab=activity');
+                context.go('/medicard-home?tab=activity&paymentSuccess=true');
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -455,7 +455,7 @@ class _PayButton extends StatelessWidget {
                   paymentLink,
                 );
                 if (opened && context.mounted) {
-                  context.go('/medicard-home?tab=activity');
+                  context.go('/medicard-home?tab=activity&paymentSuccess=true');
                 }
               }
             : () {
