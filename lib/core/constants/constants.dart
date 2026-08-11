@@ -1,6 +1,8 @@
 bool isLoggedInUser = false;
 bool shouldShowOnboarding = true;
 
+const int kMaxFamilyMembers = 3;
+
 class SharedPrefKeys {
   static const String userToken = 'userToken';
   static const String hasSeenOnboarding = 'hasSeenOnboarding';

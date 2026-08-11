@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:medicard/core/constants/constants.dart';
 import 'package:medicard/core/theming/app_toast.dart';
 import 'package:medicard/core/utils/api_error_parser.dart';
 import '../../data/models/family_member_model.dart';
@@ -36,6 +37,13 @@ class FamilyMembersCubit extends Cubit<FamilyMembersState> {
       success: (members) => members,
       orElse: () => <FamilyMemberModel>[],
     );
+
+    if (currentMembers.length >= kMaxFamilyMembers) {
+      showWarningToast(
+        'family_members.max_limit_reached'.tr(args: ['$kMaxFamilyMembers']),
+      );
+      return;
+    }
 
     emit(const FamilyMembersState.creating());
     try {

@@ -26,6 +26,7 @@ import '../features/profile/data/models/change_language_request_model.dart';
 import '../features/profile/data/models/change_language_response_model.dart';
 import '../features/guest_home/data/models/guest_home_response_model.dart';
 import '../features/profile/data/models/profile_response_model.dart';
+import '../features/profile/data/models/member_card_activation_response_model.dart';
 import '../features/ecard/data/models/card_data_response_model.dart';
 import '../service/medicard_api_service.dart';
 
@@ -310,6 +311,69 @@ class MedicardRepositoryImpl implements MedicardRepository {
   }
 
   @override
+  Future<ApiResult<ProfileResponseModel>> deleteProfileImage() async {
+    try {
+      if (kDebugMode) debugPrint('[ProfileRepository] deleting profile image');
+      final response = await _apiService.deleteProfileImage();
+      if (kDebugMode) {
+        debugPrint(
+          '[ProfileRepository] delete image response received '
+          '(succeeded=${response.succeeded}, message=${response.message})',
+        );
+      }
+      // The DELETE endpoint returns succeeded=true with data=null on success.
+      return (response.succeeded == true)
+          ? ApiResult.success(response)
+          : ApiResult.failure(
+              (response.errors != null && response.errors!.isNotEmpty)
+                  ? response.errors!.join('\n')
+                  : response.message?.isNotEmpty == true
+                  ? response.message!
+                  : 'Failed to delete profile image.',
+            );
+    } catch (error) {
+      if (kDebugMode) {
+        debugPrint('[ProfileRepository] delete image exception: $error');
+      }
+      return ApiResult.failure(parseApiError(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<MemberCardActivationResponseModel>> activateMemberCard({
+    required String cardNumber,
+  }) async {
+    try {
+      if (kDebugMode) {
+        debugPrint('[ProfileRepository] activating member card');
+      }
+      final response = await _apiService.activateMemberCard({
+        'cardNumber': cardNumber,
+      });
+      if (kDebugMode) {
+        debugPrint(
+          '[ProfileRepository] activate card response received '
+          '(succeeded=${response.succeeded}, message=${response.message})',
+        );
+      }
+      return (response.succeeded == true)
+          ? ApiResult.success(response)
+          : ApiResult.failure(
+              (response.errors != null && response.errors!.isNotEmpty)
+                  ? response.errors!.join('\n')
+                  : response.message?.isNotEmpty == true
+                  ? response.message!
+                  : 'Failed to activate member card.',
+            );
+    } catch (error) {
+      if (kDebugMode) {
+        debugPrint('[ProfileRepository] activate card exception: $error');
+      }
+      return ApiResult.failure(parseApiError(error));
+    }
+  }
+
+  @override
   Future<ApiResult<CardDataResponseModel>> getCardData() async {
     try {
       if (kDebugMode) debugPrint('[ECardRepository] requesting card data');
@@ -348,6 +412,8 @@ class MedicardRepositoryImpl implements MedicardRepository {
     required bool isMale,
     required String birthDate,
     String? imagePath,
+    bool removeImage = false,
+    String? currentImageUrl,
   }) async {
     try {
       MultipartFile? imagePart;
@@ -358,6 +424,19 @@ class MedicardRepositoryImpl implements MedicardRepository {
             imagePath,
             filename: basename(imagePath),
           );
+        }
+      }
+      if (imagePart == null) {
+        // The backend always expects an Image part. An empty part removes the
+        // photo; otherwise the current photo is re-sent so it is kept.
+        if (removeImage) {
+          imagePart = MultipartFile.fromBytes(const [], filename: '');
+        } else if (currentImageUrl != null &&
+            _hasValidImageUrl(currentImageUrl)) {
+          imagePart = await _downloadImageFile(currentImageUrl);
+          imagePart ??= MultipartFile.fromBytes(const [], filename: '');
+        } else {
+          imagePart = MultipartFile.fromBytes(const [], filename: '');
         }
       }
       final response = await _apiService.updateProfileV2(
@@ -391,6 +470,34 @@ class MedicardRepositoryImpl implements MedicardRepository {
         debugPrint('[ProfileRepository] updateProfileV2 error: ${error.runtimeType} $error');
       }
       return ApiResult.failure(parseApiError(error));
+    }
+  }
+
+  bool _hasValidImageUrl(String? url) {
+    if (url == null || url.isEmpty) return false;
+    final uri = Uri.tryParse(url);
+    if (uri == null) return false;
+    final pathSegments = uri.pathSegments.where((s) => s.isNotEmpty).toList();
+    return pathSegments.isNotEmpty;
+  }
+
+  Future<MultipartFile?> _downloadImageFile(String url) async {
+    try {
+      final response = await Dio().get<List<int>>(
+        url,
+        options: Options(
+          responseType: ResponseType.bytes,
+          headers: const {'Accept': 'image/*, */*;q=0.8'},
+        ),
+      );
+      final bytes = response.data;
+      if (bytes == null || bytes.isEmpty) return null;
+      return MultipartFile.fromBytes(bytes, filename: 'profile_pic');
+    } catch (error) {
+      if (kDebugMode) {
+        debugPrint('[ProfileRepository] download current image failed: $error');
+      }
+      return null;
     }
   }
 

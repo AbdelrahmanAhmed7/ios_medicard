@@ -17,6 +17,7 @@ abstract class InvoiceRemoteDataSource {
 
   @GET('Invoice/my-invoices')
   Future<InvoicesResponseDto> getMyInvoices({
+    @Header('Accept-Language') required String language,
     @Query('pageNumber') int pageNumber = 1,
     @Query('pageSize') int pageSize = 10,
   });

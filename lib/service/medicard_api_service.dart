@@ -12,6 +12,7 @@ import '../features/profile/data/models/change_language_response_model.dart';
 import '../features/profile/data/models/change_password_response_model.dart';
 import '../features/profile/data/models/change_language_request_model.dart';
 import '../features/profile/data/models/profile_response_model.dart';
+import '../features/profile/data/models/member_card_activation_response_model.dart';
 import '../features/ecard/data/models/card_data_response_model.dart';
 import '../features/content/data/models/content_response_model.dart';
 import '../features/family_members/data/models/get_family_members_response_model.dart';
@@ -78,6 +79,14 @@ abstract class MedicardApiService {
 
   @GET('Profile/card-data')
   Future<CardDataResponseModel> getCardData();
+
+  @DELETE('Profile/profile/image')
+  Future<ProfileResponseModel> deleteProfileImage();
+
+  @POST('CardActivation/member-card/activate')
+  Future<MemberCardActivationResponseModel> activateMemberCard(
+    @Body() Map<String, dynamic> body,
+  );
 
   @PUT('Profile')
   @MultiPart()

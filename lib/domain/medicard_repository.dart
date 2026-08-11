@@ -12,6 +12,7 @@ import '../features/guest_home/data/models/guest_home_response_model.dart';
 import '../features/profile/data/models/change_password_response_model.dart';
 import '../features/profile/data/models/change_language_response_model.dart';
 import '../features/profile/data/models/profile_response_model.dart';
+import '../features/profile/data/models/member_card_activation_response_model.dart';
 import '../features/ecard/data/models/card_data_response_model.dart';
 
 abstract class MedicardRepository {
@@ -47,6 +48,12 @@ abstract class MedicardRepository {
 
   Future<ApiResult<ProfileResponseModel>> getProfile();
 
+  Future<ApiResult<ProfileResponseModel>> deleteProfileImage();
+
+  Future<ApiResult<MemberCardActivationResponseModel>> activateMemberCard({
+    required String cardNumber,
+  });
+
   Future<ApiResult<CardDataResponseModel>> getCardData();
 
   Future<ApiResult<ProfileResponseModel>> updateProfileV2({
@@ -58,6 +65,8 @@ abstract class MedicardRepository {
     required bool isMale,
     required String birthDate,
     String? imagePath,
+    bool removeImage = false,
+    String? currentImageUrl,
   });
 
   Future<ApiResult<ChangePasswordResponseModel>> changePassword({

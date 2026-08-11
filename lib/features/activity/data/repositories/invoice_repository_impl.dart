@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../../core/constants/api_result.dart';
+import '../../../../core/services/app_language_manager.dart';
 import '../../../../core/utils/api_error_parser.dart';
 import '../../domain/models/created_invoice.dart';
 import '../../domain/models/invoice_details.dart';
@@ -54,6 +55,7 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
   }) async {
     try {
       final response = await _dataSource.getMyInvoices(
+        language: AppLanguageManager.instance.currentLanguage,
         pageNumber: pageNumber,
         pageSize: pageSize,
       );

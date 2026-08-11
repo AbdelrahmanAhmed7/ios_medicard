@@ -8,6 +8,7 @@ import '../core/theming/app_toast.dart';
 import '../core/utils/language_helper.dart';
 import '../core/widgets/auth_shared_widgets.dart';
 import '../data/auth_response_model.dart';
+
 import 'logic/register_cubit.dart';
 import 'logic/register_state.dart';
 
@@ -252,14 +253,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
           initial: () {},
           loading: () {},
           success: (response) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) {
-                showSuccessToast('auth.register.registrationSuccess'.tr());
-                if (_hasUsableAuthSession(response)) {
-                  context.go('/medicard-home');
-                } else {
-                  context.go('/medicard-login');
-                }
+            WidgetsBinding.instance.addPostFrameCallback((_) async {
+              if (!mounted) return;
+              showSuccessToast('auth.register.registrationSuccess'.tr());
+              if (_hasUsableAuthSession(response)) {
+                context.go('/medicard-home');
+              } else {
+                context.go('/medicard-login');
               }
             });
           },

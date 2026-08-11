@@ -1,4 +1,4 @@
-﻿{
+{
   "auth": {
     "welcomeTitle": "مرحباً بك في ميديكارد",
     "register": {
@@ -138,6 +138,7 @@
     "settings": "الإعدادات",
     "links": "الروابط",
     "rewards": "المكافآت",
+    "points_count": "{} نقطة",
     "family_members": "أفراد الأسرة",
     "change_password": "تغيير كلمة المرور",
     "help_center": "مركز المساعدة",
@@ -157,7 +158,15 @@
     "gender": "الجنس",
     "date_of_birth": "تاريخ الميلاد",
     "male": "ذكر",
-    "female": "أنثى"
+    "female": "أنثى",
+    "image_deleted_successfully": "تم حذف الصورة الشخصية",
+    "remove_image": "حذف الصورة",
+    "remove_image_confirm": "هل أنت متأكد من حذف الصورة الشخصية؟",
+    "activate_card": "تفعيل الكارت",
+    "activate_card_subtitle": "أضف رقم كارت العضوية الخاص بك لتفعيل كارتك",
+    "card_number": "رقم الكارت",
+    "card_number_hint": "أدخل رقم كارت العضوية",
+    "card_activated_successfully": "تم تفعيل الكارت بنجاح"
   },
   "change_password": {
     "current_password": "كلمة المرور الحالية",
@@ -186,7 +195,10 @@
     "male": "ذكر",
     "female": "أنثى",
     "select_an_option": "اختر خيار",
-    "could_not_pick_image": "تعذر اختيار الصورة"
+    "could_not_pick_image": "تعذر اختيار الصورة",
+    "change_photo": "تغيير الصورة",
+    "remove_photo": "حذف الصورة",
+    "invalid_name": "من فضلك أدخل اسمًا صحيحًا"
   },
   "medicard_edit_profile": {
     "phone": "رقم الهاتف"
@@ -219,6 +231,7 @@
     "nearest_providers": "الأقرب إليك",
     "pending_appointments": "المواعيد المعلقة",
     "featured_services": "الخدمات المميزة",
+    "view_all": "عرض الكل",
     "no_data_available": "لا توجد بيانات",
     "pull_down_refresh": "اسحب للأسفل للتحديث والتحقق مرة أخرى.",
     "something_went_wrong": "تعذر تحميل هذه البيانات حالياً.",
@@ -242,47 +255,6 @@
   },
   "guest_home": {
     "explore_health_services": "استكشف الخدمات الصحية"
-  },
-  "network": {
-    "title": "شبكة مقدمي الخدمة",
-    "search_placeholder": "ابحث عن طبيب أو صيدلية أو معمل...",
-    "search_customization": "تخصيص البحث",
-    "services_and_discounts": "الخدمات والخصومات",
-    "available_services_discounts": "الخدمات والخصومات المتاحة",
-    "categories": "التصنيفات",
-    "category_count": "{} تصنيف",
-    "provider_count": "{} مقدم خدمة",
-    "results_count": "{} نتيجة",
-    "loading_providers": "جاري تحميل مقدمي الخدمة...",
-    "no_results": "لا توجد نتائج",
-    "no_results_for": "لا توجد نتائج لـ {}",
-    "try_different_search": "جرّب كلمة بحث مختلفة.",
-    "try_changing_filters": "جرّب تغيير الفلاتر.",
-    "clear_filters": "مسح الفلاتر",
-    "sort": "ترتيب",
-    "highest_discount": "أعلى خصم",
-    "government": "المحافظة",
-    "city": "المدينة",
-    "all": "الكل",
-    "call": "اتصال",
-    "directions": "الاتجاهات",
-    "location_and_address": "الموقع والعنوان",
-    "location_access_denied_body": "تم رفض الوصول للموقع. يمكنك تفعيله من الإعدادات.",
-    "location_service_body": "يرجى تفعيل خدمة الموقع لعرض النتائج الأقرب إليك.",
-    "location_banner_denied": "الوصول للموقع غير مفعل.",
-    "location_banner_retry": "إعادة المحاولة",
-    "open_app_settings": "فتح إعدادات التطبيق",
-    "open_settings": "فتح الإعدادات",
-    "search_instead_in": "البحث بدلاً من ذلك في {}",
-    "more": "المزيد",
-    "km": "{} كم",
-    "meters": "{} م",
-    "clinic_suggestion": "عيادات",
-    "dental_suggestion": "أسنان",
-    "hospital_suggestion": "مستشفيات",
-    "lab_suggestion": "معامل",
-    "pharmacy_suggestion": "صيدليات",
-    "scan_suggestion": "أشعة"
   },
   "sort_filter": {
     "sort_by": "ترتيب حسب",
@@ -320,7 +292,8 @@
     "no_family_members": "لا يوجد أفراد أسرة بعد",
     "member_added_successfully": "تم إضافة العضو بنجاح",
     "member_updated_successfully": "تم تحديث العضو بنجاح",
-    "member_deleted_successfully": "تم حذف العضو بنجاح"
+    "member_deleted_successfully": "تم حذف العضو بنجاح",
+    "max_limit_reached": "لقد وصلت إلى الحد الأقصى من أفراد الأسرة ({} أفراد)."
   },
   "provider_page": {
     "select_branch": "اختر الفرع",
@@ -383,7 +356,8 @@
     "empty_message": "اختر الخدمات من مقدمي الخدمة وستظهر هنا قبل الدفع.",
     "explore_services": "استكشف الخدمات",
     "could_not_open_payment_link": "تعذر فتح رابط الدفع.",
-    "some_prices_missing": "بعض عناصر السلة لا تحتوي على أسعار بعد. يرجى اختيار مقدمي الخدمة والمحاولة مرة أخرى."
+    "some_prices_missing": "بعض عناصر السلة لا تحتوي على أسعار بعد. يرجى اختيار مقدمي الخدمة والمحاولة مرة أخرى.",
+    "service_not_available": "هذه الخدمة غير متاحة حالياً. برجاء المحاولة لاحقاً."
   },
   "activity": {
     "pending": "في الانتظار",

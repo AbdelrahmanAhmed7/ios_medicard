@@ -13,10 +13,10 @@ class PendingAppointmentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        final providerId = appointment.providerId;
-        if (providerId != null) {
-          context.push('/provider-page', extra: providerId);
-        }
+        context.push(
+          '/pending-appointment-details',
+          extra: appointment,
+        );
       },
       child: Container(
         width: 303,

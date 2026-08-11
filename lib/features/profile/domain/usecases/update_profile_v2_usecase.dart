@@ -16,6 +16,8 @@ class UpdateProfileV2UseCase {
     required bool isMale,
     required String birthDate,
     String? imagePath,
+    bool removeImage = false,
+    String? currentImageUrl,
   }) async {
     return await _repository.updateProfileV2(
       firstName: firstName,
@@ -26,6 +28,8 @@ class UpdateProfileV2UseCase {
       isMale: isMale,
       birthDate: birthDate,
       imagePath: imagePath,
+      removeImage: removeImage,
+      currentImageUrl: currentImageUrl,
     );
   }
 }

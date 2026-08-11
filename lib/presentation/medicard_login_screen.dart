@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../core/theming/app_toast.dart';
 import '../core/utils/language_helper.dart';
 import '../core/widgets/auth_shared_widgets.dart';
+
 import 'logic/medicard_login_cubit.dart';
 import 'logic/medicard_login_state.dart';
 
@@ -81,7 +82,8 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
           loading: () {},
           success: (response) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) context.go('/medicard-home');
+              if (!mounted) return;
+              context.go('/medicard-home');
             });
           },
           failed: (error) {

@@ -128,8 +128,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       );
     }
 
+    final bottomSafePadding = MediaQuery.paddingOf(context).bottom;
+
     return ListView(
-      padding: EdgeInsets.fromLTRB(14.w, 18.h, 14.w, 24.h),
+      padding: EdgeInsets.fromLTRB(
+        14.w,
+        18.h,
+        14.w,
+        24.h + bottomSafePadding + 8.h,
+      ),
       children: [
         _SectionTitle(text: 'cart.order_for'.tr()),
         SizedBox(height: 8.h),

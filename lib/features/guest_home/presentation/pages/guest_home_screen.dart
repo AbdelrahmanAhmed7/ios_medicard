@@ -178,10 +178,27 @@ class _GuestHomeSuccessContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (providers.isNotEmpty) ...[
-          NearestSection(providers: providers),
+          NearestSection(
+            providers: providers,
+            onViewAll: () {
+              context.push(
+                '/search/providers',
+                extra: {'enableCartFeatures': false},
+              );
+            },
+          ),
           const SizedBox(height: 24),
         ],
-        if (packages.isNotEmpty) FeaturedServicesSection(services: packages),
+        if (packages.isNotEmpty)
+          FeaturedServicesSection(
+            services: packages,
+            onViewAll: () {
+              context.push(
+                '/search/services',
+                extra: {'enableCartFeatures': false},
+              );
+            },
+          ),
       ],
     );
   }

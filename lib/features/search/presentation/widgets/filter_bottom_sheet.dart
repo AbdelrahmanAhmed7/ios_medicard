@@ -26,7 +26,9 @@ class FilterBottomSheet extends StatelessWidget {
         left: 20.w,
         right: 20.w,
         top: 16.h,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 24.h,
+        bottom: MediaQuery.of(context).viewInsets.bottom +
+            MediaQuery.of(context).padding.bottom +
+            24.h,
       ),
       child: BlocBuilder<FilterCubit, FilterState>(
         builder: (context, state) {

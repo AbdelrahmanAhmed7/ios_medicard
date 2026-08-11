@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -33,6 +34,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String _birthDate = '';
   bool? _isMale;
   File? _pickedImage;
+  bool _removeImage = false;
   final ImagePicker _picker = ImagePicker();
   bool _isSaving = false;
   bool _isPickingImage = false;
@@ -48,6 +50,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (image != null && mounted) {
         setState(() {
           _pickedImage = File(image.path);
+          _removeImage = false;
         });
       }
     } catch (e) {
@@ -63,6 +66,195 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     } finally {
       if (mounted) setState(() => _isPickingImage = false);
     }
+  }
+
+  bool get _hasCurrentPhoto =>
+      _pickedImage != null ||
+      (!_removeImage && _hasValidImageUrl(widget.profileData.imageUrl));
+
+  Future<void> _showImageOptions() async {
+    final showRemove = _hasCurrentPhoto;
+    try {
+      await showModalBottomSheet<void>(
+        context: context,
+        useRootNavigator: true,
+        isDismissible: true,
+        enableDrag: true,
+        backgroundColor: Colors.white,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (sheetContext) {
+          return SafeArea(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 16.h),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 40.w,
+                    height: 4.h,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(2.r),
+                    ),
+                  ),
+                  SizedBox(height: 18.h),
+                  ListTile(
+                    leading: Icon(
+                      Icons.photo_library_outlined,
+                      color: kAuthBlue,
+                    ),
+                    title: Text(
+                      'edit_profile.change_photo'.tr(),
+                      style: TextStyle(
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.pop(sheetContext);
+                      _pickImage();
+                    },
+                  ),
+                  if (showRemove) ...[
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(
+                        Icons.delete_outline,
+                        color: Colors.red,
+                      ),
+                      title: Text(
+                        'edit_profile.remove_photo'.tr(),
+                        style: TextStyle(
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.red,
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.pop(sheetContext);
+                        _removeCurrentImage();
+                      },
+                    ),
+                  ],
+                  SizedBox(height: 8.h),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    } catch (error) {
+      if (kDebugMode) {
+        debugPrint('[EditProfile] showImageOptions error: $error');
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${"edit_profile.could_not_pick_image".tr()}: $error')),
+        );
+      }
+    }
+  }
+
+  Future<void> _removeCurrentImage() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('profile.remove_image'.tr()),
+        content: Text('profile.remove_image_confirm'.tr()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text('common.cancel'.tr()),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text('profile.remove_image'.tr()),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    final didDelete = await context
+        .read<ProfileCubit>()
+        .deleteProfileImage(widget.profileData);
+    if (!mounted) return;
+
+    if (didDelete) {
+      setState(() {
+        _pickedImage = null;
+        _removeImage = true;
+      });
+    }
+  }
+
+  Widget _currentPhotoWidget({bool cover = true}) {
+    if (_pickedImage != null) {
+      return Image.file(_pickedImage!, fit: cover ? BoxFit.cover : BoxFit.contain);
+    }
+    if (_hasValidImageUrl(widget.profileData.imageUrl)) {
+      return CachedNetworkImage(
+        imageUrl: widget.profileData.imageUrl!,
+        fit: cover ? BoxFit.cover : BoxFit.contain,
+        placeholder: (context, url) => Container(color: Colors.grey[200]),
+        errorWidget: (context, url, error) =>
+            const Icon(Icons.person, size: 55),
+      );
+    }
+    return _buildPlaceholderAvatar();
+  }
+
+  void _showImagePreview() {
+    if (!_hasCurrentPhoto || _removeImage) return;
+    showDialog<void>(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.9),
+      builder: (dialogContext) {
+        return GestureDetector(
+          onTap: () => Navigator.pop(dialogContext),
+          behavior: HitTestBehavior.opaque,
+          child: Dialog(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            insetPadding: EdgeInsets.all(16.w),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                ClipOval(
+                  child: SizedBox(
+                    width: 280.r,
+                    height: 280.r,
+                    child: _currentPhotoWidget(cover: true),
+                  ),
+                ),
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.5),
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white),
+                      onPressed: () => Navigator.pop(dialogContext),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _selectBirthDate() async {
@@ -113,6 +305,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
+  String? _validateName(String? value) {
+    final name = value?.trim() ?? '';
+    if (name.isEmpty) return 'common.required'.tr();
+    if (name.length < 2) return 'edit_profile.invalid_name'.tr();
+    final validNamePattern = RegExp(r"^[\p{L}][\p{L} .'\-]*$", unicode: true);
+    if (!validNamePattern.hasMatch(name)) return 'edit_profile.invalid_name'.tr();
+    return null;
+  }
+
+  String? _validatePhoneNumber(String? value) {
+    final raw = (value ?? '').trim();
+    if (raw.isEmpty) return 'common.required'.tr();
+    var phone = raw.replaceAll(RegExp(r'[\s\-()]'), '');
+    if (phone.startsWith('+')) phone = phone.substring(1);
+    if (phone.startsWith('20') && phone.length > 11) {
+      phone = phone.substring(2);
+    }
+    if (phone.startsWith('0')) phone = phone.substring(1);
+    if (!RegExp(r'^(10|11|12|15)[0-9]{8}$').hasMatch(phone)) {
+      return 'auth.register.phoneNumberInvalid'.tr();
+    }
+    return null;
+  }
+
   Map<String, String> _getBirthDateParts() {
     if (_birthDate.isEmpty) {
       return {'day': 'DD', 'month': 'MM', 'year': 'YYYY'};
@@ -147,7 +363,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Stack(
-                  clipBehavior: Clip.none,
                   alignment: Alignment.center,
                   children: [
                     Container(
@@ -176,8 +391,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         onPressed: () => context.pop(),
                       ),
                     ),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50.h,
+                    ),
                     Positioned(
-                      bottom: -50.h,
+                      bottom: 0,
                       child: _buildOverlappingProfileImage(),
                     ),
                   ],
@@ -199,9 +418,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 _buildTextField(
                                   controller: _firstNameController,
                                   hintText: 'edit_profile.first_name'.tr(),
-                                  validator: (v) => (v == null || v.isEmpty)
-                                      ? 'common.required'.tr()
-                                      : null,
+                                  validator: _validateName,
                                 ),
                               ],
                             ),
@@ -215,9 +432,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 _buildTextField(
                                   controller: _lastNameController,
                                   hintText: 'edit_profile.last_name'.tr(),
-                                  validator: (v) => (v == null || v.isEmpty)
-                                      ? 'common.required'.tr()
-                                      : null,
+                                  validator: _validateName,
                                 ),
                               ],
                             ),
@@ -281,6 +496,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               controller: _phoneNumberController,
                               hintText: 'edit_profile.phone_number'.tr(),
                               keyboardType: TextInputType.phone,
+                              validator: _validatePhoneNumber,
                             ),
                           ),
                         ],
@@ -345,6 +561,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       isMale: isMaleToSend,
       birthDate: _birthDate,
       imagePath: _pickedImage?.path,
+      removeImage: _removeImage,
       currentData: widget.profileData,
     );
 
@@ -367,6 +584,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return pathSegments.isNotEmpty;
   }
 
+  Widget _buildPlaceholderAvatar() {
+    return CircleAvatar(
+      backgroundColor: Colors.grey[300],
+      child: const Icon(Icons.person, size: 55, color: Colors.white),
+    );
+  }
+
   Widget _buildRemoteProfileImage() {
     if (_hasValidImageUrl(widget.profileData.imageUrl)) {
       return ClipOval(
@@ -379,10 +603,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
       );
     }
-    return CircleAvatar(
-      backgroundColor: Colors.grey[300],
-      child: const Icon(Icons.person, size: 55, color: Colors.white),
-    );
+    return _buildPlaceholderAvatar();
   }
 
   // بناء الصورة الشخصية المتداخلة مع زر تعديل يطابق الصورة تماماً
@@ -390,7 +611,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Stack(
       children: [
         GestureDetector(
-          onTap: _pickImage,
+          behavior: HitTestBehavior.opaque,
+          onTap: _showImagePreview,
           child: Container(
             width: 110.r,
             height: 110.r,
@@ -422,6 +644,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                     ),
                   )
+                : _removeImage
+                ? _buildPlaceholderAvatar()
                 : _buildRemoteProfileImage(),
           ),
         ),
@@ -429,15 +653,28 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           bottom: 2.h,
           end: 2.w,
           child: GestureDetector(
-            onTap: _pickImage,
+            behavior: HitTestBehavior.opaque,
+            onTap: _showImageOptions,
             child: Container(
-              padding: EdgeInsets.all(6.w),
+              width: 40.r,
+              height: 40.r,
               decoration: BoxDecoration(
                 color: Colors.white,
                 shape: BoxShape.circle,
                 border: Border.all(color: kAuthBlue, width: 1),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.08),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              child: Icon(Icons.edit_outlined, size: 14.sp, color: kAuthBlue),
+              child: Icon(
+                Icons.edit_outlined,
+                size: 18.sp,
+                color: kAuthBlue,
+              ),
             ),
           ),
         ),

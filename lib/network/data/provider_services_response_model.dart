@@ -1,5 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'network_provider_response_model.dart';
 
 part 'provider_services_response_model.g.dart';
 
@@ -144,4 +143,22 @@ class ProviderService {
     isSelected: isSelected ?? this.isSelected,
     categoryId: categoryId,
   );
+}
+
+class Pagination {
+  final int currentPage;
+  final int pageSize;
+  final int totalCount;
+  final int totalPages;
+  final bool hasNextPage;
+  final bool hasPreviousPage;
+
+  Pagination({
+    required this.currentPage,
+    required this.pageSize,
+    required this.totalCount,
+    required this.totalPages,
+    required this.hasNextPage,
+    required this.hasPreviousPage,
+  });
 }

@@ -138,6 +138,7 @@
     "settings": "Settings",
     "links": "Links",
     "rewards": "Rewards",
+    "points_count": "{} points",
     "family_members": "Family Members",
     "change_password": "Change Password",
     "help_center": "Help Center",
@@ -157,7 +158,15 @@
     "gender": "Gender",
     "date_of_birth": "Date of Birth",
     "male": "Male",
-    "female": "Female"
+    "female": "Female",
+    "image_deleted_successfully": "Profile picture removed",
+    "remove_image": "Remove Photo",
+    "remove_image_confirm": "Are you sure you want to remove your profile photo?",
+    "activate_card": "Activate Card",
+    "activate_card_subtitle": "Add your member card number to activate your card",
+    "card_number": "Card Number",
+    "card_number_hint": "Enter your member card number",
+    "card_activated_successfully": "Card activated successfully"
   },
   "change_password": {
     "current_password": "Current Password",
@@ -186,7 +195,10 @@
     "male": "Male",
     "female": "Female",
     "select_an_option": "Select an option",
-    "could_not_pick_image": "Could not pick image"
+    "could_not_pick_image": "Could not pick image",
+    "change_photo": "Change Photo",
+    "remove_photo": "Remove Photo",
+    "invalid_name": "Please enter a valid name"
   },
   "medicard_edit_profile": {
     "phone": "Phone Number"
@@ -219,6 +231,7 @@
     "nearest_providers": "Nearest Providers",
     "pending_appointments": "Pending Appointments",
     "featured_services": "Featured Services",
+    "view_all": "View all",
     "no_data_available": "No data available",
     "pull_down_refresh": "Pull down to refresh and check again.",
     "something_went_wrong": "We could not load this information right now.",
@@ -242,47 +255,6 @@
   },
   "guest_home": {
     "explore_health_services": "Explore health services"
-  },
-  "network": {
-    "title": "Provider Network",
-    "search_placeholder": "Search doctor, pharmacy, or lab...",
-    "search_customization": "Search customization",
-    "services_and_discounts": "Services and discounts",
-    "available_services_discounts": "Available services and discounts",
-    "categories": "Categories",
-    "category_count": "{} categories",
-    "provider_count": "{} providers",
-    "results_count": "{} results",
-    "loading_providers": "Loading providers...",
-    "no_results": "No results found",
-    "no_results_for": "No results for {}",
-    "try_different_search": "Try a different search term.",
-    "try_changing_filters": "Try changing the filters.",
-    "clear_filters": "Clear filters",
-    "sort": "Sort",
-    "highest_discount": "Highest discount",
-    "government": "Government",
-    "city": "City",
-    "all": "All",
-    "call": "Call",
-    "directions": "Directions",
-    "location_and_address": "Location and address",
-    "location_access_denied_body": "Location access is denied. You can enable it from settings.",
-    "location_service_body": "Please enable location services to show nearby results.",
-    "location_banner_denied": "Location access is disabled.",
-    "location_banner_retry": "Retry",
-    "open_app_settings": "Open app settings",
-    "open_settings": "Open settings",
-    "search_instead_in": "Search instead in {}",
-    "more": "More",
-    "km": "{} km",
-    "meters": "{} m",
-    "clinic_suggestion": "Clinics",
-    "dental_suggestion": "Dental",
-    "hospital_suggestion": "Hospitals",
-    "lab_suggestion": "Labs",
-    "pharmacy_suggestion": "Pharmacies",
-    "scan_suggestion": "Scans"
   },
   "sort_filter": {
     "sort_by": "Sort By",
@@ -320,7 +292,8 @@
     "no_family_members": "No family members yet",
     "member_added_successfully": "Family member added successfully",
     "member_updated_successfully": "Family member updated successfully",
-    "member_deleted_successfully": "Family member deleted successfully"
+    "member_deleted_successfully": "Family member deleted successfully",
+    "max_limit_reached": "You have reached the maximum of {} family members."
   },
   "provider_page": {
     "select_branch": "Select Branch",
@@ -383,7 +356,8 @@
     "empty_message": "Choose services from providers and they will appear here before checkout.",
     "explore_services": "Explore services",
     "could_not_open_payment_link": "Could not open payment link.",
-    "some_prices_missing": "Some cart items are still missing prices. Please choose providers for them and try again."
+    "some_prices_missing": "Some cart items are still missing prices. Please choose providers for them and try again.",
+    "service_not_available": "This service is currently unavailable. Please try again later."
   },
   "activity": {
     "pending": "Pending",

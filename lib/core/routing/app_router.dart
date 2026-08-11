@@ -12,6 +12,8 @@ import '../../features/activity/domain/models/invoice_item.dart';
 import '../../features/activity/presentation/pages/invoice_details_screen.dart';
 import '../../features/activate_card/presentation/pages/activate_card_screen.dart';
 import '../../features/home/presentation/pages/home_screen.dart';
+import '../../features/home/domain/models/appointment_model.dart';
+import '../../features/home/presentation/widgets/pending_appointment_details_screen.dart';
 import '../../features/notifications/presentation/cubit/notifivation_cubit.dart';
 import '../../features/notifications/presentation/pages/notifications_screen.dart';
 import '../../features/profile/data/models/profile_response_model.dart';
@@ -33,8 +35,6 @@ import '../../features/family_members/presentation/pages/add_edit_family_member_
 import '../../features/family_members/data/models/family_member_model.dart';
 import '../../features/guest_home/presentation/pages/guest_home_screen.dart';
 import '../../features/help_center/presentation/pages/help_center_screen.dart';
-import '../../medicard_network/logic/medicard_network_cubit.dart';
-import '../../medicard_network/presentation/medicard_network_screen.dart';
 import '../../medicard_network/presentation/pages/provider_page_screen.dart';
 import '../../medicard_network/presentation/pages/branches_screen.dart';
 import '../../medicard_network/presentation/pages/reviews_screen.dart';
@@ -211,17 +211,6 @@ class AppRouter {
           },
         ),
 
-        GoRoute(
-          path: '/medicard-network',
-          builder: (context, state) {
-            final extra = state.extra as Map<String, dynamic>?;
-            final searchQuery = extra?['searchQuery'] as String?;
-            return BlocProvider(
-              create: (context) => sl<MedicardNetworkCubit>(),
-              child: MedicardNetworkScreen(initialSearchQuery: searchQuery),
-            );
-          },
-        ),
         GoRoute(
           path: '/medicard-profile',
           builder: (context, state) => const ProfileScreen(),
@@ -490,6 +479,13 @@ class AppRouter {
               create: (_) => sl<CartCubit>()..loadCartAndProviders(),
               child: const ChooseProviderScreen(),
             );
+          },
+        ),
+        GoRoute(
+          path: '/pending-appointment-details',
+          builder: (context, state) {
+            final appointment = state.extra as AppointmentModel;
+            return PendingAppointmentDetailsScreen(appointment: appointment);
           },
         ),
         GoRoute(

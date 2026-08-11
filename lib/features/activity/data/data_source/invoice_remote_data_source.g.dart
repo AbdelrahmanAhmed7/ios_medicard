@@ -23,6 +23,7 @@ class _InvoiceRemoteDataSource implements InvoiceRemoteDataSource {
 
   @override
   Future<InvoicesResponseDto> getMyInvoices({
+    required String language,
     int pageNumber = 1,
     int pageSize = 10,
   }) async {
@@ -31,7 +32,8 @@ class _InvoiceRemoteDataSource implements InvoiceRemoteDataSource {
       r'pageNumber': pageNumber,
       r'pageSize': pageSize,
     };
-    final _headers = <String, dynamic>{};
+    final _headers = <String, dynamic>{r'Accept-Language': language};
+    _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<InvoicesResponseDto>(
       Options(method: 'GET', headers: _headers, extra: _extra)

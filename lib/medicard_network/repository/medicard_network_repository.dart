@@ -2,11 +2,6 @@ import 'package:flutter/foundation.dart';
 
 import '../../core/constants/api_result.dart';
 import '../../core/utils/api_error_parser.dart';
-import '../../network/data/city_response_model.dart';
-import '../../network/data/government_response_model.dart';
-import '../../network/data/network_category_response_model.dart';
-import '../../network/data/network_provider_response_model.dart';
-import '../../network/data/top_providers_slider_model.dart';
 import '../../network/data/provider_page_response_model.dart';
 import '../../network/data/provider_services_response_model.dart';
 import '../service/medicard_network_api_service.dart';
@@ -21,120 +16,6 @@ class MedicardNetworkRepository {
   void _logDebugError(String operation, Object error) {
     if (kDebugMode) {
       debugPrint('[$operation] ${_cleanError(error)}');
-    }
-  }
-
-  Future<ApiResult<NetworkCategoryResponse>> getCategories(String lang) async {
-    try {
-      final response = await _apiService.getCategories(lang);
-      if (response.success) {
-        return ApiResult.success(response);
-      } else {
-        return ApiResult.failure(response.message);
-      }
-    } catch (e) {
-      _logDebugError('getCategories', e);
-      return ApiResult.failure(_cleanError(e));
-    }
-  }
-
-  Future<ApiResult<NetworkProviderResponse>> searchProviders({
-    required String lang,
-    String? cardNo,
-    String? searchKey,
-    int? categoryId,
-    int? governmentId,
-    int? cityId,
-    double? latitude,
-    double? longitude,
-    bool? orderByDiscounts,
-    int page = 1,
-    int pageSize = 20,
-  }) async {
-    try {
-      final response = await _apiService.searchProviders(
-        lang,
-        cardNo: cardNo,
-        searchKey: searchKey,
-        categoryId: categoryId,
-        governmentId: governmentId,
-        cityId: cityId,
-        latitude: latitude,
-        longitude: longitude,
-        orderByDiscounts: orderByDiscounts,
-        page: page,
-        pageSize: pageSize,
-      );
-      if (response.success) {
-        return ApiResult.success(response);
-      } else {
-        return ApiResult.failure(response.message);
-      }
-    } catch (e) {
-      _logDebugError('searchProviders', e);
-      return ApiResult.failure(_cleanError(e));
-    }
-  }
-
-  Future<ApiResult<GovernmentResponse>> getGovernments(
-    String lang, {
-    int page = 1,
-    int pageSize = 50,
-  }) async {
-    try {
-      final response = await _apiService.getGovernments(
-        lang,
-        page: page,
-        pageSize: pageSize,
-      );
-      if (response.success) {
-        return ApiResult.success(response);
-      } else {
-        return ApiResult.failure(response.message);
-      }
-    } catch (e) {
-      _logDebugError('getGovernments', e);
-      return ApiResult.failure(_cleanError(e));
-    }
-  }
-
-  Future<ApiResult<CityResponse>> getCitiesByGovernment(
-    String lang,
-    int governmentId, {
-    int page = 1,
-    int pageSize = 50,
-  }) async {
-    try {
-      final response = await _apiService.getCitiesByGovernment(
-        lang,
-        governmentId: governmentId,
-        page: page,
-        pageSize: pageSize,
-      );
-      if (response.success) {
-        return ApiResult.success(response);
-      } else {
-        return ApiResult.failure(response.message);
-      }
-    } catch (e) {
-      _logDebugError('getCitiesByGovernment', e);
-      return ApiResult.failure(_cleanError(e));
-    }
-  }
-
-  Future<ApiResult<TopProvidersSliderResponse>> getTopProvidersForSlider(
-    String lang,
-  ) async {
-    try {
-      final response = await _apiService.getTopProvidersForSlider(lang);
-      if (response.success) {
-        return ApiResult.success(response);
-      } else {
-        return ApiResult.failure(response.message);
-      }
-    } catch (e) {
-      _logDebugError('getTopProvidersForSlider', e);
-      return ApiResult.failure(_cleanError(e));
     }
   }
 

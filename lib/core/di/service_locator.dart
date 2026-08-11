@@ -11,7 +11,6 @@ import '../../domain/medicard_repository.dart';
 import '../../domain/usecases/get_home_info_usecase.dart';
 import '../../domain/usecases/get_personal_info_usecase.dart';
 import '../../domain/usecases/get_support_contacts_usecase.dart';
-import '../../domain/usecases/get_top_providers_slider_usecase.dart';
 import '../../domain/usecases/login_card_usecase.dart';
 import '../../domain/usecases/register_usecase.dart';
 import '../../domain/usecases/update_profile_usecase.dart';
@@ -42,6 +41,8 @@ import '../../features/ecard/domain/usecases/get_card_data_usecase.dart';
 import '../../features/ecard/presentation/cubit/ecard_cubit.dart';
 import '../../features/profile/domain/usecases/update_profile_v2_usecase.dart';
 import '../../features/profile/domain/usecases/change_language_usecase.dart';
+import '../../features/profile/domain/usecases/delete_profile_image_usecase.dart';
+import '../../features/profile/domain/usecases/activate_member_card_usecase.dart';
 import '../../features/profile/presentation/cubit/change_password_cubit.dart';
 import '../../features/profile/presentation/cubit/profile_cubit.dart';
 import '../../features/content/data/repositories/content_repository_impl.dart';
@@ -62,7 +63,6 @@ import '../../features/cart/data/repository/cart_repository_impl.dart';
 import '../../features/cart/domain/repository/cart_repository.dart';
 import '../../features/cart/domain/services/cart_sync_service.dart';
 import '../../features/cart/presentation/cubit/cart_cubit.dart';
-import '../../medicard_network/logic/medicard_network_cubit.dart';
 import '../../medicard_network/logic/provider_page_cubit.dart';
 import '../../medicard_network/repository/medicard_network_repository.dart';
 import '../../medicard_network/service/medicard_network_api_service.dart';
@@ -183,9 +183,6 @@ Future<void> setupServiceLocator() async {
     () => GetSupportContactsUseCase(sl()),
   );
   sl.registerFactory<UpdateProfileUseCase>(() => UpdateProfileUseCase(sl()));
-  sl.registerFactory<GetTopProvidersForSliderUseCase>(
-    () => GetTopProvidersForSliderUseCase(sl()),
-  );
   sl.registerFactory<GetHomeDataUseCase>(() => GetHomeDataUseCase(sl()));
   sl.registerFactory<GetProfileUseCase>(() => GetProfileUseCase(sl()));
   sl.registerFactory<GetCardDataUseCase>(() => GetCardDataUseCase(sl()));
@@ -193,6 +190,12 @@ Future<void> setupServiceLocator() async {
     () => UpdateProfileV2UseCase(sl()),
   );
   sl.registerFactory<ChangeLanguageUseCase>(() => ChangeLanguageUseCase(sl()));
+  sl.registerFactory<DeleteProfileImageUseCase>(
+    () => DeleteProfileImageUseCase(sl()),
+  );
+  sl.registerFactory<ActivateMemberCardUseCase>(
+    () => ActivateMemberCardUseCase(sl()),
+  );
   sl.registerFactory<ChangePasswordUseCase>(() => ChangePasswordUseCase(sl()));
   sl.registerFactory<GetContentUseCase>(() => GetContentUseCase(sl()));
   sl.registerFactory<GetGuestHomeDataUseCase>(
@@ -229,7 +232,6 @@ Future<void> setupServiceLocator() async {
   // ── 9. Cubits ─────────────────────────────────────────────────────────────
   sl.registerFactory<MedicardLoginCubit>(() => MedicardLoginCubit(sl()));
   sl.registerFactory<RegisterCubit>(() => RegisterCubit(sl()));
-  sl.registerFactory<MedicardNetworkCubit>(() => MedicardNetworkCubit(sl()));
   sl.registerFactoryParam<ProviderPageCubit, int, void>(
     (providerId, _) => ProviderPageCubit(sl(), sl(), sl(), sl(), providerId),
   );
@@ -246,7 +248,9 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory<HomeCubit>(() => HomeCubit(sl(), sl(), sl()));
   sl.registerFactory<ActivityCubit>(() => ActivityCubit(sl()));
   sl.registerFactory<LocationCubit>(() => LocationCubit(sl(), sl()));
-  sl.registerFactory<ProfileCubit>(() => ProfileCubit(sl(), sl(), sl()));
+  sl.registerFactory<ProfileCubit>(
+    () => ProfileCubit(sl(), sl(), sl(), sl(), sl()),
+  );
   sl.registerFactory<ECardCubit>(() => ECardCubit(sl()));
   sl.registerFactory<ChangePasswordCubit>(() => ChangePasswordCubit(sl()));
   sl.registerFactory<ContentCubit>(() => ContentCubit(sl()));

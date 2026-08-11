@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:medicard/core/constants/constants.dart';
+import 'package:medicard/core/theming/app_toast.dart';
 import 'package:medicard/core/utils/relation_helper.dart';
 import '../../../../core/widgets/auth_shared_widgets.dart';
 import '../../../../core/utils/error_state_widget.dart';
@@ -111,6 +113,13 @@ class _FamilyMembersListScreenState extends State<FamilyMembersListScreen> {
                         label: 'family_members.add_member'.tr(),
                         isLoading: false,
                         onPressed: () {
+                          if (members.length >= kMaxFamilyMembers) {
+                            showWarningToast(
+                              'family_members.max_limit_reached'
+                                  .tr(args: ['$kMaxFamilyMembers']),
+                            );
+                            return;
+                          }
                           context.push('/family-members/add');
                         },
                       ),

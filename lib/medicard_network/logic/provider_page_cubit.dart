@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/constants/api_result.dart';
+import '../../core/theming/app_toast.dart';
 import '../../features/activity/domain/repositories/invoice_repository.dart';
 import '../../features/activity/domain/models/created_invoice.dart';
 import '../../features/cart/domain/repository/cart_repository.dart';
@@ -261,7 +263,7 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
             ?.categoryId;
 
     if (resolvedCategoryId == null) {
-      emit(state.copyWith(servicesError: 'Unable to add this service.'));
+      showErrorToast('cart.service_not_available'.tr());
       return;
     }
 
@@ -316,8 +318,12 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
         }
 
         emit(
-          state.copyWith(pendingCartActionIds: pending, servicesError: message),
+          state.copyWith(
+            pendingCartActionIds: pending,
+            resetServicesError: true,
+          ),
         );
+        showErrorToast(message);
       },
     );
   }
@@ -352,8 +358,12 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
       },
       failure: (message) {
         emit(
-          state.copyWith(pendingCartActionIds: pending, servicesError: message),
+          state.copyWith(
+            pendingCartActionIds: pending,
+            resetServicesError: true,
+          ),
         );
+        showErrorToast(message);
       },
     );
   }

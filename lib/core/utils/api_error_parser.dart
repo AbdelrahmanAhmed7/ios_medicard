@@ -99,6 +99,11 @@ String friendlyApiMessage(String message) {
     return 'change_password.current_password_incorrect'.tr();
   }
 
+  if (lower.contains('servicenotfound') ||
+      lower.contains('service not found')) {
+    return 'cart.service_not_available'.tr();
+  }
+
   return normalized;
 }
 

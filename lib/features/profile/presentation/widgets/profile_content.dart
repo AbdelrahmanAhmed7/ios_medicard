@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -40,6 +41,11 @@ class ProfileContent extends StatelessWidget {
 
           _UserInfoCard(data: data),
 
+          if (data.cardNumber == null || data.cardNumber!.trim().isEmpty) ...[
+            SizedBox(height: 20.h),
+            _ActivateCardBanner(data: data),
+          ],
+
           SizedBox(height: 20.h),
 
           _SectionTitle(title: 'profile.settings'.tr()),
@@ -49,7 +55,7 @@ class ProfileContent extends StatelessWidget {
                 icon: Icons.point_of_sale,
                 label: 'profile.rewards'.tr(),
                 trailing: Text(
-                  '100 points',
+                  'profile.points_count'.tr(args: ['100']),
                   style: TextStyle(
                     color: kAuthGreyText,
                     fontSize: 14.sp,
@@ -262,6 +268,244 @@ class _UserInfoCard extends StatelessWidget {
                     color: Colors.black54,
                     size: 22.sp,
                   ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ActivateCardBanner extends StatelessWidget {
+  final ProfileData data;
+
+  const _ActivateCardBanner({required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      child: InkWell(
+        onTap: () => _showActivateCardDialog(context, data),
+        borderRadius: BorderRadius.circular(16.r),
+        child: Container(
+          padding: EdgeInsets.all(16.w),
+          decoration: BoxDecoration(
+            color: const Color(0xFFEBF1FB),
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(color: kAuthBlue, width: 1),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 44.r,
+                height: 44.r,
+                decoration: const BoxDecoration(
+                  color: kAuthBlue,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.credit_card, color: Colors.white, size: 22.sp),
+              ),
+              SizedBox(width: 14.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'profile.activate_card'.tr(),
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    SizedBox(height: 2.h),
+                    Text(
+                      'profile.activate_card_subtitle'.tr(),
+                      style: TextStyle(
+                        color: kAuthGreyText,
+                        fontSize: 12.5.sp,
+                        height: 1.3,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: kAuthBlue,
+                size: 22.sp,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+Future<void> _showActivateCardDialog(
+  BuildContext context,
+  ProfileData data,
+) async {
+  final cardNumber = await showModalBottomSheet<String>(
+    context: context,
+    backgroundColor: Colors.white,
+    isScrollControlled: true,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+    ),
+    builder: (_) => const _CardNumberInputSheet(),
+  );
+
+  if (cardNumber == null || !context.mounted) return;
+  await context.read<ProfileCubit>().activateMemberCard(
+    cardNumber: cardNumber,
+    currentData: data,
+  );
+}
+
+class _CardNumberInputSheet extends StatefulWidget {
+  const _CardNumberInputSheet();
+
+  @override
+  State<_CardNumberInputSheet> createState() => _CardNumberInputSheetState();
+}
+
+class _CardNumberInputSheetState extends State<_CardNumberInputSheet> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final value = _controller.text.trim();
+    if (value.isEmpty) return;
+    Navigator.of(context).pop(value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          20.w,
+          18.h,
+          20.w,
+          20.h + MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 42.w,
+              height: 4.h,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE5E7EB),
+                borderRadius: BorderRadius.circular(4.r),
+              ),
+            ),
+            SizedBox(height: 18.h),
+            Container(
+              width: 54.r,
+              height: 54.r,
+              decoration: const BoxDecoration(
+                color: Color(0xFFEBF1FB),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.credit_card, color: kAuthBlue, size: 26.sp),
+            ),
+            SizedBox(height: 14.h),
+            Text(
+              'profile.activate_card'.tr(),
+              style: TextStyle(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF111827),
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              'profile.activate_card_subtitle'.tr(),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14.sp,
+                height: 1.35,
+                color: const Color(0xFF6B7280),
+              ),
+            ),
+            SizedBox(height: 20.h),
+            TextField(
+              controller: _controller,
+              autofocus: true,
+              keyboardType: TextInputType.number,
+              maxLength: 16,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: InputDecoration(
+                labelText: 'profile.card_number'.tr(),
+                hintText: 'profile.card_number_hint'.tr(),
+                counterText: '',
+                filled: true,
+                fillColor: const Color(0xFFF9FAFB),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                  borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                  borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                  borderSide: const BorderSide(color: kAuthBlue, width: 1.5),
+                ),
+              ),
+              onSubmitted: (_) => _submit(),
+            ),
+            SizedBox(height: 16.h),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _submit,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: kAuthBlue,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  minimumSize: Size.fromHeight(50.h),
+                ),
+                child: Text(
+                  'profile.activate_card'.tr(),
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 10.h),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: () => Navigator.of(context).pop(),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF334155),
+                  side: const BorderSide(color: Color(0xFFD1D5DB)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  minimumSize: Size.fromHeight(48.h),
+                ),
+                child: Text(
+                  'common.cancel'.tr(),
+                  style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
                 ),
               ),
             ),

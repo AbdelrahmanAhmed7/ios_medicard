@@ -8,10 +8,19 @@ import '../../../../medicard_network/repository/medicard_network_repository.dart
 import '../../../../network/data/provider_page_response_model.dart';
 import '../../domain/models/featured_service_model.dart';
 
-class FeaturedServiceCard extends StatelessWidget {
+class FeaturedServiceCard extends StatefulWidget {
   final FeaturedServiceModel service;
 
   const FeaturedServiceCard({super.key, required this.service});
+
+  @override
+  State<FeaturedServiceCard> createState() => _FeaturedServiceCardState();
+}
+
+class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
+  bool _isBooking = false;
+
+  FeaturedServiceModel get service => widget.service;
 
   @override
   Widget build(BuildContext context) {
@@ -238,15 +247,15 @@ class FeaturedServiceCard extends StatelessWidget {
     );
   }
 
-  Future<void> _openPackageDetails(BuildContext context) async {
+  Future<void> _openPackageDetails(BuildContext cardContext) async {
     final packageId = service.packageId;
     if (packageId == null) return;
 
     showModalBottomSheet<void>(
-      context: context,
+      context: cardContext,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) {
+      builder: (sheetContext) {
         return FutureBuilder<ApiResult<PackageDetailsResponse>>(
           future: sl<MedicardNetworkRepository>().getPackageDetails(
             packageId: packageId,
@@ -276,7 +285,10 @@ class FeaturedServiceCard extends StatelessWidget {
                       success: (response) => _PackageDetailsSheetContent(
                         details: response.data,
                         fallback: service,
-                        onBook: () => _bookPackage(context),
+                        onBook: () {
+                          Navigator.of(sheetContext).pop();
+                          _bookPackage(cardContext);
+                        },
                       ),
                       failure: (error) => Padding(
                         padding: const EdgeInsets.all(24),
@@ -291,32 +303,40 @@ class FeaturedServiceCard extends StatelessWidget {
   }
 
   Future<void> _bookPackage(BuildContext context) async {
+    if (_isBooking) return;
     final packageId = service.packageId;
     if (packageId == null) return;
 
-    final branchId = await _resolveBranchId();
-    if (!context.mounted) return;
-    if (branchId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('provider_page.no_provider_branch_found'.tr())),
-      );
-      return;
-    }
+    _isBooking = true;
+    try {
+      final branchId = await _resolveBranchId();
+      if (!context.mounted) return;
+      if (branchId == null) {
+        final messenger = ScaffoldMessenger.of(context);
+        messenger.hideCurrentSnackBar();
+        messenger.showSnackBar(
+          SnackBar(content: Text('provider_page.no_provider_branch_found'.tr())),
+        );
+        return;
+      }
 
-    context.push(
-      '/checkout',
-      extra: {
-        'providerId': service.providerId,
-        'selectedBranch': ProviderBranch(
-          branchId: branchId,
-          branchName: service.location,
-        ),
-        'packageId': packageId,
-        'packageName': service.serviceName,
-        'packagePriceBefore': service.originalPrice,
-        'packagePriceAfter': service.discountedPrice,
-      },
-    );
+      context.push(
+        '/checkout',
+        extra: {
+          'providerId': service.providerId,
+          'selectedBranch': ProviderBranch(
+            branchId: branchId,
+            branchName: service.location,
+          ),
+          'packageId': packageId,
+          'packageName': service.serviceName,
+          'packagePriceBefore': service.originalPrice,
+          'packagePriceAfter': service.discountedPrice,
+        },
+      );
+    } finally {
+      _isBooking = false;
+    }
   }
 
   Future<int?> _resolveBranchId() async {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:go_router/go_router.dart';
 import 'package:medicard/features/home/data/home_mock_data.dart';
 
 import '../../../../core/cubit/app_refresh_cubit.dart';
@@ -143,11 +144,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 backgroundColor: Colors.white,
                 body: IndexedStack(
                   index: _currentIndex,
-                  children: const [
-                    _HomeBody(),
-                    ECardScreen(),
-                    ActivityScreen(),
-                    _ProfileBody(),
+                  children: [
+                    _HomeBody(
+                      onNavigateToTab: (index) =>
+                          setState(() => _currentIndex = index),
+                    ),
+                    const ECardScreen(),
+                    const ActivityScreen(),
+                    const _ProfileBody(),
                   ],
                 ),
                 bottomNavigationBar: Builder(
@@ -176,7 +180,23 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class _HomeBody extends StatelessWidget {
-  const _HomeBody();
+  final ValueChanged<int> onNavigateToTab;
+
+  const _HomeBody({required this.onNavigateToTab});
+
+  void _openAllProviders(BuildContext context) {
+    context.push(
+      '/search/providers',
+      extra: {'enableCartFeatures': true},
+    );
+  }
+
+  void _openAllServices(BuildContext context) {
+    context.push(
+      '/search/services',
+      extra: {'enableCartFeatures': true},
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -250,17 +270,28 @@ class _HomeBody extends StatelessWidget {
           else ...[
             if (appointments.isNotEmpty) ...[
               SliverToBoxAdapter(
-                child: PendingAppointmentsSection(appointments: appointments),
+                child: PendingAppointmentsSection(
+                  appointments: appointments,
+                  onViewAll: () => onNavigateToTab(2),
+                ),
               ),
               const SliverToBoxAdapter(child: SizedBox(height: 24)),
             ],
             if (providers.isNotEmpty) ...[
-              SliverToBoxAdapter(child: NearestSection(providers: providers)),
+              SliverToBoxAdapter(
+                child: NearestSection(
+                  providers: providers,
+                  onViewAll: () => _openAllProviders(context),
+                ),
+              ),
               const SliverToBoxAdapter(child: SizedBox(height: 24)),
             ],
             if (services.isNotEmpty)
               SliverToBoxAdapter(
-                child: FeaturedServicesSection(services: services),
+                child: FeaturedServicesSection(
+                  services: services,
+                  onViewAll: () => _openAllServices(context),
+                ),
               ),
           ],
         ],

@@ -7,19 +7,25 @@ import 'package:medicard/core/utils/api_error_parser.dart';
 import '../../data/models/profile_response_model.dart';
 import '../../domain/usecases/get_profile_usecase.dart';
 import '../../domain/usecases/update_profile_v2_usecase.dart';
+import '../../domain/usecases/delete_profile_image_usecase.dart';
 import '../../domain/usecases/change_language_usecase.dart';
+import '../../domain/usecases/activate_member_card_usecase.dart';
 import 'profile_state.dart';
 
 class ProfileCubit extends Cubit<ProfileState> {
   final GetProfileUseCase _getProfileUseCase;
   final UpdateProfileV2UseCase _updateProfileUseCase;
+  final DeleteProfileImageUseCase _deleteProfileImageUseCase;
   final ChangeLanguageUseCase _changeLanguageUseCase;
+  final ActivateMemberCardUseCase _activateMemberCardUseCase;
   Future<void>? _profileLoad;
 
   ProfileCubit(
     this._getProfileUseCase,
     this._updateProfileUseCase,
+    this._deleteProfileImageUseCase,
     this._changeLanguageUseCase,
+    this._activateMemberCardUseCase,
   ) : super(const ProfileState.initial());
 
   Future<void> loadProfile({bool forceRefresh = false}) {
@@ -109,6 +115,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     required bool isMale,
     required String birthDate,
     String? imagePath,
+    bool removeImage = false,
     required ProfileData currentData,
   }) async {
     if (isClosed) return false;
@@ -123,6 +130,8 @@ class ProfileCubit extends Cubit<ProfileState> {
         isMale: isMale,
         birthDate: birthDate,
         imagePath: imagePath,
+        removeImage: removeImage,
+        currentImageUrl: currentData.imageUrl,
       );
       if (isClosed) return false;
 
@@ -169,6 +178,67 @@ class ProfileCubit extends Cubit<ProfileState> {
     } catch (e) {
       if (isClosed) return;
       showErrorToast(parseApiError(e));
+    }
+  }
+
+  Future<bool> deleteProfileImage(ProfileData currentData) async {
+    if (isClosed) return false;
+    emit(ProfileState.updating(currentData));
+    try {
+      final result = await _deleteProfileImageUseCase.call();
+      if (isClosed) return false;
+
+      final failure = result.when(
+        success: (_) => null,
+        failure: (message) => message,
+      );
+      if (failure != null) {
+        showErrorToast(failure);
+        if (!isClosed) emit(ProfileState.success(currentData));
+        return false;
+      }
+
+      showSuccessToast('profile.image_deleted_successfully'.tr());
+      await _performProfileLoad();
+      return true;
+    } catch (e) {
+      if (isClosed) return false;
+      showErrorToast(parseApiError(e));
+      if (!isClosed) emit(ProfileState.success(currentData));
+      return false;
+    }
+  }
+
+  Future<bool> activateMemberCard({
+    required String cardNumber,
+    required ProfileData currentData,
+  }) async {
+    if (isClosed) return false;
+    emit(ProfileState.updating(currentData));
+    try {
+      final result = await _activateMemberCardUseCase.call(
+        cardNumber: cardNumber,
+      );
+      if (isClosed) return false;
+
+      final failure = result.when(
+        success: (_) => null,
+        failure: (message) => message,
+      );
+      if (failure != null) {
+        showErrorToast(failure);
+        if (!isClosed) emit(ProfileState.success(currentData));
+        return false;
+      }
+
+      showSuccessToast('profile.card_activated_successfully'.tr());
+      await _performProfileLoad();
+      return true;
+    } catch (e) {
+      if (isClosed) return false;
+      showErrorToast(parseApiError(e));
+      if (!isClosed) emit(ProfileState.success(currentData));
+      return false;
     }
   }
 }
