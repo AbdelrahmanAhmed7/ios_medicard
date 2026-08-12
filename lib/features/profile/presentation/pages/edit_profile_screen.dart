@@ -155,7 +155,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${"edit_profile.could_not_pick_image".tr()}: $error')),
+          SnackBar(
+            content: Text(
+              '${"edit_profile.could_not_pick_image".tr()}: $error',
+            ),
+          ),
         );
       }
     }
@@ -186,9 +190,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     if (confirmed != true || !mounted) return;
 
-    final didDelete = await context
-        .read<ProfileCubit>()
-        .deleteProfileImage(widget.profileData);
+    final didDelete = await context.read<ProfileCubit>().deleteProfileImage(
+      widget.profileData,
+    );
     if (!mounted) return;
 
     if (didDelete) {
@@ -201,7 +205,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Widget _currentPhotoWidget({bool cover = true}) {
     if (_pickedImage != null) {
-      return Image.file(_pickedImage!, fit: cover ? BoxFit.cover : BoxFit.contain);
+      return Image.file(
+        _pickedImage!,
+        fit: cover ? BoxFit.cover : BoxFit.contain,
+      );
     }
     if (_hasValidImageUrl(widget.profileData.imageUrl)) {
       return CachedNetworkImage(
@@ -316,7 +323,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (name.isEmpty) return 'common.required'.tr();
     if (name.length < 2) return 'edit_profile.invalid_name'.tr();
     final validNamePattern = RegExp(r"^[\p{L}][\p{L} .'\-]*$", unicode: true);
-    if (!validNamePattern.hasMatch(name)) return 'edit_profile.invalid_name'.tr();
+    if (!validNamePattern.hasMatch(name)) {
+      return 'edit_profile.invalid_name'.tr();
+    }
     return null;
   }
 
@@ -331,17 +340,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (phone.startsWith('0')) phone = phone.substring(1);
     if (!RegExp(r'^(10|11|12|15)[0-9]{8}$').hasMatch(phone)) {
       return 'auth.register.phoneNumberInvalid'.tr();
-    }
-    return null;
-  }
-
-  String? _validateCardNumber(String? value) {
-    final cardNumber = LanguageHelper.convertArabicToEnglishNumerals(
-      (value ?? '').trim(),
-    );
-    if (cardNumber.isEmpty) return null;
-    if (!RegExp(r'^[0-9]{12}$').hasMatch(cardNumber)) {
-      return 'auth.login.cardNumberInvalid'.tr();
     }
     return null;
   }
@@ -403,10 +401,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         onPressed: () => context.pop(),
                       ),
                     ),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50.h,
-                    ),
+                    SizedBox(width: double.infinity, height: 50.h),
                     Positioned(
                       bottom: 0,
                       child: _buildOverlappingProfileImage(),
@@ -455,18 +450,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                       SizedBox(height: 14.h),
 
-                      // Card Number — optional; the backend does not update it
-                      _FieldLabel('edit_profile.card_number'.tr()),
-                      _buildTextField(
-                        controller: _cardNumberController,
-                        hintText: 'edit_profile.card_number'.tr(),
-                        required: false,
-                        keyboardType: TextInputType.number,
-                        maxLength: 12,
-                        inputFormatters: [_digitsOnly(maxDigits: 12)],
-                        validator: _validateCardNumber,
+                      // Card Number — read-only; shown only when returned by the backend
+                      if ((widget.profileData.cardNumber ?? '')
+                          .trim()
+                          .isNotEmpty) ...[
+                        _FieldLabel('edit_profile.card_number'.tr()),
+                        _buildTextField(
+                          controller: _cardNumberController,
+                          hintText: 'edit_profile.card_number'.tr(),
+                          required: false,
+                          readOnly: true,
+                        ),
+                        SizedBox(height: 14.h),
+                      ],
+
+                      _buildRequiredHint(
+                        'auth.register.nationalIdOrPassportRequired'.tr(),
                       ),
-                      SizedBox(height: 14.h),
+                      SizedBox(height: 10.h),
 
                       // Passport Number
                       _FieldLabel('edit_profile.passport_number'.tr()),
@@ -620,9 +621,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> _saveProfile() async {
     if (_isSaving) return;
     if (!_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('errors.validation_failed'.tr())),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('errors.validation_failed'.tr())));
       return;
     }
 
@@ -754,11 +755,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 ],
               ),
-              child: Icon(
-                Icons.edit_outlined,
-                size: 18.sp,
-                color: kAuthBlue,
-              ),
+              child: Icon(Icons.edit_outlined, size: 18.sp, color: kAuthBlue),
             ),
           ),
         ),
@@ -888,6 +885,33 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           _isMale = val;
         });
       },
+    );
+  }
+
+  Widget _buildRequiredHint(String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '*',
+          style: TextStyle(
+            fontSize: 13.sp,
+            color: Colors.red,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        SizedBox(width: 4.w),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 12.sp,
+              color: Colors.grey.shade600,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

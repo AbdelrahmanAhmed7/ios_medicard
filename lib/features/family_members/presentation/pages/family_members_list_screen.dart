@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -115,12 +114,16 @@ class _FamilyMembersListScreenState extends State<FamilyMembersListScreen> {
                         onPressed: () {
                           if (members.length >= kMaxFamilyMembers) {
                             showWarningToast(
-                              'family_members.max_limit_reached'
-                                  .tr(args: ['$kMaxFamilyMembers']),
+                              'family_members.max_limit_reached'.tr(
+                                args: ['$kMaxFamilyMembers'],
+                              ),
                             );
                             return;
                           }
-                          context.push('/family-members/add');
+                          context.push(
+                            '/family-members/add',
+                            extra: context.read<FamilyMembersCubit>(),
+                          );
                         },
                       ),
                     ),
@@ -195,7 +198,13 @@ class _FamilyMemberListItem extends StatelessWidget {
               IconButton(
                 icon: Icon(Icons.edit_outlined, color: Colors.grey),
                 onPressed: () {
-                  context.push('/family-members/edit', extra: member);
+                  context.push(
+                    '/family-members/edit',
+                    extra: {
+                      'member': member,
+                      'cubit': context.read<FamilyMembersCubit>(),
+                    },
+                  );
                 },
               ),
               IconButton(
@@ -243,24 +252,28 @@ class _FamilyMemberListItem extends StatelessWidget {
   Widget _buildAvatar(String? imageUrl) {
     if (imageUrl != null && imageUrl.isNotEmpty) {
       return ClipOval(
-        child: CachedNetworkImage(
-          imageUrl: imageUrl,
+        child: Image.network(
+          imageUrl,
           width: 48.r,
           height: 48.r,
           fit: BoxFit.cover,
-          placeholder: (context, url) => CircleAvatar(
-            radius: 24.r,
-            backgroundColor: Colors.grey.shade200,
-            child: const CircularProgressIndicator(),
-          ),
-          errorWidget: (context, url, error) => CircleAvatar(
-            radius: 24.r,
-            backgroundColor: Colors.grey.shade200,
-            child: Icon(Icons.person, color: Colors.grey, size: 24.sp),
-          ),
+          errorBuilder: (context, error, stackTrace) =>
+              _buildPlaceholderAvatar(),
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return CircleAvatar(
+              radius: 24.r,
+              backgroundColor: Colors.grey.shade200,
+              child: const CircularProgressIndicator(),
+            );
+          },
         ),
       );
     }
+    return _buildPlaceholderAvatar();
+  }
+
+  Widget _buildPlaceholderAvatar() {
     return CircleAvatar(
       radius: 24.r,
       backgroundColor: Colors.grey.shade200,

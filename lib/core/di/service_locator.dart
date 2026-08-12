@@ -264,7 +264,7 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory<ECardCubit>(() => ECardCubit(sl()));
   sl.registerFactory<ChangePasswordCubit>(() => ChangePasswordCubit(sl()));
   sl.registerFactory<ContentCubit>(() => ContentCubit(sl()));
-  sl.registerLazySingleton<FamilyMembersCubit>(() => FamilyMembersCubit(sl()));
+  sl.registerFactory<FamilyMembersCubit>(() => FamilyMembersCubit(sl()));
   sl.registerFactory<GuestHomeCubit>(() => GuestHomeCubit(sl(), sl()));
 
   // Search cubits

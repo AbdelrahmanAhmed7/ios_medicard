@@ -306,7 +306,11 @@ class _ActivateCardBanner extends StatelessWidget {
                   color: kAuthBlue,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.credit_card, color: Colors.white, size: 22.sp),
+                child: Icon(
+                  Icons.credit_card,
+                  color: Colors.white,
+                  size: 22.sp,
+                ),
               ),
               SizedBox(width: 14.w),
               Expanded(
@@ -333,11 +337,7 @@ class _ActivateCardBanner extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: kAuthBlue,
-                size: 22.sp,
-              ),
+              Icon(Icons.chevron_right_rounded, color: kAuthBlue, size: 22.sp),
             ],
           ),
         ),
@@ -375,6 +375,7 @@ class _CardNumberInputSheet extends StatefulWidget {
 }
 
 class _CardNumberInputSheetState extends State<_CardNumberInputSheet> {
+  final _formKey = GlobalKey<FormState>();
   final _controller = TextEditingController();
 
   @override
@@ -384,9 +385,17 @@ class _CardNumberInputSheetState extends State<_CardNumberInputSheet> {
   }
 
   void _submit() {
-    final value = _controller.text.trim();
-    if (value.isEmpty) return;
-    Navigator.of(context).pop(value);
+    if (!_formKey.currentState!.validate()) return;
+    Navigator.of(context).pop(_controller.text.trim());
+  }
+
+  String? _validateCardNumber(String? value) {
+    final cardNumber = value?.trim() ?? '';
+    if (cardNumber.isEmpty) return 'auth.login.cardNumberRequired'.tr();
+    if (!RegExp(r'^[0-9]{12}$').hasMatch(cardNumber)) {
+      return 'auth.login.cardNumberInvalid'.tr();
+    }
+    return null;
   }
 
   @override
@@ -440,32 +449,48 @@ class _CardNumberInputSheetState extends State<_CardNumberInputSheet> {
               ),
             ),
             SizedBox(height: 20.h),
-            TextField(
-              controller: _controller,
-              autofocus: true,
-              keyboardType: TextInputType.number,
-              maxLength: 16,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: InputDecoration(
-                labelText: 'profile.card_number'.tr(),
-                hintText: 'profile.card_number_hint'.tr(),
-                counterText: '',
-                filled: true,
-                fillColor: const Color(0xFFF9FAFB),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                  borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+            Form(
+              key: _formKey,
+              child: TextFormField(
+                controller: _controller,
+                autofocus: true,
+                keyboardType: TextInputType.number,
+                maxLength: 12,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(12),
+                ],
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                decoration: InputDecoration(
+                  labelText: 'profile.card_number'.tr(),
+                  hintText: 'profile.card_number_hint'.tr(),
+                  counterText: '',
+                  filled: true,
+                  fillColor: const Color(0xFFF9FAFB),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                    borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                    borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                    borderSide: const BorderSide(color: kAuthBlue, width: 1.5),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                    borderSide: const BorderSide(color: Colors.red),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                    borderSide: const BorderSide(color: Colors.red, width: 1.5),
+                  ),
                 ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                  borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                  borderSide: const BorderSide(color: kAuthBlue, width: 1.5),
-                ),
+                validator: _validateCardNumber,
+                onFieldSubmitted: (_) => _submit(),
               ),
-              onSubmitted: (_) => _submit(),
             ),
             SizedBox(height: 16.h),
             SizedBox(
@@ -505,7 +530,10 @@ class _CardNumberInputSheetState extends State<_CardNumberInputSheet> {
                 ),
                 child: Text(
                   'common.cancel'.tr(),
-                  style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),

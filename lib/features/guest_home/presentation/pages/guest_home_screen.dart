@@ -98,7 +98,7 @@ class _GuestHomeScreenState extends State<GuestHomeScreen> {
       slivers: [
         const SliverToBoxAdapter(child: _GuestHomeHeader()),
         SliverToBoxAdapter(
-          child: QuickActionsRow(actions: HomeMockData.quickActions),
+          child: QuickActionsRow(actions: HomeMockData.guestQuickActions),
         ),
         if (banners.isNotEmpty) ...[
           SliverToBoxAdapter(child: PromoBannerWidget(banners: banners)),
@@ -129,7 +129,7 @@ class _GuestHomeHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Welcome to Medicard',
+                  'guest_home.welcome_title'.tr(),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -193,10 +193,7 @@ class _GuestHomeSuccessContent extends StatelessWidget {
           FeaturedServicesSection(
             services: packages,
             onViewAll: () {
-              context.push(
-                '/search/services',
-                extra: {'enableCartFeatures': false},
-              );
+              context.go('/medicard-login');
             },
           ),
       ],

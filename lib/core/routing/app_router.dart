@@ -401,8 +401,8 @@ class AppRouter {
         GoRoute(
           path: '/family-members',
           builder: (context, state) {
-            return BlocProvider.value(
-              value: sl<FamilyMembersCubit>(),
+            return BlocProvider(
+              create: (_) => sl<FamilyMembersCubit>(),
               child: const FamilyMembersListScreen(),
             );
           },
@@ -410,8 +410,15 @@ class AppRouter {
         GoRoute(
           path: '/family-members/add',
           builder: (context, state) {
+            final cubit = state.extra as FamilyMembersCubit?;
+            if (cubit == null) {
+              return BlocProvider(
+                create: (_) => sl<FamilyMembersCubit>(),
+                child: const AddEditFamilyMemberScreen(),
+              );
+            }
             return BlocProvider.value(
-              value: sl<FamilyMembersCubit>(),
+              value: cubit,
               child: const AddEditFamilyMemberScreen(),
             );
           },
@@ -419,9 +426,21 @@ class AppRouter {
         GoRoute(
           path: '/family-members/edit',
           builder: (context, state) {
-            final member = state.extra as FamilyMemberModel;
+            final extra = state.extra;
+            final member = extra is Map<String, dynamic>
+                ? extra['member'] as FamilyMemberModel
+                : extra as FamilyMemberModel;
+            final cubit = extra is Map<String, dynamic>
+                ? extra['cubit'] as FamilyMembersCubit?
+                : null;
+            if (cubit == null) {
+              return BlocProvider(
+                create: (_) => sl<FamilyMembersCubit>(),
+                child: AddEditFamilyMemberScreen(member: member),
+              );
+            }
             return BlocProvider.value(
-              value: sl<FamilyMembersCubit>(),
+              value: cubit,
               child: AddEditFamilyMemberScreen(member: member),
             );
           },

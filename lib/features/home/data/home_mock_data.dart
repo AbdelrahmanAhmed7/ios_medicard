@@ -31,6 +31,14 @@ class HomeMockData {
     QuickAction(labelKey: 'home.providers', assetPath: 'assets/home/3.png'),
   ];
 
+  static const List<QuickAction> guestQuickActions = [
+    QuickAction(
+      labelKey: 'home.upload_prescription',
+      assetPath: 'assets/home/1.png',
+    ),
+    QuickAction(labelKey: 'home.providers', assetPath: 'assets/home/3.png'),
+  ];
+
   static const List<PromoBanner> promoBanners = [
     PromoBanner(imageUrl: '', providerLogoUrl: '', title: '', subtitle: ''),
   ];

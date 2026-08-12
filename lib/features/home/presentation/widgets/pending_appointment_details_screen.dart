@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/utils/app_date_formatter.dart';
 import '../../../../core/widgets/app_blue_header.dart';
 import '../../domain/models/appointment_model.dart';
 
@@ -79,7 +80,10 @@ class PendingAppointmentDetailsScreen extends StatelessWidget {
                       if (hasDate)
                         _InfoRow(
                           label: 'activity.date'.tr(),
-                          value: appointment.date,
+                          value: AppDateFormatter.formatDateTime(
+                            appointment.date,
+                            context.locale.languageCode,
+                          ),
                         ),
                       if (hasDate && hasService)
                         const Divider(height: 1, color: Color(0xFFD5D5D5)),

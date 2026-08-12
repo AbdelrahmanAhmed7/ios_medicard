@@ -22,19 +22,26 @@ class ActivateCardRepositoryImpl implements ActivateCardRepository {
           )
           .timeout(const Duration(seconds: 30));
 
-      final decodedResponse = ActivateCardResponseModel.fromJson(
-        json.decode(response.body),
-      );
+      final decodedJson = json.decode(response.body);
+      if (decodedJson is! Map<String, dynamic>) {
+        return Left(_backendMessageFrom(decodedJson) ?? parseApiError(''));
+      }
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        return Left(_backendMessageFrom(decodedJson) ?? parseApiError(''));
+      }
+
+      if (decodedJson['succeeded'] == false) {
+        return Left(_backendMessageFrom(decodedJson) ?? parseApiError(''));
+      }
+
+      final decodedResponse = ActivateCardResponseModel.fromJson(decodedJson);
 
       if (decodedResponse.succeeded) {
         return Right(decodedResponse);
       } else {
-        final errors = decodedResponse.errors;
-        final errorsList = (errors is List && errors.isNotEmpty)
-            ? errors.map((e) => e.toString()).join('\n')
-            : null;
         final errorMessage =
-            errorsList ??
+            _backendMessageFrom(decodedJson) ??
             (decodedResponse.message.isNotEmpty
                 ? decodedResponse.message
                 : parseApiError(''));
@@ -43,5 +50,51 @@ class ActivateCardRepositoryImpl implements ActivateCardRepository {
     } catch (e) {
       return Left(parseApiError(e));
     }
+  }
+
+  String? _backendMessageFrom(dynamic value) {
+    final message = _extractBackendMessages(value);
+    return message.isEmpty ? null : message;
+  }
+
+  String _extractBackendMessages(dynamic value) {
+    if (value == null) return '';
+    if (value is String) return value.trim();
+    if (value is num || value is bool) return value.toString();
+
+    if (value is Iterable) {
+      return value
+          .map(_extractBackendMessages)
+          .where((message) => message.isNotEmpty)
+          .join('\n');
+    }
+
+    if (value is Map) {
+      const preferredKeys = [
+        'errors',
+        'message',
+        'Message',
+        'title',
+        'Title',
+        'detail',
+        'Detail',
+        'error',
+        'Error',
+      ];
+
+      final preferredMessages = preferredKeys
+          .where(value.containsKey)
+          .map((key) => _extractBackendMessages(value[key]))
+          .where((message) => message.isNotEmpty)
+          .join('\n');
+      if (preferredMessages.isNotEmpty) return preferredMessages;
+
+      return value.values
+          .map(_extractBackendMessages)
+          .where((message) => message.isNotEmpty)
+          .join('\n');
+    }
+
+    return value.toString().trim();
   }
 }

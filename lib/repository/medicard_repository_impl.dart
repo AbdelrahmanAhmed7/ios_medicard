@@ -427,19 +427,69 @@ class MedicardRepositoryImpl implements MedicardRepository {
       }
       return (response.succeeded == true)
           ? ApiResult.success(response)
-          : ApiResult.failure(
-              (response.errors != null && response.errors!.isNotEmpty)
-                  ? response.errors!.join('\n')
-                  : response.message?.isNotEmpty == true
-                  ? response.message!
-                  : 'Failed to activate member card.',
-            );
+          : ApiResult.failure(_memberCardActivationBackendMessage(response));
     } catch (error) {
       if (kDebugMode) {
         debugPrint('[ProfileRepository] activate card exception: $error');
       }
-      return ApiResult.failure(parseApiError(error));
+      return ApiResult.failure(_backendMessageFromDio(error));
     }
+  }
+
+  String _memberCardActivationBackendMessage(
+    MemberCardActivationResponseModel response,
+  ) {
+    if (response.errors != null && response.errors!.isNotEmpty) {
+      return response.errors!.join('\n');
+    }
+    if (response.message?.trim().isNotEmpty == true) {
+      return response.message!.trim();
+    }
+    return '';
+  }
+
+  String _backendMessageFromDio(Object error) {
+    if (error is DioException) {
+      final message = _extractBackendMessages(error.response?.data);
+      return message.isEmpty ? '' : message;
+    }
+    return '';
+  }
+
+  String _extractBackendMessages(dynamic value) {
+    if (value == null) return '';
+    if (value is String) return value.trim();
+    if (value is num || value is bool) return value.toString();
+    if (value is Iterable) {
+      return value
+          .map(_extractBackendMessages)
+          .where((message) => message.isNotEmpty)
+          .join('\n');
+    }
+    if (value is Map) {
+      const preferredKeys = [
+        'errors',
+        'message',
+        'Message',
+        'title',
+        'Title',
+        'detail',
+        'Detail',
+        'error',
+        'Error',
+      ];
+      final preferredMessages = preferredKeys
+          .where(value.containsKey)
+          .map((key) => _extractBackendMessages(value[key]))
+          .where((message) => message.isNotEmpty)
+          .join('\n');
+      if (preferredMessages.isNotEmpty) return preferredMessages;
+      return value.values
+          .map(_extractBackendMessages)
+          .where((message) => message.isNotEmpty)
+          .join('\n');
+    }
+    return value.toString().trim();
   }
 
   @override
@@ -563,7 +613,9 @@ class MedicardRepositoryImpl implements MedicardRepository {
             );
     } catch (error) {
       if (kDebugMode) {
-        debugPrint('[ProfileRepository] updateProfileV2 error: ${error.runtimeType} $error');
+        debugPrint(
+          '[ProfileRepository] updateProfileV2 error: ${error.runtimeType} $error',
+        );
       }
       return ApiResult.failure(parseApiError(error));
     }

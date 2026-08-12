@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/utils/app_date_formatter.dart';
 import '../../domain/models/appointment_model.dart';
 
 class PendingAppointmentCard extends StatelessWidget {
@@ -115,7 +116,10 @@ class PendingAppointmentCard extends StatelessWidget {
                         const SizedBox(height: 6),
                       if (appointment.date.isNotEmpty)
                         Text(
-                          appointment.date,
+                          AppDateFormatter.formatDateTimeShort(
+                            appointment.date,
+                            context.locale.languageCode,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(

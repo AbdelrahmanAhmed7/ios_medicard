@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:video_player/video_player.dart';
 
 import 'core/cubit/app_refresh_cubit.dart';
@@ -26,6 +27,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await EasyLocalization.ensureInitialized();
+  await initializeDateFormatting('ar');
+  await initializeDateFormatting('en');
   if (_shouldInitializeFirebase) {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,

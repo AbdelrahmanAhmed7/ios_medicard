@@ -41,13 +41,18 @@ class _SearchScreenState extends State<SearchScreen>
   final ScrollController _scrollController = ScrollController();
   Timer? _debounce;
 
+  /// Guests cannot use services, so when cart features are disabled
+  /// (guest mode) only the providers tab is shown.
+  bool get _showServicesTab => widget.enableCartFeatures;
+
   @override
   void initState() {
     super.initState();
+    final tabCount = _showServicesTab ? 2 : 1;
     _tabController = TabController(
-      length: 2,
+      length: tabCount,
       vsync: this,
-      initialIndex: widget.initialTabIndex.clamp(0, 1),
+      initialIndex: widget.initialTabIndex.clamp(0, tabCount - 1),
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<SearchCubit>().init(
@@ -140,7 +145,7 @@ class _SearchScreenState extends State<SearchScreen>
                 indicatorWeight: 2.5.h,
                 tabs: [
                   Tab(text: 'home.providers'.tr()),
-                  Tab(text: 'home.services'.tr()),
+                  if (_showServicesTab) Tab(text: 'home.services'.tr()),
                 ],
               ),
             ),
@@ -149,7 +154,8 @@ class _SearchScreenState extends State<SearchScreen>
                 controller: _tabController,
                 children: [
                   _ProvidersTab(scrollController: _scrollController),
-                  _ServicesTab(enableCartFeatures: widget.enableCartFeatures),
+                  if (_showServicesTab)
+                    _ServicesTab(enableCartFeatures: widget.enableCartFeatures),
                 ],
               ),
             ),

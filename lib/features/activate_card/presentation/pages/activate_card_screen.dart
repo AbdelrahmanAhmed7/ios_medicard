@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 import '../../../../../core/utils/language_helper.dart';
+import '../../../../../core/auth/auth_session_storage.dart';
+import '../../../../../core/network/dio_factory.dart';
 import '../../data/models/activate_card_request_model.dart';
 import '../../data/repository/activate_card_repository_impl.dart';
 import '../../domain/usecases/activate_card_usecase.dart';
@@ -26,6 +28,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
 
   final _formKey = GlobalKey<FormState>();
   final _nationalIdFieldKey = GlobalKey<FormFieldState<String>>();
+  final _confirmPasswordFieldKey = GlobalKey<FormFieldState<String>>();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _cardNumberController = TextEditingController();
@@ -41,7 +44,14 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
   bool _obscureConfirmPassword = true;
 
   @override
+  void initState() {
+    super.initState();
+    _passwordController.addListener(_onPasswordChanged);
+  }
+
+  @override
   void dispose() {
+    _passwordController.removeListener(_onPasswordChanged);
     _firstNameController.dispose();
     _lastNameController.dispose();
     _cardNumberController.dispose();
@@ -52,6 +62,13 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  void _onPasswordChanged() {
+    if (_confirmPasswordController.text.isNotEmpty) {
+      _confirmPasswordFieldKey.currentState?.validate();
+    }
+    setState(() {});
   }
 
   @override
@@ -67,8 +84,11 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                   ? state.response.message
                   : 'activate_card.success'.tr(),
             );
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) context.go('/medicard-login');
+            WidgetsBinding.instance.addPostFrameCallback((_) async {
+              await const AuthSessionStorage().clearSession();
+              DioFactory.clearTokenFromHeader();
+              if (!mounted) return;
+              this.context.go('/medicard-login');
             });
           } else if (state is ActivateCardError) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -83,7 +103,6 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
             behavior: HitTestBehavior.opaque,
             child: Form(
               key: _formKey,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -196,6 +215,10 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                           SizedBox(height: 16.h),
 
                           // National ID
+                          _buildRequiredHint(
+                            'auth.register.nationalIdOrPassportRequired'.tr(),
+                          ),
+                          SizedBox(height: 10.h),
                           AuthFieldLabel('auth.register.nationalId'.tr()),
                           SizedBox(height: 6.h),
                           _buildTextField(
@@ -230,9 +253,6 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                               ),
                               LengthLimitingTextInputFormatter(20),
                             ],
-                            onChanged: (_) {
-                              _nationalIdFieldKey.currentState?.validate();
-                            },
                             validator: _validatePassportNumber,
                           ),
                           SizedBox(height: 16.h),
@@ -254,12 +274,15 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                               () => _obscurePassword = !_obscurePassword,
                             ),
                           ),
+                          SizedBox(height: 10.h),
+                          _buildPasswordRequirements(),
                           SizedBox(height: 16.h),
 
                           // Confirm Password
                           AuthFieldLabel('auth.register.confirmPassword'.tr()),
                           SizedBox(height: 6.h),
                           _buildPasswordField(
+                            fieldKey: _confirmPasswordFieldKey,
                             controller: _confirmPasswordController,
                             hintText: '••••••••',
                             obscure: _obscureConfirmPassword,
@@ -268,10 +291,12 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                                   !_obscureConfirmPassword,
                             ),
                             validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'common.this_field_required'.tr();
+                              final confirmPassword = _normalize(value ?? '');
+                              if (confirmPassword.isEmpty) {
+                                return 'auth.register.confirmPasswordRequired'
+                                    .tr();
                               }
-                              if (_normalize(value) !=
+                              if (confirmPassword !=
                                   _normalize(_passwordController.text)) {
                                 return 'auth.register.passwordsNotMatch'.tr();
                               }
@@ -297,47 +322,44 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                                   context
                                       .read<ActivateCardCubit>()
                                       .activateCard(
-                                          ActivateCardRequestModel(
-                                            firstName: _normalize(
-                                              _firstNameController.text,
-                                            ),
-                                            lastName: _normalize(
-                                              _lastNameController.text,
-                                            ),
-                                            cardNumber: _normalize(
-                                              _cardNumberController.text,
-                                            ),
-                                            isMale: _isMale,
-                                            phoneNumber: _normalize(
-                                              _phoneNumberController.text,
-                                            ),
-                                            birthDate:
-                                                _birthDateController.text,
-                                            password: _normalize(
-                                              _passwordController.text,
-                                            ),
-                                            confirmPassword: _normalize(
-                                              _confirmPasswordController.text,
-                                            ),
-                                            nationalId:
-                                                _nationalIdController
-                                                    .text
-                                                    .isEmpty
-                                                ? null
-                                                : _normalize(
-                                                    _nationalIdController.text,
-                                                  ),
-                                            passportNumber:
-                                                _passportNumberController
-                                                    .text
-                                                    .isEmpty
-                                                ? null
-                                                : _normalize(
-                                                    _passportNumberController
-                                                        .text,
-                                                  ),
+                                        ActivateCardRequestModel(
+                                          firstName: _normalize(
+                                            _firstNameController.text,
                                           ),
-                                        );
+                                          lastName: _normalize(
+                                            _lastNameController.text,
+                                          ),
+                                          cardNumber: _normalize(
+                                            _cardNumberController.text,
+                                          ),
+                                          isMale: _isMale,
+                                          phoneNumber: _normalize(
+                                            _phoneNumberController.text,
+                                          ),
+                                          birthDate: _birthDateController.text,
+                                          password: _normalize(
+                                            _passwordController.text,
+                                          ),
+                                          confirmPassword: _normalize(
+                                            _confirmPasswordController.text,
+                                          ),
+                                          nationalId:
+                                              _nationalIdController.text.isEmpty
+                                              ? null
+                                              : _normalize(
+                                                  _nationalIdController.text,
+                                                ),
+                                          passportNumber:
+                                              _passportNumberController
+                                                  .text
+                                                  .isEmpty
+                                              ? null
+                                              : _normalize(
+                                                  _passportNumberController
+                                                      .text,
+                                                ),
+                                        ),
+                                      );
                                 },
                               );
                             },
@@ -369,7 +391,10 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 32.h),
+                          SizedBox(
+                            height:
+                                MediaQuery.viewPaddingOf(context).bottom + 32.h,
+                          ),
                         ],
                       ),
                     ),
@@ -386,6 +411,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
   // ── Text Field ──────────────────────────────────────────────────────────────
 
   Widget _buildTextField({
+    Key? fieldKey,
     required TextEditingController controller,
     required String hintText,
     TextInputType? keyboardType,
@@ -397,7 +423,9 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
     ValueChanged<String>? onChanged,
   }) {
     return TextFormField(
-      key: controller == _nationalIdController ? _nationalIdFieldKey : null,
+      key:
+          fieldKey ??
+          (controller == _nationalIdController ? _nationalIdFieldKey : null),
       controller: controller,
       keyboardType: keyboardType,
       textCapitalization: textCapitalization,
@@ -425,6 +453,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
   // ── Password Field ──────────────────────────────────────────────────────────
 
   Widget _buildPasswordField({
+    Key? fieldKey,
     required TextEditingController controller,
     required String hintText,
     required bool obscure,
@@ -432,6 +461,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
     String? Function(String?)? validator,
   }) {
     return TextFormField(
+      key: fieldKey,
       controller: controller,
       obscureText: obscure,
       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -463,6 +493,111 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
   }
 
   // ── Birth Date Picker ───────────────────────────────────────────────────────
+
+  Widget _buildPasswordRequirements() {
+    final password = _normalize(_passwordController.text);
+    final showInvalidRequirements = password.isNotEmpty;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'auth.register.passwordRequirementsTitle'.tr(),
+          style: TextStyle(
+            fontSize: 12.sp,
+            color: kAuthGreyText,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        SizedBox(height: 6.h),
+        _buildPasswordRequirement(
+          label: 'auth.register.passwordMinLength'.tr(
+            namedArgs: {'count': _passwordMinLength.toString()},
+          ),
+          isMet: _hasMinimumLength(password),
+          showInvalid: showInvalidRequirements,
+        ),
+        _buildPasswordRequirement(
+          label: 'auth.register.passwordLetter'.tr(),
+          isMet: _hasLetter(password),
+          showInvalid: showInvalidRequirements,
+        ),
+        _buildPasswordRequirement(
+          label: 'auth.register.passwordNumber'.tr(),
+          isMet: _hasNumber(password),
+          showInvalid: showInvalidRequirements,
+        ),
+        _buildPasswordRequirement(
+          label: 'auth.register.passwordSpecialCharacter'.tr(),
+          isMet: _hasSpecialCharacter(password),
+          showInvalid: showInvalidRequirements,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPasswordRequirement({
+    required String label,
+    required bool isMet,
+    required bool showInvalid,
+  }) {
+    final color = isMet
+        ? Colors.green
+        : showInvalid
+        ? Colors.red
+        : kAuthGreyText;
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: 4.h),
+      child: Row(
+        children: [
+          Icon(
+            isMet ? Icons.check_circle : Icons.radio_button_unchecked,
+            size: 14.sp,
+            color: color,
+          ),
+          SizedBox(width: 6.w),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: color,
+                fontWeight: isMet ? FontWeight.w600 : FontWeight.w400,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRequiredHint(String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '*',
+          style: TextStyle(
+            fontSize: 13.sp,
+            color: Colors.red,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        SizedBox(width: 4.w),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 12.sp,
+              color: kAuthGreyText,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
   Widget _buildBirthDatePicker(BuildContext context) {
     return TextFormField(
@@ -569,21 +704,10 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
           ? 'auth.register.nationalIdOrPassportRequired'.tr()
           : null;
     }
-    if (!_isValidNationalId(nationalId)) {
+    if (!RegExp(r'^[0-9]{14}$').hasMatch(nationalId)) {
       return 'auth.register.nationalIdInvalid'.tr();
     }
     return null;
-  }
-
-  bool _isValidNationalId(String nationalId) {
-    if (!RegExp(r'^[0-9]{14}$').hasMatch(nationalId)) return false;
-    final century = nationalId[0];
-    if (century != '2' && century != '3') return false;
-    final month = int.tryParse(nationalId.substring(3, 5));
-    if (month == null || month < 1 || month > 12) return false;
-    final day = int.tryParse(nationalId.substring(5, 7));
-    if (day == null || day < 1 || day > 31) return false;
-    return true;
   }
 
   String? _validatePassportNumber(String? value) {
@@ -596,11 +720,21 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
   }
 
   bool _isPasswordValid(String password) {
-    return password.length >= _passwordMinLength &&
-        RegExp(r'[A-Za-z]').hasMatch(password) &&
-        RegExp(r'[0-9]').hasMatch(password) &&
-        RegExp(r'[!@#\$%^&*(),.?":{}|<>_\-+=\[\]\\;/`~]').hasMatch(password);
+    return _hasMinimumLength(password) &&
+        _hasLetter(password) &&
+        _hasNumber(password) &&
+        _hasSpecialCharacter(password);
   }
+
+  bool _hasMinimumLength(String password) =>
+      password.length >= _passwordMinLength;
+
+  bool _hasLetter(String password) => RegExp(r'[A-Za-z]').hasMatch(password);
+
+  bool _hasNumber(String password) => RegExp(r'[0-9]').hasMatch(password);
+
+  bool _hasSpecialCharacter(String password) =>
+      RegExp(r'[!@#\$%^&*(),.?":{}|<>_\-+=\[\]\\;/`~]').hasMatch(password);
 
   String _normalize(String value) {
     return LanguageHelper.convertArabicToEnglishNumerals(value.trim());

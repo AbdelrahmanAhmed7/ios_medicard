@@ -138,10 +138,10 @@
   "search": {
     "filter": "تصفية",
     "reset": "إعادة ضبط",
-    "apply_filters": "تطبيق الفلاتر",
+    "apply_filters": "تطبيق الفلتر",
     "no_services_found": "لا توجد خدمات",
     "no_providers_found": "لا يوجد مقدمو خدمة",
-    "try_different_keyword": "جرّب كلمة بحث مختلفة أو امسح الفلاتر."
+    "try_different_keyword": "جرّب كلمة بحث مختلفة أو امسح الفلتر."
   },
   "errors": {
     "something_went_wrong": "تعذر إكمال الطلب حالياً. يرجى المحاولة بعد قليل.",
@@ -286,6 +286,7 @@
     "nav_profile": "حسابي"
   },
   "guest_home": {
+    "welcome_title": "مرحباً بك في ميديكارد",
     "explore_health_services": "استكشف الخدمات الصحية"
   },
   "sort_filter": {
@@ -351,6 +352,8 @@
     "title": "السلة",
     "view_cart": "عرض السلة",
     "choose_provider": "اختر مقدم الخدمة",
+    "confirm_provider": "تأكيد مقدم الخدمة",
+    "failed_to_update_provider": "تعذر تحديث مقدم الخدمة",
     "providers_available": "{} مقدم خدمة متاح",
     "no_providers_available": "لا يوجد مقدمو خدمة متاحون لعناصر السلة.",
     "checkout": "الدفع",

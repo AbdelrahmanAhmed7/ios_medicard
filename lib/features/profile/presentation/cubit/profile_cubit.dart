@@ -68,7 +68,10 @@ class ProfileCubit extends Cubit<ProfileState> {
     if (isClosed) return;
     // Don't flash loading shimmer when called after an update — the ProfileContent
     // is already visible with the current data. Only show loading on a cold fetch.
-    final isUpdating = state.maybeWhen(updating: (_) => true, orElse: () => false);
+    final isUpdating = state.maybeWhen(
+      updating: (_) => true,
+      orElse: () => false,
+    );
     if (!isUpdating) {
       emit(const ProfileState.loading());
     }
@@ -193,7 +196,9 @@ class ProfileCubit extends Cubit<ProfileState> {
         failure: (message) => message,
       );
       if (failure != null) {
-        showErrorToast(failure);
+        if (failure.trim().isNotEmpty) {
+          showErrorToast(failure);
+        }
         if (!isClosed) emit(ProfileState.success(currentData));
         return false;
       }
@@ -203,7 +208,10 @@ class ProfileCubit extends Cubit<ProfileState> {
       return true;
     } catch (e) {
       if (isClosed) return false;
-      showErrorToast(parseApiError(e));
+      final message = parseApiError(e);
+      if (message.trim().isNotEmpty) {
+        showErrorToast(message);
+      }
       if (!isClosed) emit(ProfileState.success(currentData));
       return false;
     }

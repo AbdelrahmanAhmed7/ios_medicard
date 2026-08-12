@@ -160,8 +160,6 @@ class _ProviderCard extends StatelessWidget {
                           color: const Color(0xFF0F172A),
                         ),
                       ),
-                      SizedBox(height: 4.h),
-                      _CoverageLine(provider: provider),
                     ],
                   ),
                 ),
@@ -198,158 +196,37 @@ class _ProviderCard extends StatelessWidget {
 
             // ── Price row ────────────────────────────────────────────────────
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
               children: [
-                // Covered / uncovered badge
-                _CoverageBadge(provider: provider),
-
-                // Prices
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: [
-                    Text(
-                      '${provider.totalPriceBefore.toStringAsFixed(0)} EGP',
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: const Color(0xFF94A3B8),
-                        decoration: TextDecoration.lineThrough,
-                      ),
-                    ),
-                    SizedBox(width: 6.w),
-                    Text(
-                      '${provider.totalPriceAfter.toStringAsFixed(0)} EGP',
-                      style: TextStyle(
-                        fontSize: 17.sp,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF3872B1),
-                      ),
-                    ),
-                  ],
+                Text(
+                  'cart.egp_amount'.tr(
+                    args: [
+                      provider.totalPriceBefore.toStringAsFixed(0),
+                    ],
+                  ),
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: const Color(0xFF94A3B8),
+                    decoration: TextDecoration.lineThrough,
+                  ),
+                ),
+                SizedBox(width: 6.w),
+                Text(
+                  'cart.egp_amount'.tr(
+                    args: [provider.totalPriceAfter.toStringAsFixed(0)],
+                  ),
+                  style: TextStyle(
+                    fontSize: 17.sp,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF3872B1),
+                  ),
                 ),
               ],
             ),
-
-            // ── Uncovered warning ─────────────────────────────────────────────
-            if (!provider.coversAll) ...[
-              SizedBox(height: 10.h),
-              _UncoveredWarning(provider: provider),
-            ],
           ],
         ),
-      ),
-    );
-  }
-}
-
-// ─── Coverage line (small subtitle) ──────────────────────────────────────────
-
-class _CoverageLine extends StatelessWidget {
-  final ProviderOption provider;
-  const _CoverageLine({required this.provider});
-
-  @override
-  Widget build(BuildContext context) {
-    if (provider.coversAll) {
-      return Text(
-        'Covers all ${provider.totalCount} services',
-        style: TextStyle(fontSize: 13.sp, color: const Color(0xFF22C55E)),
-      );
-    }
-    return Text(
-      'Covers ${provider.coveredCount} of ${provider.totalCount} services',
-      style: TextStyle(fontSize: 13.sp, color: const Color(0xFFF97316)),
-    );
-  }
-}
-
-// ─── Coverage badge ───────────────────────────────────────────────────────────
-
-class _CoverageBadge extends StatelessWidget {
-  final ProviderOption provider;
-  const _CoverageBadge({required this.provider});
-
-  @override
-  Widget build(BuildContext context) {
-    if (provider.coversAll) {
-      return _badge(
-        'Full coverage',
-        const Color(0xFFDCFCE7),
-        const Color(0xFF16A34A),
-      );
-    }
-    return _badge(
-      '${provider.uncoveredCount} not available',
-      const Color(0xFFFEF3C7),
-      const Color(0xFFD97706),
-    );
-  }
-
-  Widget _badge(String text, Color bg, Color fg) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(20.r),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 12.sp,
-          fontWeight: FontWeight.w600,
-          color: fg,
-        ),
-      ),
-    );
-  }
-}
-
-// ─── Uncovered services warning ───────────────────────────────────────────────
-
-class _UncoveredWarning extends StatelessWidget {
-  final ProviderOption provider;
-  const _UncoveredWarning({required this.provider});
-
-  @override
-  Widget build(BuildContext context) {
-    final names = provider.uncoveredServices
-        .map((s) => s.serviceName)
-        .join(', ');
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFF7ED),
-        borderRadius: BorderRadius.circular(10.r),
-        border: Border.all(color: const Color(0xFFFED7AA)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            Icons.info_outline_rounded,
-            size: 15.sp,
-            color: const Color(0xFFF97316),
-          ),
-          SizedBox(width: 6.w),
-          Expanded(
-            child: RichText(
-              text: TextSpan(
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  color: const Color(0xFFC2410C),
-                ),
-                children: [
-                  const TextSpan(text: 'Not available here: '),
-                  TextSpan(
-                    text: names,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -390,7 +267,9 @@ class _ChooseProviderBottomBar extends StatelessWidget {
                 ),
               ),
               Text(
-                '${provider.totalPriceAfter.toStringAsFixed(0)} EGP',
+                'cart.egp_amount'.tr(
+                  args: [provider.totalPriceAfter.toStringAsFixed(0)],
+                ),
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.bold,
@@ -428,10 +307,11 @@ class _ChooseProviderBottomBar extends StatelessWidget {
                                   .assignProviderError;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text(
-                                    error ?? 'Failed to update provider.',
+                                    content: Text(
+                                      error ??
+                                          'cart.failed_to_update_provider'.tr(),
+                                    ),
                                   ),
-                                ),
                               );
                             }
                           }
@@ -454,7 +334,7 @@ class _ChooseProviderBottomBar extends StatelessWidget {
                           ),
                         )
                       : Text(
-                          'Confirm Provider',
+                          'cart.confirm_provider'.tr(),
                           style: TextStyle(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.w600,
