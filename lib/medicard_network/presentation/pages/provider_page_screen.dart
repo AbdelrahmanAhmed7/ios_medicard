@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/auth/auth_session_storage.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/services/url_launcher_service.dart';
+import '../../../../core/theming/app_toast.dart';
 import '../../../../core/utils/error_state_widget.dart';
 import '../../../../core/widgets/app_blue_header.dart';
 import '../../../../network/data/provider_page_response_model.dart';
@@ -72,13 +74,22 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
 
   Widget _buildViewCartBar(BuildContext context, ProviderPageState state) {
     return GestureDetector(
-      onTap: () => context.push(
-        '/cart',
-        extra: {
-          'providerId': widget.providerId,
-          'selectedBranch': _selectedBranch,
-        },
-      ),
+      onTap: () async {
+        final token = await sl<AuthSessionStorage>().getAccessToken();
+        if (!context.mounted) return;
+        if (token == null || token.isEmpty) {
+          showWarningToast('auth.please_login_first'.tr());
+          context.push('/medicard-login');
+          return;
+        }
+        context.push(
+          '/cart',
+          extra: {
+            'providerId': widget.providerId,
+            'selectedBranch': _selectedBranch,
+          },
+        );
+      },
       child: Container(
         width: double.infinity,
         margin: EdgeInsets.zero,
@@ -1036,14 +1047,22 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
     _openPackageCheckout(context, cubit.state, packageData);
   }
 
-  void _openPackageCheckout(
+  Future<void> _openPackageCheckout(
     BuildContext context,
     ProviderPageState state,
     ProviderPackage packageData, {
     PackageDetailsData? details,
-  }) {
+  }) async {
     final packageId = details?.id ?? packageData.id;
     if (packageId == null) return;
+
+    final token = await sl<AuthSessionStorage>().getAccessToken();
+    if (!context.mounted) return;
+    if (token == null || token.isEmpty) {
+      showWarningToast('auth.please_login_first'.tr());
+      context.push('/medicard-login');
+      return;
+    }
 
     final branches = state.providerData?.branches;
     final branchId =

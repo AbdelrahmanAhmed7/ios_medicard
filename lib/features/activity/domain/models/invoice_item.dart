@@ -7,7 +7,10 @@ class InvoiceItem {
   final String? providerImageUrl;
 
   /// Returns true when the invoice has been used/consumed.
-  bool get isUsed => status.toLowerCase() == 'used';
+  bool get isUsed {
+    final normalized = status.toLowerCase();
+    return normalized == 'used' || normalized == 'completed';
+  }
 
   const InvoiceItem({
     required this.invoiceId,

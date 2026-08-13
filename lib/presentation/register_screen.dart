@@ -295,7 +295,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             behavior: HitTestBehavior.opaque,
             child: Form(
               key: _formKey,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -354,6 +353,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           RegExp(r"[\p{L} .'\-]", unicode: true),
                                         ),
                                       ],
+                                      autovalidateMode:
+                                          AutovalidateMode.onUserInteraction,
                                       validator: (v) => _validateName(
                                         v,
                                         requiredKey:
@@ -382,6 +383,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           RegExp(r"[\p{L} .'\-]", unicode: true),
                                         ),
                                       ],
+                                      autovalidateMode:
+                                          AutovalidateMode.onUserInteraction,
                                       validator: (v) => _validateName(
                                         v,
                                         requiredKey:
@@ -442,6 +445,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             onToggle: () => setState(
                               () => _obscurePassword = !_obscurePassword,
                             ),
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
                             validator: _validatePassword,
                           ),
                           SizedBox(height: 10.h),

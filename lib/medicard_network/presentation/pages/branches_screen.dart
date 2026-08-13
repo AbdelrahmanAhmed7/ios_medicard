@@ -123,14 +123,6 @@ class BranchesScreen extends StatelessWidget {
                       Icons.search,
                       color: Color(0xFF94A3B8),
                     ),
-                    suffixIcon: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 12.w),
-                      child: Icon(
-                        Icons.tune_rounded,
-                        color: const Color(0xFF2D5FA6),
-                        size: 20.sp,
-                      ),
-                    ),
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(vertical: 10.h),
                   ),

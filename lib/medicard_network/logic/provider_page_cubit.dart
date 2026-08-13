@@ -4,6 +4,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/constants/api_result.dart';
+import '../../core/auth/auth_session_storage.dart';
+import '../../core/di/service_locator.dart';
 import '../../core/theming/app_toast.dart';
 import '../../features/activity/domain/repositories/invoice_repository.dart';
 import '../../features/activity/domain/models/created_invoice.dart';
@@ -27,6 +29,8 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
   List<ProviderService> _fullServices = [];
   int _packagesCurrentPage = 1;
   int _reviewsCurrentPage = 1;
+  int _servicesCurrentPage = 1;
+  int _servicesRequestSeq = 0;
   Timer? _debounceTimer;
   StreamSubscription<CartSyncEvent>? _cartSyncSubscription;
 
@@ -221,39 +225,85 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
 
   Future<void> loadServices({bool reset = false}) async {
     if (isClosed) return;
-    emit(state.copyWith(isServicesLoading: true, resetServicesError: true));
+    final requestSeq = ++_servicesRequestSeq;
+
+    if (reset) {
+      _servicesCurrentPage = 1;
+      _fullServices.clear();
+      emit(
+        state.copyWith(
+          services: const [],
+          fullServices: const [],
+          servicesHasMore: true,
+          isServicesLoadingMore: false,
+          resetServicesError: true,
+        ),
+      );
+    }
+
+    if (!reset) {
+      if (state.isServicesLoading || state.isServicesLoadingMore) return;
+      if (!state.servicesHasMore) return;
+    }
+
+    emit(
+      state.copyWith(
+        isServicesLoading: _servicesCurrentPage == 1,
+        isServicesLoadingMore: _servicesCurrentPage > 1,
+        resetServicesError: true,
+      ),
+    );
 
     final result = await _medicardRepository.getProviderServices(
       providerId: providerId,
       search: state.searchQuery,
-      pageNumber: 1,
+      pageNumber: _servicesCurrentPage,
       pageSize: _pageSize,
     );
 
-    if (isClosed) return;
+    if (isClosed || requestSeq != _servicesRequestSeq) return;
     result.when(
       success: (response) {
-        _fullServices = response.data?.services ?? const [];
+        final newServices =
+            response.data?.services ?? const <ProviderService>[];
+        _fullServices.addAll(newServices);
+        final totalPages = response.data?.totalPages ?? _servicesCurrentPage;
+        final hasMore = _servicesCurrentPage < totalPages;
+        if (hasMore) _servicesCurrentPage++;
+
         emit(
           state.copyWith(
-            fullServices: _fullServices,
-            services: _filterServices(_fullServices, state.searchQuery),
+            fullServices: List<ProviderService>.from(_fullServices),
+            services: List<ProviderService>.from(_fullServices),
+            servicesHasMore: hasMore,
             isServicesLoading: false,
-            resetServicesError: true,
+            isServicesLoadingMore: false,
           ),
         );
       },
       failure: (error) {
-        emit(state.copyWith(servicesError: error, isServicesLoading: false));
+        emit(
+          state.copyWith(
+            servicesError: error,
+            isServicesLoading: false,
+            isServicesLoadingMore: false,
+          ),
+        );
       },
     );
   }
 
-  Future<void> loadMoreServices() async {}
+  Future<void> loadMoreServices() async => loadServices();
   Future<void> selectCategoryTab(int index) async {}
   Future<void> retryTabLoad(int index) async {}
   Future<void> addToCart(int serviceId, {int? categoryId}) async {
     if (isClosed || state.pendingCartActionIds.contains(serviceId)) return;
+
+    final token = await sl<AuthSessionStorage>().getAccessToken();
+    if (token == null || token.isEmpty) {
+      showWarningToast('auth.please_login_first'.tr());
+      return;
+    }
 
     final resolvedCategoryId =
         categoryId ??
@@ -476,11 +526,11 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
         state.copyWith(
           searchQuery: nextQuery,
           resetSearchQuery: query.isEmpty,
-          services: _filterServices(_fullServices, nextQuery),
           packages: _filterPackages(_fullPackages, nextQuery),
           reviews: _filterReviews(_fullReviews, nextQuery),
         ),
       );
+      loadServices(reset: true);
     });
   }
 

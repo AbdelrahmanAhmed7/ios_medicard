@@ -1,5 +1,6 @@
 {
   "auth": {
+    "please_login_first": "برجاء تسجيل الدخول أولاً",
     "welcomeTitle": "مرحباً بك في ميديكارد",
     "register": {
       "title": "إنشاء حساب",
@@ -394,7 +395,11 @@
     "payment_success": "تم الدفع بنجاح",
     "payment_success_message": "تمت عملية الدفع بنجاح.",
     "some_prices_missing": "بعض عناصر السلة لا تحتوي على أسعار بعد. يرجى اختيار مقدمي الخدمة والمحاولة مرة أخرى.",
-    "service_not_available": "هذه الخدمة غير متاحة حالياً. برجاء المحاولة لاحقاً."
+    "service_not_available": "هذه الخدمة غير متاحة حالياً. برجاء المحاولة لاحقاً.",
+    "order_confirmed": "تم تأكيد الطلب",
+    "order_placed_successfully": "تم إرسال الطلب بنجاح",
+    "view_activity": "عرض النشاط",
+    "negative_discount_percent": "- {}%"
   },
   "activity": {
     "pending": "في الانتظار",

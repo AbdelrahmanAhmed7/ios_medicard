@@ -11,7 +11,7 @@ class AppErrorHandler {
   static String messageFromFailure(AppFailure failure) {
     switch (failure.type) {
       case AppFailureType.network:
-        return 'errors.network_error'.tr();
+        return 'errors.no_internet'.tr();
       case AppFailureType.timeout:
       case AppFailureType.connectionTimeout:
       case AppFailureType.transferTimeout:
@@ -46,13 +46,21 @@ class AppErrorHandler {
       }
     }
 
-    if (error.toLowerCase().contains('socketexception') ||
-        error.toLowerCase().contains('network')) {
-      return 'errors.network_error'.tr();
+    final lower = error.toLowerCase();
+    if (lower.contains('socketexception')) {
+      return 'errors.no_internet'.tr();
     }
 
-    if (error.toLowerCase().contains('timeout')) {
+    if (lower.contains('timeout')) {
       return 'errors.timeout_error'.tr();
+    }
+
+    if (lower.contains('no internet') ||
+        lower.contains('no_internet') ||
+        lower.contains('network error') ||
+        lower.contains('could not connect') ||
+        lower.contains('failed host lookup')) {
+      return 'errors.no_internet'.tr();
     }
 
     if (error.contains('401')) {
@@ -73,7 +81,25 @@ class AppErrorHandler {
       return 'errors.server_error'.tr();
     }
 
-    return 'errors.generic_error'.tr();
+    // Technical exception traces should never surface verbatim.
+    if (_isTechnicalMessage(error)) {
+      return 'errors.generic_error'.tr();
+    }
+
+    // Already a friendly (possibly localized) message → keep it as-is.
+    return error.trim().isEmpty ? 'errors.generic_error'.tr() : error;
+  }
+
+  static bool _isTechnicalMessage(String message) {
+    final lower = message.toLowerCase();
+    return lower.contains('exception') ||
+        lower.contains('dioexception') ||
+        lower.contains('error:') ||
+        lower.contains('is not a subtype') ||
+        lower.contains('no such method') ||
+        lower.contains('stack trace') ||
+        lower.contains('status code') ||
+        lower.contains('null check operator');
   }
 
   static String _resolveMessage(Object error) {

@@ -54,14 +54,7 @@ class CardData {
   }
 
   String get formattedCardNumber {
-    final raw = (cardNumber ?? '').replaceAll(RegExp(r'\s+'), '');
-    if (raw.isEmpty) return '';
-    final buffer = StringBuffer();
-    for (var i = 0; i < raw.length; i++) {
-      if (i > 0 && i % 4 == 0) buffer.write(' ');
-      buffer.write(raw[i]);
-    }
-    return buffer.toString();
+    return (cardNumber ?? '').replaceAll(RegExp(r'\s+'), '');
   }
 
   String get formattedExpiry {

@@ -52,7 +52,10 @@ class _CartScreenState extends State<CartScreen> {
                 }
                 if (items.isEmpty) {
                   return _EmptyCartView(
-                    onExplore: () => context.go('/medicard-home'),
+                    onExplore: () => context.go(
+                      '/search/services',
+                      extra: {'enableCartFeatures': true},
+                    ),
                   );
                 }
                 return _CartBody(

@@ -213,6 +213,7 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
             date: DateTime.tryParse(data.date ?? '') ?? DateTime.now(),
             totalBefore: data.totalBefore ?? 0,
             totalAfter: data.totalAfter ?? 0,
+            discountPercentage: data.discountPercentage ?? 0,
             services: (data.items?.items ?? const [])
                 .map(
                   (item) => InvoiceServiceItem(

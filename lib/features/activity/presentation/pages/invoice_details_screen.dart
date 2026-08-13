@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -109,7 +107,7 @@ class _DetailsBody extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                'activity.order_number'.tr(args: ['MC-${details.invoiceId}']),
+                'activity.order_number'.tr(args: ['${details.invoiceId}']),
                 style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700),
               ),
             ),
@@ -136,8 +134,8 @@ class _DetailsBody extends StatelessWidget {
             const Divider(height: 1, color: Color(0xFFD5D5D5)),
             _InfoRow(
               label: 'cart.discount'.tr(),
-              value: 'cart.negative_egp_amount'.tr(
-                args: [_money(math.max(0, details.discount))],
+              value: 'cart.negative_discount_percent'.tr(
+                args: [details.discountPercentage.toStringAsFixed(0)],
               ),
               valueColor: const Color(0xFF10A75A),
             ),

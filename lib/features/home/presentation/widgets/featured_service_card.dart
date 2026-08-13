@@ -3,7 +3,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/constants/api_result.dart';
+import '../../../../core/auth/auth_session_storage.dart';
 import '../../../../core/di/service_locator.dart';
+import '../../../../core/theming/app_toast.dart';
 import '../../../../medicard_network/repository/medicard_network_repository.dart';
 import '../../../../network/data/provider_page_response_model.dart';
 import '../../domain/models/featured_service_model.dart';
@@ -224,9 +226,9 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               elevation: 0,
                             ),
-                            child: const Text(
-                              'Book',
-                              style: TextStyle(
+                            child: Text(
+                              'activity.book'.tr(),
+                              style: const TextStyle(
                                 fontFamily: 'Inter',
                                 fontSize: 11,
                                 fontWeight: FontWeight.w400,
@@ -306,6 +308,13 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
     if (_isBooking) return;
     final packageId = service.packageId;
     if (packageId == null) return;
+
+    final token = await sl<AuthSessionStorage>().getAccessToken();
+    if (!context.mounted) return;
+    if (token == null || token.isEmpty) {
+      showWarningToast('auth.please_login_first'.tr());
+      return;
+    }
 
     _isBooking = true;
     try {

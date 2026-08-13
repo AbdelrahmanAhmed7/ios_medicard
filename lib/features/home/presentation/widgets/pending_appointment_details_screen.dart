@@ -80,10 +80,9 @@ class PendingAppointmentDetailsScreen extends StatelessWidget {
                       if (hasDate)
                         _InfoRow(
                           label: 'activity.date'.tr(),
-                          value: AppDateFormatter.formatDateTime(
-                            appointment.date,
-                            context.locale.languageCode,
-                          ),
+                          value:
+                              '${AppDateFormatter.formatDate(appointment.date, context.locale.languageCode)}\n'
+                              '${AppDateFormatter.formatTime(appointment.date, context.locale.languageCode)}',
                         ),
                       if (hasDate && hasService)
                         const Divider(height: 1, color: Color(0xFFD5D5D5)),

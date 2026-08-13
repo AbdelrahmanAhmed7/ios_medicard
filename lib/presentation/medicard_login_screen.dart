@@ -108,7 +108,6 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
             child: SingleChildScrollView(
               child: Form(
                 key: _formKey,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -236,7 +235,6 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
         FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9\-]')),
         LengthLimitingTextInputFormatter(12),
       ],
-      autovalidateMode: AutovalidateMode.onUserInteraction,
       style: TextStyle(fontSize: 15.sp, color: Colors.black),
       decoration: authInputDecoration(
         hintText: 'auth.login.identifierHint'.tr(),

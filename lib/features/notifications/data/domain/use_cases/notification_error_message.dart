@@ -49,7 +49,7 @@ String? _responseMessage(Object? data) {
 String _failureMessage(AppFailure failure) {
   switch (failure.type) {
     case AppFailureType.network:
-      return 'errors.network_error'.tr();
+      return 'errors.no_internet'.tr();
     case AppFailureType.timeout:
     case AppFailureType.connectionTimeout:
     case AppFailureType.transferTimeout:

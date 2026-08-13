@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -22,7 +23,7 @@ class OrderConfirmedScreen extends StatelessWidget {
       body: Column(
         children: [
           AppBlueHeader(
-            title: 'Order confirmed',
+            title: 'cart.order_confirmed'.tr(),
             bottomRadius: 18,
             onBack: () => context.go('/medicard-home?tab=activity'),
           ),
@@ -38,7 +39,7 @@ class OrderConfirmedScreen extends StatelessWidget {
                 SizedBox(height: 18.h),
                 Center(
                   child: Text(
-                    'Order Placed Successfully',
+                    'cart.order_placed_successfully'.tr(),
                     style: TextStyle(
                       fontSize: 20.sp,
                       fontWeight: FontWeight.w600,
@@ -63,7 +64,7 @@ class OrderConfirmedScreen extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      'View Activity',
+                      'cart.view_activity'.tr(),
                       style: TextStyle(
                         fontSize: 20.sp,
                         fontWeight: FontWeight.w600,
@@ -95,7 +96,7 @@ class _OrderBadge extends StatelessWidget {
         border: Border.all(color: const Color(0xFFBFD9F7)),
       ),
       child: Text(
-        'Order Number #$orderNumber',
+        'activity.order_number'.tr(args: [orderNumber]),
         style: TextStyle(
           fontSize: 12.sp,
           fontWeight: FontWeight.w600,

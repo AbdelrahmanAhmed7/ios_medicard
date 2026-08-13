@@ -1,5 +1,6 @@
 {
   "auth": {
+    "please_login_first": "Please log in first",
     "welcomeTitle": "Welcome to Medicard",
     "register": {
       "title": "Create Account",
@@ -394,7 +395,11 @@
     "payment_success": "Payment Successful",
     "payment_success_message": "Your payment has been completed successfully.",
     "some_prices_missing": "Some cart items are still missing prices. Please choose providers for them and try again.",
-    "service_not_available": "This service is currently unavailable. Please try again later."
+    "service_not_available": "This service is currently unavailable. Please try again later.",
+    "order_confirmed": "Order confirmed",
+    "order_placed_successfully": "Order Placed Successfully",
+    "view_activity": "View Activity",
+    "negative_discount_percent": "- {}%"
   },
   "activity": {
     "pending": "Pending",

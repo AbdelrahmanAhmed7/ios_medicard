@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
@@ -7,6 +8,10 @@ String parseApiError(dynamic error) {
   try {
     if (error is String && error.trim().isNotEmpty) {
       return friendlyApiMessage(error);
+    }
+
+    if (error is SocketException) {
+      return 'errors.no_internet'.tr();
     }
 
     if (error is AppFailure) {
@@ -21,6 +26,20 @@ String parseApiError(dynamic error) {
       final data = error.response?.data;
       final statusCode = error.response?.statusCode;
       final mappedError = error.error;
+
+      // Network-level failures (no internet / unreachable host).
+      if (error.type == DioExceptionType.connectionError ||
+          (error.type == DioExceptionType.unknown &&
+              error.error is SocketException)) {
+        return 'errors.no_internet'.tr();
+      }
+
+      // Timeouts (connection/send/receive) get a specific friendly message.
+      if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.sendTimeout ||
+          error.type == DioExceptionType.receiveTimeout) {
+        return 'errors.timeout_error'.tr();
+      }
 
       // Server errors (>= 500) always fall back to a friendly generic
       // message — the server response body is usually a raw technical message.
@@ -149,7 +168,7 @@ String? _messageForStatusCode(int? statusCode) {
 
 String? _messageForAppFailure(AppFailure failure) {
   return switch (failure.type) {
-    AppFailureType.network => 'errors.network_error'.tr(),
+    AppFailureType.network => 'errors.no_internet'.tr(),
     AppFailureType.timeout ||
     AppFailureType.connectionTimeout ||
     AppFailureType.transferTimeout => 'errors.timeout_error'.tr(),

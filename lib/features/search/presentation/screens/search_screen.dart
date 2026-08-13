@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/theming/app_toast.dart';
 import '../cubit/filter_cubit.dart';
 import '../cubit/search_cubit.dart';
 import '../cubit/search_state.dart';
@@ -663,6 +664,7 @@ class _ServiceCardConnector extends StatelessWidget {
           isPending: isPending,
           onToggle: () {
             if (!context.read<SearchCubit>().enableCartFeatures) {
+              showWarningToast('auth.please_login_first'.tr());
               context.push('/medicard-login');
               return;
             }

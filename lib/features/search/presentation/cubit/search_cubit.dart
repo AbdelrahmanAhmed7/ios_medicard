@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -216,7 +217,7 @@ class SearchCubit extends Cubit<SearchState> {
     if (!_enableCartFeatures) {
       emit(
         state.copyWith(
-          cartActionError: 'Please login to add services to your cart.',
+          cartActionError: 'auth.please_login_first'.tr(),
         ),
       );
       return;
@@ -310,7 +311,7 @@ class SearchCubit extends Cubit<SearchState> {
     if (isClosed) return;
     if (!_enableCartFeatures) {
       emit(
-        state.copyWith(cartActionError: 'Please login to update your cart.'),
+        state.copyWith(cartActionError: 'auth.please_login_first'.tr()),
       );
       return;
     }

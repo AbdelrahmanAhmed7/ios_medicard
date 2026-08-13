@@ -4,6 +4,7 @@ class InvoiceDetails {
   final DateTime date;
   final double totalBefore;
   final double totalAfter;
+  final double discountPercentage;
   final List<InvoiceServiceItem> services;
 
   const InvoiceDetails({
@@ -12,10 +13,9 @@ class InvoiceDetails {
     required this.date,
     required this.totalBefore,
     required this.totalAfter,
+    required this.discountPercentage,
     required this.services,
   });
-
-  double get discount => totalBefore - totalAfter;
 }
 
 class InvoiceServiceItem {

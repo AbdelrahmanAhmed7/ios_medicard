@@ -53,6 +53,36 @@ class AppDateFormatter {
     );
   }
 
+  /// Date only: "28 Jul 2026" / "28 يوليو 2026"
+  static String formatDate(String? value, String? languageCode) {
+    final locale = _localeCode(languageCode);
+    return _safe(
+      value,
+      (date) {
+        try {
+          return DateFormat('dd MMM yyyy', locale).format(date);
+        } catch (_) {
+          return DateFormat('dd/MM/yyyy').format(date);
+        }
+      },
+    );
+  }
+
+  /// Time only: "3:05 PM" / "3:05 م"
+  static String formatTime(String? value, String? languageCode) {
+    final locale = _localeCode(languageCode);
+    return _safe(
+      value,
+      (date) {
+        try {
+          return DateFormat('h:mm a', locale).format(date);
+        } catch (_) {
+          return DateFormat('HH:mm').format(date);
+        }
+      },
+    );
+  }
+
   /// Compact format used in narrow cards:
   /// "28 Jul, 3:05 PM" / "28 يوليو، 3:05 م"
   static String formatDateTimeShort(String? value, String? languageCode) {

@@ -189,13 +189,7 @@ class _GuestHomeSuccessContent extends StatelessWidget {
           ),
           const SizedBox(height: 24),
         ],
-        if (packages.isNotEmpty)
-          FeaturedServicesSection(
-            services: packages,
-            onViewAll: () {
-              context.go('/medicard-login');
-            },
-          ),
+        if (packages.isNotEmpty) FeaturedServicesSection(services: packages),
       ],
     );
   }

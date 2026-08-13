@@ -254,6 +254,8 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                               LengthLimitingTextInputFormatter(20),
                             ],
                             validator: _validatePassportNumber,
+                            onChanged: (_) =>
+                                _nationalIdFieldKey.currentState?.validate(),
                           ),
                           SizedBox(height: 16.h),
 
