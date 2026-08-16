@@ -98,7 +98,7 @@ class _DetailsBody extends StatelessWidget {
       'dd MMM yyyy',
       context.locale.toString(),
     ).format(details.date);
-    final servicesText = _servicesText(context, details.services);
+    final servicesText = _servicesText(details.services);
 
     return ListView(
       padding: EdgeInsets.fromLTRB(16.w, 18.h, 16.w, 22.h),
@@ -153,18 +153,9 @@ class _DetailsBody extends StatelessWidget {
     );
   }
 
-  String _servicesText(
-    BuildContext context,
-    List<InvoiceServiceItem> services,
-  ) {
+  String _servicesText(List<InvoiceServiceItem> services) {
     if (services.isEmpty) return '-';
-    if (services.length <= 2) {
-      return services.map((service) => service.serviceName).join(', ');
-    }
-    final firstTwo = services.take(2).map((service) => service.serviceName);
-    return 'activity.services_more'.tr(
-      args: [firstTwo.join(', '), '${services.length - 2}'],
-    );
+    return services.map((service) => service.serviceName).join(', ');
   }
 }
 
@@ -176,8 +167,12 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final normalized = status.toLowerCase();
+    final isCancelled =
+        normalized == 'canceled' || normalized == 'cancelled';
     final isCompleted = normalized == 'used' || normalized == 'completed';
-    final color = isCompleted
+    final color = isCancelled
+        ? const Color(0xFFDC2626)
+        : isCompleted
         ? const Color(0xFF0F8A5F)
         : const Color(0xFF9A6A00);
     return Container(
@@ -188,7 +183,11 @@ class _StatusBadge extends StatelessWidget {
         border: Border.all(color: color.withAlpha(120)),
       ),
       child: Text(
-        isCompleted ? 'home.completed'.tr() : _localizedStatus(status),
+        isCancelled
+            ? 'activity.status_cancelled'.tr()
+            : isCompleted
+            ? 'home.completed'.tr()
+            : _localizedStatus(status),
         style: TextStyle(fontSize: 13.sp, color: color),
       ),
     );
@@ -497,6 +496,7 @@ String _localizedStatus(String status) {
     'pending' => 'activity.status_pending'.tr(),
     'used' => 'activity.status_used'.tr(),
     'completed' => 'home.completed'.tr(),
+    'canceled' || 'cancelled' => 'activity.status_cancelled'.tr(),
     _ => status,
   };
 }

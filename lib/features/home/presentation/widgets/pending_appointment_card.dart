@@ -147,28 +147,37 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final normalized = status.trim().toLowerCase();
+    final isCancelled = normalized == 'canceled' || normalized == 'cancelled';
+    final color = isCancelled
+        ? const Color(0xFFDC2626)
+        : const Color(0xFFF5A623);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: const Color(0x26F5A623),
+        color: color.withAlpha(0x1A),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF5A623), width: 0.5),
+        border: Border.all(color: color, width: 0.5),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.access_time, size: 12, color: Color(0xFFF5A623)),
+          Icon(
+            isCancelled ? Icons.cancel_outlined : Icons.access_time,
+            size: 12,
+            color: color,
+          ),
           const SizedBox(width: 4),
           Flexible(
             child: Text(
               _localizedStatus(status),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Inter',
                 fontSize: 11,
                 fontWeight: FontWeight.w400,
-                color: Color(0xFFF5A623),
+                color: color,
               ),
             ),
           ),
@@ -182,6 +191,7 @@ class _StatusBadge extends StatelessWidget {
       'pending' => 'home.pending'.tr(),
       'completed' => 'home.completed'.tr(),
       'used' => 'activity.status_used'.tr(),
+      'canceled' || 'cancelled' => 'activity.status_cancelled'.tr(),
       _ => status,
     };
   }

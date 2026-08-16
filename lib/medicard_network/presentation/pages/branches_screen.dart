@@ -103,31 +103,6 @@ class BranchesScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 16.h),
-
-              // شريط البحث المدمج داخل الهيدر
-              Container(
-                height: 44.h,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'home.search_hint'.tr(),
-                    hintStyle: TextStyle(
-                      color: const Color(0xFF94A3B8),
-                      fontSize: 14.sp,
-                    ),
-                    prefixIcon: const Icon(
-                      Icons.search,
-                      color: Color(0xFF94A3B8),
-                    ),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(vertical: 10.h),
-                  ),
-                ),
-              ),
             ],
           ),
         ),

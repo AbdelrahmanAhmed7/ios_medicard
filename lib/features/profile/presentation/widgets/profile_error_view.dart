@@ -7,7 +7,9 @@ import '../cubit/profile_cubit.dart';
 import 'profile_content.dart';
 
 class ProfileErrorView extends StatelessWidget {
-  const ProfileErrorView({super.key});
+  final String error;
+
+  const ProfileErrorView({super.key, required this.error});
 
   @override
   Widget build(BuildContext context) {
@@ -33,9 +35,15 @@ class ProfileErrorView extends StatelessWidget {
                   size: 48.sp,
                 ),
                 SizedBox(height: 12.h),
-                Text(
-                  'errors.something_went_wrong'.tr(),
-                  style: TextStyle(color: const Color(0xFF6B7280)),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  child: Text(
+                    error.isEmpty
+                        ? 'errors.something_went_wrong'.tr()
+                        : error,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: const Color(0xFF6B7280)),
+                  ),
                 ),
                 SizedBox(height: 16.h),
                 ElevatedButton(

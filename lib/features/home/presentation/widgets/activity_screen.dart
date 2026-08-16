@@ -24,7 +24,7 @@ class _ActivityScreenState extends State<ActivityScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -61,6 +61,7 @@ class _ActivityScreenState extends State<ActivityScreen>
             tabs: [
               Tab(text: 'activity.pending'.tr()),
               Tab(text: 'activity.used'.tr()),
+              Tab(text: 'activity.cancelled'.tr()),
             ],
           ),
           Expanded(
@@ -76,8 +77,13 @@ class _ActivityScreenState extends State<ActivityScreen>
                     onRetry: () => context.read<ActivityCubit>().loadInvoices(),
                   ),
                   success: (invoices, isLoadingMore, hasMore) {
-                    final pending = invoices.where((i) => !i.isUsed).toList();
+                    final pending = invoices
+                        .where((i) => !i.isUsed && !i.isCancelled)
+                        .toList();
                     final used = invoices.where((i) => i.isUsed).toList();
+                    final cancelled = invoices
+                        .where((i) => i.isCancelled)
+                        .toList();
 
                     return TabBarView(
                       controller: _tabController,
@@ -95,6 +101,14 @@ class _ActivityScreenState extends State<ActivityScreen>
                           emptyTitleKey: 'activity.empty_used_title',
                           emptyMessageKey: 'activity.empty_used_message',
                           emptyIcon: Icons.receipt_long_outlined,
+                          isLoadingMore: isLoadingMore,
+                          hasMore: hasMore,
+                        ),
+                        _InvoiceList(
+                          items: cancelled,
+                          emptyTitleKey: 'activity.empty_cancelled_title',
+                          emptyMessageKey: 'activity.empty_cancelled_message',
+                          emptyIcon: Icons.cancel_outlined,
                           isLoadingMore: isLoadingMore,
                           hasMore: hasMore,
                         ),

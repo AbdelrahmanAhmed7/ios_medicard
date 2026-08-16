@@ -12,7 +12,7 @@ class FilterBottomSheet extends StatelessWidget {
 
   static const List<_SortOption> _sortOptions = [
     _SortOption(value: 1, labelKey: 'sort_filter.nearest'),
-    _SortOption(value: 2, labelKey: 'sort_filter.highest_rating'),
+    _SortOption(value: 2, labelKey: 'sort_filter.highest_discount'),
   ];
 
   @override

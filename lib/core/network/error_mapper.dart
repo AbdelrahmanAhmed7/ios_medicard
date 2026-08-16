@@ -17,7 +17,7 @@ AppFailure mapDioException(DioException exception) {
 
   if (exception.type == DioExceptionType.connectionError ||
       (exception.type == DioExceptionType.unknown &&
-          exception.error is SocketException)) {
+          exception.error is IOException)) {
     return const AppFailure.network();
   }
 

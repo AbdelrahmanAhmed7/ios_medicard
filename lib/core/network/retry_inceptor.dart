@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
@@ -91,7 +93,8 @@ class RetryInterceptor extends Interceptor {
         err.type == DioExceptionType.connectionError ||
         (err.type == DioExceptionType.unknown &&
             err.error != null &&
-            err.error.toString().contains('SocketException'));
+            (err.error is IOException ||
+                err.error.toString().contains('SocketException')));
   }
 
   bool _isIdempotent(String method) {

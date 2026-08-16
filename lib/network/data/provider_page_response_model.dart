@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+
 import 'provider_services_response_model.dart';
 
 part 'provider_page_response_model.g.dart';

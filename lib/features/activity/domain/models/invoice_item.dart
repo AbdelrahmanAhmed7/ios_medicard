@@ -12,6 +12,12 @@ class InvoiceItem {
     return normalized == 'used' || normalized == 'completed';
   }
 
+  /// Returns true when the invoice has been cancelled.
+  bool get isCancelled {
+    final normalized = status.toLowerCase();
+    return normalized == 'canceled' || normalized == 'cancelled';
+  }
+
   const InvoiceItem({
     required this.invoiceId,
     required this.providerName,

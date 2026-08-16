@@ -54,7 +54,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               success: (data) => ProfileContent(data: data),
               updating: (data) => ProfileContent(data: data),
               updated: (data) => ProfileContent(data: data),
-              failed: (_) => const ProfileErrorView(),
+              failed: (error) => ProfileErrorView(error: error),
             ),
           );
         },

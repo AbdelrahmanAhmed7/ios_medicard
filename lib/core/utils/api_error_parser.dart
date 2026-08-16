@@ -30,7 +30,7 @@ String parseApiError(dynamic error) {
       // Network-level failures (no internet / unreachable host).
       if (error.type == DioExceptionType.connectionError ||
           (error.type == DioExceptionType.unknown &&
-              error.error is SocketException)) {
+              error.error is IOException)) {
         return 'errors.no_internet'.tr();
       }
 

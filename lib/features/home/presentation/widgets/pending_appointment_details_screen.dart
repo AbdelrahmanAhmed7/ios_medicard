@@ -178,7 +178,11 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = const Color(0xFF9A6A00);
+    final normalized = status.trim().toLowerCase();
+    final isCancelled = normalized == 'canceled' || normalized == 'cancelled';
+    final color = isCancelled
+        ? const Color(0xFFDC2626)
+        : const Color(0xFF9A6A00);
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
       decoration: BoxDecoration(
@@ -198,6 +202,7 @@ class _StatusBadge extends StatelessWidget {
       'pending' => 'home.pending'.tr(),
       'completed' => 'home.completed'.tr(),
       'used' => 'activity.status_used'.tr(),
+      'canceled' || 'cancelled' => 'activity.status_cancelled'.tr(),
       _ => status,
     };
   }
