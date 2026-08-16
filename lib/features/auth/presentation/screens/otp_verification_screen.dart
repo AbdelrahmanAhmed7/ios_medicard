@@ -132,7 +132,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
             child: SingleChildScrollView(
               child: Form(
                 key: _formKey,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -174,6 +173,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                             keyboardType: TextInputType.number,
                             maxLength: 6,
                             validator: _validateOtp,
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
                             ],

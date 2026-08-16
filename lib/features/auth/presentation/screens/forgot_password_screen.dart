@@ -83,7 +83,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             child: SingleChildScrollView(
               child: Form(
                 key: _formKey,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -114,6 +113,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             keyboardType: TextInputType.phone,
                             maxLength: 11,
                             validator: _validatePhone,
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
                             ],

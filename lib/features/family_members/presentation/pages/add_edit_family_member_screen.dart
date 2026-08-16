@@ -182,7 +182,6 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
                     padding: EdgeInsets.symmetric(horizontal: 20.w),
                     child: Form(
                       key: _formKey,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -243,6 +242,7 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
       controller: controller,
       validator: validator,
       inputFormatters: inputFormatters,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       style: TextStyle(
         fontSize: 15.sp,
         color: Colors.black,
@@ -264,6 +264,7 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
   Widget _buildRelationDropdown() {
     return DropdownButtonFormField<int>(
       initialValue: _selectedRelation,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: (value) {
         if (value == null) {
           return 'common.required'.tr();

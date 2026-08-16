@@ -1,4 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../services/haptic_feedback_service.dart';
 
@@ -75,6 +77,24 @@ void showInfoToast(String message) => showToast(message, type: ToastType.info);
 
 void showWarningToast(String message) =>
     showToast(message, type: ToastType.warning);
+
+/// Unified "please log in" flow: shows the message with a "Login Now" action
+/// that navigates to the login screen — no automatic navigation.
+void showLoginRequiredMessage(BuildContext context) {
+  final messenger = ScaffoldMessenger.of(context);
+  messenger.hideCurrentSnackBar();
+  messenger.showSnackBar(
+    SnackBar(
+      content: Text('auth.please_login_first'.tr()),
+      duration: const Duration(seconds: 4),
+      behavior: SnackBarBehavior.floating,
+      action: SnackBarAction(
+        label: 'auth.register.loginNow'.tr(),
+        onPressed: () => context.push('/medicard-login'),
+      ),
+    ),
+  );
+}
 
 // ── Internal toast widget ───────────────────────────────────────────────────
 

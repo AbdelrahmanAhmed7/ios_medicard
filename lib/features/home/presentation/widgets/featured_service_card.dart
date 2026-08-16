@@ -312,7 +312,7 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
     final token = await sl<AuthSessionStorage>().getAccessToken();
     if (!context.mounted) return;
     if (token == null || token.isEmpty) {
-      showWarningToast('auth.please_login_first'.tr());
+      showLoginRequiredMessage(context);
       return;
     }
 

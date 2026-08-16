@@ -664,8 +664,7 @@ class _ServiceCardConnector extends StatelessWidget {
           isPending: isPending,
           onToggle: () {
             if (!context.read<SearchCubit>().enableCartFeatures) {
-              showWarningToast('auth.please_login_first'.tr());
-              context.push('/medicard-login');
+              showLoginRequiredMessage(context);
               return;
             }
             if (isSelected) {

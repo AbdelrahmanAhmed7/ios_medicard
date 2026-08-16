@@ -9,7 +9,6 @@ import '../../../../core/cubit/app_refresh_cubit.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/theming/app_toast.dart';
 import '../../../../core/theming/app_snack_bar.dart';
-import '../../../../core/utils/location_permission_dialog.dart';
 import '../../../../features/activity/presentation/cubit/activity_cubit.dart';
 import '../../../../features/ecard/presentation/cubit/ecard_cubit.dart';
 import '../../../../features/profile/presentation/cubit/profile_cubit.dart';
@@ -123,18 +122,12 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Builder(
           builder: (context) {
             final locationCubit = context.read<LocationCubit>();
+            // Bypass the custom rationale popup: proceed straight to the
+            // native OS permission dialog (Geolocator.requestPermission).
             locationCubit.onShowRationaleDialog = (completer) {
-              void completeOnce(bool value) {
-                if (!completer.isCompleted) {
-                  completer.complete(value);
-                }
+              if (!completer.isCompleted) {
+                completer.complete(true);
               }
-
-              LocationPermissionDialog.show(
-                context,
-                onEnablePressed: () => completeOnce(true),
-                onMaybeLaterPressed: () => completeOnce(false),
-              );
             };
             if (!_locationLoadStarted) {
               _locationLoadStarted = true;

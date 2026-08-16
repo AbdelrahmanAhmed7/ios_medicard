@@ -367,7 +367,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         behavior: HitTestBehavior.opaque,
         child: Form(
           key: _formKey,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -469,15 +468,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                       SizedBox(height: 10.h),
 
-                      // Passport Number
-                      _FieldLabel('edit_profile.passport_number'.tr()),
-                      _buildTextField(
-                        controller: _passportNumberController,
-                        hintText: 'edit_profile.passport_number'.tr(),
-                        required: false,
-                      ),
-                      SizedBox(height: 14.h),
-
                       // الرقم القومي
                       _FieldLabel('edit_profile.national_id'.tr()),
                       _buildTextField(
@@ -487,6 +477,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         maxLength: 14,
                         inputFormatters: [_digitsOnly(maxDigits: 14)],
                         validator: _validateNationalId,
+                      ),
+                      SizedBox(height: 14.h),
+
+                      // Passport Number
+                      _FieldLabel('edit_profile.passport_number'.tr()),
+                      _buildTextField(
+                        controller: _passportNumberController,
+                        hintText: 'edit_profile.passport_number'.tr(),
+                        required: false,
                       ),
                       SizedBox(height: 14.h),
 
@@ -798,6 +797,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       readOnly: readOnly,
       maxLength: maxLength,
       inputFormatters: inputFormatters,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       style: TextStyle(
         fontSize: 15.sp,
         color: readOnly ? Colors.grey.shade500 : Colors.black,

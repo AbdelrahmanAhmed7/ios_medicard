@@ -48,6 +48,7 @@ import '../../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../../features/auth/presentation/screens/otp_verification_screen.dart';
 import '../../features/auth/presentation/screens/reset_password_screen.dart';
 import '../constants/constants.dart';
+import '../cubit/app_refresh_cubit.dart';
 import '../di/service_locator.dart';
 import '../helpers/shared_pref_helper.dart';
 import '../theming/app_toast.dart';
@@ -156,6 +157,9 @@ class AppRouter {
     return GoRouter(
       navigatorKey: toastNavigatorKey,
       initialLocation: normalizeLocation(initialLocation),
+      // Rebuilds all route pages when the language changes so that every
+      // `.tr()` / `context.tr()` re-evaluates against the new locale.
+      refreshListenable: sl<AppRefreshCubit>().languageRefresh,
       onException: (context, state, router) {
         final fallbackLocation = normalizeLocation(state.uri.toString());
         router.go(

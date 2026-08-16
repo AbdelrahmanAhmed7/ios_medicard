@@ -296,13 +296,16 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
   Future<void> loadMoreServices() async => loadServices();
   Future<void> selectCategoryTab(int index) async {}
   Future<void> retryTabLoad(int index) async {}
-  Future<void> addToCart(int serviceId, {int? categoryId}) async {
-    if (isClosed || state.pendingCartActionIds.contains(serviceId)) return;
+
+  /// Adds a service to the cart. Returns true when the user must log in first.
+  Future<bool> addToCart(int serviceId, {int? categoryId}) async {
+    if (isClosed || state.pendingCartActionIds.contains(serviceId)) {
+      return false;
+    }
 
     final token = await sl<AuthSessionStorage>().getAccessToken();
     if (token == null || token.isEmpty) {
-      showWarningToast('auth.please_login_first'.tr());
-      return;
+      return true;
     }
 
     final resolvedCategoryId =
@@ -314,7 +317,7 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
 
     if (resolvedCategoryId == null) {
       showErrorToast('cart.service_not_available'.tr());
-      return;
+      return false;
     }
 
     emit(
@@ -332,7 +335,7 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
       price: null,
     );
 
-    if (isClosed) return;
+    if (isClosed) return false;
     final pending = Set<int>.from(state.pendingCartActionIds)
       ..remove(serviceId);
 
@@ -376,6 +379,7 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
         showErrorToast(message);
       },
     );
+    return false;
   }
 
   Future<void> removeFromCart(int serviceId) async {
@@ -522,10 +526,18 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
     _debounceTimer = Timer(const Duration(milliseconds: 300), () {
       if (isClosed) return;
       final nextQuery = query.isEmpty ? null : query;
+      final searchFromReviews =
+          state.currentView == ProviderViewType.reviews && query.isNotEmpty;
       emit(
         state.copyWith(
           searchQuery: nextQuery,
           resetSearchQuery: query.isEmpty,
+          currentView: searchFromReviews
+              ? ProviderViewType.services
+              : state.currentView,
+          catalogView: searchFromReviews
+              ? ProviderViewType.services
+              : state.catalogView,
           packages: _filterPackages(_fullPackages, nextQuery),
           reviews: _filterReviews(_fullReviews, nextQuery),
         ),
@@ -541,7 +553,7 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
     emit(
       state.copyWith(
         currentView: view,
-        catalogView: isCatalogView ? view : null,
+        catalogView: isCatalogView ? view : state.catalogView,
       ),
     );
 

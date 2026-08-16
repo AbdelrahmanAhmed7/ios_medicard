@@ -110,7 +110,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             child: SingleChildScrollView(
               child: Form(
                 key: _formKey,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -140,6 +139,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             controller: _passwordController,
                             obscureText: _obscurePassword,
                             validator: _validatePassword,
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
                             decoration: authInputDecoration(
                               hintText: 'auth.forgot.new_password_hint'.tr(),
                               suffixIcon: IconButton(
@@ -164,6 +164,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             controller: _confirmController,
                             obscureText: _obscureConfirm,
                             validator: _validateConfirm,
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
                             decoration: authInputDecoration(
                               hintText: 'auth.forgot.confirm_hint'.tr(),
                               suffixIcon: IconButton(

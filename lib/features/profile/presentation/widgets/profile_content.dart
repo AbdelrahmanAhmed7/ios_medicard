@@ -460,7 +460,7 @@ class _CardNumberInputSheetState extends State<_CardNumberInputSheet> {
                   FilteringTextInputFormatter.digitsOnly,
                   LengthLimitingTextInputFormatter(12),
                 ],
-                autovalidateMode: AutovalidateMode.onUserInteraction,
+                autovalidateMode: AutovalidateMode.disabled,
                 decoration: InputDecoration(
                   labelText: 'profile.card_number'.tr(),
                   hintText: 'profile.card_number_hint'.tr(),

@@ -78,8 +78,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
         final token = await sl<AuthSessionStorage>().getAccessToken();
         if (!context.mounted) return;
         if (token == null || token.isEmpty) {
-          showWarningToast('auth.please_login_first'.tr());
-          context.push('/medicard-login');
+          showLoginRequiredMessage(context);
           return;
         }
         context.push(
@@ -146,7 +145,13 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
     ProviderPageCubit cubit,
   ) {
     return AppBlueHeader(
-      onBack: () => context.pop(),
+      onBack: () {
+        if (state.currentView == ProviderViewType.reviews) {
+          cubit.switchView(state.catalogView);
+        } else {
+          context.pop();
+        }
+      },
       bottomChild: state.isProviderLoading
           ? const Center(child: CircularProgressIndicator(color: Colors.white))
           : state.providerData != null
@@ -556,7 +561,11 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
             )
           else
             GestureDetector(
-              onTap: () => cubit.addToCart(serviceId),
+              onTap: () async {
+                if (await cubit.addToCart(serviceId) && context.mounted) {
+                  showLoginRequiredMessage(context);
+                }
+              },
               child: Container(
                 width: 32.r,
                 height: 32.r,
@@ -696,10 +705,15 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
             GestureDetector(
               onTap: serviceId == null
                   ? null
-                  : () => cubit.addToCart(
-                      serviceId,
-                      categoryId: service.categoryId,
-                    ),
+                  : () async {
+                      if (await cubit.addToCart(
+                            serviceId,
+                            categoryId: service.categoryId,
+                          ) &&
+                          context.mounted) {
+                        showLoginRequiredMessage(context);
+                      }
+                    },
               child: Container(
                 width: 24.r,
                 height: 24.r,
@@ -1059,8 +1073,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
     final token = await sl<AuthSessionStorage>().getAccessToken();
     if (!context.mounted) return;
     if (token == null || token.isEmpty) {
-      showWarningToast('auth.please_login_first'.tr());
-      context.push('/medicard-login');
+      showLoginRequiredMessage(context);
       return;
     }
 

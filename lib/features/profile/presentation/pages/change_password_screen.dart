@@ -116,7 +116,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           behavior: HitTestBehavior.opaque,
           child: Form(
             key: _formKey,
-            autovalidateMode: AutovalidateMode.onUserInteraction,
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -273,6 +272,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       key: fieldKey,
       controller: controller,
       obscureText: !showPassword,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       style: TextStyle(
         fontSize: 15.sp,
         color: Colors.black,
