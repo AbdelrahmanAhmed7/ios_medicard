@@ -99,6 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 languageChanged: () {
                   context.read<HomeCubit>().getHomeData();
                   context.read<ECardCubit>().loadCardData(forceRefresh: true);
+                  context.read<ActivityCubit>().loadInvoices();
                   if (_currentIndex == 3) {
                     context.read<ProfileCubit>().loadProfile(
                       forceRefresh: true,
@@ -153,9 +154,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       onNavigateToTab: (index) =>
                           setState(() => _currentIndex = index),
                     ),
-                    const ECardScreen(),
-                    const ActivityScreen(),
-                    const _ProfileBody(),
+                    // Not const: the parent rebuilds on locale change (router
+                    // refreshListenable) and const children would be skipped,
+                    // leaving `.tr()` strings stale on these tabs.
+                    ECardScreen(),
+                    ActivityScreen(),
+                    _ProfileBody(),
                   ],
                 ),
                 bottomNavigationBar: Builder(
