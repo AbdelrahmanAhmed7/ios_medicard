@@ -348,7 +348,12 @@
     "no_reviews_found": "No reviews found",
     "select_branch_first": "Please select a branch first.",
     "no_provider_branch_found": "No provider branch found for this package.",
-    "tests_included": "Tests included"
+    "tests_included": "Tests included",
+    "branch_count": "{} branches",
+    "no_branches_found": "No branches found",
+    "sort_by": "Sort by",
+    "nearest": "Nearest",
+    "farthest": "Farthest"
   },
   "cart": {
     "title": "Cart",

@@ -43,15 +43,43 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
+  static const _fieldNames = [
+    'firstName',
+    'lastName',
+    'cardNumber',
+    'phoneNumber',
+    'nationalId',
+    'passportNumber',
+    'birthDate',
+    'password',
+    'confirmPassword',
+  ];
+
+  late final Map<String, FocusNode> _focusNodes;
+  final Set<String> _touchedFields = {};
+
   @override
   void initState() {
     super.initState();
     _passwordController.addListener(_onPasswordChanged);
+    _focusNodes = {
+      for (final name in _fieldNames) name: FocusNode(),
+    };
+    for (final name in _fieldNames) {
+      _focusNodes[name]!.addListener(() {
+        if (_focusNodes[name]!.hasFocus && _touchedFields.add(name)) {
+          setState(() {});
+        }
+      });
+    }
   }
 
   @override
   void dispose() {
     _passwordController.removeListener(_onPasswordChanged);
+    for (final node in _focusNodes.values) {
+      node.dispose();
+    }
     _firstNameController.dispose();
     _lastNameController.dispose();
     _cardNumberController.dispose();
@@ -146,6 +174,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                           _buildTextField(
                             controller: _firstNameController,
                             hintText: 'auth.register.firstNameHint'.tr(),
+                            fieldName: 'firstName',
                             keyboardType: TextInputType.name,
                             maxLength: 30,
                             inputFormatters: [
@@ -164,6 +193,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                           _buildTextField(
                             controller: _lastNameController,
                             hintText: 'auth.register.lastNameHint'.tr(),
+                            fieldName: 'lastName',
                             keyboardType: TextInputType.name,
                             maxLength: 30,
                             inputFormatters: [
@@ -182,6 +212,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                           _buildTextField(
                             controller: _cardNumberController,
                             hintText: 'auth.login.cardNumberHint'.tr(),
+                            fieldName: 'cardNumber',
                             keyboardType: TextInputType.number,
                             maxLength: 12,
                             inputFormatters: [
@@ -204,6 +235,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                           _buildTextField(
                             controller: _phoneNumberController,
                             hintText: 'auth.register.phoneNumberHint'.tr(),
+                            fieldName: 'phoneNumber',
                             keyboardType: TextInputType.phone,
                             maxLength: 11,
                             inputFormatters: [
@@ -225,6 +257,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                             controller: _nationalIdController,
                             hintText: 'activate_card.national_id_optional_hint'
                                 .tr(),
+                            fieldName: 'nationalId',
                             keyboardType: TextInputType.number,
                             required: false,
                             maxLength: 14,
@@ -244,6 +277,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                             hintText:
                                 'activate_card.passport_number_optional_hint'
                                     .tr(),
+                            fieldName: 'passportNumber',
                             required: false,
                             textCapitalization: TextCapitalization.characters,
                             maxLength: 20,
@@ -271,6 +305,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                           _buildPasswordField(
                             controller: _passwordController,
                             hintText: '••••••••',
+                            fieldName: 'password',
                             obscure: _obscurePassword,
                             onToggle: () => setState(
                               () => _obscurePassword = !_obscurePassword,
@@ -287,6 +322,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                             fieldKey: _confirmPasswordFieldKey,
                             controller: _confirmPasswordController,
                             hintText: '••••••••',
+                            fieldName: 'confirmPassword',
                             obscure: _obscureConfirmPassword,
                             onToggle: () => setState(
                               () => _obscureConfirmPassword =
@@ -416,6 +452,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
     Key? fieldKey,
     required TextEditingController controller,
     required String hintText,
+    String? fieldName,
     TextInputType? keyboardType,
     bool required = true,
     int? maxLength,
@@ -424,16 +461,21 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
     String? Function(String?)? validator,
     ValueChanged<String>? onChanged,
   }) {
+    final isTouched = fieldName != null && _touchedFields.contains(fieldName);
+    final focusNode = fieldName != null ? _focusNodes[fieldName] : null;
     return TextFormField(
       key:
           fieldKey ??
           (controller == _nationalIdController ? _nationalIdFieldKey : null),
       controller: controller,
+      focusNode: focusNode,
       keyboardType: keyboardType,
       textCapitalization: textCapitalization,
       maxLength: maxLength,
       inputFormatters: inputFormatters,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      autovalidateMode: isTouched
+          ? AutovalidateMode.onUserInteraction
+          : AutovalidateMode.disabled,
       style: TextStyle(fontSize: 15.sp, color: Colors.black),
       decoration: authInputDecoration(
         hintText: hintText,
@@ -460,13 +502,19 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
     required String hintText,
     required bool obscure,
     required VoidCallback onToggle,
+    String? fieldName,
     String? Function(String?)? validator,
   }) {
+    final isTouched = fieldName != null && _touchedFields.contains(fieldName);
+    final focusNode = fieldName != null ? _focusNodes[fieldName] : null;
     return TextFormField(
       key: fieldKey,
       controller: controller,
+      focusNode: focusNode,
       obscureText: obscure,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      autovalidateMode: isTouched
+          ? AutovalidateMode.onUserInteraction
+          : AutovalidateMode.disabled,
       style: TextStyle(fontSize: 15.sp, color: Colors.black),
       decoration: authInputDecoration(
         hintText: hintText,
@@ -602,10 +650,15 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
   }
 
   Widget _buildBirthDatePicker(BuildContext context) {
+    final isTouched = _touchedFields.contains('birthDate');
+    final focusNode = _focusNodes['birthDate']!;
     return TextFormField(
       controller: _birthDateController,
+      focusNode: focusNode,
       readOnly: true,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      autovalidateMode: isTouched
+          ? AutovalidateMode.onUserInteraction
+          : AutovalidateMode.disabled,
       style: TextStyle(fontSize: 15.sp, color: Colors.black),
       onTap: () async {
         FocusScope.of(context).unfocus();

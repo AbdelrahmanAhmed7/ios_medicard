@@ -29,10 +29,29 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   bool _showNewPassword = false;
   bool _showConfirmPassword = false;
 
+  final _newPasswordFocus = FocusNode();
+  final _confirmPasswordFocus = FocusNode();
+  bool _newPasswordTouched = false;
+  bool _confirmPasswordTouched = false;
+
   @override
   void initState() {
     super.initState();
     _newPasswordController.addListener(_onNewPasswordChanged);
+    _newPasswordFocus.addListener(_onNewPasswordFocusChanged);
+    _confirmPasswordFocus.addListener(_onConfirmPasswordFocusChanged);
+  }
+
+  void _onNewPasswordFocusChanged() {
+    if (_newPasswordFocus.hasFocus && !_newPasswordTouched) {
+      setState(() => _newPasswordTouched = true);
+    }
+  }
+
+  void _onConfirmPasswordFocusChanged() {
+    if (_confirmPasswordFocus.hasFocus && !_confirmPasswordTouched) {
+      setState(() => _confirmPasswordTouched = true);
+    }
   }
 
   void _onNewPasswordChanged() {
@@ -45,6 +64,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   @override
   void dispose() {
     _newPasswordController.removeListener(_onNewPasswordChanged);
+    _newPasswordFocus.removeListener(_onNewPasswordFocusChanged);
+    _newPasswordFocus.dispose();
+    _confirmPasswordFocus.removeListener(_onConfirmPasswordFocusChanged);
+    _confirmPasswordFocus.dispose();
     _currentPasswordController.dispose();
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
@@ -188,6 +211,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
                         _FieldLabel('change_password.new_password'.tr()),
                         _buildPasswordField(
+                          focusNode: _newPasswordFocus,
+                          autovalidateMode: _newPasswordTouched
+                              ? AutovalidateMode.onUserInteraction
+                              : AutovalidateMode.disabled,
                           controller: _newPasswordController,
                           hintText: 'change_password.new_password_hint'.tr(),
                           showPassword: _showNewPassword,
@@ -204,6 +231,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         ),
                         _buildPasswordField(
                           fieldKey: _confirmPasswordFieldKey,
+                          focusNode: _confirmPasswordFocus,
+                          autovalidateMode: _confirmPasswordTouched
+                              ? AutovalidateMode.onUserInteraction
+                              : AutovalidateMode.disabled,
                           controller: _confirmPasswordController,
                           hintText: 'change_password.confirm_new_password_hint'
                               .tr(),
@@ -267,12 +298,15 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     required bool showPassword,
     required VoidCallback onToggle,
     required String? Function(String?) validator,
+    FocusNode? focusNode,
+    AutovalidateMode autovalidateMode = AutovalidateMode.onUserInteraction,
   }) {
     return TextFormField(
       key: fieldKey,
       controller: controller,
+      focusNode: focusNode,
       obscureText: !showPassword,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      autovalidateMode: autovalidateMode,
       style: TextStyle(
         fontSize: 15.sp,
         color: Colors.black,
@@ -291,8 +325,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         suffixIcon: IconButton(
           icon: Icon(
             showPassword
-                ? Icons.visibility_off_outlined
-                : Icons.visibility_outlined,
+                ? Icons.visibility_outlined
+                : Icons.visibility_off_outlined,
             color: Colors.grey.shade500,
             size: 20.sp,
           ),
