@@ -128,7 +128,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (name.isEmpty) return requiredKey.tr();
     if (name.length < 2) return 'edit_profile.invalid_name'.tr();
     final validNamePattern = RegExp(r"^[\p{L}][\p{L} .'\-]*$", unicode: true);
-    if (!validNamePattern.hasMatch(name)) return 'edit_profile.invalid_name'.tr();
+    if (!validNamePattern.hasMatch(name))
+      return 'edit_profile.invalid_name'.tr();
     return null;
   }
 
@@ -350,7 +351,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           .tr(),
                                       inputFormatters: [
                                         FilteringTextInputFormatter.allow(
-                                          RegExp(r"[\p{L} .'\-]", unicode: true),
+                                          RegExp(
+                                            r"[\p{L} .'\-]",
+                                            unicode: true,
+                                          ),
                                         ),
                                       ],
                                       autovalidateMode:
@@ -380,7 +384,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           .tr(),
                                       inputFormatters: [
                                         FilteringTextInputFormatter.allow(
-                                          RegExp(r"[\p{L} .'\-]", unicode: true),
+                                          RegExp(
+                                            r"[\p{L} .'\-]",
+                                            unicode: true,
+                                          ),
                                         ),
                                       ],
                                       autovalidateMode:
@@ -408,6 +415,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             controller: _phoneNumberController,
                             hintText: 'auth.register.phoneNumberHint'.tr(),
                             keyboardType: TextInputType.phone,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(11),
+                            ],
                             validator: _validatePhoneNumber,
                             autovalidateMode:
                                 AutovalidateMode.onUserInteraction,
@@ -487,6 +498,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             hintText: 'auth.register.nationalIdHint'.tr(),
                             keyboardType: TextInputType.number,
                             required: false,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(14),
+                            ],
                             validator: _validateNationalId,
                             autovalidateMode:
                                 AutovalidateMode.onUserInteraction,

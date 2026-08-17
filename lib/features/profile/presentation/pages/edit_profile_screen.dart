@@ -516,6 +516,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               controller: _phoneNumberController,
                               hintText: 'edit_profile.phone_number'.tr(),
                               keyboardType: TextInputType.phone,
+                              maxLength: 11,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                                LengthLimitingTextInputFormatter(11),
+                              ],
                               validator: _validatePhoneNumber,
                             ),
                           ),

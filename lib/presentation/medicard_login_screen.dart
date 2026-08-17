@@ -228,11 +228,10 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
   Widget _buildPhoneField() {
     return TextFormField(
       controller: _loginIdentifierController,
-      keyboardType: TextInputType.text,
-      textCapitalization: TextCapitalization.characters,
+      keyboardType: TextInputType.number,
       maxLength: 12,
       inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9\-]')),
+        FilteringTextInputFormatter.digitsOnly,
         LengthLimitingTextInputFormatter(12),
       ],
       style: TextStyle(fontSize: 15.sp, color: Colors.black),
@@ -292,7 +291,7 @@ bool _isEgyptianMobile(String value) {
 }
 
 bool _isPotentialCardNumber(String value) {
-  return RegExp(r'^[A-Za-z0-9][A-Za-z0-9\-]{3,11}$').hasMatch(value);
+  return RegExp(r'^[0-9]{4,12}$').hasMatch(value);
 }
 
 // ── Or Divider ──────────────────────────────────────────────────────────────
