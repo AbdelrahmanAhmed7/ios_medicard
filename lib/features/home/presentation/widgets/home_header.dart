@@ -95,13 +95,10 @@ class _HeaderSearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<LocationCubit, LocationState>(
-      builder: (context, state) {
-        return SearchBarWidget(
-          latitude: state is LocationLoaded ? state.latitude : null,
-          longitude: state is LocationLoaded ? state.longitude : null,
-        );
-      },
+    final state = context.watch<LocationCubit>().state;
+    return SearchBarWidget(
+      latitude: state is LocationLoaded ? state.latitude : null,
+      longitude: state is LocationLoaded ? state.longitude : null,
     );
   }
 }

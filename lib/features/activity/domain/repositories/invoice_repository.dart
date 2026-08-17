@@ -29,8 +29,8 @@ abstract class InvoiceRepository {
 
   Future<ApiResult<void>> createReview({
     required int invoiceId,
-    required int rating,
-    required String ratingText,
+    int? rating,
+    String? ratingText,
   });
 
   Future<ApiResult<void>> cancelInvoice(int invoiceId);

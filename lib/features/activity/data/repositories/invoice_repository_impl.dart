@@ -250,8 +250,8 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
   @override
   Future<ApiResult<void>> createReview({
     required int invoiceId,
-    required int rating,
-    required String ratingText,
+    int? rating,
+    String? ratingText,
   }) async {
     try {
       final response = await _dataSource.createReview(

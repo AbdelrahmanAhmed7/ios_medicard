@@ -434,6 +434,7 @@
     "review_input_hint": "اكتب تقييمك",
     "submit": "إرسال",
     "review_submitted_successfully": "تم إرسال التقييم بنجاح.",
+    "review_at_least_one_required": "يرجى إضافة تقييم أو مراجعة.",
     "cancel_invoice": "إلغاء الفاتورة",
     "cancel_invoice_confirm_title": "إلغاء الفاتورة",
     "cancel_invoice_confirm_message": "هل أنت متأكد أنك تريد إلغاء هذه الفاتورة؟ لا يمكن التراجع عن هذا الإجراء.",

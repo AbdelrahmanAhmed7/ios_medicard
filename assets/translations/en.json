@@ -434,6 +434,7 @@
     "review_input_hint": "Input text",
     "submit": "Submit",
     "review_submitted_successfully": "Review submitted successfully.",
+    "review_at_least_one_required": "Please add a rating or a review.",
     "cancel_invoice": "Cancel Invoice",
     "cancel_invoice_confirm_title": "Cancel Invoice",
     "cancel_invoice_confirm_message": "Are you sure you want to cancel this invoice? This action cannot be undone.",

@@ -346,6 +346,7 @@ class _DetailsActionsState extends State<_DetailsActions> {
   Future<void> _onCancelTapped() async {
     final confirmed = await showModalBottomSheet<bool>(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
@@ -528,8 +529,9 @@ class _ReviewDialog extends StatefulWidget {
 
 class _ReviewDialogState extends State<_ReviewDialog> {
   final _controller = TextEditingController();
-  int _rating = 5;
+  int? _rating;
   bool _isSubmitting = false;
+  String? _errorText;
 
   @override
   void dispose() {
@@ -539,11 +541,19 @@ class _ReviewDialogState extends State<_ReviewDialog> {
 
   Future<void> _submit() async {
     if (_isSubmitting) return;
-    setState(() => _isSubmitting = true);
+    final text = _controller.text.trim();
+    if (_rating == null && text.isEmpty) {
+      setState(() => _errorText = 'activity.review_at_least_one_required'.tr());
+      return;
+    }
+    setState(() {
+      _isSubmitting = true;
+      _errorText = null;
+    });
     final result = await sl<InvoiceRepository>().createReview(
       invoiceId: widget.invoiceId,
       rating: _rating,
-      ratingText: _controller.text.trim(),
+      ratingText: text.isEmpty ? null : text,
     );
     if (!mounted) return;
     setState(() => _isSubmitting = false);
@@ -582,18 +592,31 @@ class _ReviewDialogState extends State<_ReviewDialog> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(5, (index) {
                 final value = index + 1;
-                return IconButton(
-                  onPressed: () => setState(() => _rating = value),
-                  icon: Icon(
-                    value <= _rating ? Icons.star : Icons.star_border,
-                    color: value <= _rating
-                        ? const Color(0xFFFFBE2E)
-                        : const Color(0xFFE5E7EB),
-                    size: 36.sp,
+                return GestureDetector(
+                  onTap: () => setState(() {
+                    _rating = _rating == value ? null : value;
+                    if (_rating != null) _errorText = null;
+                  }),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 4.w),
+                    child: Icon(
+                      _rating != null && value <= _rating!
+                          ? Icons.star_rounded
+                          : Icons.star_border_rounded,
+                      color: const Color(0xFFFFBE2E),
+                      size: 40.sp,
+                    ),
                   ),
                 );
               }),
             ),
+            if (_errorText != null) ...[
+              SizedBox(height: 6.h),
+              Text(
+                _errorText!,
+                style: TextStyle(fontSize: 12.sp, color: const Color(0xFFEF4444)),
+              ),
+            ],
             SizedBox(height: 10.h),
             TextField(
               controller: _controller,

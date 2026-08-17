@@ -37,34 +37,45 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
         body: BlocBuilder<ProviderPageCubit, ProviderPageState>(
           builder: (context, state) {
             final cubit = context.read<ProviderPageCubit>();
-            return Column(
-              children: [
-                _buildTopBlueHeader(context, state, cubit),
-                Expanded(
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16.w,
-                        vertical: 16.h,
-                      ),
-                      child: Column(
-                        children: [
-                          _buildSearchAndFilterRow(context, state, cubit),
-                          SizedBox(height: 16.h),
-                          _buildContentSection(context, state, cubit),
-                        ],
+            final isReviews = state.currentView == ProviderViewType.reviews;
+            return PopScope(
+              canPop: !isReviews,
+              onPopInvokedWithResult: (didPop, result) {
+                if (!didPop && isReviews) {
+                  cubit.switchView(state.catalogView);
+                }
+              },
+              child: Column(
+                children: [
+                  _buildTopBlueHeader(context, state, cubit),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 16.h,
+                        ),
+                        child: Column(
+                          children: [
+                            if (!isReviews) ...[
+                              _buildSearchAndFilterRow(context, state, cubit),
+                              SizedBox(height: 16.h),
+                            ],
+                            _buildContentSection(context, state, cubit),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                if (state.getCartItemCount() > 0)
-                  SafeArea(
-                    top: false,
-                    minimum: EdgeInsets.fromLTRB(12.w, 0, 12.w, 12.h),
-                    child: _buildViewCartBar(context, state),
-                  ),
-              ],
+                  if (state.getCartItemCount() > 0)
+                    SafeArea(
+                      top: false,
+                      minimum: EdgeInsets.fromLTRB(12.w, 0, 12.w, 12.h),
+                      child: _buildViewCartBar(context, state),
+                    ),
+                ],
+              ),
             );
           },
         ),

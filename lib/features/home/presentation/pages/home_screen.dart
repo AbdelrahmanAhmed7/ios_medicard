@@ -317,7 +317,7 @@ class _HomeBody extends StatelessWidget {
         parent: BouncingScrollPhysics(),
       ),
       slivers: [
-        const SliverToBoxAdapter(child: HomeHeader()),
+        SliverToBoxAdapter(child: HomeHeader()),
         if (isRefreshing)
           const SliverToBoxAdapter(
             child: LinearProgressIndicator(minHeight: 2),

@@ -322,6 +322,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         filled: true,
         fillColor: Colors.white,
         contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+        errorMaxLines: 3,
+        errorStyle: TextStyle(
+          fontSize: 12.sp,
+          height: 1.3,
+        ),
         suffixIcon: IconButton(
           icon: Icon(
             showPassword
