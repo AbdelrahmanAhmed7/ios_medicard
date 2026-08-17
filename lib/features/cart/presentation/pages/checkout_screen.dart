@@ -38,10 +38,14 @@ class CheckoutScreen extends StatefulWidget {
   State<CheckoutScreen> createState() => _CheckoutScreenState();
 }
 
-class _CheckoutScreenState extends State<CheckoutScreen> {
+class _CheckoutScreenState extends State<CheckoutScreen>
+    with WidgetsBindingObserver {
+  bool _didLaunchPayment = false;
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     context.read<CartCubit>().loadCheckout(
       initialProviderId: widget.initialProviderId,
       initialBranch: widget.initialBranch,
@@ -50,6 +54,22 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       packagePriceBefore: widget.packagePriceBefore,
       packagePriceAfter: widget.packagePriceAfter,
     );
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // When the user returns from the external browser after completing payment,
+    // navigate to the activity tab so they can see their order status.
+    if (state == AppLifecycleState.resumed && _didLaunchPayment && mounted) {
+      _didLaunchPayment = false;
+      context.go('/medicard-home?tab=activity&paymentSuccess=true');
+    }
   }
 
   @override
@@ -73,15 +93,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             if (paymentLink != null && paymentLink.isNotEmpty) {
               final opened = await UrlLauncherService().launchURL(paymentLink);
               if (!context.mounted) return;
-              if (opened) {
-                context.go('/medicard-home?tab=activity&paymentSuccess=true');
-              } else {
+              if (!opened) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('cart.could_not_open_payment_link'.tr()),
                   ),
                 );
+              } else {
+                _didLaunchPayment = true;
               }
+              // Don't navigate away — the user will return to the app from the
+              // browser themselves. Clearing the stack here causes the app to
+              // exit when the user presses Back on a fresh install because the
+              // navigator history is empty.
               return;
             }
             if (!context.mounted) return;

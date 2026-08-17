@@ -78,22 +78,154 @@ void showInfoToast(String message) => showToast(message, type: ToastType.info);
 void showWarningToast(String message) =>
     showToast(message, type: ToastType.warning);
 
-/// Unified "please log in" flow: shows the message with a "Login Now" action
+/// Unified "please log in" flow: shows a toast with a "Login Now" action
 /// that navigates to the login screen — no automatic navigation.
 void showLoginRequiredMessage(BuildContext context) {
-  final messenger = ScaffoldMessenger.of(context);
-  messenger.hideCurrentSnackBar();
-  messenger.showSnackBar(
-    SnackBar(
-      content: Text('auth.please_login_first'.tr()),
-      duration: const Duration(seconds: 4),
-      behavior: SnackBarBehavior.floating,
-      action: SnackBarAction(
-        label: 'auth.register.loginNow'.tr(),
-        onPressed: () => context.push('/medicard-login'),
-      ),
+  final overlay = toastNavigatorKey.currentState?.overlay;
+  if (overlay == null) return;
+
+  HapticFeedbackService.instance.lightImpact();
+
+  late OverlayEntry entry;
+  entry = OverlayEntry(
+    builder: (_) => _LoginRequiredToast(
+      onDismiss: () {
+        if (entry.mounted) entry.remove();
+      },
+      onLoginTap: () {
+        if (entry.mounted) entry.remove();
+        context.push('/medicard-login');
+      },
     ),
   );
+
+  overlay.insert(entry);
+}
+
+// ── Login-required toast ────────────────────────────────────────────────────
+
+class _LoginRequiredToast extends StatefulWidget {
+  final VoidCallback onDismiss;
+  final VoidCallback onLoginTap;
+
+  const _LoginRequiredToast({
+    required this.onDismiss,
+    required this.onLoginTap,
+  });
+
+  @override
+  State<_LoginRequiredToast> createState() => _LoginRequiredToastState();
+}
+
+class _LoginRequiredToastState extends State<_LoginRequiredToast>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _opacity;
+  late final Animation<Offset> _slide;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _opacity = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
+    _slide = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+
+    _controller.forward();
+    Future.delayed(const Duration(milliseconds: 4000), _dismiss);
+  }
+
+  void _dismiss() {
+    if (!mounted) return;
+    _controller.reverse().then((_) {
+      if (mounted) widget.onDismiss();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      bottom: 48,
+      left: 24,
+      right: 24,
+      child: SlideTransition(
+        position: _slide,
+        child: FadeTransition(
+          opacity: _opacity,
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1565C0),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 8,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.lock_outline, color: Colors.white, size: 20),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'auth.please_login_first'.tr(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: widget.onLoginTap,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.5),
+                          width: 1,
+                        ),
+                      ),
+                      child: Text(
+                        'auth.register.loginNow'.tr(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 // ── Internal toast widget ───────────────────────────────────────────────────
