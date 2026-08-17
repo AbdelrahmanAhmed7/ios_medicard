@@ -7,6 +7,7 @@ abstract class InvoiceRepository {
   Future<ApiResult<InvoicesPage>> getMyInvoices({
     int pageNumber = 1,
     int pageSize = 10,
+    int? tab,
   });
 
   Future<ApiResult<CreatedInvoice>> createFromPackage({
@@ -31,4 +32,6 @@ abstract class InvoiceRepository {
     required int rating,
     required String ratingText,
   });
+
+  Future<ApiResult<void>> cancelInvoice(int invoiceId);
 }

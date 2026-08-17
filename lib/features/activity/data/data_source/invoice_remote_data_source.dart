@@ -20,6 +20,7 @@ abstract class InvoiceRemoteDataSource {
     @Header('Accept-Language') required String language,
     @Query('pageNumber') int pageNumber = 1,
     @Query('pageSize') int pageSize = 10,
+    @Query('Tab') int? tab,
   });
 
   @POST('Invoice/from-package')
@@ -40,5 +41,10 @@ abstract class InvoiceRemoteDataSource {
   @POST('Review/reviews')
   Future<CreateInvoiceResponseDto> createReview(
     @Body() CreateReviewRequestDto request,
+  );
+
+  @PUT('Invoice/invoices/cancel/{invoiceId}')
+  Future<CreateInvoiceResponseDto> cancelInvoice(
+    @Path('invoiceId') int invoiceId,
   );
 }

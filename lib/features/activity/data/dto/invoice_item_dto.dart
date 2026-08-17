@@ -10,6 +10,10 @@ class InvoiceItemDto {
   final String? status;
   final String? date;
   final String? providerImageUrl;
+  final bool? isReviewed;
+  final bool? isFromPackage;
+  final double? priceAfter;
+  final double? packagePrice;
 
   const InvoiceItemDto({
     this.invoiceId,
@@ -18,6 +22,10 @@ class InvoiceItemDto {
     this.status,
     this.date,
     this.providerImageUrl,
+    this.isReviewed,
+    this.isFromPackage,
+    this.priceAfter,
+    this.packagePrice,
   });
 
   factory InvoiceItemDto.fromJson(Map<String, dynamic> json) =>

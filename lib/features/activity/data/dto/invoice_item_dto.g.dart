@@ -14,6 +14,10 @@ InvoiceItemDto _$InvoiceItemDtoFromJson(Map<String, dynamic> json) =>
       status: json['status'] as String?,
       date: json['date'] as String?,
       providerImageUrl: json['providerImageUrl'] as String?,
+      isReviewed: json['isReviewed'] as bool?,
+      isFromPackage: json['isFromPackage'] as bool?,
+      priceAfter: (json['priceAfter'] as num?)?.toDouble(),
+      packagePrice: (json['packagePrice'] as num?)?.toDouble(),
     );
 
 Map<String, dynamic> _$InvoiceItemDtoToJson(InvoiceItemDto instance) =>
@@ -24,4 +28,8 @@ Map<String, dynamic> _$InvoiceItemDtoToJson(InvoiceItemDto instance) =>
       'status': instance.status,
       'date': instance.date,
       'providerImageUrl': instance.providerImageUrl,
+      'isReviewed': instance.isReviewed,
+      'isFromPackage': instance.isFromPackage,
+      'priceAfter': instance.priceAfter,
+      'packagePrice': instance.packagePrice,
     };

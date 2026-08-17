@@ -52,12 +52,14 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
   Future<ApiResult<InvoicesPage>> getMyInvoices({
     int pageNumber = 1,
     int pageSize = 10,
+    int? tab,
   }) async {
     try {
       final response = await _dataSource.getMyInvoices(
         language: AppLanguageManager.instance.currentLanguage,
         pageNumber: pageNumber,
         pageSize: pageSize,
+        tab: tab,
       );
 
       if (response.succeeded == true) {
@@ -71,6 +73,10 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
                 status: dto.status ?? '',
                 date: DateTime.tryParse(dto.date ?? '') ?? DateTime.now(),
                 providerImageUrl: dto.providerImageUrl,
+                isReviewed: dto.isReviewed ?? false,
+                isFromPackage: dto.isFromPackage ?? false,
+                priceAfter: dto.priceAfter,
+                packagePrice: dto.packagePrice,
               ),
             )
             .toList();
@@ -255,6 +261,27 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
           ratingText: ratingText,
         ),
       );
+
+      if (response.succeeded == true) {
+        return const ApiResult.success(null);
+      }
+
+      return ApiResult.failure(
+        _failureMessage(
+          errors: response.errors,
+          message: response.message,
+          fallback: '',
+        ),
+      );
+    } catch (error) {
+      return ApiResult.failure(parseApiError(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<void>> cancelInvoice(int invoiceId) async {
+    try {
+      final response = await _dataSource.cancelInvoice(invoiceId);
 
       if (response.succeeded == true) {
         return const ApiResult.success(null);

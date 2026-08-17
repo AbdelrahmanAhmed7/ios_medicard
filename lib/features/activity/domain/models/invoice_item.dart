@@ -5,14 +5,26 @@ class InvoiceItem {
   final String status;
   final DateTime date;
   final String? providerImageUrl;
+  final bool isReviewed;
+  final bool isFromPackage;
+  final double? priceAfter;
+  final double? packagePrice;
 
-  /// Returns true when the invoice has been used/consumed.
+  bool get isPending {
+    final normalized = status.toLowerCase();
+    return normalized == 'pending';
+  }
+
+  bool get isPaid {
+    final normalized = status.toLowerCase();
+    return normalized == 'paid';
+  }
+
   bool get isUsed {
     final normalized = status.toLowerCase();
     return normalized == 'used' || normalized == 'completed';
   }
 
-  /// Returns true when the invoice has been cancelled.
   bool get isCancelled {
     final normalized = status.toLowerCase();
     return normalized == 'canceled' || normalized == 'cancelled';
@@ -25,5 +37,9 @@ class InvoiceItem {
     required this.status,
     required this.date,
     this.providerImageUrl,
+    this.isReviewed = false,
+    this.isFromPackage = false,
+    this.priceAfter,
+    this.packagePrice,
   });
 }

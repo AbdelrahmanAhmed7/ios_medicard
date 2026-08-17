@@ -525,8 +525,10 @@ class AppRouter {
         GoRoute(
           path: '/invoice-details',
           builder: (context, state) {
-            final invoice = state.extra as InvoiceItem;
-            return InvoiceDetailsScreen(invoice: invoice);
+            final extra = state.extra as Map<String, dynamic>;
+            final invoice = extra['invoice'] as InvoiceItem;
+            final tab = extra['tab'] as int? ?? 0;
+            return InvoiceDetailsScreen(invoice: invoice, tab: tab);
           },
         ),
         GoRoute(

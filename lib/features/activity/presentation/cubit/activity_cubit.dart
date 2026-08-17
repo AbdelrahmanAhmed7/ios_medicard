@@ -10,18 +10,23 @@ class ActivityCubit extends Cubit<ActivityState> {
 
   static const int _pageSize = 10;
 
+  int _currentTab = 1;
+  int _currentPage = 0;
+  List<InvoiceItem> _currentInvoices = const [];
+
   Future<void>? _invoicesLoad;
   Future<void>? _loadMore;
-  int _currentPage = 0;
 
   ActivityCubit(this._repository) : super(const ActivityState.initial());
 
-  Future<void> loadInvoices() {
+  /// Loads invoices for a specific tab (1=Pending, 2=Paid, 3=Used, 4=Canceled).
+  Future<void> loadInvoices({int tab = 1}) {
     if (isClosed) return Future.value();
     final ongoing = _invoicesLoad;
-    if (ongoing != null) return ongoing;
+    if (ongoing != null && tab == _currentTab) return ongoing;
 
-    final load = _performLoadInvoices();
+    _currentTab = tab;
+    final load = _performLoadInvoices(tab: tab);
     _invoicesLoad = load;
     return load.whenComplete(() {
       if (identical(_invoicesLoad, load)) {
@@ -51,7 +56,7 @@ class ActivityCubit extends Cubit<ActivityState> {
     });
   }
 
-  Future<void> _performLoadInvoices() async {
+  Future<void> _performLoadInvoices({required int tab}) async {
     if (isClosed) return;
     emit(const ActivityState.loading());
     _currentPage = 0;
@@ -59,6 +64,7 @@ class ActivityCubit extends Cubit<ActivityState> {
     final result = await _repository.getMyInvoices(
       pageNumber: 1,
       pageSize: _pageSize,
+      tab: tab,
     );
 
     if (isClosed) return;
@@ -66,9 +72,10 @@ class ActivityCubit extends Cubit<ActivityState> {
       success: (page) {
         if (isClosed) return;
         _currentPage = page.pageNumber;
+        _currentInvoices = page.items;
         if (kDebugMode) {
           debugPrint(
-            '[ActivityCubit] page ${page.pageNumber}/${page.totalPages} '
+            '[ActivityCubit] tab=$tab page ${page.pageNumber}/${page.totalPages} '
             'items=${page.items.length}',
           );
         }
@@ -89,14 +96,9 @@ class ActivityCubit extends Cubit<ActivityState> {
   Future<void> _performLoadMore() async {
     if (isClosed) return;
 
-    final currentInvoices = state.maybeWhen(
-      success: (invoices, _, _) => invoices,
-      orElse: () => const <InvoiceItem>[],
-    );
-
     emit(
       ActivityState.success(
-        invoices: currentInvoices,
+        invoices: _currentInvoices,
         isLoadingMore: true,
         hasMore: true,
       ),
@@ -106,6 +108,7 @@ class ActivityCubit extends Cubit<ActivityState> {
     final result = await _repository.getMyInvoices(
       pageNumber: nextPage,
       pageSize: _pageSize,
+      tab: _currentTab,
     );
 
     if (isClosed) return;
@@ -114,15 +117,15 @@ class ActivityCubit extends Cubit<ActivityState> {
         if (isClosed) return;
         _currentPage = page.pageNumber;
 
-        final existingIds = currentInvoices.map((e) => e.invoiceId).toSet();
+        final existingIds = _currentInvoices.map((e) => e.invoiceId).toSet();
         final newItems = page.items
             .where((item) => !existingIds.contains(item.invoiceId))
             .toList();
-        final merged = [...currentInvoices, ...newItems];
+        _currentInvoices = [..._currentInvoices, ...newItems];
 
         emit(
           ActivityState.success(
-            invoices: merged,
+            invoices: _currentInvoices,
             isLoadingMore: false,
             hasMore: page.hasMore,
           ),
@@ -135,7 +138,7 @@ class ActivityCubit extends Cubit<ActivityState> {
         }
         emit(
           ActivityState.success(
-            invoices: currentInvoices,
+            invoices: _currentInvoices,
             isLoadingMore: false,
             hasMore: true,
           ),

@@ -26,12 +26,15 @@ class _InvoiceRemoteDataSource implements InvoiceRemoteDataSource {
     required String language,
     int pageNumber = 1,
     int pageSize = 10,
+    int? tab,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
       r'pageNumber': pageNumber,
       r'pageSize': pageSize,
+      r'Tab': tab,
     };
+    queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{r'Accept-Language': language};
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
@@ -157,6 +160,33 @@ class _InvoiceRemoteDataSource implements InvoiceRemoteDataSource {
           .compose(
             _dio.options,
             'Review/reviews',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late CreateInvoiceResponseDto _value;
+    try {
+      _value = CreateInvoiceResponseDto.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<CreateInvoiceResponseDto> cancelInvoice(int invoiceId) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<CreateInvoiceResponseDto>(
+      Options(method: 'PUT', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            'Invoice/invoices/cancel/${invoiceId}',
             queryParameters: queryParameters,
             data: _data,
           )

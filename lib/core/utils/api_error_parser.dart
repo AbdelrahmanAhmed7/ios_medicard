@@ -134,6 +134,11 @@ String friendlyApiMessage(String message) {
     return 'cart.service_not_available'.tr();
   }
 
+  if (lower.contains('invoicealreadyused') ||
+      lower.contains('invoice already used')) {
+    return 'activity.invoice_already_used'.tr();
+  }
+
   return normalized;
 }
 

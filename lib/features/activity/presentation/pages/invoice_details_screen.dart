@@ -14,8 +14,9 @@ import '../../domain/repositories/invoice_repository.dart';
 
 class InvoiceDetailsScreen extends StatefulWidget {
   final InvoiceItem invoice;
+  final int tab;
 
-  const InvoiceDetailsScreen({super.key, required this.invoice});
+  const InvoiceDetailsScreen({super.key, required this.invoice, this.tab = 0});
 
   @override
   State<InvoiceDetailsScreen> createState() => _InvoiceDetailsScreenState();
@@ -76,7 +77,7 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
                     ),
                   );
                 }
-                return _DetailsBody(invoice: widget.invoice, details: details);
+                return _DetailsBody(invoice: widget.invoice, details: details, tab: widget.tab);
               },
             ),
           ),
@@ -89,8 +90,9 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
 class _DetailsBody extends StatelessWidget {
   final InvoiceItem invoice;
   final InvoiceDetails details;
+  final int tab;
 
-  const _DetailsBody({required this.invoice, required this.details});
+  const _DetailsBody({required this.invoice, required this.details, required this.tab});
 
   @override
   Widget build(BuildContext context) {
@@ -148,7 +150,7 @@ class _DetailsBody extends StatelessWidget {
           ],
         ),
         SizedBox(height: 68.h),
-        _DetailsActions(invoice: invoice, details: details),
+        _DetailsActions(invoice: invoice, details: details, tab: tab),
       ],
     );
   }
@@ -323,26 +325,175 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
-class _DetailsActions extends StatelessWidget {
+class _DetailsActions extends StatefulWidget {
   final InvoiceItem invoice;
   final InvoiceDetails details;
+  final int tab;
 
-  const _DetailsActions({required this.invoice, required this.details});
+  const _DetailsActions({required this.invoice, required this.details, required this.tab});
+
+  @override
+  State<_DetailsActions> createState() => _DetailsActionsState();
+}
+
+class _DetailsActionsState extends State<_DetailsActions> {
+  bool _isCanceling = false;
+
+  bool get _canCancel => widget.tab == 1;
+
+  bool get _canReview => widget.tab == 3;
+
+  Future<void> _onCancelTapped() async {
+    final confirmed = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+      ),
+      builder: (sheetContext) {
+        return Padding(
+          padding: EdgeInsets.fromLTRB(22.w, 18.h, 22.w, 24.h),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40.w,
+                height: 4.h,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE5E7EB),
+                  borderRadius: BorderRadius.circular(2.r),
+                ),
+              ),
+              SizedBox(height: 18.h),
+              Container(
+                width: 52.r,
+                height: 52.r,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFEF2F2),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.cancel_outlined,
+                  color: Colors.red,
+                  size: 26.sp,
+                ),
+              ),
+              SizedBox(height: 14.h),
+              Text(
+                'activity.cancel_invoice_confirm_title'.tr(),
+                style: TextStyle(
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF111827),
+                ),
+              ),
+              SizedBox(height: 8.h),
+              Text(
+                'activity.cancel_invoice_confirm_message'.tr(),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  height: 1.35,
+                  color: const Color(0xFF6B7280),
+                ),
+              ),
+              SizedBox(height: 20.h),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(sheetContext).pop(false),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF334155),
+                        side: const BorderSide(color: Color(0xFFD1D5DB)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.r),
+                        ),
+                        minimumSize: Size.fromHeight(48.h),
+                      ),
+                      child: Text('common.cancel'.tr()),
+                    ),
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(sheetContext).pop(true),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.r),
+                        ),
+                        minimumSize: Size.fromHeight(48.h),
+                      ),
+                      child: Text('activity.cancel_invoice'.tr()),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _isCanceling = true);
+    final result = await sl<InvoiceRepository>().cancelInvoice(
+      widget.invoice.invoiceId,
+    );
+    if (!mounted) return;
+    setState(() => _isCanceling = false);
+
+    result.when(
+      success: (_) {
+        showSuccessToast('activity.cancel_invoice_success'.tr());
+        context.pop();
+      },
+      failure: (message) => showErrorToast(message),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final canReview = _canLeaveReview(details.status);
     return Column(
       children: [
+        if (_canCancel)
+          SizedBox(
+            width: double.infinity,
+            height: 50.h,
+            child: OutlinedButton(
+              onPressed: _isCanceling ? null : _onCancelTapped,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.red,
+                side: const BorderSide(color: Colors.red),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(9.r),
+                ),
+                textStyle: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              child: _isCanceling
+                  ? const CircularProgressIndicator(color: Colors.red)
+                  : Text('activity.cancel_invoice'.tr()),
+            ),
+          ),
+        if (_canCancel) SizedBox(height: 12.h),
         SizedBox(
           width: double.infinity,
           height: 50.h,
           child: OutlinedButton(
-            onPressed: canReview
+            onPressed: _canReview
                 ? () => showDialog<void>(
                     context: context,
                     barrierDismissible: true,
-                    builder: (_) => _ReviewDialog(invoiceId: invoice.invoiceId),
+                    builder: (_) => _ReviewDialog(
+                      invoiceId: widget.invoice.invoiceId,
+                    ),
                   )
                 : () => showInfoToast(
                     'activity.review_requires_used_invoice'.tr(),
@@ -363,11 +514,6 @@ class _DetailsActions extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  bool _canLeaveReview(String status) {
-    final normalized = status.trim().toLowerCase();
-    return normalized == 'used' || normalized == 'completed';
   }
 }
 

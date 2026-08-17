@@ -24,13 +24,26 @@ class _ActivityScreenState extends State<ActivityScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
+    _tabController.addListener(_onTabChanged);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<ActivityCubit>().loadInvoices(tab: 1);
+      }
+    });
   }
 
   @override
   void dispose() {
+    _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
     super.dispose();
+  }
+
+  void _onTabChanged() {
+    if (!_tabController.indexIsChanging || !mounted) return;
+    final tab = _tabController.index + 1;
+    context.read<ActivityCubit>().loadInvoices(tab: tab);
   }
 
   @override
@@ -53,13 +66,14 @@ class _ActivityScreenState extends State<ActivityScreen>
             indicatorSize: TabBarIndicatorSize.tab,
             labelColor: kAuthBlue,
             unselectedLabelColor: const Color(0xFF4B5563),
-            labelStyle: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
+            labelStyle: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500),
             unselectedLabelStyle: TextStyle(
-              fontSize: 16.sp,
+              fontSize: 14.sp,
               fontWeight: FontWeight.w400,
             ),
             tabs: [
               Tab(text: 'activity.pending'.tr()),
+              Tab(text: 'activity.paid'.tr()),
               Tab(text: 'activity.used'.tr()),
               Tab(text: 'activity.cancelled'.tr()),
             ],
@@ -74,43 +88,61 @@ class _ActivityScreenState extends State<ActivityScreen>
                   ),
                   failure: (error) => _ErrorView(
                     error: error,
-                    onRetry: () => context.read<ActivityCubit>().loadInvoices(),
+                    onRetry: () => context
+                        .read<ActivityCubit>()
+                        .loadInvoices(tab: _tabController.index + 1),
                   ),
                   success: (invoices, isLoadingMore, hasMore) {
-                    final pending = invoices
-                        .where((i) => !i.isUsed && !i.isCancelled)
-                        .toList();
-                    final used = invoices.where((i) => i.isUsed).toList();
-                    final cancelled = invoices
-                        .where((i) => i.isCancelled)
-                        .toList();
-
                     return TabBarView(
                       controller: _tabController,
                       children: [
-                        _InvoiceList(
-                          items: pending,
-                          emptyTitleKey: 'activity.empty_pending_title',
-                          emptyMessageKey: 'activity.empty_pending_message',
-                          emptyIcon: Icons.event_available_outlined,
-                          isLoadingMore: isLoadingMore,
-                          hasMore: hasMore,
+                        _TabScope(
+                          tab: 1,
+                          child: _InvoiceList(
+                            key: const ValueKey('pending'),
+                            items: invoices,
+                            emptyTitleKey: 'activity.empty_pending_title',
+                            emptyMessageKey: 'activity.empty_pending_message',
+                            emptyIcon: Icons.event_available_outlined,
+                            isLoadingMore: isLoadingMore,
+                            hasMore: hasMore,
+                          ),
                         ),
-                        _InvoiceList(
-                          items: used,
-                          emptyTitleKey: 'activity.empty_used_title',
-                          emptyMessageKey: 'activity.empty_used_message',
-                          emptyIcon: Icons.receipt_long_outlined,
-                          isLoadingMore: isLoadingMore,
-                          hasMore: hasMore,
+                        _TabScope(
+                          tab: 2,
+                          child: _InvoiceList(
+                            key: const ValueKey('paid'),
+                            items: invoices,
+                            emptyTitleKey: 'activity.empty_paid_title',
+                            emptyMessageKey: 'activity.empty_paid_message',
+                            emptyIcon: Icons.account_balance_wallet_outlined,
+                            isLoadingMore: isLoadingMore,
+                            hasMore: hasMore,
+                          ),
                         ),
-                        _InvoiceList(
-                          items: cancelled,
-                          emptyTitleKey: 'activity.empty_cancelled_title',
-                          emptyMessageKey: 'activity.empty_cancelled_message',
-                          emptyIcon: Icons.cancel_outlined,
-                          isLoadingMore: isLoadingMore,
-                          hasMore: hasMore,
+                        _TabScope(
+                          tab: 3,
+                          child: _InvoiceList(
+                            key: const ValueKey('used'),
+                            items: invoices,
+                            emptyTitleKey: 'activity.empty_used_title',
+                            emptyMessageKey: 'activity.empty_used_message',
+                            emptyIcon: Icons.receipt_long_outlined,
+                            isLoadingMore: isLoadingMore,
+                            hasMore: hasMore,
+                          ),
+                        ),
+                        _TabScope(
+                          tab: 4,
+                          child: _InvoiceList(
+                            key: const ValueKey('cancelled'),
+                            items: invoices,
+                            emptyTitleKey: 'activity.empty_cancelled_title',
+                            emptyMessageKey: 'activity.empty_cancelled_message',
+                            emptyIcon: Icons.cancel_outlined,
+                            isLoadingMore: isLoadingMore,
+                            hasMore: hasMore,
+                          ),
                         ),
                       ],
                     );
@@ -171,6 +203,7 @@ class _InvoiceList extends StatefulWidget {
   final bool hasMore;
 
   const _InvoiceList({
+    super.key,
     required this.items,
     required this.emptyTitleKey,
     required this.emptyMessageKey,
@@ -190,7 +223,6 @@ class _InvoiceListState extends State<_InvoiceList> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _maybePrefetchMore());
   }
 
   @override
@@ -219,7 +251,6 @@ class _InvoiceListState extends State<_InvoiceList> {
     }
   }
 
-  /// When a filtered tab is short/empty but more pages exist, keep loading.
   void _maybePrefetchMore() {
     if (!mounted || !widget.hasMore || widget.isLoadingMore) return;
     if (!_scrollController.hasClients) {
@@ -257,7 +288,9 @@ class _InvoiceListState extends State<_InvoiceList> {
 
     return RefreshIndicator(
       color: kAuthBlue,
-      onRefresh: () => context.read<ActivityCubit>().loadInvoices(),
+      onRefresh: () => context
+          .read<ActivityCubit>()
+          .loadInvoices(tab: _TabScope.of(context)),
       child: ListView.separated(
         controller: _scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
@@ -280,6 +313,18 @@ class _InvoiceListState extends State<_InvoiceList> {
       ),
     );
   }
+}
+
+class _TabScope extends InheritedWidget {
+  final int tab;
+  const _TabScope({required this.tab, required super.child});
+
+  static int of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<_TabScope>()!.tab;
+  }
+
+  @override
+  bool updateShouldNotify(_TabScope oldWidget) => tab != oldWidget.tab;
 }
 
 class _ActivityEmptyView extends StatelessWidget {
@@ -355,7 +400,7 @@ class _InvoiceCard extends StatelessWidget {
 
     return InkWell(
       borderRadius: BorderRadius.circular(16.r),
-      onTap: () => context.push('/invoice-details', extra: item),
+      onTap: () => context.push('/invoice-details', extra: {'invoice': item, 'tab': _TabScope.of(context)}),
       child: Container(
         padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
@@ -491,7 +536,7 @@ class _InvoiceActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => context.push('/invoice-details', extra: item),
+      onTap: () => context.push('/invoice-details', extra: {'invoice': item, 'tab': _TabScope.of(context)}),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
