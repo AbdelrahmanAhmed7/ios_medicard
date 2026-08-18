@@ -26,6 +26,9 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
   final _lastNameController = TextEditingController();
   int? _selectedRelation;
 
+  final Set<String> _touchedFields = {};
+  final Map<String, FocusNode> _focusNodes = {};
+
   @override
   void initState() {
     super.initState();
@@ -34,12 +37,25 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
       _lastNameController.text = widget.member!.lastName ?? '';
       _selectedRelation = widget.member!.relation;
     }
+
+    for (final name in ['firstName', 'lastName']) {
+      final node = FocusNode();
+      node.addListener(() {
+        if (!node.hasFocus) {
+          setState(() => _touchedFields.add(name));
+        }
+      });
+      _focusNodes[name] = node;
+    }
   }
 
   @override
   void dispose() {
     _firstNameController.dispose();
     _lastNameController.dispose();
+    for (final node in _focusNodes.values) {
+      node.dispose();
+    }
     super.dispose();
   }
 
@@ -189,6 +205,7 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
                           _buildTextField(
                             controller: _firstNameController,
                             hint: 'edit_profile.first_name'.tr(),
+                            focusKey: 'firstName',
                             inputFormatters: [
                               FilteringTextInputFormatter.allow(
                                 RegExp(r"[\p{L} .'\-]", unicode: true),
@@ -201,6 +218,7 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
                           _buildTextField(
                             controller: _lastNameController,
                             hint: 'edit_profile.last_name'.tr(),
+                            focusKey: 'lastName',
                             inputFormatters: [
                               FilteringTextInputFormatter.allow(
                                 RegExp(r"[\p{L} .'\-]", unicode: true),
@@ -237,12 +255,16 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
     required String hint,
     String? Function(String?)? validator,
     List<TextInputFormatter>? inputFormatters,
+    String? focusKey,
   }) {
     return TextFormField(
       controller: controller,
       validator: validator,
       inputFormatters: inputFormatters,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      focusNode: focusKey != null ? _focusNodes[focusKey] : null,
+      autovalidateMode: focusKey != null && _touchedFields.contains(focusKey)
+          ? AutovalidateMode.onUserInteraction
+          : AutovalidateMode.disabled,
       style: TextStyle(
         fontSize: 15.sp,
         color: Colors.black,

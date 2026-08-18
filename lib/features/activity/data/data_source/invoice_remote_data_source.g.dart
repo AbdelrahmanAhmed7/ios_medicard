@@ -186,7 +186,7 @@ class _InvoiceRemoteDataSource implements InvoiceRemoteDataSource {
       Options(method: 'PUT', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'Invoice/invoices/cancel/${invoiceId}',
+            'Invoice/cancel/${invoiceId}',
             queryParameters: queryParameters,
             data: _data,
           )

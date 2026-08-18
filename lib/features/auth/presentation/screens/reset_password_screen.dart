@@ -31,10 +31,23 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
 
+  final Set<String> _touchedFields = {};
+  final Map<String, FocusNode> _focusNodes = {};
+
   @override
   void initState() {
     super.initState();
     _passwordController.addListener(_onPasswordChanged);
+
+    for (final name in ['password', 'confirmPassword']) {
+      final node = FocusNode();
+      node.addListener(() {
+        if (!node.hasFocus) {
+          setState(() => _touchedFields.add(name));
+        }
+      });
+      _focusNodes[name] = node;
+    }
   }
 
   void _onPasswordChanged() {
@@ -49,6 +62,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     _passwordController.removeListener(_onPasswordChanged);
     _passwordController.dispose();
     _confirmController.dispose();
+    for (final node in _focusNodes.values) {
+      node.dispose();
+    }
     super.dispose();
   }
 
@@ -137,9 +153,12 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           SizedBox(height: 6.h),
                           TextFormField(
                             controller: _passwordController,
+                            focusNode: _focusNodes['password'],
                             obscureText: _obscurePassword,
                             validator: _validatePassword,
-                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                            autovalidateMode: _touchedFields.contains('password')
+                                ? AutovalidateMode.onUserInteraction
+                                : AutovalidateMode.disabled,
                             decoration: authInputDecoration(
                               hintText: 'auth.forgot.new_password_hint'.tr(),
                               suffixIcon: IconButton(
@@ -162,9 +181,12 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           TextFormField(
                             key: _confirmFieldKey,
                             controller: _confirmController,
+                            focusNode: _focusNodes['confirmPassword'],
                             obscureText: _obscureConfirm,
                             validator: _validateConfirm,
-                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                            autovalidateMode: _touchedFields.contains('confirmPassword')
+                                ? AutovalidateMode.onUserInteraction
+                                : AutovalidateMode.disabled,
                             decoration: authInputDecoration(
                               hintText: 'auth.forgot.confirm_hint'.tr(),
                               suffixIcon: IconButton(

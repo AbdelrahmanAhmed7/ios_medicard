@@ -21,10 +21,23 @@ class ForgotPasswordScreen extends StatefulWidget {
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _phoneController = TextEditingController();
+  final _phoneFocus = FocusNode();
+  bool _phoneTouched = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _phoneFocus.addListener(() {
+      if (!_phoneFocus.hasFocus && !_phoneTouched) {
+        setState(() => _phoneTouched = true);
+      }
+    });
+  }
 
   @override
   void dispose() {
     _phoneController.dispose();
+    _phoneFocus.dispose();
     super.dispose();
   }
 
@@ -110,10 +123,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           SizedBox(height: 6.h),
                           TextFormField(
                             controller: _phoneController,
+                            focusNode: _phoneFocus,
                             keyboardType: TextInputType.phone,
                             maxLength: 11,
                             validator: _validatePhone,
-                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                            autovalidateMode: _phoneTouched
+                                ? AutovalidateMode.onUserInteraction
+                                : AutovalidateMode.disabled,
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
                             ],

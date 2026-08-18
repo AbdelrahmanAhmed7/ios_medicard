@@ -43,13 +43,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   }
 
   void _onNewPasswordFocusChanged() {
-    if (_newPasswordFocus.hasFocus && !_newPasswordTouched) {
+    if (!_newPasswordFocus.hasFocus && !_newPasswordTouched) {
       setState(() => _newPasswordTouched = true);
     }
   }
 
   void _onConfirmPasswordFocusChanged() {
-    if (_confirmPasswordFocus.hasFocus && !_confirmPasswordTouched) {
+    if (!_confirmPasswordFocus.hasFocus && !_confirmPasswordTouched) {
       setState(() => _confirmPasswordTouched = true);
     }
   }

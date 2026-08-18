@@ -46,6 +46,7 @@ class _AppTextFieldState extends State<AppTextField>
     with SingleTickerProviderStateMixin {
   bool _obscure = true;
   bool _isFocused = false;
+  bool _touched = false;
   late FocusNode _focusNode;
   late AnimationController _animationController;
   late Animation<double> _borderAnimation;
@@ -86,6 +87,7 @@ class _AppTextFieldState extends State<AppTextField>
   void _onFocusChange() {
     setState(() {
       _isFocused = _focusNode.hasFocus;
+      if (!_focusNode.hasFocus) _touched = true;
     });
     if (_focusNode.hasFocus) {
       _animationController.forward();
@@ -115,7 +117,9 @@ class _AppTextFieldState extends State<AppTextField>
   @override
   Widget build(BuildContext context) {
     return FormField<String>(
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      autovalidateMode: _touched
+          ? AutovalidateMode.onUserInteraction
+          : AutovalidateMode.disabled,
       validator: widget.validator,
       builder: (fieldState) {
         final String? localError = fieldState.errorText;
@@ -173,7 +177,6 @@ class _AppTextFieldState extends State<AppTextField>
                   onChanged: (value) {
                     widget.onChanged?.call(value);
                     fieldState.didChange(value);
-                    fieldState.validate();
                   },
                   style: TextStyle(
                     fontSize: 14.sp,

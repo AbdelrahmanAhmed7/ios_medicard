@@ -344,96 +344,89 @@ class _DetailsActionsState extends State<_DetailsActions> {
   bool get _canReview => widget.tab == 3;
 
   Future<void> _onCancelTapped() async {
-    final confirmed = await showModalBottomSheet<bool>(
+    final confirmed = await showDialog<bool>(
       context: context,
       useRootNavigator: true,
-      isScrollControlled: true,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
-      ),
       builder: (sheetContext) {
-        return Padding(
-          padding: EdgeInsets.fromLTRB(22.w, 18.h, 22.w, 24.h),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40.w,
-                height: 4.h,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE5E7EB),
-                  borderRadius: BorderRadius.circular(2.r),
-                ),
-              ),
-              SizedBox(height: 18.h),
-              Container(
-                width: 52.r,
-                height: 52.r,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFEF2F2),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.cancel_outlined,
-                  color: Colors.red,
-                  size: 26.sp,
-                ),
-              ),
-              SizedBox(height: 14.h),
-              Text(
-                'activity.cancel_invoice_confirm_title'.tr(),
-                style: TextStyle(
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF111827),
-                ),
-              ),
-              SizedBox(height: 8.h),
-              Text(
-                'activity.cancel_invoice_confirm_message'.tr(),
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  height: 1.35,
-                  color: const Color(0xFF6B7280),
-                ),
-              ),
-              SizedBox(height: 20.h),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.of(sheetContext).pop(false),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF334155),
-                        side: const BorderSide(color: Color(0xFFD1D5DB)),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.r),
-                        ),
-                        minimumSize: Size.fromHeight(48.h),
-                      ),
-                      child: Text('common.cancel'.tr()),
-                    ),
+        return Dialog(
+          insetPadding: EdgeInsets.symmetric(horizontal: 22.w),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.r),
+          ),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(22.w, 18.h, 22.w, 24.h),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 52.r,
+                  height: 52.r,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFEF2F2),
+                    shape: BoxShape.circle,
                   ),
-                  SizedBox(width: 12.w),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.of(sheetContext).pop(true),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.r),
-                        ),
-                        minimumSize: Size.fromHeight(48.h),
-                      ),
-                      child: Text('activity.cancel_invoice'.tr()),
-                    ),
+                  child: Icon(
+                    Icons.cancel_outlined,
+                    color: Colors.red,
+                    size: 26.sp,
                   ),
-                ],
-              ),
-            ],
+                ),
+                SizedBox(height: 14.h),
+                Text(
+                  'activity.cancel_invoice_confirm_title'.tr(),
+                  style: TextStyle(
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF111827),
+                  ),
+                ),
+                SizedBox(height: 8.h),
+                Text(
+                  'activity.cancel_invoice_confirm_message'.tr(),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    height: 1.35,
+                    color: const Color(0xFF6B7280),
+                  ),
+                ),
+                SizedBox(height: 20.h),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.of(sheetContext).pop(false),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFF334155),
+                          side: const BorderSide(color: Color(0xFFD1D5DB)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                          ),
+                          minimumSize: Size.fromHeight(48.h),
+                        ),
+                        child: Text('common.cancel'.tr()),
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.of(sheetContext).pop(true),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                          ),
+                          minimumSize: Size.fromHeight(48.h),
+                        ),
+                        child: Text('activity.cancel_invoice'.tr()),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         );
       },

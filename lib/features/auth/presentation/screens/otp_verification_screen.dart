@@ -33,6 +33,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   final _formKey = GlobalKey<FormState>();
   final _otpController = TextEditingController();
+  final _otpFocus = FocusNode();
+  bool _otpTouched = false;
   Timer? _timer;
   bool _showOtp = true;
   int _secondsLeft = _displaySeconds;
@@ -42,12 +44,18 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     super.initState();
     if (kDebugMode) debugPrint('[OTP] preview OTP: ${widget.otp}');
     _startCountdown();
+    _otpFocus.addListener(() {
+      if (!_otpFocus.hasFocus && !_otpTouched) {
+        setState(() => _otpTouched = true);
+      }
+    });
   }
 
   @override
   void dispose() {
     _timer?.cancel();
     _otpController.dispose();
+    _otpFocus.dispose();
     super.dispose();
   }
 
@@ -170,10 +178,13 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                           SizedBox(height: 6.h),
                           TextFormField(
                             controller: _otpController,
+                            focusNode: _otpFocus,
                             keyboardType: TextInputType.number,
                             maxLength: 6,
                             validator: _validateOtp,
-                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                            autovalidateMode: _otpTouched
+                                ? AutovalidateMode.onUserInteraction
+                                : AutovalidateMode.disabled,
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
                             ],

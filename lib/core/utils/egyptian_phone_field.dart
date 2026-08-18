@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../theming/app_colors.dart';
 
 /// Reusable Egyptian phone number field with flag and +20 prefix
-class EgyptianPhoneField extends StatelessWidget {
+class EgyptianPhoneField extends StatefulWidget {
   final TextEditingController controller;
   final String? Function(String?)? validator;
   final String? hintText;
@@ -22,26 +22,46 @@ class EgyptianPhoneField extends StatelessWidget {
     required this.phoneRequiredKey,
     required this.phoneInvalidKey,
     this.onChanged,
-    this.maxLength
+    this.maxLength,
   });
+
+  @override
+  State<EgyptianPhoneField> createState() => _EgyptianPhoneFieldState();
+}
+
+class _EgyptianPhoneFieldState extends State<EgyptianPhoneField> {
+  final _focusNode = FocusNode();
+  bool _touched = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(() {
+      if (!_focusNode.hasFocus && !_touched) {
+        setState(() => _touched = true);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
 
   /// Default validator for Egyptian phone numbers
   String? _defaultValidator(String? value) {
     if (value == null || value.isEmpty) {
-      return phoneRequiredKey.tr();
+      return widget.phoneRequiredKey.tr();
     }
-    // Remove leading 0 if user entered it for validation
     String cleanValue = value.startsWith('0') ? value.substring(1) : value;
 
-    // Reject if empty after removing 0
     if (cleanValue.isEmpty) {
-      return phoneRequiredKey.tr();
+      return widget.phoneRequiredKey.tr();
     }
 
-    // Check if phone starts with 10, 11, 12, or 15 and has exactly 10 digits total
-    // Allow only 10 digits (10xx xxxxxx)
     if (!RegExp(r'^(10|11|12|15)[0-9]{8}$').hasMatch(cleanValue)) {
-      return phoneInvalidKey.tr();
+      return widget.phoneInvalidKey.tr();
     }
     return null;
   }
@@ -54,10 +74,12 @@ class EgyptianPhoneField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isRTL = context.locale.languageCode == 'ar';
-    final effectiveValidator = validator ?? _defaultValidator;
+    final effectiveValidator = widget.validator ?? _defaultValidator;
 
     return FormField<String>(
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      autovalidateMode: _touched
+          ? AutovalidateMode.onUserInteraction
+          : AutovalidateMode.disabled,
       validator: effectiveValidator,
       builder: (fieldState) {
         return Column(
@@ -78,13 +100,13 @@ class EgyptianPhoneField extends StatelessWidget {
                       border: Border.all(color: Colors.grey.shade300),
                       borderRadius: isRTL
                           ? BorderRadius.only(
-                        topRight: Radius.circular(8.r),
-                        bottomRight: Radius.circular(8.r),
-                      )
+                              topRight: Radius.circular(8.r),
+                              bottomRight: Radius.circular(8.r),
+                            )
                           : BorderRadius.only(
-                        topLeft: Radius.circular(8.r),
-                        bottomLeft: Radius.circular(8.r),
-                      ),
+                              topLeft: Radius.circular(8.r),
+                              bottomLeft: Radius.circular(8.r),
+                            ),
                     ),
                     child: Directionality(
                       textDirection: ui.TextDirection.ltr,
@@ -118,16 +140,16 @@ class EgyptianPhoneField extends StatelessWidget {
                           left: isRTL
                               ? BorderSide.none
                               : BorderSide(
-                            color: fieldState.hasError
-                                ? AppColors.errorClr
-                                : Colors.grey.shade300,
-                          ),
+                                  color: fieldState.hasError
+                                      ? AppColors.errorClr
+                                      : Colors.grey.shade300,
+                                ),
                           right: isRTL
                               ? BorderSide(
-                            color: fieldState.hasError
-                                ? AppColors.errorClr
-                                : Colors.grey.shade300,
-                          )
+                                  color: fieldState.hasError
+                                      ? AppColors.errorClr
+                                      : Colors.grey.shade300,
+                                )
                               : BorderSide.none,
                           bottom: BorderSide(
                             color: fieldState.hasError
@@ -137,31 +159,32 @@ class EgyptianPhoneField extends StatelessWidget {
                         ),
                         borderRadius: isRTL
                             ? BorderRadius.only(
-                          topLeft: Radius.circular(8.r),
-                          bottomLeft: Radius.circular(8.r),
-                        )
+                                topLeft: Radius.circular(8.r),
+                                bottomLeft: Radius.circular(8.r),
+                              )
                             : BorderRadius.only(
-                          topRight: Radius.circular(8.r),
-                          bottomRight: Radius.circular(8.r),
-                        ),
+                                topRight: Radius.circular(8.r),
+                                bottomRight: Radius.circular(8.r),
+                              ),
                       ),
                       child: TextField(
-                        controller: controller,
-                        maxLength: maxLength,
+                        controller: widget.controller,
+                        focusNode: _focusNode,
+                        maxLength: widget.maxLength,
                         keyboardType: TextInputType.phone,
                         textDirection: ui.TextDirection.ltr,
                         style: TextStyle(fontSize: 14.sp),
                         onChanged: (value) {
                           fieldState.didChange(value);
-                          fieldState.validate();
-                          onChanged?.call(value);
+                          if (_touched) fieldState.validate();
+                          widget.onChanged?.call(value);
                         },
                         decoration: InputDecoration(
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 12.w,
                             vertical: 12.h,
                           ),
-                          hintText: hintText ?? 'auth.signup.validation.phone_hint'.tr(),
+                          hintText: widget.hintText ?? 'auth.signup.validation.phone_hint'.tr(),
                           hintStyle: TextStyle(
                             fontSize: 14.sp,
                             color: Colors.grey,

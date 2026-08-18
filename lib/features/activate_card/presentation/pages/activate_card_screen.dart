@@ -67,7 +67,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
     };
     for (final name in _fieldNames) {
       _focusNodes[name]!.addListener(() {
-        if (_focusNodes[name]!.hasFocus && _touchedFields.add(name)) {
+        if (!_focusNodes[name]!.hasFocus && _touchedFields.add(name)) {
           setState(() {});
         }
       });

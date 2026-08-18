@@ -34,6 +34,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _nationalIdController = TextEditingController();
   final _passportNumberController = TextEditingController();
 
+  final Set<String> _touchedFields = {};
+  final Map<String, FocusNode> _focusNodes = {};
+
   String _birthDate = '2000-01-01';
   bool _isMale = true;
   bool _obscurePassword = true;
@@ -43,6 +46,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void initState() {
     super.initState();
     _passwordController.addListener(_onPasswordChanged);
+
+    for (final name in [
+      'firstName',
+      'lastName',
+      'phoneNumber',
+      'password',
+      'confirmPassword',
+      'nationalId',
+      'passportNumber',
+    ]) {
+      final node = FocusNode();
+      node.addListener(() {
+        if (!node.hasFocus) {
+          setState(() => _touchedFields.add(name));
+        }
+      });
+      _focusNodes[name] = node;
+    }
   }
 
   @override
@@ -55,6 +76,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _confirmPasswordController.dispose();
     _nationalIdController.dispose();
     _passportNumberController.dispose();
+    for (final node in _focusNodes.values) {
+      node.dispose();
+    }
     super.dispose();
   }
 
@@ -349,6 +373,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       controller: _firstNameController,
                                       hintText: 'auth.register.firstNameHint'
                                           .tr(),
+                                      focusKey: 'firstName',
                                       inputFormatters: [
                                         FilteringTextInputFormatter.allow(
                                           RegExp(
@@ -357,8 +382,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           ),
                                         ),
                                       ],
-                                      autovalidateMode:
-                                          AutovalidateMode.onUserInteraction,
                                       validator: (v) => _validateName(
                                         v,
                                         requiredKey:
@@ -382,6 +405,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       controller: _lastNameController,
                                       hintText: 'auth.register.lastNameHint'
                                           .tr(),
+                                      focusKey: 'lastName',
                                       inputFormatters: [
                                         FilteringTextInputFormatter.allow(
                                           RegExp(
@@ -390,8 +414,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           ),
                                         ),
                                       ],
-                                      autovalidateMode:
-                                          AutovalidateMode.onUserInteraction,
                                       validator: (v) => _validateName(
                                         v,
                                         requiredKey:
@@ -415,13 +437,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             controller: _phoneNumberController,
                             hintText: 'auth.register.phoneNumberHint'.tr(),
                             keyboardType: TextInputType.phone,
+                            focusKey: 'phoneNumber',
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
                               LengthLimitingTextInputFormatter(11),
                             ],
                             validator: _validatePhoneNumber,
-                            autovalidateMode:
-                                AutovalidateMode.onUserInteraction,
                           ),
                           SizedBox(height: 16.h),
 
@@ -456,8 +477,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             onToggle: () => setState(
                               () => _obscurePassword = !_obscurePassword,
                             ),
-                            autovalidateMode:
-                                AutovalidateMode.onUserInteraction,
+                            focusKey: 'password',
                             validator: _validatePassword,
                           ),
                           SizedBox(height: 10.h),
@@ -479,9 +499,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               () => _obscureConfirmPassword =
                                   !_obscureConfirmPassword,
                             ),
+                            focusKey: 'confirmPassword',
                             validator: _validateConfirmPassword,
-                            autovalidateMode:
-                                AutovalidateMode.onUserInteraction,
                           ),
                           SizedBox(height: 16.h),
 
@@ -497,14 +516,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             controller: _nationalIdController,
                             hintText: 'auth.register.nationalIdHint'.tr(),
                             keyboardType: TextInputType.number,
+                            focusKey: 'nationalId',
                             required: false,
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
                               LengthLimitingTextInputFormatter(14),
                             ],
                             validator: _validateNationalId,
-                            autovalidateMode:
-                                AutovalidateMode.onUserInteraction,
                           ),
                           SizedBox(height: 16.h),
 
@@ -515,9 +533,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             controller: _passportNumberController,
                             hintText: 'auth.register.passportNumberHint'.tr(),
                             required: false,
+                            focusKey: 'passportNumber',
                             validator: _validatePassportNumber,
-                            autovalidateMode:
-                                AutovalidateMode.onUserInteraction,
                             onChanged: (_) =>
                                 _nationalIdFieldKey.currentState?.validate(),
                           ),
@@ -581,12 +598,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
     ValueChanged<String>? onChanged,
     AutovalidateMode? autovalidateMode,
     List<TextInputFormatter>? inputFormatters,
+    String? focusKey,
   }) {
     return TextFormField(
       key: fieldKey,
       controller: controller,
       keyboardType: keyboardType,
-      autovalidateMode: autovalidateMode,
+      focusNode: focusKey != null ? _focusNodes[focusKey] : null,
+      autovalidateMode: focusKey != null && !_touchedFields.contains(focusKey)
+          ? AutovalidateMode.disabled
+          : (autovalidateMode ?? AutovalidateMode.disabled),
       onChanged: onChanged,
       inputFormatters: inputFormatters,
       style: TextStyle(fontSize: 15.sp, color: Colors.black),
@@ -610,12 +631,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
     required VoidCallback onToggle,
     String? Function(String?)? validator,
     AutovalidateMode? autovalidateMode,
+    String? focusKey,
   }) {
     return TextFormField(
       key: fieldKey,
       controller: controller,
       obscureText: obscure,
-      autovalidateMode: autovalidateMode,
+      focusNode: focusKey != null ? _focusNodes[focusKey] : null,
+      autovalidateMode: focusKey != null && !_touchedFields.contains(focusKey)
+          ? AutovalidateMode.disabled
+          : (autovalidateMode ?? AutovalidateMode.disabled),
       style: TextStyle(fontSize: 15.sp, color: Colors.black),
       decoration: authInputDecoration(
         hintText: hintText,

@@ -34,6 +34,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _cardNumberController = TextEditingController();
   final _birthDateController = TextEditingController();
 
+  final Set<String> _touchedFields = {};
+  final Map<String, FocusNode> _focusNodes = {};
+
   String _birthDate = '';
   bool? _isMale;
   File? _pickedImage;
@@ -304,6 +307,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _birthDate = widget.profileData.birthDate ?? '';
     _birthDateController.text = _birthDate;
     _isMale = widget.profileData.isMale;
+
+    for (final name in [
+      'firstName', 'lastName', 'phoneNumber', 'nationalId', 'passportNumber',
+    ]) {
+      final node = FocusNode();
+      node.addListener(() {
+        if (!node.hasFocus) {
+          setState(() => _touchedFields.add(name));
+        }
+      });
+      _focusNodes[name] = node;
+    }
   }
 
   @override
@@ -315,6 +330,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _passportNumberController.dispose();
     _cardNumberController.dispose();
     _birthDateController.dispose();
+    for (final node in _focusNodes.values) {
+      node.dispose();
+    }
     super.dispose();
   }
 
@@ -425,6 +443,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   controller: _firstNameController,
                                   hintText: 'edit_profile.first_name'.tr(),
                                   validator: _validateName,
+                                  focusKey: 'firstName',
                                   inputFormatters: [_lettersOnly()],
                                 ),
                               ],
@@ -440,6 +459,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   controller: _lastNameController,
                                   hintText: 'edit_profile.last_name'.tr(),
                                   validator: _validateName,
+                                  focusKey: 'lastName',
                                   inputFormatters: [_lettersOnly()],
                                 ),
                               ],
@@ -475,6 +495,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         hintText: 'edit_profile.national_id'.tr(),
                         keyboardType: TextInputType.number,
                         maxLength: 14,
+                        focusKey: 'nationalId',
                         inputFormatters: [_digitsOnly(maxDigits: 14)],
                         validator: _validateNationalId,
                       ),
@@ -486,6 +507,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         controller: _passportNumberController,
                         hintText: 'edit_profile.passport_number'.tr(),
                         required: false,
+                        focusKey: 'passportNumber',
                       ),
                       SizedBox(height: 14.h),
 
@@ -517,6 +539,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               hintText: 'edit_profile.phone_number'.tr(),
                               keyboardType: TextInputType.phone,
                               maxLength: 11,
+                              focusKey: 'phoneNumber',
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly,
                                 LengthLimitingTextInputFormatter(11),
@@ -795,6 +818,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     int? maxLength,
     List<TextInputFormatter>? inputFormatters,
     String? Function(String?)? validator,
+    String? focusKey,
   }) {
     return TextFormField(
       controller: controller,
@@ -802,7 +826,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       readOnly: readOnly,
       maxLength: maxLength,
       inputFormatters: inputFormatters,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      focusNode: focusKey != null ? _focusNodes[focusKey] : null,
+      autovalidateMode: focusKey != null && _touchedFields.contains(focusKey)
+          ? AutovalidateMode.onUserInteraction
+          : AutovalidateMode.disabled,
       style: TextStyle(
         fontSize: 15.sp,
         color: readOnly ? Colors.grey.shade500 : Colors.black,

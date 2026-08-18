@@ -43,7 +43,7 @@ abstract class InvoiceRemoteDataSource {
     @Body() CreateReviewRequestDto request,
   );
 
-  @PUT('Invoice/invoices/cancel/{invoiceId}')
+  @PUT('Invoice/cancel/{invoiceId}')
   Future<CreateInvoiceResponseDto> cancelInvoice(
     @Path('invoiceId') int invoiceId,
   );
