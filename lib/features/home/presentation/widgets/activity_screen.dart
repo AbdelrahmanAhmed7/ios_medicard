@@ -400,7 +400,13 @@ class _InvoiceCard extends StatelessWidget {
 
     return InkWell(
       borderRadius: BorderRadius.circular(16.r),
-      onTap: () => context.push('/invoice-details', extra: {'invoice': item, 'tab': _TabScope.of(context)}),
+      onTap: () async {
+        final tab = _TabScope.of(context);
+        final result = await context.push('/invoice-details', extra: {'invoice': item, 'tab': tab});
+        if (result == true && context.mounted) {
+          context.read<ActivityCubit>().loadInvoices(tab: tab, forceRefresh: true);
+        }
+      },
       child: Container(
         padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
@@ -536,7 +542,13 @@ class _InvoiceActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => context.push('/invoice-details', extra: {'invoice': item, 'tab': _TabScope.of(context)}),
+      onTap: () async {
+        final tab = _TabScope.of(context);
+        final result = await context.push('/invoice-details', extra: {'invoice': item, 'tab': tab});
+        if (result == true && context.mounted) {
+          context.read<ActivityCubit>().loadInvoices(tab: tab, forceRefresh: true);
+        }
+      },
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

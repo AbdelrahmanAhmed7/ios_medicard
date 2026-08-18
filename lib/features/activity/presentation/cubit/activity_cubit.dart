@@ -20,10 +20,10 @@ class ActivityCubit extends Cubit<ActivityState> {
   ActivityCubit(this._repository) : super(const ActivityState.initial());
 
   /// Loads invoices for a specific tab (1=Pending, 2=Paid, 3=Used, 4=Canceled).
-  Future<void> loadInvoices({int tab = 1}) {
+  Future<void> loadInvoices({int tab = 1, bool forceRefresh = false}) {
     if (isClosed) return Future.value();
     final ongoing = _invoicesLoad;
-    if (ongoing != null && tab == _currentTab) return ongoing;
+    if (!forceRefresh && ongoing != null && tab == _currentTab) return ongoing;
 
     _currentTab = tab;
     final load = _performLoadInvoices(tab: tab);

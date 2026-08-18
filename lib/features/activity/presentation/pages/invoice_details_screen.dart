@@ -444,7 +444,7 @@ class _DetailsActionsState extends State<_DetailsActions> {
     result.when(
       success: (_) {
         showSuccessToast('activity.cancel_invoice_success'.tr());
-        context.pop();
+        context.pop(true);
       },
       failure: (message) => showErrorToast(message),
     );
@@ -552,7 +552,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
     setState(() => _isSubmitting = false);
     result.when(
       success: (_) {
-        context.pop();
+        context.pop(true);
         showSuccessToast('activity.review_submitted_successfully'.tr());
       },
       failure: (message) => showErrorToast(message),
