@@ -18,64 +18,72 @@ class OrderConfirmedScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F8),
-      body: Column(
-        children: [
-          AppBlueHeader(
-            title: 'cart.order_confirmed'.tr(),
-            bottomRadius: 18,
-            onBack: () => context.go('/medicard-home?tab=activity'),
-          ),
-          Expanded(
-            child: ListView(
-              padding: EdgeInsets.fromLTRB(14.w, 24.h, 14.w, 22.h),
-              children: [
-                Icon(
-                  Icons.check_circle,
-                  size: 56.sp,
-                  color: const Color(0xFF159447),
-                ),
-                SizedBox(height: 18.h),
-                Center(
-                  child: Text(
-                    'cart.order_placed_successfully'.tr(),
-                    style: TextStyle(
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
-                    ),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) {
+          context.go('/medicard-home?tab=activity');
+        }
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF7F7F8),
+        body: Column(
+          children: [
+            AppBlueHeader(
+              title: 'cart.order_confirmed'.tr(),
+              bottomRadius: 18,
+              onBack: () => context.go('/medicard-home?tab=activity'),
+            ),
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.fromLTRB(14.w, 24.h, 14.w, 22.h),
+                children: [
+                  Icon(
+                    Icons.check_circle,
+                    size: 56.sp,
+                    color: const Color(0xFF159447),
                   ),
-                ),
-                SizedBox(height: 8.h),
-                Center(child: _OrderBadge(orderNumber: args.orderNumber)),
-                SizedBox(height: 34.h),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50.h,
-                  child: ElevatedButton(
-                    onPressed: () => context.go('/medicard-home?tab=activity'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF3872B1),
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                    ),
+                  SizedBox(height: 18.h),
+                  Center(
                     child: Text(
-                      'cart.view_activity'.tr(),
+                      'cart.order_placed_successfully'.tr(),
                       style: TextStyle(
                         fontSize: 20.sp,
                         fontWeight: FontWeight.w600,
+                        color: Colors.black,
                       ),
                     ),
                   ),
-                ),
-              ],
+                  SizedBox(height: 8.h),
+                  Center(child: _OrderBadge(orderNumber: args.orderNumber)),
+                  SizedBox(height: 34.h),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50.h,
+                    child: ElevatedButton(
+                      onPressed: () => context.go('/medicard-home?tab=activity'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF3872B1),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                      ),
+                      child: Text(
+                        'cart.view_activity'.tr(),
+                        style: TextStyle(
+                          fontSize: 20.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

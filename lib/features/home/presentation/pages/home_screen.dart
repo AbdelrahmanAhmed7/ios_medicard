@@ -65,6 +65,8 @@ class _HomeScreenState extends State<HomeScreen> {
       if (!mounted) return;
       if (widget.showPaymentSuccessDialog) {
         PaymentSuccessDialog.maybeShow(context);
+        context.read<HomeCubit>().getHomeData(refresh: true);
+        context.read<ActivityCubit>().loadInvoices(tab: 2, forceRefresh: true);
         return;
       }
       SummerPromoDialog.maybeShow(context);

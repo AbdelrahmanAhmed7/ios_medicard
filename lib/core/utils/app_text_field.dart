@@ -177,6 +177,7 @@ class _AppTextFieldState extends State<AppTextField>
                   onChanged: (value) {
                     widget.onChanged?.call(value);
                     fieldState.didChange(value);
+                    if (_touched) fieldState.validate();
                   },
                   style: TextStyle(
                     fontSize: 14.sp,

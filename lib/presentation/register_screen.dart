@@ -152,8 +152,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (name.isEmpty) return requiredKey.tr();
     if (name.length < 2) return 'edit_profile.invalid_name'.tr();
     final validNamePattern = RegExp(r"^[\p{L}][\p{L} .'\-]*$", unicode: true);
-    if (!validNamePattern.hasMatch(name))
+    if (!validNamePattern.hasMatch(name)) {
       return 'edit_profile.invalid_name'.tr();
+    }
     return null;
   }
 
@@ -596,7 +597,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     bool required = true,
     String? Function(String?)? validator,
     ValueChanged<String>? onChanged,
-    AutovalidateMode? autovalidateMode,
     List<TextInputFormatter>? inputFormatters,
     String? focusKey,
   }) {
@@ -605,9 +605,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       controller: controller,
       keyboardType: keyboardType,
       focusNode: focusKey != null ? _focusNodes[focusKey] : null,
-      autovalidateMode: focusKey != null && !_touchedFields.contains(focusKey)
-          ? AutovalidateMode.disabled
-          : (autovalidateMode ?? AutovalidateMode.disabled),
+      autovalidateMode: focusKey != null && _touchedFields.contains(focusKey)
+          ? AutovalidateMode.onUserInteraction
+          : AutovalidateMode.disabled,
       onChanged: onChanged,
       inputFormatters: inputFormatters,
       style: TextStyle(fontSize: 15.sp, color: Colors.black),
@@ -630,7 +630,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     required bool obscure,
     required VoidCallback onToggle,
     String? Function(String?)? validator,
-    AutovalidateMode? autovalidateMode,
     String? focusKey,
   }) {
     return TextFormField(
@@ -638,9 +637,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       controller: controller,
       obscureText: obscure,
       focusNode: focusKey != null ? _focusNodes[focusKey] : null,
-      autovalidateMode: focusKey != null && !_touchedFields.contains(focusKey)
-          ? AutovalidateMode.disabled
-          : (autovalidateMode ?? AutovalidateMode.disabled),
+      autovalidateMode: focusKey != null && _touchedFields.contains(focusKey)
+          ? AutovalidateMode.onUserInteraction
+          : AutovalidateMode.disabled,
       style: TextStyle(fontSize: 15.sp, color: Colors.black),
       decoration: authInputDecoration(
         hintText: hintText,

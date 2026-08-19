@@ -96,6 +96,8 @@ class _HeaderSearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.watch<LocationCubit>().state;
+    // Rebuild when locale changes so the hint text updates.
+    final _ = context.locale;
     return SearchBarWidget(
       latitude: state is LocationLoaded ? state.latitude : null,
       longitude: state is LocationLoaded ? state.longitude : null,

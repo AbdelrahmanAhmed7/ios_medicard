@@ -66,11 +66,6 @@ class _EgyptianPhoneFieldState extends State<EgyptianPhoneField> {
     return null;
   }
 
-  /// Format phone number to always start with 0 for backend
-  static String formatPhoneNumber(String rawPhoneNumber) {
-    return rawPhoneNumber.startsWith('0') ? rawPhoneNumber : '0$rawPhoneNumber';
-  }
-
   @override
   Widget build(BuildContext context) {
     final isRTL = context.locale.languageCode == 'ar';
