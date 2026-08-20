@@ -62,7 +62,8 @@ class CardData {
     if (raw == null || raw.isEmpty) return '—';
     final parsed = DateTime.tryParse(raw);
     if (parsed == null) return raw;
+    final day = parsed.day.toString().padLeft(2, '0');
     final month = parsed.month.toString().padLeft(2, '0');
-    return '$month/${parsed.year}';
+    return '$day/$month/${parsed.year}';
   }
 }

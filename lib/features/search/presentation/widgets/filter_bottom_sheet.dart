@@ -60,7 +60,6 @@ class FilterBottomSheet extends StatelessWidget {
                     Text(
                       'search.filter'.tr(),
                       style: TextStyle(
-                        fontFamily: 'Inter',
                         fontWeight: FontWeight.w700,
                         fontSize: 18.sp,
                         color: const Color(0xFF1A1A2E),
@@ -76,7 +75,6 @@ class FilterBottomSheet extends StatelessWidget {
                       child: Text(
                         'search.reset'.tr(),
                         style: TextStyle(
-                          fontFamily: 'Inter',
                           fontWeight: FontWeight.w500,
                           fontSize: 14.sp,
                           color: const Color(0xFF2D5FA6),
@@ -174,7 +172,6 @@ class FilterBottomSheet extends StatelessWidget {
                     child: Text(
                       'search.apply_filters'.tr(),
                       style: TextStyle(
-                        fontFamily: 'Inter',
                         fontWeight: FontWeight.w600,
                         fontSize: 15.sp,
                         color: Colors.white,
@@ -200,7 +197,6 @@ class _SectionTitle extends StatelessWidget {
     return Text(
       title,
       style: TextStyle(
-        fontFamily: 'Inter',
         fontWeight: FontWeight.w600,
         fontSize: 15.sp,
         color: const Color(0xFF374151),
@@ -255,7 +251,6 @@ class _SortOptionTile extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                fontFamily: 'Inter',
                 fontSize: 14.sp,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                 color: isSelected
@@ -314,7 +309,6 @@ class _LookupDropdown extends StatelessWidget {
                 hint: Text(
                   hint,
                   style: TextStyle(
-                    fontFamily: 'Inter',
                     fontSize: 13.sp,
                     color: const Color(0xFF9CA3AF),
                   ),
@@ -323,7 +317,6 @@ class _LookupDropdown extends StatelessWidget {
                 items: items,
                 onChanged: isDisabled ? null : onChanged,
                 style: TextStyle(
-                  fontFamily: 'Inter',
                   fontSize: 13.sp,
                   color: const Color(0xFF1A1A2E),
                 ),

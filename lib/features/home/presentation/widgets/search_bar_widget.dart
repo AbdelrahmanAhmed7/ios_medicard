@@ -24,7 +24,6 @@ class SearchBarWidget extends StatelessWidget {
             fillColor: Colors.white,
             hintText: 'home.search_hint'.tr(),
             hintStyle: const TextStyle(
-              fontFamily: 'Inter',
               color: Color(0xFF9CA3AF),
               fontSize: 14,
             ),

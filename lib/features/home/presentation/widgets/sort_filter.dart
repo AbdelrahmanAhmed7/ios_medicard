@@ -48,7 +48,6 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
           Text(
             'sort_filter.sort_by'.tr(),
             style: const TextStyle(
-              fontFamily: 'Inter',
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: Color(0xFF1A1A2E),
@@ -66,7 +65,6 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
           Text(
             'sort_filter.location'.tr(),
             style: const TextStyle(
-              fontFamily: 'Inter',
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: Color(0xFF1A1A2E),
@@ -119,7 +117,6 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
               child: Text(
                 'common.apply'.tr(),
                 style: const TextStyle(
-                  fontFamily: 'Inter',
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
@@ -161,7 +158,6 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
             Text(
               label,
               style: const TextStyle(
-                fontFamily: 'Inter',
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
                 color: Color(0xFF1A1A2E),
@@ -192,7 +188,6 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
           hint: Text(
             hint,
             style: const TextStyle(
-              fontFamily: 'Inter',
               fontSize: 13,
               color: Color(0xFF6B7280),
             ),
@@ -209,7 +204,6 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
                   child: Text(
                     e,
                     style: const TextStyle(
-                      fontFamily: 'Inter',
                       fontSize: 13,
                       color: Color(0xFF1A1A2E),
                     ),

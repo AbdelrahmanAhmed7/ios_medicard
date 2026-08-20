@@ -40,7 +40,6 @@ class QuickActionsRow extends StatelessWidget {
                             Text(
                               action.labelKey.tr(),
                               style: const TextStyle(
-                                fontFamily: 'Inter',
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                                 color: Color(0xFF1A1A2E),

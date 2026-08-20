@@ -17,7 +17,6 @@ class HomeEmptyView extends StatelessWidget {
           Text(
             'home.no_data_available'.tr(),
             style: const TextStyle(
-              fontFamily: 'Inter',
               fontSize: 15,
               fontWeight: FontWeight.w600,
               color: Color(0xFF6B7280),
@@ -28,7 +27,6 @@ class HomeEmptyView extends StatelessWidget {
             'home.pull_down_refresh'.tr(),
             textAlign: TextAlign.center,
             style: const TextStyle(
-              fontFamily: 'Inter',
               fontSize: 13,
               color: Color(0xFF9CA3AF),
               height: 1.5,

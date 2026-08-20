@@ -8,6 +8,7 @@ import '../../../../core/auth/auth_session_storage.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/services/url_launcher_service.dart';
 import '../../../../core/theming/app_toast.dart';
+import '../../../../core/utils/app_date_formatter.dart';
 import '../../../../core/utils/error_state_widget.dart';
 import '../../../../core/widgets/app_blue_header.dart';
 import '../../../../network/data/provider_page_response_model.dart';
@@ -49,21 +50,25 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                 children: [
                   _buildTopBlueHeader(context, state, cubit),
                   Expanded(
-                    child: SingleChildScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 16.w,
-                          vertical: 16.h,
-                        ),
-                        child: Column(
-                          children: [
-                            if (!isReviews) ...[
-                              _buildSearchAndFilterRow(context, state, cubit),
-                              SizedBox(height: 16.h),
+                    child: NotificationListener<ScrollNotification>(
+                      onNotification: (scrollInfo) =>
+                          _handleScrollNotification(scrollInfo, state, cubit),
+                      child: SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16.w,
+                            vertical: 16.h,
+                          ),
+                          child: Column(
+                            children: [
+                              if (!isReviews) ...[
+                                _buildSearchAndFilterRow(context, state, cubit),
+                                SizedBox(height: 16.h),
+                              ],
+                              _buildContentSection(context, state, cubit),
                             ],
-                            _buildContentSection(context, state, cubit),
-                          ],
+                          ),
                         ),
                       ),
                     ),
@@ -299,6 +304,37 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
     }
   }
 
+  /// Handles infinite scroll for whichever section is currently visible.
+  /// Triggered by the outer scroll view so pagination fires correctly.
+  bool _handleScrollNotification(
+    ScrollNotification scrollInfo,
+    ProviderPageState state,
+    ProviderPageCubit cubit,
+  ) {
+    if (scrollInfo is! ScrollUpdateNotification) return false;
+    if (scrollInfo.metrics.pixels <
+        scrollInfo.metrics.maxScrollExtent - 200) {
+      return false;
+    }
+    switch (state.currentView) {
+      case ProviderViewType.services:
+        if (!state.isServicesLoadingMore && state.servicesHasMore) {
+          cubit.loadMoreServices();
+        }
+        return false;
+      case ProviderViewType.packages:
+        if (!state.isPackagesLoadingMore && state.packagesHasMore) {
+          cubit.loadMorePackages();
+        }
+        return false;
+      case ProviderViewType.reviews:
+        if (!state.isReviewsLoadingMore && state.reviewsHasMore) {
+          cubit.loadMoreReviews();
+        }
+        return false;
+    }
+  }
+
   // ── Category Tabs + Services ───────────────────────────────────────────────
 
   Widget _buildCategoryTabsSection(
@@ -350,11 +386,9 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
     ProviderPageCubit cubit,
   ) {
     if (state.isServicesLoading) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 40),
-          child: CircularProgressIndicator(color: Color(0xFF3872B1)),
-        ),
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 16),
+        child: Center(child: CircularProgressIndicator(color: Color(0xFF3872B1))),
       );
     }
 
@@ -377,47 +411,35 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
       );
     }
 
-    return NotificationListener<ScrollNotification>(
-      onNotification: (scrollInfo) {
-        if (scrollInfo is ScrollUpdateNotification &&
-            scrollInfo.metrics.pixels >=
-                scrollInfo.metrics.maxScrollExtent - 200) {
-          if (!state.isServicesLoadingMore && state.servicesHasMore) {
-            cubit.loadMoreServices();
-          }
-        }
-        return false;
-      },
-      child: Column(
-        children: [
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: state.services.length,
-            separatorBuilder: (_, _) => SizedBox(height: 12.h),
-            itemBuilder: (context, index) {
-              final service = state.services[index];
-              final serviceId = service.id;
-              final isPending =
-                  serviceId != null &&
-                  state.pendingCartActionIds.contains(serviceId);
-              final isInCart = service.isSelected == true;
-              return _buildProviderServiceCard(
-                context,
-                service,
-                isPending,
-                isInCart,
-                cubit,
-              );
-            },
+    return Column(
+      children: [
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: state.services.length,
+          separatorBuilder: (_, _) => SizedBox(height: 12.h),
+          itemBuilder: (context, index) {
+            final service = state.services[index];
+            final serviceId = service.id;
+            final isPending =
+                serviceId != null &&
+                state.pendingCartActionIds.contains(serviceId);
+            final isInCart = service.isSelected == true;
+            return _buildProviderServiceCard(
+              context,
+              service,
+              isPending,
+              isInCart,
+              cubit,
+            );
+          },
+        ),
+        if (state.isServicesLoadingMore)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Center(child: CircularProgressIndicator()),
           ),
-          if (state.isServicesLoadingMore)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 16),
-              child: Center(child: CircularProgressIndicator()),
-            ),
-        ],
-      ),
+      ],
     );
   }
 
@@ -429,11 +451,9 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
     final tab = state.selectedTab;
 
     if (tab == null || tab.isLoading) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 40),
-          child: CircularProgressIndicator(color: Color(0xFF3872B1)),
-        ),
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 16),
+        child: Center(child: CircularProgressIndicator(color: Color(0xFF3872B1))),
       );
     }
 
@@ -489,6 +509,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
   ) {
     final serviceId = (categoryService as dynamic).serviceId as int;
     final serviceName = categoryService.serviceName as String? ?? '';
+    final isSpecialOffer = categoryService.isSpecialOffer == true;
 
     return Container(
       width: double.infinity,
@@ -497,7 +518,9 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
-          color: isInCart
+          color: isSpecialOffer
+              ? const Color(0xFFF97316).withValues(alpha: 0.45)
+              : isInCart
               ? const Color(0xFF3872B1).withValues(alpha: 0.4)
               : const Color(0xFFE2E8F0),
         ),
@@ -517,6 +540,15 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                     color: const Color(0xFF0F172A),
                   ),
                 ),
+                if (isSpecialOffer) ...[
+                  SizedBox(height: 6.h),
+                  _ServiceBadge(
+                    label: 'provider_page.special_offer'.tr(),
+                    color: const Color(0xFFF97316),
+                    backgroundColor: const Color(0xFFFFF4E6),
+                    icon: Icons.local_offer_rounded,
+                  ),
+                ],
                 if (isInCart) ...[
                   SizedBox(height: 4.h),
                   Row(
@@ -639,12 +671,13 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                   spacing: 4.w,
                   runSpacing: 4.h,
                   children: [
-                    _ServiceBadge(
-                      label: 'No Fasting',
-                      color: const Color(0xFFFFA726),
-                      backgroundColor: const Color(0xFFFFF3E0),
-                      icon: Icons.access_time_rounded,
-                    ),
+                    if (service.isSpecialOffer == true)
+                      _ServiceBadge(
+                        label: 'provider_page.special_offer'.tr(),
+                        color: const Color(0xFFF97316),
+                        backgroundColor: const Color(0xFFFFF4E6),
+                        icon: Icons.local_offer_rounded,
+                      ),
                     if (service.discountPercentage != null &&
                         service.discountPercentage! > 0)
                       _ServiceBadge(
@@ -762,47 +795,33 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
     if (state.packages.isEmpty) {
       return Center(child: Text('provider_page.no_packages_found'.tr()));
     }
-    return NotificationListener<ScrollNotification>(
-      onNotification: (scrollInfo) {
-        if (scrollInfo is ScrollUpdateNotification) {
-          if (scrollInfo.metrics.pixels >=
-              scrollInfo.metrics.maxScrollExtent - 200) {
-            if (state.isPackagesLoadingMore || !state.packagesHasMore) {
-              return false;
-            }
-            cubit.loadMorePackages();
-          }
-        }
-        return false;
-      },
-      child: Column(
-        children: [
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12.w,
-              mainAxisSpacing: 12.h,
-              childAspectRatio: 0.78,
-            ),
-            itemCount: state.packages.length,
-            itemBuilder: (context, index) {
-              return _buildPackageCard(
-                context,
-                state,
-                cubit,
-                state.packages[index],
-              );
-            },
+    return Column(
+      children: [
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12.w,
+            mainAxisSpacing: 12.h,
+            childAspectRatio: 0.78,
           ),
-          if (state.isPackagesLoadingMore)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 16),
-              child: Center(child: CircularProgressIndicator()),
-            ),
-        ],
-      ),
+          itemCount: state.packages.length,
+          itemBuilder: (context, index) {
+            return _buildPackageCard(
+              context,
+              state,
+              cubit,
+              state.packages[index],
+            );
+          },
+        ),
+        if (state.isPackagesLoadingMore)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Center(child: CircularProgressIndicator()),
+          ),
+      ],
     );
   }
 
@@ -824,39 +843,34 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
       return Center(child: Text('provider_page.no_reviews_found'.tr()));
     }
 
-    return NotificationListener<ScrollNotification>(
-      onNotification: (scrollInfo) {
-        if (scrollInfo is ScrollUpdateNotification &&
-            scrollInfo.metrics.pixels >=
-                scrollInfo.metrics.maxScrollExtent - 200) {
-          if (!state.isReviewsLoadingMore && state.reviewsHasMore) {
-            cubit.loadMoreReviews();
-          }
-        }
-        return false;
-      },
-      child: Column(
-        children: [
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: state.reviews.length,
-            separatorBuilder: (_, _) => SizedBox(height: 12.h),
-            itemBuilder: (context, index) {
-              return _buildReviewCard(state.reviews[index]);
-            },
+    return Column(
+      children: [
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: state.reviews.length,
+          separatorBuilder: (_, _) => SizedBox(height: 12.h),
+          itemBuilder: (context, index) {
+            return _buildReviewCard(state.reviews[index]);
+          },
+        ),
+        if (state.isReviewsLoadingMore)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Center(child: CircularProgressIndicator()),
           ),
-          if (state.isReviewsLoadingMore)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 16),
-              child: Center(child: CircularProgressIndicator()),
-            ),
-        ],
-      ),
+      ],
     );
   }
 
   Widget _buildReviewCard(ProviderReview review) {
+    final ratingText = (review.ratingText ?? '').trim();
+    final hasRatingText =
+        ratingText.isNotEmpty && ratingText.toLowerCase() != 'null';
+    final formattedDate = AppDateFormatter.formatDateTime(
+      review.createdAt,
+      context.locale.languageCode,
+    );
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(14.w),
@@ -907,10 +921,21 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                     );
                   }),
                 ),
-                if ((review.ratingText ?? '').isNotEmpty) ...[
+                if (formattedDate.isNotEmpty) ...[
+                  SizedBox(height: 6.h),
+                  Text(
+                    formattedDate,
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: const Color(0xFF94A3B8),
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+                if (hasRatingText) ...[
                   SizedBox(height: 8.h),
                   Text(
-                    review.ratingText!,
+                    ratingText,
                     style: TextStyle(
                       fontSize: 13.sp,
                       color: const Color(0xFF475569),

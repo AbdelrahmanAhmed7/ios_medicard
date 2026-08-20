@@ -100,7 +100,6 @@ class _NavColumn extends StatelessWidget {
             Text(
               item.labelKey.tr(context: context),
               style: TextStyle(
-                fontFamily: 'Inter',
                 color: color,
                 fontSize: 14,
                 fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,

@@ -75,7 +75,6 @@ class NearestProviderCard extends StatelessWidget {
                             Text(
                               '${provider.rating} (${provider.reviewCount})',
                               style: const TextStyle(
-                                fontFamily: 'Inter',
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
                                 color: Color(0xFF1A1A2E),
@@ -117,7 +116,6 @@ class NearestProviderCard extends StatelessWidget {
                                 child: Text(
                                   badge,
                                   style: const TextStyle(
-                                    fontFamily: 'Inter',
                                     fontSize: 10,
                                     fontWeight: FontWeight.w500,
                                     color: Color(0xFF3872B1),
@@ -132,7 +130,6 @@ class NearestProviderCard extends StatelessWidget {
                     Text(
                       provider.name,
                       style: const TextStyle(
-                        fontFamily: 'Inter',
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF1A1A2E),
@@ -145,7 +142,6 @@ class NearestProviderCard extends StatelessWidget {
                       Text(
                         provider.type,
                         style: const TextStyle(
-                          fontFamily: 'Inter',
                           fontSize: 11,
                           fontWeight: FontWeight.w400,
                           color: Color(0xFF6B7280),
@@ -168,7 +164,6 @@ class NearestProviderCard extends StatelessWidget {
                             child: Text(
                               provider.location,
                               style: const TextStyle(
-                                fontFamily: 'Inter',
                                 fontSize: 11,
                                 fontWeight: FontWeight.w400,
                                 color: Color(0xFF6B7280),

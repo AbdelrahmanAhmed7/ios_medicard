@@ -61,7 +61,6 @@ class PendingAppointmentCard extends StatelessWidget {
                     Text(
                       appointment.providerName,
                       style: const TextStyle(
-                        fontFamily: 'Inter',
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         color: Color(0xFF1A1A2E),
@@ -74,7 +73,6 @@ class PendingAppointmentCard extends StatelessWidget {
                       Text(
                         appointment.service,
                         style: const TextStyle(
-                          fontFamily: 'Inter',
                           fontSize: 11,
                           fontWeight: FontWeight.w400,
                           color: Color(0xFF6B7280),
@@ -88,7 +86,6 @@ class PendingAppointmentCard extends StatelessWidget {
                       Text(
                         appointment.branch,
                         style: const TextStyle(
-                          fontFamily: 'Inter',
                           fontSize: 11,
                           fontWeight: FontWeight.w400,
                           color: Color(0xFF6B7280),
@@ -123,7 +120,6 @@ class PendingAppointmentCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            fontFamily: 'Inter',
                             fontSize: 11,
                             fontWeight: FontWeight.w400,
                             color: Color(0xFF6B7280),
@@ -174,7 +170,6 @@ class _StatusBadge extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontFamily: 'Inter',
                 fontSize: 11,
                 fontWeight: FontWeight.w400,
                 color: color,

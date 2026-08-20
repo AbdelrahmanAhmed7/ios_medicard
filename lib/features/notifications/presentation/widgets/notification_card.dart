@@ -60,7 +60,6 @@ class NotificationCard extends StatelessWidget {
                   Text(
                     notification.title,
                     style: TextStyle(
-                      fontFamily: 'Roboto',
                       fontWeight: FontWeight.w600,
                       fontSize: 14.sp,
                       color: const Color(0xFF3B82F6),
@@ -73,7 +72,6 @@ class NotificationCard extends StatelessWidget {
                   Text(
                     notification.body,
                     style: TextStyle(
-                      fontFamily: 'Roboto',
                       fontWeight: FontWeight.w400,
                       fontSize: 13.sp,
                       color: const Color(0xFF64748B),
@@ -91,7 +89,6 @@ class NotificationCard extends StatelessWidget {
               child: Text(
                 _formatRelativeTime(notification.createdAt),
                 style: TextStyle(
-                  fontFamily: 'Roboto',
                   fontWeight: FontWeight.w400,
                   fontSize: 11.sp,
                   color: const Color(0xFF94A3B8),

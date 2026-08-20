@@ -56,7 +56,7 @@ class _HeaderTopRow extends StatelessWidget {
             builder: (context, state) {
               return LocationDisplay(
                 text: _locationText(state, context),
-                onTap: context.read<LocationCubit>().refreshLocation,
+                onTap: context.read<LocationCubit>().retryLocation,
               );
             },
           ),

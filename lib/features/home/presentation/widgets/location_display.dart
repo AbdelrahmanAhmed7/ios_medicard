@@ -20,7 +20,6 @@ class LocationDisplay extends StatelessWidget {
             child: Text(
               text,
               style: const TextStyle(
-                fontFamily: 'Inter',
                 fontWeight: FontWeight.w600,
                 fontSize: 14,
                 color: Colors.white,

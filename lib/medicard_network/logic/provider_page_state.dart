@@ -102,14 +102,7 @@ class ProviderPageState {
 
   dynamic get selectedTab => null;
 
-  int get displayServicesCount {
-    if (fullServices.isNotEmpty) return fullServices.length;
-    final embeddedServices = providerData?.services;
-    if (embeddedServices != null && embeddedServices.isNotEmpty) {
-      return embeddedServices.length;
-    }
-    return providerData?.servicesCount ?? 0;
-  }
+  int get displayServicesCount => providerData?.servicesCount ?? 0;
 
   bool isServiceInCart(int serviceId) {
     return fullServices.any(

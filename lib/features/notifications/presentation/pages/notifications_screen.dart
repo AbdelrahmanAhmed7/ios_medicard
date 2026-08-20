@@ -195,7 +195,6 @@ class _NotificationsTabsHeader extends StatelessWidget {
                   Text(
                     'notifications.mark_all_read'.tr(),
                     style: TextStyle(
-                      fontFamily: 'Roboto',
                       fontWeight: FontWeight.w500,
                       fontSize: 13.sp,
                       color: const Color(0xFF1E293B),
@@ -232,7 +231,6 @@ class _NotificationTab extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontFamily: 'Roboto',
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
               fontSize: 16.sp,
               color: isSelected
@@ -284,7 +282,6 @@ class _NotificationsMessage extends StatelessWidget {
               title,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontFamily: 'Roboto',
                 fontWeight: FontWeight.w600,
                 fontSize: 16.sp,
                 color: const Color(0xFF1E293B),
@@ -295,7 +292,6 @@ class _NotificationsMessage extends StatelessWidget {
               message,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontFamily: 'Roboto',
                 fontWeight: FontWeight.w400,
                 fontSize: 13.sp,
                 color: const Color(0xFF64748B),

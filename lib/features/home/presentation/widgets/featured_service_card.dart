@@ -48,22 +48,27 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
             children: [
               Stack(
                 children: [
-                  CachedNetworkImage(
-                    imageUrl: service.imageUrl,
+                  Container(
+                    color: const Color(0xFFEEF3FB),
                     height: 120,
                     width: double.infinity,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => Container(
-                      color: const Color(0xFFEEF3FB),
+                    child: CachedNetworkImage(
+                      imageUrl: service.imageUrl,
                       height: 120,
                       width: double.infinity,
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      color: const Color(0xFFEEF3FB),
-                      height: 120,
-                      child: const Icon(
-                        Icons.broken_image,
-                        color: Color(0xFF9CA3AF),
+                      fit: BoxFit.contain,
+                      placeholder: (context, url) => Container(
+                        color: const Color(0xFFEEF3FB),
+                        height: 120,
+                        width: double.infinity,
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: const Color(0xFFEEF3FB),
+                        height: 120,
+                        child: const Icon(
+                          Icons.broken_image,
+                          color: Color(0xFF9CA3AF),
+                        ),
                       ),
                     ),
                   ),
@@ -113,7 +118,6 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                             Text(
                               '${service.rating} (${service.reviewCount})',
                               style: const TextStyle(
-                                fontFamily: 'Inter',
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
                                 color: Color(0xFF1A1A2E),
@@ -136,7 +140,6 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                     Text(
                       service.serviceName,
                       style: const TextStyle(
-                        fontFamily: 'Inter',
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF1A1A2E),
@@ -148,7 +151,6 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                     Text(
                       service.providerName,
                       style: const TextStyle(
-                        fontFamily: 'Inter',
                         fontSize: 10,
                         fontWeight: FontWeight.w400,
                         color: Color(0xFF6B7280),
@@ -169,7 +171,6 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                           child: Text(
                             service.location,
                             style: const TextStyle(
-                              fontFamily: 'Inter',
                               fontSize: 10,
                               fontWeight: FontWeight.w400,
                               color: Color(0xFF6B7280),
@@ -187,7 +188,6 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                         Text(
                           '${service.originalPrice.toInt()} EGP',
                           style: const TextStyle(
-                            fontFamily: 'Inter',
                             fontSize: 10,
                             fontWeight: FontWeight.w400,
                             color: Color(0xFF9CA3AF),
@@ -198,7 +198,6 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                         Text(
                           '${service.discountedPrice.toInt()} EGP',
                           style: const TextStyle(
-                            fontFamily: 'Inter',
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                             color: Color(0xFF3872B1),
@@ -229,7 +228,6 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                             child: Text(
                               'activity.book'.tr(),
                               style: const TextStyle(
-                                fontFamily: 'Inter',
                                 fontSize: 11,
                                 fontWeight: FontWeight.w400,
                                 color: Color(0xFFFFFFFF),

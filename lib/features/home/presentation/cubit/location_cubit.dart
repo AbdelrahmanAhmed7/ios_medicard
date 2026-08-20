@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 
 import '../../../../core/services/location_repository.dart';
@@ -21,6 +22,21 @@ class LocationCubit extends Cubit<LocationState> {
   }
 
   Future<void> refreshLocation() async {
+    await _resolveLocationName(clearCache: true);
+  }
+
+  /// Called when user taps the location display (e.g. "Location unavailable").
+  /// Re-requests permission or opens app settings if permanently denied.
+  Future<void> retryLocation() async {
+    if (isClosed) return;
+
+    final permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.deniedForever) {
+      await _locationService.openAppSettings();
+      return;
+    }
+
     await _resolveLocationName(clearCache: true);
   }
 

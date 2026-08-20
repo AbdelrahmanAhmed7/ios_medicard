@@ -63,7 +63,6 @@ class HomeErrorView extends StatelessWidget {
                 'home.network_error_title'.tr(),
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontFamily: 'Inter',
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: theme.colorScheme.onSurface,
@@ -74,7 +73,6 @@ class HomeErrorView extends StatelessWidget {
                 message ?? messageKey.tr(),
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontFamily: 'Inter',
                   fontSize: 13,
                   fontWeight: FontWeight.w400,
                   color: theme.colorScheme.onSurfaceVariant,
@@ -98,7 +96,6 @@ class HomeErrorView extends StatelessWidget {
                   label: Text(
                     (isRetrying ? 'home.retrying' : 'common.try_again').tr(),
                     style: const TextStyle(
-                      fontFamily: 'Inter',
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),

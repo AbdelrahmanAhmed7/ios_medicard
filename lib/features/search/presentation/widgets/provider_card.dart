@@ -46,7 +46,6 @@ class ProviderCard extends StatelessWidget {
                       Text(
                         provider.providerName!.trim(),
                         style: TextStyle(
-                          fontFamily: 'Inter',
                           fontWeight: FontWeight.w500,
                           fontSize: 16.sp,
                           color: const Color(0xFF000000),

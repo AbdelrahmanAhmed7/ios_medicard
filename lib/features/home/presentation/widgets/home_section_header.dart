@@ -20,7 +20,6 @@ class HomeSectionHeader extends StatelessWidget {
             child: Text(
               title,
               style: const TextStyle(
-                fontFamily: 'Inter',
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFF1A1A2E),
@@ -39,7 +38,6 @@ class HomeSectionHeader extends StatelessWidget {
                     Text(
                       'home.view_all'.tr(),
                       style: const TextStyle(
-                        fontFamily: 'Inter',
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF2D5FA6),

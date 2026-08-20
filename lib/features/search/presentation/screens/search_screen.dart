@@ -131,12 +131,10 @@ class _SearchScreenState extends State<SearchScreen>
               child: TabBar(
                 controller: _tabController,
                 labelStyle: TextStyle(
-                  fontFamily: 'Inter',
                   fontWeight: FontWeight.w600,
                   fontSize: 14.sp,
                 ),
                 unselectedLabelStyle: TextStyle(
-                  fontFamily: 'Inter',
                   fontWeight: FontWeight.w400,
                   fontSize: 14.sp,
                 ),
@@ -207,7 +205,6 @@ class _SearchAppBar extends StatelessWidget {
                   autofocus: true,
                   onChanged: onChanged,
                   style: TextStyle(
-                    fontFamily: 'Inter',
                     fontSize: 14.sp,
                     color: const Color(0xFF1A1A2E),
                   ),
@@ -216,7 +213,6 @@ class _SearchAppBar extends StatelessWidget {
                     fillColor: Colors.white,
                     hintText: 'home.search_hint'.tr(),
                     hintStyle: const TextStyle(
-                      fontFamily: 'Inter',
                       color: Color(0xFF9CA3AF),
                       fontSize: 14,
                     ),
@@ -525,7 +521,6 @@ class _ServicesTabState extends State<_ServicesTab> {
             Text(
               'search.no_services_found'.tr(),
               style: TextStyle(
-                fontFamily: 'Inter',
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
                 color: const Color(0xFF6B7280),
@@ -728,7 +723,6 @@ class _ServiceCard extends StatelessWidget {
                 Text(
                   serviceName,
                   style: TextStyle(
-                    fontFamily: 'Inter',
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w600,
                     color: const Color(0xFF111827),
@@ -890,7 +884,6 @@ class _EmptyView extends StatelessWidget {
           Text(
             'search.no_providers_found'.tr(),
             style: TextStyle(
-              fontFamily: 'Inter',
               fontSize: 15.sp,
               fontWeight: FontWeight.w600,
               color: const Color(0xFF6B7280),
@@ -900,7 +893,6 @@ class _EmptyView extends StatelessWidget {
           Text(
             'search.try_different_keyword'.tr(),
             style: TextStyle(
-              fontFamily: 'Inter',
               fontSize: 13.sp,
               color: const Color(0xFF9CA3AF),
             ),
@@ -935,7 +927,6 @@ class _ErrorView extends StatelessWidget {
               message,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontFamily: 'Inter',
                 fontSize: 14.sp,
                 color: const Color(0xFF6B7280),
               ),
@@ -954,7 +945,6 @@ class _ErrorView extends StatelessWidget {
               child: Text(
                 'common.retry'.tr(),
                 style: TextStyle(
-                  fontFamily: 'Inter',
                   fontWeight: FontWeight.w600,
                   fontSize: 14.sp,
                   color: Colors.white,

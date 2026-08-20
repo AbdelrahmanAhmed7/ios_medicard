@@ -51,7 +51,6 @@ class CategoryChip extends StatelessWidget {
                     width: 26.r,
                     height: 26.r,
                     fit: BoxFit.contain,
-                    color: isSelected ? activeColor : inactiveContentColor,
                     placeholder: (context, url) => SizedBox(
                       width: 26.r,
                       height: 26.r,
@@ -77,7 +76,6 @@ class CategoryChip extends StatelessWidget {
                 Text(
                   label,
                   style: TextStyle(
-                    fontFamily: 'Inter',
                     fontSize: 12.sp,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                     color: isSelected ? activeColor : inactiveContentColor,
@@ -101,7 +99,6 @@ class CategoryChip extends StatelessWidget {
                 child: Text(
                   badgeCount.toString(),
                   style: TextStyle(
-                    fontFamily: 'Inter',
                     color: Colors.white,
                     fontSize: 10.sp,
                     fontWeight: FontWeight.bold,
