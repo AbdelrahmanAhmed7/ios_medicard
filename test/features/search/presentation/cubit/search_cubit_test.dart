@@ -12,6 +12,7 @@ import 'package:medicard/features/search/data/models/category_model.dart';
 import 'package:medicard/features/search/data/models/category_services_response_model.dart';
 import 'package:medicard/features/search/data/models/lookup_model.dart';
 import 'package:medicard/features/search/data/models/search_provider_model.dart';
+import 'package:medicard/features/search/data/models/search_response_model.dart';
 import 'package:medicard/features/search/domain/repositories/search_repository.dart';
 import 'package:medicard/features/search/domain/use_cases/get_categories_use_case.dart';
 import 'package:medicard/features/search/domain/use_cases/get_category_services_use_case.dart';
@@ -167,6 +168,39 @@ void main() {
       expect(_serviceSelected(cubit, 2), isTrue);
       expect(cubit.state.cartActionError, isNull);
     });
+
+    test('provider search appends pages and stops at last page', () async {
+      final provider1 = const SearchProviderModel(providerId: 1);
+      final provider2 = const SearchProviderModel(providerId: 2);
+      searchRepository.providerPages[1] = SearchResponseData(
+        items: [provider1],
+        pageNumber: 1,
+        pageSize: 15,
+        totalCount: 2,
+        totalPages: 2,
+      );
+      searchRepository.providerPages[2] = SearchResponseData(
+        items: [provider2],
+        pageNumber: 2,
+        pageSize: 15,
+        totalCount: 2,
+        totalPages: 2,
+      );
+
+      await cubit.search();
+      expect(cubit.state.items, hasLength(1));
+      expect(cubit.state.currentPage, 1);
+      expect(cubit.state.hasMore, isTrue);
+
+      await cubit.loadMore();
+      expect(cubit.state.items, hasLength(2));
+      expect(cubit.state.currentPage, 2);
+      expect(cubit.state.hasMore, isFalse);
+
+      await cubit.loadMore();
+      expect(searchRepository.providerPages.keys, isNot(contains(3)));
+      expect(cubit.state.items, hasLength(2));
+    });
   });
 }
 
@@ -204,9 +238,10 @@ class _FakeSearchRepository implements SearchRepository {
   final Map<int, Completer<ApiResult<CategoryServicesDataModel>>>
   categoryServiceCompleters = {};
   final Map<int, int> categoryServiceCalls = {};
+  final Map<int, SearchResponseData> providerPages = {};
 
   @override
-  Future<ApiResult<List<SearchProviderModel>>> searchProviders({
+  Future<ApiResult<SearchResponseData>> searchProviders({
     String? keyword,
     int? categoryId,
     int? governorateId,
@@ -219,7 +254,11 @@ class _FakeSearchRepository implements SearchRepository {
     int? pageNumber,
     int? pageSize,
   }) async {
-    return const ApiResult.success([]);
+    final page = providerPages[pageNumber];
+    if (page != null) return ApiResult.success(page);
+    return const ApiResult.success(
+      SearchResponseData(items: [], totalPages: 1),
+    );
   }
 
   @override
@@ -247,18 +286,37 @@ class _FakeSearchRepository implements SearchRepository {
 
   @override
   Future<ApiResult<CategoryServicesDataModel>> getCategoryServices(
-    int categoryId,
-    bool skipAuthInterceptor,
-  ) {
+    int categoryId, {
+    int? pageNumber,
+    int? pageSize,
+    bool skipAuthInterceptor = false,
+  }) {
     categoryServiceCalls[categoryId] =
         (categoryServiceCalls[categoryId] ?? 0) + 1;
     final completer = categoryServiceCompleters[categoryId];
     if (completer != null) return completer.future;
-    return Future.value(
-      ApiResult.success(
-        categoryServices[categoryId] ?? _categoryData(categoryId),
-      ),
-    );
+    final data = categoryServices[categoryId] ?? _categoryData(categoryId);
+    if (pageNumber != null && pageNumber > (data.services?.pageNumber ?? 1)) {
+      return Future.value(
+        ApiResult.success(
+          CategoryServicesDataModel(
+            categoryId: data.categoryId,
+            categoryName: data.categoryName,
+            totalSelectedCount: data.totalSelectedCount,
+            services: const PagedServicesModel(
+              items: [
+                ServiceItemModel(serviceId: 3, serviceNameEn: 'CT-Scan'),
+              ],
+              pageNumber: 2,
+              pageSize: 20,
+              totalCount: 3,
+              totalPages: 2,
+            ),
+          ),
+        ),
+      );
+    }
+    return Future.value(ApiResult.success(data));
   }
 }
 

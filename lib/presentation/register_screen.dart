@@ -9,7 +9,6 @@ import '../core/theming/app_toast.dart';
 import '../core/utils/language_helper.dart';
 import '../core/widgets/auth_shared_widgets.dart';
 import '../data/auth_response_model.dart';
-
 import 'logic/register_cubit.dart';
 import 'logic/register_state.dart';
 

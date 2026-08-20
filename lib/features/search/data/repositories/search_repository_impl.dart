@@ -4,7 +4,7 @@ import '../../data/data_sources/search_remote_data_source.dart';
 import '../../data/models/category_model.dart';
 import '../../data/models/category_services_response_model.dart';
 import '../../data/models/lookup_model.dart';
-import '../../data/models/search_provider_model.dart';
+import '../../data/models/search_response_model.dart';
 import '../../domain/repositories/search_repository.dart';
 
 class SearchRepositoryImpl implements SearchRepository {
@@ -13,7 +13,7 @@ class SearchRepositoryImpl implements SearchRepository {
   SearchRepositoryImpl(this._dataSource);
 
   @override
-  Future<ApiResult<List<SearchProviderModel>>> searchProviders({
+  Future<ApiResult<SearchResponseData>> searchProviders({
     String? keyword,
     int? categoryId,
     int? governorateId,
@@ -41,7 +41,7 @@ class SearchRepositoryImpl implements SearchRepository {
         pageSize: pageSize,
       );
       return (response.succeeded == true && response.data != null)
-          ? ApiResult.success(response.data!.items ?? [])
+          ? ApiResult.success(response.data!)
           : ApiResult.failure(
               _responseMessage(
                 errors: response.errors,
@@ -120,12 +120,16 @@ class SearchRepositoryImpl implements SearchRepository {
 
   @override
   Future<ApiResult<CategoryServicesDataModel>> getCategoryServices(
-    int categoryId,
-    bool skipAuthInterceptor,
-  ) async {
+    int categoryId, {
+    int? pageNumber,
+    int? pageSize,
+    bool skipAuthInterceptor = false,
+  }) async {
     try {
       final response = await _dataSource.getCategoryServices(
         categoryId,
+        pageNumber,
+        pageSize,
         skipAuthInterceptor
             ? {'skipAuthInterceptor': true}
             : const <String, dynamic>{},

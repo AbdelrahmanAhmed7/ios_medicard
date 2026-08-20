@@ -94,6 +94,7 @@
       "otp_invalid": "Enter a valid verification code",
       "verify": "Verify",
       "resend": "Resend OTP",
+      "resend_in": "Resend OTP in {} seconds",
       "reset_title": "Reset Password",
       "reset_subtitle": "Enter your new password below.",
       "new_password": "New Password",

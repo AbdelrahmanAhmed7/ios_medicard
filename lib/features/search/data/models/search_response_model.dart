@@ -37,8 +37,18 @@ class SearchResponseModel {
 
 class SearchResponseData {
   final List<SearchProviderModel>? items;
+  final int? pageNumber;
+  final int? pageSize;
+  final int? totalCount;
+  final int? totalPages;
 
-  const SearchResponseData({this.items});
+  const SearchResponseData({
+    this.items,
+    this.pageNumber,
+    this.pageSize,
+    this.totalCount,
+    this.totalPages,
+  });
 
   factory SearchResponseData.fromJson(Map<String, dynamic> json) {
     final rawItems = json['items'] ?? json['providers'] ?? json['data'];
@@ -49,8 +59,18 @@ class SearchResponseData {
                 .map(SearchProviderModel.fromJson)
                 .toList()
           : const [],
+      pageNumber: (json['pageNumber'] as num?)?.toInt(),
+      pageSize: (json['pageSize'] as num?)?.toInt(),
+      totalCount: (json['totalCount'] as num?)?.toInt(),
+      totalPages: (json['totalPages'] as num?)?.toInt(),
     );
   }
 
-  Map<String, dynamic> toJson() => {'items': items};
+  Map<String, dynamic> toJson() => {
+    'items': items,
+    'pageNumber': pageNumber,
+    'pageSize': pageSize,
+    'totalCount': totalCount,
+    'totalPages': totalPages,
+  };
 }

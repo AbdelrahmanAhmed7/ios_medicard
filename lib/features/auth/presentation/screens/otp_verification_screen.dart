@@ -30,6 +30,7 @@ class OtpVerificationScreen extends StatefulWidget {
 
 class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   static const _displaySeconds = 5;
+  static const _resendCooldownSeconds = 60;
 
   final _formKey = GlobalKey<FormState>();
   final _otpController = TextEditingController();
@@ -38,12 +39,14 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   Timer? _timer;
   bool _showOtp = true;
   int _secondsLeft = _displaySeconds;
+  int _resendSecondsLeft = 0;
 
   @override
   void initState() {
     super.initState();
     if (kDebugMode) debugPrint('[OTP] preview OTP: ${widget.otp}');
     _startCountdown();
+    _startResendCooldown();
     _otpFocus.addListener(() {
       if (!_otpFocus.hasFocus && !_otpTouched) {
         setState(() => _otpTouched = true);
@@ -65,11 +68,18 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       setState(() {
         _secondsLeft--;
         if (_secondsLeft <= 0) {
-          timer.cancel();
           _showOtp = false;
+        }
+        if (_resendSecondsLeft > 0) {
+          _resendSecondsLeft--;
+          if (_resendSecondsLeft <= 0) timer.cancel();
         }
       });
     });
+  }
+
+  void _startResendCooldown() {
+    setState(() => _resendSecondsLeft = _resendCooldownSeconds);
   }
 
   void _restartCountdown(String otp) {
@@ -77,6 +87,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     setState(() {
       _showOtp = true;
       _secondsLeft = _displaySeconds;
+      _resendSecondsLeft = _resendCooldownSeconds;
     });
     _startCountdown();
   }
@@ -201,15 +212,22 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                           SizedBox(height: 12.h),
                           Center(
                             child: TextButton(
-                              onPressed: isLoading
-                                  ? null
-                                  : () {
-                                      context
-                                          .read<ForgotPasswordCubit>()
-                                          .sendOtp(widget.phoneNumber);
-                                    },
+                              onPressed:
+                                  isLoading || _resendSecondsLeft > 0
+                                      ? null
+                                      : () {
+                                          context
+                                              .read<ForgotPasswordCubit>()
+                                              .sendOtp(widget.phoneNumber);
+                                        },
                               child: Text(
-                                'auth.forgot.resend'.tr(),
+                                _resendSecondsLeft > 0
+                                    ? 'auth.forgot.resend_in'.tr(
+                                        args: [
+                                          '$_resendSecondsLeft',
+                                        ],
+                                      )
+                                    : 'auth.forgot.resend'.tr(),
                                 style: TextStyle(
                                   fontSize: 14.sp,
                                   color: kAuthBlue,

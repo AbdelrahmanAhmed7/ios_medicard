@@ -34,6 +34,7 @@ class SearchState {
   final List<ServiceItemModel> services;
   final Map<int, CategoryServicesDataModel> servicesByCategoryId;
   final Set<int> loadingServiceCategoryIds;
+  final Set<int> loadingMoreServiceCategoryIds;
 
   /// ServiceIds that currently have a pending add/remove API call.
   /// Used to show per-item loading spinners.
@@ -61,6 +62,7 @@ class SearchState {
     this.services = const [],
     this.servicesByCategoryId = const {},
     this.loadingServiceCategoryIds = const {},
+    this.loadingMoreServiceCategoryIds = const {},
     this.pendingServiceIds = const {},
     this.cartActionError,
   });
@@ -89,6 +91,7 @@ class SearchState {
     List<ServiceItemModel>? services,
     Map<int, CategoryServicesDataModel>? servicesByCategoryId,
     Set<int>? loadingServiceCategoryIds,
+    Set<int>? loadingMoreServiceCategoryIds,
     Set<int>? pendingServiceIds,
     String? cartActionError,
     bool clearCartActionError = false,
@@ -121,6 +124,8 @@ class SearchState {
       servicesByCategoryId: servicesByCategoryId ?? this.servicesByCategoryId,
       loadingServiceCategoryIds:
           loadingServiceCategoryIds ?? this.loadingServiceCategoryIds,
+      loadingMoreServiceCategoryIds:
+          loadingMoreServiceCategoryIds ?? this.loadingMoreServiceCategoryIds,
       pendingServiceIds: pendingServiceIds ?? this.pendingServiceIds,
       cartActionError: clearCartActionError
           ? null

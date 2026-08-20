@@ -9,8 +9,15 @@ class GetCategoryServicesUseCase {
 
   Future<ApiResult<CategoryServicesDataModel>> call(
     int categoryId, {
+    int? pageNumber,
+    int? pageSize,
     bool skipAuthInterceptor = false,
   }) async {
-    return _repository.getCategoryServices(categoryId, skipAuthInterceptor);
+    return _repository.getCategoryServices(
+      categoryId,
+      pageNumber: pageNumber,
+      pageSize: pageSize,
+      skipAuthInterceptor: skipAuthInterceptor,
+    );
   }
 }

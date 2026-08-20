@@ -8,6 +8,7 @@ import '../../../../core/constants/api_result.dart';
 import '../../../cart/domain/repository/cart_repository.dart';
 import '../../../cart/domain/services/cart_sync_service.dart';
 import '../../data/models/category_services_response_model.dart';
+import '../../data/models/search_provider_model.dart';
 import '../../domain/use_cases/get_categories_use_case.dart';
 import '../../domain/use_cases/get_category_services_use_case.dart';
 import '../../domain/use_cases/get_service_categories_use_case.dart';
@@ -23,6 +24,7 @@ class SearchCubit extends Cubit<SearchState> {
   final CartSyncService _cartSyncService;
 
   static const int _pageSize = 15;
+  static const int _servicesPageSize = 20;
 
   int? _governorateId;
   int? _cityId;
@@ -156,6 +158,8 @@ class SearchCubit extends Cubit<SearchState> {
 
     final result = await _getCategoryServicesUseCase.call(
       categoryId,
+      pageNumber: 1,
+      pageSize: _servicesPageSize,
       skipAuthInterceptor: !_enableCartFeatures,
     );
     if (isClosed) return false;
@@ -207,6 +211,100 @@ class SearchCubit extends Cubit<SearchState> {
       if (hasServices) return categoryId;
     }
     return null;
+  }
+
+  bool hasMoreCategoryServices(int categoryId) {
+    final cached = state.servicesByCategoryId[categoryId];
+    final pageNumber = cached?.services?.pageNumber ?? 1;
+    final totalPages = cached?.services?.totalPages ?? 1;
+    return pageNumber < totalPages;
+  }
+
+  Future<bool> loadMoreCategoryServices(int categoryId) async {
+    if (isClosed) return false;
+    final cached = state.servicesByCategoryId[categoryId];
+    if (cached == null) return false;
+    if (!hasMoreCategoryServices(categoryId)) return false;
+    if (state.loadingServiceCategoryIds.contains(categoryId) ||
+        state.loadingMoreServiceCategoryIds.contains(categoryId)) {
+      return false;
+    }
+
+    final nextPage = (cached.services?.pageNumber ?? 1) + 1;
+    emit(
+      state.copyWith(
+        loadingMoreServiceCategoryIds: {
+          ...state.loadingMoreServiceCategoryIds,
+          categoryId,
+        },
+      ),
+    );
+
+    final result = await _getCategoryServicesUseCase.call(
+      categoryId,
+      pageNumber: nextPage,
+      pageSize: _servicesPageSize,
+      skipAuthInterceptor: !_enableCartFeatures,
+    );
+    if (isClosed) return false;
+
+    return result.when(
+      success: (data) {
+        final currentItems = cached.services?.items ?? const <ServiceItemModel>[];
+        final paged = data.services;
+        final existingIds = {
+          for (final item in currentItems) item.serviceId,
+        };
+        final visibleItems = [
+          ...currentItems,
+          ...?paged?.items?.where(
+            (item) => !existingIds.contains(item.serviceId),
+          ),
+        ];
+        final merged = CategoryServicesDataModel(
+          categoryId: data.categoryId ?? cached.categoryId,
+          categoryName: data.categoryName ?? cached.categoryName,
+          totalSelectedCount:
+              data.totalSelectedCount ?? cached.totalSelectedCount,
+          services: PagedServicesModel(
+            items: visibleItems,
+            pageNumber: paged?.pageNumber ?? nextPage,
+            pageSize: paged?.pageSize ?? _servicesPageSize,
+            totalCount: paged?.totalCount ?? cached.services?.totalCount,
+            totalPages: paged?.totalPages ?? cached.services?.totalPages,
+          ),
+        );
+        final cachedCategories = Map<int, CategoryServicesDataModel>.from(
+          state.servicesByCategoryId,
+        )..[categoryId] = merged;
+
+        final isVisible = state.servicesData?.categoryId == categoryId;
+        emit(
+          state.copyWith(
+            loadingMoreServiceCategoryIds: {
+              ...state.loadingMoreServiceCategoryIds,
+            }..remove(categoryId),
+            servicesByCategoryId: cachedCategories,
+            servicesData: isVisible ? merged : state.servicesData,
+            services: isVisible
+                ? visibleItems
+                : state.services,
+            clearServicesError: true,
+          ),
+        );
+        return true;
+      },
+      failure: (message) {
+        emit(
+          state.copyWith(
+            loadingMoreServiceCategoryIds: {
+              ...state.loadingMoreServiceCategoryIds,
+            }..remove(categoryId),
+          ),
+        );
+        return false;
+      },
+    );
   }
 
   Future<void> addServiceToCart({
@@ -432,14 +530,16 @@ class SearchCubit extends Cubit<SearchState> {
 
     if (isClosed) return;
     result.when(
-      success: (newItems) {
+      success: (data) {
+        final newItems = data.items ?? const <SearchProviderModel>[];
         final merged = page == 1 ? newItems : [...state.items, ...newItems];
+        final totalPages = data.totalPages ?? 1;
         emit(
           state.copyWith(
             items: merged,
             isLoading: false,
             isLoadingMore: false,
-            hasMore: newItems.length >= _pageSize,
+            hasMore: page < totalPages,
             currentPage: page,
             clearError: true,
           ),

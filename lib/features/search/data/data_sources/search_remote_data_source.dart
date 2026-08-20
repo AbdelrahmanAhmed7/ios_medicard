@@ -45,6 +45,8 @@ abstract class SearchRemoteDataSource {
   @GET('Cart/category/{categoryId}/services')
   Future<CategoryServicesResponseModel> getCategoryServices(
     @Path('categoryId') int categoryId,
+    @Query('PageNumber') int? pageNumber,
+    @Query('PageSize') int? pageSize,
     @Extras() Map<String, dynamic> extras,
   );
 }

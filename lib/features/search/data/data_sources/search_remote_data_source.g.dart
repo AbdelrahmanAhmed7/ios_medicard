@@ -184,11 +184,16 @@ class _SearchRemoteDataSource implements SearchRemoteDataSource {
   @override
   Future<CategoryServicesResponseModel> getCategoryServices(
     int categoryId,
+    int? pageNumber,
+    int? pageSize,
     Map<String, dynamic> extras,
   ) async {
     final _extra = <String, dynamic>{};
     _extra.addAll(extras);
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      'PageNumber': ?pageNumber,
+      'PageSize': ?pageSize,
+    };
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<CategoryServicesResponseModel>(

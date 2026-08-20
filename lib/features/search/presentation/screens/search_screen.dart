@@ -387,6 +387,8 @@ class _ServicesTabState extends State<_ServicesTab> {
           previous.isLoadingServices != current.isLoadingServices ||
           previous.loadingServiceCategoryIds !=
               current.loadingServiceCategoryIds ||
+          previous.loadingMoreServiceCategoryIds !=
+              current.loadingMoreServiceCategoryIds ||
           previous.servicesError != current.servicesError ||
           previous.servicesData != current.servicesData ||
           previous.services != current.services,
@@ -611,6 +613,8 @@ class _ServicesTabState extends State<_ServicesTab> {
     }
 
     final categoryId = state.servicesData?.categoryId ?? 0;
+    final hasMore = state.loadingMoreServiceCategoryIds.isNotEmpty ||
+        context.read<SearchCubit>().hasMoreCategoryServices(categoryId);
 
     return ListView.builder(
       padding: EdgeInsets.fromLTRB(
@@ -619,8 +623,28 @@ class _ServicesTabState extends State<_ServicesTab> {
         16.w,
         totalSelected > 0 ? MediaQuery.of(context).padding.bottom + 92.h : 16.h,
       ),
-      itemCount: state.services.length,
+      itemCount: state.services.length + (hasMore ? 1 : 0),
       itemBuilder: (context, index) {
+        if (index >= state.services.length) {
+          final categoryIdHere = state.servicesData?.categoryId;
+          if (categoryIdHere != null &&
+              !state.loadingMoreServiceCategoryIds.contains(categoryIdHere)) {
+            context.read<SearchCubit>().loadMoreCategoryServices(categoryIdHere);
+          }
+          return Padding(
+            padding: EdgeInsets.symmetric(vertical: 16.h),
+            child: Center(
+              child: SizedBox(
+                width: 24.r,
+                height: 24.r,
+                child: const CircularProgressIndicator(
+                  color: Color(0xFF2D5FA6),
+                  strokeWidth: 2.5,
+                ),
+              ),
+            ),
+          );
+        }
         final service = state.services[index];
         final serviceId = service.serviceId ?? 0;
         final isSelected = service.isSelected == true;

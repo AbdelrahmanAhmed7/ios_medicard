@@ -1,5 +1,5 @@
 import '../../../../core/constants/api_result.dart';
-import '../../data/models/search_provider_model.dart';
+import '../../data/models/search_response_model.dart';
 import '../repositories/search_repository.dart';
 
 class SearchProvidersUseCase {
@@ -7,7 +7,7 @@ class SearchProvidersUseCase {
 
   SearchProvidersUseCase(this._repository);
 
-  Future<ApiResult<List<SearchProviderModel>>> call({
+  Future<ApiResult<SearchResponseData>> call({
     String? keyword,
     int? categoryId,
     int? governorateId,

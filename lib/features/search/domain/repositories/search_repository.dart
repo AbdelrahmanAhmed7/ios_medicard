@@ -2,10 +2,10 @@ import '../../../../core/constants/api_result.dart';
 import '../../data/models/category_model.dart';
 import '../../data/models/category_services_response_model.dart';
 import '../../data/models/lookup_model.dart';
-import '../../data/models/search_provider_model.dart';
+import '../../data/models/search_response_model.dart';
 
 abstract class SearchRepository {
-  Future<ApiResult<List<SearchProviderModel>>> searchProviders({
+  Future<ApiResult<SearchResponseData>> searchProviders({
     String? keyword,
     int? categoryId,
     int? governorateId,
@@ -28,7 +28,9 @@ abstract class SearchRepository {
   Future<ApiResult<List<LookupModel>>> getCities(int governorateId);
 
   Future<ApiResult<CategoryServicesDataModel>> getCategoryServices(
-    int categoryId,
-    bool skipAuthInterceptor,
-  );
+    int categoryId, {
+    int? pageNumber,
+    int? pageSize,
+    bool skipAuthInterceptor = false,
+  });
 }
