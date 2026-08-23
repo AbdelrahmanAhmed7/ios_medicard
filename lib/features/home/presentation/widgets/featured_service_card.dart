@@ -32,7 +32,7 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
     return GestureDetector(
       onTap: () => _openPackageDetails(context),
       child: Container(
-        width: 280,
+        width: 270,
         decoration: BoxDecoration(
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(16),
@@ -50,21 +50,21 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                 children: [
                   Container(
                     color: const Color(0xFFEEF3FB),
-                    height: 120,
+                    height: 159,
                     width: double.infinity,
                     child: CachedNetworkImage(
                       imageUrl: service.imageUrl,
-                      height: 120,
+                      height: 159,
                       width: double.infinity,
                       fit: BoxFit.contain,
                       placeholder: (context, url) => Container(
                         color: const Color(0xFFEEF3FB),
-                        height: 120,
+                        height: 159,
                         width: double.infinity,
                       ),
                       errorWidget: (context, url, error) => Container(
                         color: const Color(0xFFEEF3FB),
-                        height: 120,
+                        height: 159,
                         child: const Icon(
                           Icons.broken_image,
                           color: Color(0xFF9CA3AF),
@@ -387,15 +387,22 @@ class _PackageDetailsSheetContent extends StatelessWidget {
       padding: EdgeInsets.zero,
       shrinkWrap: true,
       children: [
-        CachedNetworkImage(
-          imageUrl: image,
-          height: 160,
+        Container(
+          color: const Color(0xFFEEF3FB),
           width: double.infinity,
-          fit: BoxFit.cover,
-          errorWidget: (_, _, _) => Container(
-            height: 160,
-            color: const Color(0xFFEEF3FB),
-            child: const Icon(Icons.broken_image),
+          child: CachedNetworkImage(
+            imageUrl: image,
+            height: 180,
+            width: double.infinity,
+            fit: BoxFit.contain,
+            errorWidget: (_, _, _) => SizedBox(
+              height: 180,
+              width: double.infinity,
+              child: const Icon(
+                Icons.broken_image,
+                color: Color(0xFF9CA3AF),
+              ),
+            ),
           ),
         ),
         Padding(

@@ -37,12 +37,12 @@ class NearestProviderCard extends StatelessWidget {
                     fit: BoxFit.cover,
                     placeholder: (context, url) => Container(
                       color: const Color(0xFFEEF3FB),
-                      height: 160,
+                      height: 159,
                       width: double.infinity,
                     ),
                     errorWidget: (context, url, error) => Container(
                       color: const Color(0xFFEEF3FB),
-                      height: 160,
+                      height: 159,
                       width: double.infinity,
                       child: const Icon(
                         Icons.broken_image,

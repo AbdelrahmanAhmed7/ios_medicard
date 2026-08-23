@@ -23,7 +23,7 @@ class FeaturedServicesSection extends StatelessWidget {
         HomeSectionHeader(title: 'home.featured_services'.tr(), onViewAll: onViewAll),
         const SizedBox(height: 12),
         SizedBox(
-          height: 240,
+          height: 274,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
