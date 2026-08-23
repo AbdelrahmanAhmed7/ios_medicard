@@ -77,6 +77,10 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
                 isFromPackage: dto.isFromPackage ?? false,
                 priceAfter: dto.priceAfter,
                 packagePrice: dto.packagePrice,
+                beneficiaryName: _beneficiaryName(
+                  firstName: dto.familyFirstName,
+                  lastName: dto.familyLastName,
+                ),
               ),
             )
             .toList();
@@ -184,6 +188,13 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
     }
   }
 
+  String? _beneficiaryName({String? firstName, String? lastName}) {
+    final first = firstName?.trim() ?? '';
+    final last = lastName?.trim() ?? '';
+    if (first.isEmpty && last.isEmpty) return null;
+    return '$first $last'.trim();
+  }
+
   CreatedInvoice _createdInvoiceFromData(dynamic data) {
     if (data is Map) {
       final invoiceId =
@@ -220,6 +231,10 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
             totalBefore: data.totalBefore ?? 0,
             totalAfter: data.totalAfter ?? 0,
             discountPercentage: data.discountPercentage ?? 0,
+            beneficiaryName: _beneficiaryName(
+              firstName: data.familyFirstName,
+              lastName: data.familyLastName,
+            ),
             services: (data.items?.items ?? const [])
                 .map(
                   (item) => InvoiceServiceItem(

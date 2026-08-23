@@ -501,6 +501,31 @@ class _InvoiceCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  if (item.beneficiaryName != null) ...[
+                    SizedBox(height: 2.h),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.person_outline,
+                          size: 14.r,
+                          color: const Color(0xFF6B7280),
+                        ),
+                        SizedBox(width: 3.w),
+                        Expanded(
+                          child: Text(
+                            item.beneficiaryName!,
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w400,
+                              color: const Color(0xFF6B7280),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                   SizedBox(height: 6.h),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

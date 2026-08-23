@@ -759,7 +759,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
           ? 'auth.register.nationalIdOrPassportRequired'.tr()
           : null;
     }
-    if (!RegExp(r'^[0-9]{14}$').hasMatch(nationalId)) {
+    if (!RegExp(r'^[23][0-9]{13}$').hasMatch(nationalId)) {
       return 'auth.register.nationalIdInvalid'.tr();
     }
     return null;

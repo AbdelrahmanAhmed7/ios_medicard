@@ -35,7 +35,7 @@
       "passwordsNotMatch": "كلمات المرور غير متطابقة",
       "nationalId": "الرقم القومي",
       "nationalIdHint": "أدخل رقمك القومي",
-      "nationalIdInvalid": "يجب أن يتكون الرقم القومي من 14 رقمًا",
+      "nationalIdInvalid": "يجب أن يتكون الرقم القومي من 14 رقمًا ويبدأ بـ 2 أو 3",
       "passportNumber": "رقم جواز السفر",
       "passportNumberHint": "أدخل رقم جواز سفرك",
       "passportNumberInvalid": "يجب أن يتكون رقم جواز السفر من 6 إلى 20 حرفًا أو رقمًا",
@@ -165,7 +165,8 @@
     "generic_error": "تعذر إكمال الطلب حالياً. يرجى المحاولة بعد قليل.",
     "request_failed": "تعذر إكمال الطلب حالياً. يرجى المحاولة بعد قليل.",
     "temporary_service_issue": "الخدمة غير متاحة مؤقتاً. يرجى المحاولة بعد قليل.",
-    "try_again_later": "يرجى المحاولة بعد قليل."
+    "try_again_later": "يرجى المحاولة بعد قليل.",
+    "invalid_credentials": "بيانات الدخول غير صحيحة. يرجى التأكد من رقم الموبايل أو رقم الكارت وكلمة المرور."
   },
   "profile": {
     "my_profile": "حسابي",
@@ -426,6 +427,7 @@
     "appointment_details": "تفاصيل الموعد",
     "invoice_details_load_failed": "تعذر تحميل تفاصيل الفاتورة.",
     "order_number": "رقم الطلب #{}",
+    "beneficiary": "المستفيد",
     "date": "التاريخ",
     "service": "الخدمة",
     "services_more": "{} +{} أخرى",

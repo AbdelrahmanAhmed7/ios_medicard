@@ -33,6 +33,9 @@ class InvoiceDetailsDto {
   final double? totalBefore;
   final double? totalAfter;
   final double? discountPercentage;
+  final int? familyId;
+  final String? familyFirstName;
+  final String? familyLastName;
   final InvoiceServiceItemsPageDto? items;
 
   const InvoiceDetailsDto({
@@ -42,6 +45,9 @@ class InvoiceDetailsDto {
     this.totalBefore,
     this.totalAfter,
     this.discountPercentage,
+    this.familyId,
+    this.familyFirstName,
+    this.familyLastName,
     this.items,
   });
 
@@ -53,6 +59,9 @@ class InvoiceDetailsDto {
       totalBefore: (json['totalBefore'] as num?)?.toDouble(),
       totalAfter: (json['totalAfter'] as num?)?.toDouble(),
       discountPercentage: (json['discountPercentage'] as num?)?.toDouble(),
+      familyId: (json['familyId'] as num?)?.toInt(),
+      familyFirstName: json['familyFirstName'] as String?,
+      familyLastName: json['familyLastName'] as String?,
       items: json['items'] is Map<String, dynamic>
           ? InvoiceServiceItemsPageDto.fromJson(
               json['items'] as Map<String, dynamic>,

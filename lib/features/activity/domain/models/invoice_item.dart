@@ -9,6 +9,7 @@ class InvoiceItem {
   final bool isFromPackage;
   final double? priceAfter;
   final double? packagePrice;
+  final String? beneficiaryName;
 
   bool get isPending {
     final normalized = status.toLowerCase();
@@ -41,5 +42,6 @@ class InvoiceItem {
     this.isFromPackage = false,
     this.priceAfter,
     this.packagePrice,
+    this.beneficiaryName,
   });
 }

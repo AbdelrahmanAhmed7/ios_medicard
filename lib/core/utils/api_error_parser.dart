@@ -53,8 +53,11 @@ String parseApiError(dynamic error) {
       }
 
       if (data is Map) {
-        final errorMessages = _extractMessages(data['errors']);
-        if (errorMessages.isNotEmpty) return friendlyApiMessage(errorMessages);
+        // ASP.NET validation responses return every failing field at once.
+        // Surface only the most relevant single backend message instead of
+        // concatenating all of them into one confusing block.
+        final errorMessage = _pickRelevantFieldError(data['errors']);
+        if (errorMessage.isNotEmpty) return friendlyApiMessage(errorMessage);
 
         if (data['message'] is String &&
             (data['message'] as String).trim().isNotEmpty) {
@@ -102,12 +105,56 @@ String _extractMessages(dynamic value) {
   return value.toString().trim();
 }
 
+/// Picks the single most relevant field error from a field-keyed errors map.
+/// Identity fields (phone/card/email) come first since they are what users
+/// usually mistype, then credential fields, then whatever arrives first.
+String _pickRelevantFieldError(dynamic errors) {
+  if (errors == null) return '';
+  if (errors is! Map) return _extractMessages(errors);
+
+  final messagesByKey = <String, String>{};
+  errors.forEach((key, value) {
+    final message = _extractMessages(value);
+    if (message.isNotEmpty) {
+      messagesByKey[key.toString().toLowerCase()] = message;
+    }
+  });
+  if (messagesByKey.isEmpty) return '';
+
+  const priority = [
+    'phonenumber',
+    'cardnumber',
+    'email',
+    'password',
+    'confirmpassword',
+    'nationalid',
+    'passportnumber',
+  ];
+  for (final key in priority) {
+    final message = messagesByKey[key];
+    if (message != null) return message;
+  }
+  return messagesByKey.values.first;
+}
+
 String friendlyApiMessage(String message) {
   final normalized = message.trim();
   final lower = normalized.toLowerCase();
 
   if (_isGenericMessage(normalized)) {
     return 'errors.request_failed'.tr();
+  }
+
+  if (lower.contains('invalid phone number format')) {
+    return 'auth.register.phoneNumberInvalid'.tr();
+  }
+
+  if (lower.contains('national id or passport number is required')) {
+    return 'auth.register.nationalIdOrPassportRequired'.tr();
+  }
+
+  if (lower.contains('user not found')) {
+    return 'errors.invalid_credentials'.tr();
   }
 
   if (lower.contains('cartitempricemissing') ||

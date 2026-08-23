@@ -5,6 +5,7 @@ class InvoiceDetails {
   final double totalBefore;
   final double totalAfter;
   final double discountPercentage;
+  final String? beneficiaryName;
   final List<InvoiceServiceItem> services;
 
   const InvoiceDetails({
@@ -14,6 +15,7 @@ class InvoiceDetails {
     required this.totalBefore,
     required this.totalAfter,
     required this.discountPercentage,
+    this.beneficiaryName,
     required this.services,
   });
 }

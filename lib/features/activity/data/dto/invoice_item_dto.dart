@@ -14,6 +14,9 @@ class InvoiceItemDto {
   final bool? isFromPackage;
   final double? priceAfter;
   final double? packagePrice;
+  final int? familyId;
+  final String? familyFirstName;
+  final String? familyLastName;
 
   const InvoiceItemDto({
     this.invoiceId,
@@ -26,6 +29,9 @@ class InvoiceItemDto {
     this.isFromPackage,
     this.priceAfter,
     this.packagePrice,
+    this.familyId,
+    this.familyFirstName,
+    this.familyLastName,
   });
 
   factory InvoiceItemDto.fromJson(Map<String, dynamic> json) =>

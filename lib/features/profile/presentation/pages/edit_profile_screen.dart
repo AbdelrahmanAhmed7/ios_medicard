@@ -367,7 +367,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       (value ?? '').trim(),
     );
     if (nationalId.isEmpty) return null;
-    if (!RegExp(r'^[0-9]{14}$').hasMatch(nationalId)) {
+    if (!RegExp(r'^[23][0-9]{13}$').hasMatch(nationalId)) {
       return 'auth.register.nationalIdInvalid'.tr();
     }
     return null;

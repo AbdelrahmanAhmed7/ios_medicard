@@ -121,6 +121,13 @@ class _DetailsBody extends StatelessWidget {
           children: [
             _ProviderHeader(invoice: invoice),
             const Divider(height: 1, color: Color(0xFFD5D5D5)),
+            if (details.beneficiaryName != null) ...[
+              _InfoRow(
+                label: 'activity.beneficiary'.tr(),
+                value: details.beneficiaryName!,
+              ),
+              const Divider(height: 1, color: Color(0xFFD5D5D5)),
+            ],
             _InfoRow(label: 'activity.date'.tr(), value: formattedDate),
             const Divider(height: 1, color: Color(0xFFD5D5D5)),
             _InfoRow(label: 'activity.service'.tr(), value: servicesText),

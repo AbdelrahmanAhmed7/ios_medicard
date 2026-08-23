@@ -191,9 +191,10 @@ class _SearchRemoteDataSource implements SearchRemoteDataSource {
     final _extra = <String, dynamic>{};
     _extra.addAll(extras);
     final queryParameters = <String, dynamic>{
-      'PageNumber': ?pageNumber,
-      'PageSize': ?pageSize,
+      r'PageNumber': pageNumber,
+      r'PageSize': pageSize,
     };
+    queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<CategoryServicesResponseModel>(
