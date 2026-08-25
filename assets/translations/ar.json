@@ -350,7 +350,10 @@
     "no_reviews_found": "لا توجد تقييمات",
     "select_branch_first": "يرجى اختيار الفرع أولاً.",
     "no_provider_branch_found": "لم يتم العثور على فرع لهذه الباقة.",
-    "tests_included": "الفحوصات المتضمنة"
+    "tests_included": "الفحوصات المتضمنة",
+    "search_branches": "بحث في الفروع...",
+    "branches_found": "{} فرع",
+    "no_branches_found": "لا توجد فروع مطابقة"
   },
   "cart": {
     "title": "السلة",

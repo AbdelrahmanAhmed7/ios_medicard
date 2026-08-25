@@ -316,25 +316,16 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
 
     _isBooking = true;
     try {
-      final branchId = await _resolveBranchId();
       if (!context.mounted) return;
-      if (branchId == null) {
-        final messenger = ScaffoldMessenger.of(context);
-        messenger.hideCurrentSnackBar();
-        messenger.showSnackBar(
-          SnackBar(content: Text('provider_page.no_provider_branch_found'.tr())),
-        );
-        return;
-      }
-
       context.push(
         '/checkout',
         extra: {
           'providerId': service.providerId,
-          'selectedBranch': ProviderBranch(
-            branchId: branchId,
-            branchName: service.location,
-          ),
+          if (service.providerBranchId != null)
+            'selectedBranch': ProviderBranch(
+              branchId: service.providerBranchId!,
+              branchName: service.location,
+            ),
           'packageId': packageId,
           'packageName': service.serviceName,
           'packagePriceBefore': service.originalPrice,
@@ -344,20 +335,6 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
     } finally {
       _isBooking = false;
     }
-  }
-
-  Future<int?> _resolveBranchId() async {
-    if (service.providerBranchId != null) return service.providerBranchId;
-    final providerId = service.providerId;
-    if (providerId == null) return null;
-
-    final result = await sl<MedicardNetworkRepository>().getProviderPage(
-      providerId: providerId,
-    );
-    return result.maybeWhen(
-      success: (response) => response.data?.branches?.firstOrNull?.branchId,
-      orElse: () => null,
-    );
   }
 }
 

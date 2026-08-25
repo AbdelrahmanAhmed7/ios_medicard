@@ -107,6 +107,16 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         RegExp(r'[!@#\$%^&*(),.?":{}|<>_\-+=\[\]\\;/`~]').hasMatch(password);
   }
 
+  bool _hasMinimumLength(String password) =>
+      password.length >= _passwordMinLength;
+
+  bool _hasLetter(String password) => RegExp(r'[A-Za-z]').hasMatch(password);
+
+  bool _hasNumber(String password) => RegExp(r'[0-9]').hasMatch(password);
+
+  bool _hasSpecialCharacter(String password) =>
+      RegExp(r'[!@#\$%^&*(),.?":{}|<>_\-+=\[\]\\;/`~]').hasMatch(password);
+
   @override
   Widget build(BuildContext context) {
     final statusBarHeight = MediaQuery.of(context).padding.top;
@@ -209,20 +219,22 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
                         SizedBox(height: 16.h),
 
-                        _FieldLabel('change_password.new_password'.tr()),
-                        _buildPasswordField(
-                          focusNode: _newPasswordFocus,
-                          autovalidateMode: _newPasswordTouched
-                              ? AutovalidateMode.onUserInteraction
-                              : AutovalidateMode.disabled,
-                          controller: _newPasswordController,
-                          hintText: 'change_password.new_password_hint'.tr(),
-                          showPassword: _showNewPassword,
-                          onToggle: () => setState(
-                            () => _showNewPassword = !_showNewPassword,
+                          _FieldLabel('change_password.new_password'.tr()),
+                          _buildPasswordField(
+                            focusNode: _newPasswordFocus,
+                            autovalidateMode: _newPasswordTouched
+                                ? AutovalidateMode.onUserInteraction
+                                : AutovalidateMode.disabled,
+                            controller: _newPasswordController,
+                            hintText: 'change_password.new_password_hint'.tr(),
+                            showPassword: _showNewPassword,
+                            onToggle: () => setState(
+                              () => _showNewPassword = !_showNewPassword,
+                            ),
+                            validator: _validateNewPassword,
                           ),
-                          validator: _validateNewPassword,
-                        ),
+                          SizedBox(height: 10.h),
+                          _buildPasswordRequirements(),
 
                         SizedBox(height: 16.h),
 
@@ -355,6 +367,86 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         ),
       ),
       validator: validator,
+    );
+  }
+
+  Widget _buildPasswordRequirements() {
+    final password = LanguageHelper.convertArabicToEnglishNumerals(
+      _newPasswordController.text.trim(),
+    );
+    final showInvalidRequirements = password.isNotEmpty;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'auth.register.passwordRequirementsTitle'.tr(),
+          style: TextStyle(
+            fontSize: 12.sp,
+            color: kAuthGreyText,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        SizedBox(height: 6.h),
+        _buildPasswordRequirement(
+          label: 'auth.register.passwordMinLength'.tr(
+            namedArgs: {'count': _passwordMinLength.toString()},
+          ),
+          isMet: _hasMinimumLength(password),
+          showInvalid: showInvalidRequirements,
+        ),
+        _buildPasswordRequirement(
+          label: 'auth.register.passwordLetter'.tr(),
+          isMet: _hasLetter(password),
+          showInvalid: showInvalidRequirements,
+        ),
+        _buildPasswordRequirement(
+          label: 'auth.register.passwordNumber'.tr(),
+          isMet: _hasNumber(password),
+          showInvalid: showInvalidRequirements,
+        ),
+        _buildPasswordRequirement(
+          label: 'auth.register.passwordSpecialCharacter'.tr(),
+          isMet: _hasSpecialCharacter(password),
+          showInvalid: showInvalidRequirements,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPasswordRequirement({
+    required String label,
+    required bool isMet,
+    required bool showInvalid,
+  }) {
+    final color = isMet
+        ? Colors.green
+        : showInvalid
+        ? Colors.red
+        : kAuthGreyText;
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: 4.h),
+      child: Row(
+        children: [
+          Icon(
+            isMet ? Icons.check_circle : Icons.radio_button_unchecked,
+            size: 14.sp,
+            color: color,
+          ),
+          SizedBox(width: 6.w),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: color,
+                fontWeight: isMet ? FontWeight.w600 : FontWeight.w400,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

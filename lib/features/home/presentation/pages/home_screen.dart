@@ -9,6 +9,7 @@ import '../../../../core/cubit/app_refresh_cubit.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/theming/app_toast.dart';
 import '../../../../core/theming/app_snack_bar.dart';
+import '../../../../core/utils/location_permission_dialog.dart';
 import '../../../../features/activity/presentation/cubit/activity_cubit.dart';
 import '../../../../features/ecard/presentation/cubit/ecard_cubit.dart';
 import '../../../../features/profile/presentation/cubit/profile_cubit.dart';
@@ -131,6 +132,17 @@ class _HomeScreenState extends State<HomeScreen> {
               if (!completer.isCompleted) {
                 completer.complete(true);
               }
+            };
+            // Permanently denied: explain in-app before leaving for settings
+            // (the OS no longer shows its native prompt at this point).
+            locationCubit.onShowSettingsRedirectDialog = () async {
+              if (!mounted) return false;
+              var openSettings = false;
+              await LocationPermissionDialog.show(
+                context,
+                onEnablePressed: () => openSettings = true,
+              );
+              return openSettings;
             };
             if (!_locationLoadStarted) {
               _locationLoadStarted = true;

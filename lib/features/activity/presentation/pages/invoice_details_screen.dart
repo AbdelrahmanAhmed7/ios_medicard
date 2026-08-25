@@ -348,7 +348,7 @@ class _DetailsActionsState extends State<_DetailsActions> {
 
   bool get _canCancel => widget.tab == 1;
 
-  bool get _canReview => widget.tab == 3;
+  bool get _canReview => widget.tab == 3 && !widget.invoice.isReviewed;
 
   Future<void> _onCancelTapped() async {
     final confirmed = await showDialog<bool>(
