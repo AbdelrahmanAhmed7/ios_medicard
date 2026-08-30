@@ -3,6 +3,7 @@ import 'package:retrofit/retrofit.dart';
 
 import '../models/category_response_model.dart';
 import '../models/category_services_response_model.dart';
+import '../models/guest_category_services_response_model.dart';
 import '../models/lookup_response_model.dart';
 import '../models/search_response_model.dart';
 
@@ -48,5 +49,13 @@ abstract class SearchRemoteDataSource {
     @Query('PageNumber') int? pageNumber,
     @Query('PageSize') int? pageSize,
     @Extras() Map<String, dynamic> extras,
+  );
+
+  @GET('GuestMobileHome/servicesByCategory')
+  Future<GuestCategoryServicesResponseModel> getGuestCategoryServices(
+    @Query('categoryId') int categoryId,
+    @Query('Search') String? search,
+    @Query('PageNumber') int? pageNumber,
+    @Query('PageSize') int? pageSize,
   );
 }

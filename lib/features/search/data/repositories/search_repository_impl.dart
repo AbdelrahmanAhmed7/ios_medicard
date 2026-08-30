@@ -147,6 +147,36 @@ class SearchRepositoryImpl implements SearchRepository {
       return ApiResult.failure(parseApiError(error));
     }
   }
+
+  @override
+  Future<ApiResult<CategoryServicesDataModel>> getGuestCategoryServices(
+    int categoryId, {
+    String? search,
+    int? pageNumber,
+    int? pageSize,
+  }) async {
+    try {
+      final response = await _dataSource.getGuestCategoryServices(
+        categoryId,
+        search,
+        pageNumber,
+        pageSize,
+      );
+      return (response.succeeded == true && response.data != null)
+          ? ApiResult.success(
+              response.data!.toCategoryServicesDataModel(categoryId),
+            )
+          : ApiResult.failure(
+              _responseMessage(
+                errors: response.errors,
+                message: response.message,
+                fallback: 'Failed to load category services.',
+              ),
+            );
+    } catch (error) {
+      return ApiResult.failure(parseApiError(error));
+    }
+  }
 }
 
 String _responseMessage({

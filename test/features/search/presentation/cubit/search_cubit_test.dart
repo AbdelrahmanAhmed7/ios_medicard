@@ -318,6 +318,46 @@ class _FakeSearchRepository implements SearchRepository {
     }
     return Future.value(ApiResult.success(data));
   }
+
+  @override
+  Future<ApiResult<CategoryServicesDataModel>> getGuestCategoryServices(
+    int categoryId, {
+    String? search,
+    int? pageNumber,
+    int? pageSize,
+  }) async {
+    final data = categoryServices[categoryId];
+    if (data != null) {
+      if (pageNumber != null && pageNumber > (data.services?.pageNumber ?? 1)) {
+        return ApiResult.success(
+          CategoryServicesDataModel(
+            categoryId: data.categoryId,
+            categoryName: data.categoryName,
+            services: const PagedServicesModel(
+              items: [],
+              pageNumber: 2,
+              pageSize: 20,
+              totalCount: 0,
+              totalPages: 1,
+            ),
+          ),
+        );
+      }
+      return ApiResult.success(data);
+    }
+    return ApiResult.success(
+      CategoryServicesDataModel(
+        categoryId: categoryId,
+        services: const PagedServicesModel(
+          items: [],
+          pageNumber: 1,
+          pageSize: 20,
+          totalCount: 0,
+          totalPages: 1,
+        ),
+      ),
+    );
+  }
 }
 
 class _FakeCartRepository implements CartRepository {

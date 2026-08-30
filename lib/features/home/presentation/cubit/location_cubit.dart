@@ -14,11 +14,6 @@ class LocationCubit extends Cubit<LocationState> {
   // Callback the UI provides to show the dialog
   void Function(Completer<bool> completer)? onShowRationaleDialog;
 
-  /// Optional UI hook shown when the OS refuses to prompt anymore
-  /// (permanently denied). Resolves to true when the user agrees to be
-  /// redirected to the app settings page.
-  Future<bool> Function()? onShowSettingsRedirectDialog;
-
   LocationCubit(this._locationRepository, this._locationService)
     : super(const LocationInitial());
 
@@ -33,8 +28,7 @@ class LocationCubit extends Cubit<LocationState> {
   /// Called when user taps the location display (e.g. "Location unavailable").
   ///
   /// Re-asks through the native OS dialog whenever the system still allows
-  /// prompting. Once permanently denied (iOS never re-prompts after the
-  /// first denial), an in-app explainer offers opening the settings page.
+  /// prompting.
   Future<void> retryLocation() async {
     if (isClosed) return;
 
@@ -52,7 +46,7 @@ class LocationCubit extends Cubit<LocationState> {
           emit(const LocationError('Location unavailable'));
           return;
         case LocationPermission.deniedForever:
-          await _handlePermanentlyDenied();
+          emit(const LocationError('Location unavailable'));
           return;
         default:
           break;
@@ -63,35 +57,11 @@ class LocationCubit extends Cubit<LocationState> {
     }
 
     if (permission == LocationPermission.deniedForever) {
-      await _handlePermanentlyDenied();
-      return;
-    }
-
-    await _resolveLocationName(clearCache: true);
-  }
-
-  Future<void> _handlePermanentlyDenied() async {
-    final showSettingsRedirectDialog = onShowSettingsRedirectDialog;
-    var confirmed = true;
-    if (showSettingsRedirectDialog != null) {
-      confirmed = await showSettingsRedirectDialog();
-    }
-
-    if (!confirmed || isClosed) {
       if (!isClosed) emit(const LocationError('Location unavailable'));
       return;
     }
 
-    await _locationService.openAppSettings();
-
-    // Back from settings — pick up any permission change the user made.
-    final updated = await Geolocator.checkPermission();
-    if (updated == LocationPermission.always ||
-        updated == LocationPermission.whileInUse) {
-      await _resolveLocationName(clearCache: true);
-    } else if (!isClosed) {
-      emit(const LocationError('Location unavailable'));
-    }
+    await _resolveLocationName(clearCache: true);
   }
 
   Future<void> _resolveLocationName({required bool clearCache}) async {

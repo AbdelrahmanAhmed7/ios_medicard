@@ -42,9 +42,10 @@ class _SearchScreenState extends State<SearchScreen>
   final ScrollController _scrollController = ScrollController();
   Timer? _debounce;
 
-  /// Guests cannot use services, so when cart features are disabled
-  /// (guest mode) only the providers tab is shown.
-  bool get _showServicesTab => widget.enableCartFeatures;
+  /// Both providers and services tabs are always shown. Guests browse the
+  /// services tab in read-only mode (no cart selection), backed by the
+  /// public `GuestMobileHome/servicesByCategory` endpoint.
+  bool get _showServicesTab => true;
 
   @override
   void initState() {
@@ -436,6 +437,7 @@ class _ServicesTabState extends State<_ServicesTab> {
                             setState(() => _selectedCategoryId = cat.id);
                             context.read<SearchCubit>().loadCategoryServices(
                               cat.id!,
+                              search: _currentServiceSearch(context),
                             );
                           },
                         );
@@ -462,6 +464,12 @@ class _ServicesTabState extends State<_ServicesTab> {
         );
       },
     );
+  }
+
+  String? _currentServiceSearch(BuildContext context) {
+    if (widget.enableCartFeatures) return null;
+    final keyword = context.read<SearchCubit>().state.keyword.trim();
+    return keyword.isEmpty ? null : keyword;
   }
 
   void _autoSelectFirstCategory(BuildContext context, SearchState state) {
@@ -564,7 +572,10 @@ class _ServicesTabState extends State<_ServicesTab> {
               ElevatedButton(
                 onPressed: () => context
                     .read<SearchCubit>()
-                    .loadCategoryServices(_selectedCategoryId!),
+                    .loadCategoryServices(
+                      _selectedCategoryId!,
+                      search: _currentServiceSearch(context),
+                    ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF2D5FA6),
                   shape: RoundedRectangleBorder(

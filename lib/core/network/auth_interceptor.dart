@@ -10,6 +10,7 @@ const _publicPaths = {
   'Auth/register',
   'Auth/refresh-token',
   'GuestMobileHome/guest',
+  'GuestMobileHome/servicesByCategory',
   'Lookups/categories',
   'Lookups/governorates',
   'Lookups/cities',

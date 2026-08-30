@@ -297,21 +297,45 @@ class _BranchSelector extends StatelessWidget {
   }
 }
 
-class _MapPreview extends StatelessWidget {
+class _MapPreview extends StatefulWidget {
   final ProviderBranch branch;
 
   const _MapPreview({required this.branch});
 
   @override
+  State<_MapPreview> createState() => _MapPreviewState();
+}
+
+class _MapPreviewState extends State<_MapPreview> {
+  final _mapController = MapController();
+
+  LatLng? get _point {
+    final latitude = widget.branch.latitude;
+    final longitude = widget.branch.longitude;
+    if (latitude == null || longitude == null) return null;
+    return LatLng(latitude, longitude);
+  }
+
+  @override
+  void didUpdateWidget(covariant _MapPreview oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final point = _point;
+    if (point == null) return;
+    if (oldWidget.branch.branchId != widget.branch.branchId ||
+        oldWidget.branch.latitude != widget.branch.latitude ||
+        oldWidget.branch.longitude != widget.branch.longitude) {
+      _mapController.move(point, 14);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final latitude = branch.latitude;
-    final longitude = branch.longitude;
-    final hasLocation = latitude != null && longitude != null;
-    final point = hasLocation ? LatLng(latitude, longitude) : null;
+    final point = _point;
+    final hasLocation = point != null;
 
     return GestureDetector(
       onTap: () {
-        final url = branch.mapUrl;
+        final url = widget.branch.mapUrl;
         if (url != null && url.isNotEmpty) {
           UrlLauncherService().launchURL(url);
         }
@@ -322,9 +346,10 @@ class _MapPreview extends StatelessWidget {
           width: double.infinity,
           height: 146.h,
           color: const Color(0xFFE5E7EB),
-          child: point == null
+          child: !hasLocation
               ? const Center(child: Icon(Icons.map_outlined))
               : FlutterMap(
+                  mapController: _mapController,
                   options: MapOptions(
                     initialCenter: point,
                     initialZoom: 14,

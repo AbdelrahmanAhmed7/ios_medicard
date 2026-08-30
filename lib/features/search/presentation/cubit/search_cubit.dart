@@ -32,6 +32,15 @@ class SearchCubit extends Cubit<SearchState> {
   var _enableCartFeatures = true;
   StreamSubscription<CartSyncEvent>? _cartSyncSubscription;
 
+  /// Search keyword used to load each category's services in guest mode,
+  /// so the cache is invalidated when the keyword changes.
+  final Map<int, String?> _guestServicesKeyword = {};
+
+  /// Whether the services cache belongs to the current mode (auth vs guest).
+  /// Guards against a logged-in session showing stale guest (or vice-versa)
+  /// cached services, since [SearchCubit] is a shared singleton.
+  bool? _servicesCacheMode = true;
+
   SearchCubit(
     this._searchProvidersUseCase,
     this._getCategoriesUseCase,
@@ -53,6 +62,7 @@ class SearchCubit extends Cubit<SearchState> {
   }) async {
     if (isClosed) return;
     _enableCartFeatures = enableCartFeatures;
+    _servicesCacheMode = enableCartFeatures;
     emit(
       state.copyWith(
         userLatitude: lat,
@@ -114,13 +124,18 @@ class SearchCubit extends Cubit<SearchState> {
     );
   }
 
-  Future<bool> loadCategoryServices(int categoryId) async {
+  Future<bool> loadCategoryServices(int categoryId, {String? search}) async {
     if (isClosed) return false;
 
     final cached = state.servicesByCategoryId[categoryId];
-    if (cached != null) {
+    final cachedKeyword = _guestServicesKeyword[categoryId];
+    if (cached != null &&
+        _servicesCacheMode == _enableCartFeatures &&
+        cachedKeyword == search) {
       if (kDebugMode) {
-        debugPrint('[SearchCubit] reused cached services category=$categoryId');
+        debugPrint(
+          '[SearchCubit] reused cached services category=$categoryId keyword=$search',
+        );
       }
       emit(
         state.copyWith(
@@ -156,12 +171,18 @@ class SearchCubit extends Cubit<SearchState> {
       ),
     );
 
-    final result = await _getCategoryServicesUseCase.call(
-      categoryId,
-      pageNumber: 1,
-      pageSize: _servicesPageSize,
-      skipAuthInterceptor: !_enableCartFeatures,
-    );
+    final result = _enableCartFeatures
+        ? await _getCategoryServicesUseCase.call(
+            categoryId,
+            pageNumber: 1,
+            pageSize: _servicesPageSize,
+          )
+        : await _getCategoryServicesUseCase.callGuestServices(
+            categoryId,
+            search: search,
+            pageNumber: 1,
+            pageSize: _servicesPageSize,
+          );
     if (isClosed) return false;
 
     final loadingIds = Set<int>.from(state.loadingServiceCategoryIds)
@@ -169,6 +190,7 @@ class SearchCubit extends Cubit<SearchState> {
 
     return result.when(
       success: (data) {
+        _guestServicesKeyword[categoryId] = search;
         final counts = Map<int, int>.from(state.categorySelectedCounts);
         counts[categoryId] = data.totalSelectedCount ?? 0;
         final cachedCategories = Map<int, CategoryServicesDataModel>.from(
@@ -240,12 +262,18 @@ class SearchCubit extends Cubit<SearchState> {
       ),
     );
 
-    final result = await _getCategoryServicesUseCase.call(
-      categoryId,
-      pageNumber: nextPage,
-      pageSize: _servicesPageSize,
-      skipAuthInterceptor: !_enableCartFeatures,
-    );
+    final result = _enableCartFeatures
+        ? await _getCategoryServicesUseCase.call(
+            categoryId,
+            pageNumber: nextPage,
+            pageSize: _servicesPageSize,
+          )
+        : await _getCategoryServicesUseCase.callGuestServices(
+            categoryId,
+            search: _guestServicesKeyword[categoryId],
+            pageNumber: nextPage,
+            pageSize: _servicesPageSize,
+          );
     if (isClosed) return false;
 
     return result.when(
@@ -485,6 +513,19 @@ class SearchCubit extends Cubit<SearchState> {
       ),
     );
     await _fetch(page: 1);
+
+    if (!_enableCartFeatures) {
+      final currentCategoryId = state.servicesData?.categoryId;
+      if (currentCategoryId != null) {
+        final normalizedKeyword = keyword.trim().isEmpty
+            ? null
+            : keyword.trim();
+        await loadCategoryServices(
+          currentCategoryId,
+          search: normalizedKeyword,
+        );
+      }
+    }
   }
 
   Future<void> loadMore() async {

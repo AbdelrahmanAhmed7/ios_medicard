@@ -33,4 +33,11 @@ abstract class SearchRepository {
     int? pageSize,
     bool skipAuthInterceptor = false,
   });
+
+  Future<ApiResult<CategoryServicesDataModel>> getGuestCategoryServices(
+    int categoryId, {
+    String? search,
+    int? pageNumber,
+    int? pageSize,
+  });
 }

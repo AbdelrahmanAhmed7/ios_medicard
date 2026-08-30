@@ -30,23 +30,28 @@ class NearestProviderCard extends StatelessWidget {
             children: [
               Stack(
                 children: [
-                  CachedNetworkImage(
-                    imageUrl: provider.imageUrl,
+                  Container(
+                    color: const Color(0xFFEEF3FB),
                     height: 159,
                     width: double.infinity,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => Container(
-                      color: const Color(0xFFEEF3FB),
+                    child: CachedNetworkImage(
+                      imageUrl: provider.imageUrl,
                       height: 159,
                       width: double.infinity,
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      color: const Color(0xFFEEF3FB),
-                      height: 159,
-                      width: double.infinity,
-                      child: const Icon(
-                        Icons.broken_image,
-                        color: Color(0xFF9CA3AF),
+                      fit: BoxFit.contain,
+                      placeholder: (context, url) => Container(
+                        color: const Color(0xFFEEF3FB),
+                        height: 159,
+                        width: double.infinity,
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: const Color(0xFFEEF3FB),
+                        height: 159,
+                        width: double.infinity,
+                        child: const Icon(
+                          Icons.broken_image,
+                          color: Color(0xFF9CA3AF),
+                        ),
                       ),
                     ),
                   ),

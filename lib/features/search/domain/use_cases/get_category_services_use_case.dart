@@ -20,4 +20,18 @@ class GetCategoryServicesUseCase {
       skipAuthInterceptor: skipAuthInterceptor,
     );
   }
+
+  Future<ApiResult<CategoryServicesDataModel>> callGuestServices(
+    int categoryId, {
+    String? search,
+    int? pageNumber,
+    int? pageSize,
+  }) async {
+    return _repository.getGuestCategoryServices(
+      categoryId,
+      search: search,
+      pageNumber: pageNumber,
+      pageSize: pageSize,
+    );
+  }
 }

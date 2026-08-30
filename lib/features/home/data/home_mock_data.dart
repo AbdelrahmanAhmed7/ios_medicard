@@ -36,6 +36,7 @@ class HomeMockData {
       labelKey: 'home.upload_prescription',
       assetPath: 'assets/home/1.png',
     ),
+    QuickAction(labelKey: 'home.services', assetPath: 'assets/home/2.png'),
     QuickAction(labelKey: 'home.providers', assetPath: 'assets/home/3.png'),
   ];
 
