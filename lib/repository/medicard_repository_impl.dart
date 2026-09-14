@@ -92,13 +92,19 @@ class MedicardRepositoryImpl implements MedicardRepository {
   }
 
   String _authFailureMessage(AuthResponseModel response) {
-    return (response.errors != null && response.errors!.isNotEmpty)
-        ? response.errors!.join('\n')
-        : response.message?.isNotEmpty == true
-        ? response.message!
-        : response.data?.message?.isNotEmpty == true
-        ? response.data!.message!
-        : parseApiError('');
+    final raw =
+        (response.errors != null && response.errors!.isNotEmpty)
+            ? response.errors!.join('\n')
+            : response.message?.isNotEmpty == true
+            ? response.message!
+            : response.data?.message?.isNotEmpty == true
+            ? response.data!.message!
+            : '';
+    if (raw.isEmpty) return parseApiError('');
+    // Map known backend messages (e.g. "Invalid phone number format..." ->
+    // localized phone error, "User not found" -> invalid credentials) so the
+    // UI matches the backend intent instead of surfacing raw strings.
+    return friendlyApiMessage(raw);
   }
 
   @override

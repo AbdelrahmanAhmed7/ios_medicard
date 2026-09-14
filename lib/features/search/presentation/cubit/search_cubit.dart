@@ -535,6 +535,23 @@ class SearchCubit extends Cubit<SearchState> {
     await _fetch(page: state.currentPage + 1);
   }
 
+  /// Derives whether more provider pages exist without trusting a single
+  /// backend field. Prefers [totalPages], falls back to [totalCount], and
+  /// finally to the full-page heuristic so a missing pagination field can
+  /// never silently truncate the list to the first page.
+  bool _hasMoreProviders({
+    required int page,
+    required int newItemsCount,
+    required int? totalPages,
+    required int? totalCount,
+    required int pageSize,
+  }) {
+    if (totalPages != null) return page < totalPages;
+    if (totalCount != null && pageSize > 0) return page * pageSize < totalCount;
+    if (pageSize <= 0) return false;
+    return newItemsCount >= pageSize;
+  }
+
   Future<void> selectCategory(int? id) async {
     if (isClosed) return;
     if (id == null) {
@@ -574,13 +591,18 @@ class SearchCubit extends Cubit<SearchState> {
       success: (data) {
         final newItems = data.items ?? const <SearchProviderModel>[];
         final merged = page == 1 ? newItems : [...state.items, ...newItems];
-        final totalPages = data.totalPages ?? 1;
         emit(
           state.copyWith(
             items: merged,
             isLoading: false,
             isLoadingMore: false,
-            hasMore: page < totalPages,
+            hasMore: _hasMoreProviders(
+              page: page,
+              newItemsCount: newItems.length,
+              totalPages: data.totalPages,
+              totalCount: data.totalCount,
+              pageSize: data.pageSize ?? _pageSize,
+            ),
             currentPage: page,
             clearError: true,
           ),

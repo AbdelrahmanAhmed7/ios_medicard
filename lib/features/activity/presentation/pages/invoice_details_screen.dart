@@ -345,10 +345,18 @@ class _DetailsActions extends StatefulWidget {
 
 class _DetailsActionsState extends State<_DetailsActions> {
   bool _isCanceling = false;
+  bool _hasReviewedLocally = false;
 
   bool get _canCancel => widget.tab == 1;
 
-  bool get _canReview => widget.tab == 3 && !widget.invoice.isReviewed;
+  // Reflects backend status: hide the button once the invoice is reviewed
+  // (list flag or an in-app submit), and rely on the invoice status itself
+  // in addition to the entry tab so stale tab indexes can't show/hide it
+  // incorrectly.
+  bool get _canReview =>
+      (widget.tab == 3 || widget.invoice.isUsed) &&
+      !widget.invoice.isReviewed &&
+      !_hasReviewedLocally;
 
   Future<void> _onCancelTapped() async {
     final confirmed = await showDialog<bool>(
@@ -484,35 +492,39 @@ class _DetailsActionsState extends State<_DetailsActions> {
             ),
           ),
         if (_canCancel) SizedBox(height: 12.h),
-        SizedBox(
-          width: double.infinity,
-          height: 50.h,
-          child: OutlinedButton(
-            onPressed: _canReview
-                ? () => showDialog<void>(
-                    context: context,
-                    barrierDismissible: true,
-                    builder: (_) => _ReviewDialog(
-                      invoiceId: widget.invoice.invoiceId,
-                    ),
-                  )
-                : () => showInfoToast(
-                    'activity.review_requires_used_invoice'.tr(),
+        if (_canReview)
+          SizedBox(
+            width: double.infinity,
+            height: 50.h,
+            child: OutlinedButton(
+              onPressed: () async {
+                final reviewed = await showDialog<bool>(
+                  context: context,
+                  barrierDismissible: true,
+                  builder: (_) => _ReviewDialog(
+                    invoiceId: widget.invoice.invoiceId,
                   ),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: const Color(0xFF2D6FB7),
-              side: const BorderSide(color: Color(0xFF2D6FB7)),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(9.r),
+                );
+                // Hide the button immediately after an in-app submit
+                // instead of waiting for a list refresh.
+                if (reviewed == true && mounted) {
+                  setState(() => _hasReviewedLocally = true);
+                }
+              },
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF2D6FB7),
+                side: const BorderSide(color: Color(0xFF2D6FB7)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(9.r),
+                ),
+                textStyle: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-              textStyle: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w500,
-              ),
+              child: Text('activity.leave_review'.tr()),
             ),
-            child: Text('activity.leave_review'.tr()),
           ),
-        ),
       ],
     );
   }

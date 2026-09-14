@@ -65,6 +65,15 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
       return null;
     }
 
+    // An 11-digit value starting with '01' (or 10 digits starting with '1')
+    // is clearly a phone-number attempt. If it failed the strict prefix
+    // check above (valid prefixes are 010/011/012/015), surface a
+    // phone-format error instead of treating it as a card number — e.g.
+    // '01912345678' must not fall through to card-number handling.
+    if (_looksLikePhoneAttempt(identifier)) {
+      return 'auth.login.phoneNumberInvalid'.tr();
+    }
+
     if (_isPotentialCardNumber(identifier)) {
       return null;
     }
@@ -288,6 +297,14 @@ _LoginIdentifier _parseLoginIdentifier(String raw) {
 bool _isEgyptianMobile(String value) {
   final cleanPhoneNumber = value.startsWith('0') ? value.substring(1) : value;
   return RegExp(r'^(10|11|12|15)[0-9]{8}$').hasMatch(cleanPhoneNumber);
+}
+
+bool _looksLikePhoneAttempt(String value) {
+  // 11 digits with a leading zero (01xxxxxxxxx) or 10 digits without it
+  // (1xxxxxxxxx) — the shapes of an Egyptian mobile attempt.
+  if (RegExp(r'^01[0-9]{9}$').hasMatch(value)) return true;
+  if (RegExp(r'^1[0-9]{9}$').hasMatch(value)) return true;
+  return false;
 }
 
 bool _isPotentialCardNumber(String value) {

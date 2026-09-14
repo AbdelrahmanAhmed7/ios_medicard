@@ -155,8 +155,11 @@ class _LoginRequiredToastState extends State<_LoginRequiredToast>
 
   @override
   Widget build(BuildContext context) {
+    // Keep the toast above the system navigation bar on edge-to-edge
+    // devices by adding the system bottom inset to the base offset.
+    final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
     return Positioned(
-      bottom: 48,
+      bottom: 48 + bottomInset,
       left: 24,
       right: 24,
       child: SlideTransition(
@@ -289,8 +292,11 @@ class _ToastWidgetState extends State<_ToastWidget>
 
   @override
   Widget build(BuildContext context) {
+    // Keep the toast above the system navigation bar on edge-to-edge
+    // devices by adding the system bottom inset to the base offset.
+    final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
     return Positioned(
-      bottom: 48,
+      bottom: 48 + bottomInset,
       left: 24,
       right: 24,
       child: SlideTransition(

@@ -153,7 +153,13 @@ String friendlyApiMessage(String message) {
     return 'auth.register.nationalIdOrPassportRequired'.tr();
   }
 
-  if (lower.contains('user not found')) {
+  if (lower.contains('user not found') ||
+      lower.contains('invalid credentials') ||
+      lower.contains('invalid username or password') ||
+      lower.contains('wrong username or password') ||
+      normalized.contains('بيانات الدخول غير صحيحة') ||
+      normalized.contains('المستخدم غير موجود') ||
+      normalized.contains('مستخدم غير موجود')) {
     return 'errors.invalid_credentials'.tr();
   }
 

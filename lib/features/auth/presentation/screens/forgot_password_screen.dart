@@ -50,6 +50,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     context.read<ForgotPasswordCubit>().sendOtp(phoneNumber);
   }
 
+  bool _isAccountExistsInfoMessage(String message) {
+    final lower = message.toLowerCase();
+    if (lower.contains('account exists')) return true;
+    if (lower.contains('if the account')) return true;
+    if (message.contains('الحساب موجود')) return true;
+    if (message.contains('في حالة وجود الحساب')) return true;
+    if (message.contains('إذا كان الحساب موجود')) return true;
+    return false;
+  }
+
   String? _validatePhone(String? value) {
     final phone = LanguageHelper.convertArabicToEnglishNumerals(
       value?.trim() ?? '',
@@ -77,7 +87,24 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           },
           failed: (error) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) showErrorToast(error);
+              if (!mounted) return;
+              // Enumeration-protection: backend confirms "If the account
+              // exists, an OTP will be sent" without revealing whether the
+              // number is registered. Show it as info and continue to the
+              // OTP screen instead of staying put.
+              if (_isAccountExistsInfoMessage(error)) {
+                showInfoToast(error);
+                final phoneNumber =
+                    LanguageHelper.convertArabicToEnglishNumerals(
+                      _phoneController.text.trim(),
+                    );
+                context.push('/forgot-password/verify', extra: {
+                  'phoneNumber': phoneNumber,
+                  'otp': '',
+                });
+                return;
+              }
+              showErrorToast(error);
             });
           },
         );

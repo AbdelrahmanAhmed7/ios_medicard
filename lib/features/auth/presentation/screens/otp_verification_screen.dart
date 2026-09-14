@@ -177,7 +177,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                           ),
                           SizedBox(height: 24.h),
 
-                          if (_showOtp) ...[
+                          if (_showOtp && widget.otp.isNotEmpty) ...[
                             _OtpPreviewCard(
                               otp: widget.otp,
                               secondsLeft: _secondsLeft,

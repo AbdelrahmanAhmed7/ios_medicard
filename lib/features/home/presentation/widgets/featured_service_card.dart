@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
-import '../../../../core/constants/api_result.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
 import '../../../../core/auth/auth_session_storage.dart';
+import '../../../../core/constants/api_result.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/theming/app_toast.dart';
 import '../../../../medicard_network/repository/medicard_network_repository.dart';
@@ -56,7 +57,7 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                       imageUrl: service.imageUrl,
                       height: 159,
                       width: double.infinity,
-                      fit: BoxFit.contain,
+                      fit: BoxFit.cover,
                       placeholder: (context, url) => Container(
                         color: const Color(0xFFEEF3FB),
                         height: 159,
@@ -375,10 +376,7 @@ class _PackageDetailsSheetContent extends StatelessWidget {
             errorWidget: (_, _, _) => SizedBox(
               height: 180,
               width: double.infinity,
-              child: const Icon(
-                Icons.broken_image,
-                color: Color(0xFF9CA3AF),
-              ),
+              child: const Icon(Icons.broken_image, color: Color(0xFF9CA3AF)),
             ),
           ),
         ),
