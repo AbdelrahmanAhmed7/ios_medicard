@@ -269,7 +269,16 @@ Future<void> setupServiceLocator() async {
 
   // Search cubits
   sl.registerFactory<SearchCubit>(
-    () => SearchCubit(sl(), sl(), sl(), sl(), sl(), sl()),
+    () => SearchCubit(
+      sl(),
+      sl(),
+      sl(),
+      sl(),
+      sl(),
+      sl(),
+      locationService: sl(),
+      locationRepository: sl(),
+    ),
   );
   sl.registerFactory<FilterCubit>(() => FilterCubit(sl(), sl()));
 

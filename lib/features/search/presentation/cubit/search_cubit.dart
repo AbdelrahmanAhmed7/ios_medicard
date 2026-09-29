@@ -5,6 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/api_result.dart';
+import '../../../../core/services/location_repository.dart';
+import '../../../../core/services/location_service.dart';
 import '../../../cart/domain/repository/cart_repository.dart';
 import '../../../cart/domain/services/cart_sync_service.dart';
 import '../../data/models/category_services_response_model.dart';
@@ -22,9 +24,15 @@ class SearchCubit extends Cubit<SearchState> {
   final GetServiceCategoriesUseCase _getServiceCategoriesUseCase;
   final CartRepository _cartRepository;
   final CartSyncService _cartSyncService;
+  final LocationService _locationService;
+  final LocationRepository _locationRepository;
 
   static const int _pageSize = 15;
   static const int _servicesPageSize = 20;
+
+  /// Sort value sent to the API for "Nearest to me". Must stay in sync with
+  /// [FilterCubit]'s supported sort values.
+  static const int _nearestSortValue = 1;
 
   int? _governorateId;
   int? _cityId;
@@ -47,8 +55,12 @@ class SearchCubit extends Cubit<SearchState> {
     this._getCategoryServicesUseCase,
     this._getServiceCategoriesUseCase,
     this._cartRepository,
-    this._cartSyncService,
-  ) : super(const SearchState()) {
+    this._cartSyncService, {
+    LocationService? locationService,
+    LocationRepository? locationRepository,
+  }) : _locationService = locationService ?? LocationService(),
+       _locationRepository = locationRepository ?? LocationRepository(),
+       super(const SearchState()) {
     _cartSyncSubscription = _cartSyncService.stream.listen(_onCartSyncEvent);
   }
 
@@ -134,7 +146,8 @@ class SearchCubit extends Cubit<SearchState> {
         cachedKeyword == search) {
       if (kDebugMode) {
         debugPrint(
-          '[SearchCubit] reused cached services category=$categoryId keyword=$search',
+          '[SearchCubit] reused cached services category=$categoryId '
+          'keyword=$search',
         );
       }
       emit(
@@ -570,7 +583,70 @@ class SearchCubit extends Cubit<SearchState> {
     _governorateId = governorateId;
     _cityId = cityId;
     _sortBy = sortBy;
+
+    // "Nearest to me" requires the user's coordinates. If we don't have them
+    // yet, resolve the location first — triggering the OS permission and GPS
+    // prompts — so the list can actually be sorted by proximity.
+    if (sortBy == _nearestSortValue &&
+        (state.userLatitude == null || state.userLongitude == null)) {
+      final locationResult = await _resolveUserLocation();
+      if (isClosed) return;
+
+      if (locationResult.hasCoordinates) {
+        if (kDebugMode) {
+          debugPrint(
+            '[SearchCubit] nearest sort resolved location at '
+            '${locationResult.latitude}, ${locationResult.longitude}',
+          );
+        }
+        emit(
+          state.copyWith(
+            userLatitude: locationResult.latitude,
+            userLongitude: locationResult.longitude,
+            clearFilterError: true,
+          ),
+        );
+      } else {
+        // Without coordinates the nearest sort can't be applied. Fall back to
+        // the default ordering instead of silently bypassing the filter, and
+        // let the UI tell the user what happened.
+        _sortBy = null;
+        if (kDebugMode) {
+          debugPrint(
+            '[SearchCubit] nearest sort skipped, location unavailable: '
+            '${locationResult.status}',
+          );
+        }
+        emit(
+          state.copyWith(
+            filterError: _locationUnavailableMessage(locationResult.status),
+          ),
+        );
+      }
+    }
+
     await search(keyword: state.keyword);
+  }
+
+  /// Returns the user's location, preferring the cached value so an already
+  /// granted location is reused without prompting again.
+  Future<LocationResult> _resolveUserLocation() {
+    final cached = _locationRepository.cached;
+    if (cached?.hasCoordinates == true) return Future.value(cached!);
+    return _locationRepository.resolve(_locationService);
+  }
+
+  String _locationUnavailableMessage(LocationAccessStatus status) {
+    return switch (status) {
+      LocationAccessStatus.permanentlyDenied =>
+        'sort_filter.location_permanently_denied'.tr(),
+      LocationAccessStatus.serviceDisabled =>
+        'sort_filter.location_service_disabled'.tr(),
+      LocationAccessStatus.unavailable =>
+        'sort_filter.location_unavailable'.tr(),
+      LocationAccessStatus.granted || LocationAccessStatus.denied =>
+        'sort_filter.location_required'.tr(),
+    };
   }
 
   Future<void> _fetch({required int page}) async {

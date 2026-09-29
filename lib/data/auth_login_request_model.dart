@@ -7,11 +7,13 @@ class AuthLoginRequestModel {
   final String? cardNumber;
   final String? phoneNumber;
   final String password;
+  final int platformType;
 
   const AuthLoginRequestModel({
     this.cardNumber,
     this.phoneNumber,
     required this.password,
+    this.platformType = 1,
   });
 
   factory AuthLoginRequestModel.fromJson(Map<String, dynamic> json) =>

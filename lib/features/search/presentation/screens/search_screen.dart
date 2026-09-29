@@ -84,6 +84,7 @@ class _SearchScreenState extends State<SearchScreen>
   }
 
   void _openFilterSheet() {
+    final servicesTabIndex = _showServicesTab ? 1 : null;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -93,7 +94,9 @@ class _SearchScreenState extends State<SearchScreen>
           BlocProvider.value(value: context.read<SearchCubit>()),
           BlocProvider.value(value: context.read<FilterCubit>()),
         ],
-        child: const FilterBottomSheet(),
+        child: FilterBottomSheet(
+          hideProviderFilters: _tabController.index == servicesTabIndex,
+        ),
       ),
     );
   }
@@ -109,23 +112,42 @@ class _SearchScreenState extends State<SearchScreen>
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<SearchCubit, SearchState>(
-      listenWhen: (previous, current) =>
-          previous.cartActionError != current.cartActionError &&
-          current.cartActionError != null,
-      listener: (context, state) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(state.cartActionError!)));
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<SearchCubit, SearchState>(
+          listenWhen: (previous, current) =>
+              previous.cartActionError != current.cartActionError &&
+              current.cartActionError != null,
+          listener: (context, state) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.cartActionError!)));
+          },
+        ),
+        BlocListener<SearchCubit, SearchState>(
+          listenWhen: (previous, current) =>
+              previous.filterError != current.filterError &&
+              current.filterError != null,
+          listener: (context, state) {
+            showErrorToast(state.filterError!);
+          },
+        ),
+      ],
       child: Scaffold(
         backgroundColor: const Color(0xFFF9FAFB),
         body: Column(
           children: [
-            _SearchAppBar(
-              controller: _searchController,
-              onChanged: _onSearchChanged,
-              onFilterTap: _openFilterSheet,
+            AnimatedBuilder(
+              animation: _tabController,
+              builder: (context, _) {
+                final servicesTabIndex = _showServicesTab ? 1 : null;
+                final onServicesTab = _tabController.index == servicesTabIndex;
+                return _SearchAppBar(
+                  controller: _searchController,
+                  onChanged: _onSearchChanged,
+                  onFilterTap: onServicesTab ? null : _openFilterSheet,
+                );
+              },
             ),
             Container(
               color: Colors.white,
@@ -169,12 +191,12 @@ class _SearchScreenState extends State<SearchScreen>
 class _SearchAppBar extends StatelessWidget {
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
-  final VoidCallback onFilterTap;
+  final VoidCallback? onFilterTap;
 
   const _SearchAppBar({
     required this.controller,
     required this.onChanged,
-    required this.onFilterTap,
+    this.onFilterTap,
   });
 
   @override
@@ -224,22 +246,26 @@ class _SearchAppBar extends StatelessWidget {
                     ),
                     // Same position/size as home bar's blue circle,
                     // but with a grey icon on transparent background.
-                    suffixIcon: GestureDetector(
-                      onTap: onFilterTap,
-                      child: Container(
-                        margin: const EdgeInsets.only(right: 12),
-                        padding: const EdgeInsets.all(8),
-                        decoration: const BoxDecoration(
-                          color: Colors.transparent,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.tune,
-                          color: Color(0xFF9CA3AF),
-                          size: 18,
-                        ),
-                      ),
-                    ),
+                    // The filter only applies to providers, so it is hidden
+                    // while browsing the services tab.
+                    suffixIcon: onFilterTap == null
+                        ? null
+                        : GestureDetector(
+                            onTap: onFilterTap,
+                            child: Container(
+                              margin: const EdgeInsets.only(right: 12),
+                              padding: const EdgeInsets.all(8),
+                              decoration: const BoxDecoration(
+                                color: Colors.transparent,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.tune,
+                                color: Color(0xFF9CA3AF),
+                                size: 18,
+                              ),
+                            ),
+                          ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,

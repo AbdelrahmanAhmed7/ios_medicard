@@ -12,6 +12,7 @@ AuthLoginRequestModel _$AuthLoginRequestModelFromJson(
   cardNumber: json['cardNumber'] as String?,
   phoneNumber: json['phoneNumber'] as String?,
   password: json['password'] as String,
+  platformType: (json['platformType'] as num?)?.toInt() ?? 1,
 );
 
 Map<String, dynamic> _$AuthLoginRequestModelToJson(
@@ -20,4 +21,5 @@ Map<String, dynamic> _$AuthLoginRequestModelToJson(
   'cardNumber': ?instance.cardNumber,
   'phoneNumber': ?instance.phoneNumber,
   'password': instance.password,
+  'platformType': instance.platformType,
 };

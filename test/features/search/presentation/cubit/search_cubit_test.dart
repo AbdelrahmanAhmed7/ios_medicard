@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medicard/core/constants/api_result.dart';
+import 'package:medicard/core/services/location_repository.dart';
+import 'package:medicard/core/services/location_service.dart';
 import 'package:medicard/features/cart/domain/models/cart.dart';
 import 'package:medicard/features/cart/domain/models/category_counter.dart';
 import 'package:medicard/features/cart/domain/models/category_services.dart';
@@ -24,11 +26,17 @@ void main() {
   group('SearchCubit services cart state', () {
     late _FakeSearchRepository searchRepository;
     late _FakeCartRepository cartRepository;
+    late _FakeLocationService locationService;
+    late LocationRepository locationRepository;
     late SearchCubit cubit;
 
     setUp(() {
       searchRepository = _FakeSearchRepository();
       cartRepository = _FakeCartRepository();
+      locationService = _FakeLocationService(
+        const LocationResult(status: LocationAccessStatus.denied),
+      );
+      locationRepository = LocationRepository();
       cubit = SearchCubit(
         SearchProvidersUseCase(searchRepository),
         GetCategoriesUseCase(searchRepository),
@@ -36,6 +44,8 @@ void main() {
         GetServiceCategoriesUseCase(searchRepository),
         cartRepository,
         CartSyncService(),
+        locationService: locationService,
+        locationRepository: locationRepository,
       );
     });
 
@@ -201,6 +211,103 @@ void main() {
       expect(searchRepository.providerPages.keys, isNot(contains(3)));
       expect(cubit.state.items, hasLength(2));
     });
+
+    test(
+      'applyFilters nearest sort reuses cached location coordinates',
+      () async {
+        locationRepository.cache(
+          LocationResult.granted(30.0444, 31.2357),
+        );
+        searchRepository.providerPages[1] = SearchResponseData(
+          items: [const SearchProviderModel(providerId: 1)],
+          pageNumber: 1,
+          pageSize: 15,
+          totalCount: 1,
+          totalPages: 1,
+        );
+
+        await cubit.applyFilters(sortBy: 1);
+
+        expect(locationService.resolveCalls, 0);
+        expect(cubit.state.userLatitude, 30.0444);
+        expect(cubit.state.userLongitude, 31.2357);
+        expect(cubit.state.filterError, isNull);
+        expect(searchRepository.lastSortBy, 1);
+        expect(searchRepository.lastUserLatitude, 30.0444);
+        expect(searchRepository.lastUserLongitude, 31.2357);
+      },
+    );
+
+    test('applyFilters nearest sort resolves location when coordinates missing',
+        () async {
+      locationService.result = LocationResult.granted(29.987, 31.2143);
+      searchRepository.providerPages[1] = const SearchResponseData(
+        items: <SearchProviderModel>[SearchProviderModel(providerId: 1)],
+        pageNumber: 1,
+        pageSize: 15,
+        totalCount: 1,
+        totalPages: 1,
+      );
+
+      await cubit.applyFilters(sortBy: 1);
+
+      expect(locationService.resolveCalls, 1);
+      expect(cubit.state.userLatitude, 29.987);
+      expect(cubit.state.userLongitude, 31.2143);
+      expect(cubit.state.filterError, isNull);
+      expect(searchRepository.lastSortBy, 1);
+      expect(searchRepository.lastUserLatitude, 29.987);
+      expect(searchRepository.lastUserLongitude, 31.2143);
+    });
+
+    test(
+      'applyFilters nearest sort without location falls back to default order',
+      () async {
+        searchRepository.providerPages[1] = const SearchResponseData(
+          items: <SearchProviderModel>[SearchProviderModel(providerId: 1)],
+          pageNumber: 1,
+          pageSize: 15,
+          totalCount: 1,
+          totalPages: 1,
+        );
+
+        await cubit.applyFilters(sortBy: 1);
+
+        expect(locationService.resolveCalls, 1);
+        // The nearest sort must not be silently applied: coordinates are
+        // unknown, the sort is dropped, the search runs in default order and
+        // the user is informed.
+        expect(cubit.state.userLatitude, isNull);
+        expect(cubit.state.filterError, isNotNull);
+        expect(searchRepository.lastSortBy, isNull);
+        expect(searchRepository.lastUserLatitude, isNull);
+        expect(searchRepository.lastUserLongitude, isNull);
+      },
+    );
+
+    test('applyFilters non-nearest sort does not request location', () async {
+      await cubit.applyFilters(sortBy: 2);
+
+      expect(locationService.resolveCalls, 0);
+      expect(cubit.state.filterError, isNull);
+      expect(searchRepository.lastSortBy, 2);
+    });
+
+    test('applyFilters does not touch category services (providers-only sort)',
+        () async {
+      searchRepository.categoryServices[1] = _categoryData(1);
+      await cubit.loadCategoryServices(1);
+      final callsBeforeFilter = searchRepository.categoryServiceCalls[1]!;
+
+      await cubit.applyFilters(sortBy: 2);
+
+      // The sort applies to the providers tab only: the services endpoints do
+      // not support sorting and carry no discount data, so they must not be
+      // refetched (or presented as re-ordered) when a filter is applied.
+      expect(cubit.state.filterError, isNull);
+      expect(searchRepository.lastSortBy, 2);
+      expect(searchRepository.categoryServiceCalls[1], callsBeforeFilter);
+    });
   });
 }
 
@@ -240,6 +347,10 @@ class _FakeSearchRepository implements SearchRepository {
   final Map<int, int> categoryServiceCalls = {};
   final Map<int, SearchResponseData> providerPages = {};
 
+  double? lastUserLatitude;
+  double? lastUserLongitude;
+  int? lastSortBy;
+
   @override
   Future<ApiResult<SearchResponseData>> searchProviders({
     String? keyword,
@@ -254,6 +365,9 @@ class _FakeSearchRepository implements SearchRepository {
     int? pageNumber,
     int? pageSize,
   }) async {
+    lastSortBy = sortBy;
+    lastUserLatitude = userLatitude;
+    lastUserLongitude = userLongitude;
     final page = providerPages[pageNumber];
     if (page != null) return ApiResult.success(page);
     return const ApiResult.success(
@@ -421,5 +535,21 @@ class _FakeCartRepository implements CartRepository {
     required int providerId,
   }) async {
     return const ApiResult.success(null);
+  }
+}
+
+class _FakeLocationService extends LocationService {
+  LocationResult result;
+  int resolveCalls = 0;
+
+  _FakeLocationService(this.result);
+
+  @override
+  Future<LocationResult> resolveLocation({
+    bool requestIfNeeded = false,
+    Future<bool> Function()? showRationaleDialog,
+  }) async {
+    resolveCalls++;
+    return result;
   }
 }

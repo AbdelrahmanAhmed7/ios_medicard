@@ -41,6 +41,10 @@ class SearchState {
   final Set<int> pendingServiceIds;
   final String? cartActionError;
 
+  /// Message shown when a filter could not be applied, e.g. the "Nearest to
+  /// me" sort was requested but the user's location could not be resolved.
+  final String? filterError;
+
   const SearchState({
     this.items = const [],
     this.categories = const [],
@@ -65,6 +69,7 @@ class SearchState {
     this.loadingMoreServiceCategoryIds = const {},
     this.pendingServiceIds = const {},
     this.cartActionError,
+    this.filterError,
   });
 
   SearchState copyWith({
@@ -95,6 +100,8 @@ class SearchState {
     Set<int>? pendingServiceIds,
     String? cartActionError,
     bool clearCartActionError = false,
+    String? filterError,
+    bool clearFilterError = false,
   }) {
     return SearchState(
       items: items ?? this.items,
@@ -130,6 +137,9 @@ class SearchState {
       cartActionError: clearCartActionError
           ? null
           : (cartActionError ?? this.cartActionError),
+      filterError: clearFilterError
+          ? null
+          : (filterError ?? this.filterError),
     );
   }
 }

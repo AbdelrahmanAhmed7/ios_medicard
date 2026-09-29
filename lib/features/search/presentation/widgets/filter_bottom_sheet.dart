@@ -8,7 +8,12 @@ import '../cubit/filter_state.dart';
 import '../cubit/search_cubit.dart';
 
 class FilterBottomSheet extends StatelessWidget {
-  const FilterBottomSheet({super.key});
+  const FilterBottomSheet({super.key, this.hideProviderFilters = false});
+
+  /// The sort and location filters only apply to the providers search. The
+  /// backend services endpoints support neither sorting nor geo filtering nor
+  /// carry discount data — so those sections are hidden on the services tab.
+  final bool hideProviderFilters;
 
   static const List<_SortOption> _sortOptions = [
     _SortOption(value: 1, labelKey: 'sort_filter.nearest'),
@@ -86,68 +91,72 @@ class FilterBottomSheet extends StatelessWidget {
                 SizedBox(height: 16.h),
 
                 // Sort By Section
-                _SectionTitle(title: 'sort_filter.sort_by'.tr()),
-                SizedBox(height: 8.h),
-                ..._sortOptions.map(
-                  (option) => _SortOptionTile(
-                    label: option.labelKey.tr(),
-                    value: option.value,
-                    groupValue: state.selectedSortBy,
-                    onTap: () => filterCubit.selectSortBy(option.value),
+                if (!hideProviderFilters) ...[
+                  _SectionTitle(title: 'sort_filter.sort_by'.tr()),
+                  SizedBox(height: 8.h),
+                  ..._sortOptions.map(
+                    (option) => _SortOptionTile(
+                      label: option.labelKey.tr(),
+                      value: option.value,
+                      groupValue: state.selectedSortBy,
+                      onTap: () => filterCubit.selectSortBy(option.value),
+                    ),
                   ),
-                ),
-                SizedBox(height: 20.h),
+                  SizedBox(height: 20.h),
+                ],
 
                 // Location Section
-                _SectionTitle(title: 'sort_filter.location'.tr()),
-                SizedBox(height: 12.h),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _LookupDropdown(
-                        hint: 'sort_filter.government'.tr(),
-                        isLoading: state.isLoadingGovernorates,
-                        items: state.governorates
-                            .map(
-                              (g) => DropdownMenuItem(
-                                value: g.id,
-                                child: Text(
-                                  g.name ?? '',
-                                  overflow: TextOverflow.ellipsis,
+                if (!hideProviderFilters) ...[
+                  _SectionTitle(title: 'sort_filter.location'.tr()),
+                  SizedBox(height: 12.h),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _LookupDropdown(
+                          hint: 'sort_filter.government'.tr(),
+                          isLoading: state.isLoadingGovernorates,
+                          items: state.governorates
+                              .map(
+                                (g) => DropdownMenuItem(
+                                  value: g.id,
+                                  child: Text(
+                                    g.name ?? '',
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
-                              ),
-                            )
-                            .toList(),
-                        value: state.selectedGovernorateId,
-                        onChanged: (id) => filterCubit.selectGovernorate(id),
+                              )
+                              .toList(),
+                          value: state.selectedGovernorateId,
+                          onChanged: (id) => filterCubit.selectGovernorate(id),
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 12.w),
-                    Expanded(
-                      child: _LookupDropdown(
-                        hint: 'sort_filter.city'.tr(),
-                        isLoading: state.isLoadingCities,
-                        isDisabled: state.selectedGovernorateId == null,
-                        items: state.cities
-                            .map(
-                              (c) => DropdownMenuItem(
-                                value: c.id,
-                                child: Text(
-                                  c.name ?? '',
-                                  overflow: TextOverflow.ellipsis,
+                      SizedBox(width: 12.w),
+                      Expanded(
+                        child: _LookupDropdown(
+                          hint: 'sort_filter.city'.tr(),
+                          isLoading: state.isLoadingCities,
+                          isDisabled: state.selectedGovernorateId == null,
+                          items: state.cities
+                              .map(
+                                (c) => DropdownMenuItem(
+                                  value: c.id,
+                                  child: Text(
+                                    c.name ?? '',
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
-                              ),
-                            )
-                            .toList(),
-                        value: state.selectedCityId,
-                        onChanged: state.selectedGovernorateId == null
-                            ? null
-                            : (id) => filterCubit.selectCity(id),
+                              )
+                              .toList(),
+                          value: state.selectedCityId,
+                          onChanged: state.selectedGovernorateId == null
+                              ? null
+                              : (id) => filterCubit.selectCity(id),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 24.h),
+                    ],
+                  ),
+                  SizedBox(height: 24.h),
+                ],
 
                 // Apply button المظبوط
                 SizedBox(
