@@ -139,7 +139,7 @@ class _HtmlContentView extends StatelessWidget {
               'h1': Style(
                 margin: Margins.only(bottom: 18.h),
                 fontSize: FontSize(24.sp),
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
                 color: AppColors.blackClr,
                 lineHeight: const LineHeight(1.3),
               ),

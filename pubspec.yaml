@@ -97,6 +97,8 @@ flutter:
           weight: 500
         - asset: assets/fonts/Cairo-SemiBold.ttf
           weight: 600
+        - asset: assets/fonts/Cairo-Bold.ttf
+          weight: 700
     - family: Roboto
       fonts:
         - asset: assets/fonts/Roboto-Regular.ttf
@@ -105,4 +107,6 @@ flutter:
           weight: 500
         - asset: assets/fonts/Roboto-SemiBold.ttf
           weight: 600
+        - asset: assets/fonts/Roboto-Bold.ttf
+          weight: 700
 

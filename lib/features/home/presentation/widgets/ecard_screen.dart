@@ -137,7 +137,7 @@ class _NoCardView extends StatelessWidget {
               style: TextStyle(
                 color: const Color(0xFF111D37),
                 fontSize: 20.sp,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
                 height: 1.1,
               ),
             ),

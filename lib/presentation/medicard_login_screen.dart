@@ -47,8 +47,6 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
         phoneNumber: loginIdentifier.phoneNumber,
         password: password,
       );
-    } else {
-      showErrorToast('auth.login.fillAllFields'.tr());
     }
   }
 
