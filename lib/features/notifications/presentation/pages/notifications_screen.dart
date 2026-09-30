@@ -47,8 +47,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+    return BlocListener<NotificationCubit, NotificationState>(
+      listenWhen: (previous, current) =>
+          previous.markReadError != current.markReadError &&
+          current.markReadError != null,
+      listener: (context, state) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(state.markReadError!)),
+        );
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF8FAFC),
       body: Column(
         children: [
           AppBlueHeader(
@@ -132,6 +141,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             ),
           ),
         ],
+      ),
       ),
     );
   }

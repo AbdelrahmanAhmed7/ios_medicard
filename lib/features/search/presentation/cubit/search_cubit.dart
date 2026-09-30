@@ -95,8 +95,13 @@ class SearchCubit extends Cubit<SearchState> {
     final result = await _getCategoriesUseCase.call();
     if (isClosed) return;
     result.when(
-      success: (categories) => emit(state.copyWith(categories: categories)),
-      failure: (_) {},
+      success: (categories) => emit(
+        state.copyWith(categories: categories, clearCategoriesError: true),
+      ),
+      failure: (message) {
+        if (kDebugMode) debugPrint('[SearchCubit] load categories: $message');
+        emit(state.copyWith(categoriesError: message));
+      },
     );
   }
 
@@ -111,10 +116,21 @@ class SearchCubit extends Cubit<SearchState> {
           state.copyWith(
             serviceCategories: categories,
             isLoadingServiceCategories: false,
+            clearServiceCategoriesError: true,
           ),
         );
       },
-      failure: (_) => emit(state.copyWith(isLoadingServiceCategories: false)),
+      failure: (message) {
+        if (kDebugMode) {
+          debugPrint('[SearchCubit] load service categories: $message');
+        }
+        emit(
+          state.copyWith(
+            isLoadingServiceCategories: false,
+            serviceCategoriesError: message,
+          ),
+        );
+      },
     );
   }
 
@@ -132,7 +148,13 @@ class SearchCubit extends Cubit<SearchState> {
         };
         emit(state.copyWith(categorySelectedCounts: counts));
       },
-      failure: (_) {},
+      // Badges only: logged, never toasted — erroring on every init would
+      // spam the user for non-critical background data.
+      failure: (message) {
+        if (kDebugMode) {
+          debugPrint('[SearchCubit] load cart counters: $message');
+        }
+      },
     );
   }
 

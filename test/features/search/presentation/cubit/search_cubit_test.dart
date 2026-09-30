@@ -308,6 +308,47 @@ void main() {
       expect(searchRepository.lastSortBy, 2);
       expect(searchRepository.categoryServiceCalls[1], callsBeforeFilter);
     });
+
+  group('category loading failures surface an error instead of silence', () {
+    test('categories failure sets categoriesError', () async {
+      searchRepository.categoriesResult = const ApiResult.failure(
+        'No network',
+      );
+
+      await cubit.init(enableCartFeatures: false);
+
+      expect(cubit.state.categories, isEmpty);
+      expect(cubit.state.categoriesError, 'No network');
+    });
+
+    test('service categories failure sets serviceCategoriesError', () async {
+      searchRepository.serviceCategoriesResult = const ApiResult.failure(
+        'Server down',
+      );
+
+      await cubit.init(enableCartFeatures: false);
+
+      expect(cubit.state.serviceCategories, isEmpty);
+      expect(cubit.state.serviceCategoriesError, 'Server down');
+      expect(cubit.state.isLoadingServiceCategories, isFalse);
+    });
+
+    test('a successful retry clears the categories error', () async {
+      searchRepository.categoriesResult = const ApiResult.failure(
+        'No network',
+      );
+      await cubit.init(enableCartFeatures: false);
+      expect(cubit.state.categoriesError, 'No network');
+
+      searchRepository.categoriesResult = const ApiResult.success([
+        CategoryModel(id: 9, name: 'Radiology'),
+      ]);
+      await cubit.init(enableCartFeatures: false);
+
+      expect(cubit.state.categoriesError, isNull);
+      expect(cubit.state.categories.map((c) => c.id), [9]);
+    });
+  });
   });
 }
 
@@ -347,6 +388,14 @@ class _FakeSearchRepository implements SearchRepository {
   final Map<int, int> categoryServiceCalls = {};
   final Map<int, SearchResponseData> providerPages = {};
 
+  ApiResult<List<CategoryModel>> categoriesResult =
+      const ApiResult.success([]);
+  ApiResult<List<CategoryModel>> serviceCategoriesResult =
+      const ApiResult.success([
+        CategoryModel(id: 1, name: 'Labs'),
+        CategoryModel(id: 2, name: 'Scans'),
+      ]);
+
   double? lastUserLatitude;
   double? lastUserLongitude;
   int? lastSortBy;
@@ -377,15 +426,12 @@ class _FakeSearchRepository implements SearchRepository {
 
   @override
   Future<ApiResult<List<CategoryModel>>> getCategories() async {
-    return const ApiResult.success([]);
+    return categoriesResult;
   }
 
   @override
   Future<ApiResult<List<CategoryModel>>> getServiceCategories() async {
-    return const ApiResult.success([
-      CategoryModel(id: 1, name: 'Labs'),
-      CategoryModel(id: 2, name: 'Scans'),
-    ]);
+    return serviceCategoriesResult;
   }
 
   @override

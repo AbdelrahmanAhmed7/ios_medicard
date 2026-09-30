@@ -85,6 +85,12 @@ class NotificationCubit extends Cubit<NotificationState> {
   Future<void> markAsRead(int id) async {
     if (isClosed) return;
 
+    // Snapshot BEFORE the optimistic update so a failure rolls back to truth.
+    final wasRead = state.items
+        .where((notif) => notif.id == id)
+        .map((notif) => notif.isRead)
+        .firstOrNull;
+
     final updatedItems = state.items.map((notif) {
       if (notif.id == id) {
         return NotificationModel(
@@ -100,7 +106,7 @@ class NotificationCubit extends Cubit<NotificationState> {
       return notif;
     }).toList();
 
-    emit(state.copyWith(items: updatedItems));
+    emit(state.copyWith(items: updatedItems, markReadError: null));
 
     final result = await _markNotificationReadUseCase.call(id);
 
@@ -108,12 +114,33 @@ class NotificationCubit extends Cubit<NotificationState> {
 
     result.when(
       success: (_) {},
-      failure: (_) {},
+      failure: (message) {
+        if (isClosed) return;
+        // Roll back the optimistic update so the badge stays truthful.
+        final rolledBack = state.items.map((notif) {
+          if (notif.id == id) {
+            return NotificationModel(
+              id: notif.id,
+              title: notif.title,
+              body: notif.body,
+              imageUrl: notif.imageUrl,
+              isRead: wasRead ?? false,
+              createdAt: notif.createdAt,
+              data: notif.data,
+            );
+          }
+          return notif;
+        }).toList();
+        emit(state.copyWith(items: rolledBack, markReadError: message));
+      },
     );
   }
 
   Future<void> markAllAsRead() async {
     if (isClosed) return;
+
+    // Snapshot BEFORE the optimistic update so a failure rolls back to truth.
+    final previousById = {for (final n in state.items) n.id: n.isRead};
 
     final updatedItems = state.items.map((notif) {
       return NotificationModel(
@@ -127,7 +154,7 @@ class NotificationCubit extends Cubit<NotificationState> {
       );
     }).toList();
 
-    emit(state.copyWith(items: updatedItems));
+    emit(state.copyWith(items: updatedItems, markReadError: null));
 
     final result = await _markAllNotificationsReadUseCase.call();
 
@@ -135,7 +162,22 @@ class NotificationCubit extends Cubit<NotificationState> {
 
     result.when(
       success: (_) {},
-      failure: (_) {},
+      failure: (message) {
+        if (isClosed) return;
+        // Roll back: restore each item's read state from before the attempt.
+        final rolledBack = state.items.map((notif) {
+          return NotificationModel(
+            id: notif.id,
+            title: notif.title,
+            body: notif.body,
+            imageUrl: notif.imageUrl,
+            isRead: previousById[notif.id] ?? notif.isRead,
+            createdAt: notif.createdAt,
+            data: notif.data,
+          );
+        }).toList();
+        emit(state.copyWith(items: rolledBack, markReadError: message));
+      },
     );
   }
 }

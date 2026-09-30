@@ -15,7 +15,10 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$NotificationState {
 
- List<NotificationModel> get items; bool get isLoading; bool get isLoadingMore; bool get hasMore; int get currentPage; String? get error;
+ List<NotificationModel> get items; bool get isLoading; bool get isLoadingMore; bool get hasMore; int get currentPage; String? get error;/// Set when a mark-as-read call fails after an optimistic update. The
+/// update is rolled back so the badge stays truthful, and the screen
+/// toasts this message.
+ String? get markReadError;
 /// Create a copy of NotificationState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -26,16 +29,16 @@ $NotificationStateCopyWith<NotificationState> get copyWith => _$NotificationStat
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationState&&const DeepCollectionEquality().equals(other.items, items)&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isLoadingMore, isLoadingMore) || other.isLoadingMore == isLoadingMore)&&(identical(other.hasMore, hasMore) || other.hasMore == hasMore)&&(identical(other.currentPage, currentPage) || other.currentPage == currentPage)&&(identical(other.error, error) || other.error == error));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationState&&const DeepCollectionEquality().equals(other.items, items)&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isLoadingMore, isLoadingMore) || other.isLoadingMore == isLoadingMore)&&(identical(other.hasMore, hasMore) || other.hasMore == hasMore)&&(identical(other.currentPage, currentPage) || other.currentPage == currentPage)&&(identical(other.error, error) || other.error == error)&&(identical(other.markReadError, markReadError) || other.markReadError == markReadError));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(items),isLoading,isLoadingMore,hasMore,currentPage,error);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(items),isLoading,isLoadingMore,hasMore,currentPage,error,markReadError);
 
 @override
 String toString() {
-  return 'NotificationState(items: $items, isLoading: $isLoading, isLoadingMore: $isLoadingMore, hasMore: $hasMore, currentPage: $currentPage, error: $error)';
+  return 'NotificationState(items: $items, isLoading: $isLoading, isLoadingMore: $isLoadingMore, hasMore: $hasMore, currentPage: $currentPage, error: $error, markReadError: $markReadError)';
 }
 
 
@@ -46,7 +49,7 @@ abstract mixin class $NotificationStateCopyWith<$Res>  {
   factory $NotificationStateCopyWith(NotificationState value, $Res Function(NotificationState) _then) = _$NotificationStateCopyWithImpl;
 @useResult
 $Res call({
- List<NotificationModel> items, bool isLoading, bool isLoadingMore, bool hasMore, int currentPage, String? error
+ List<NotificationModel> items, bool isLoading, bool isLoadingMore, bool hasMore, int currentPage, String? error, String? markReadError
 });
 
 
@@ -63,7 +66,7 @@ class _$NotificationStateCopyWithImpl<$Res>
 
 /// Create a copy of NotificationState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? items = null,Object? isLoading = null,Object? isLoadingMore = null,Object? hasMore = null,Object? currentPage = null,Object? error = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? items = null,Object? isLoading = null,Object? isLoadingMore = null,Object? hasMore = null,Object? currentPage = null,Object? error = freezed,Object? markReadError = freezed,}) {
   return _then(NotificationState(
 items: null == items ? _self.items : items // ignore: cast_nullable_to_non_nullable
 as List<NotificationModel>,isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
@@ -71,6 +74,7 @@ as bool,isLoadingMore: null == isLoadingMore ? _self.isLoadingMore : isLoadingMo
 as bool,hasMore: null == hasMore ? _self.hasMore : hasMore // ignore: cast_nullable_to_non_nullable
 as bool,currentPage: null == currentPage ? _self.currentPage : currentPage // ignore: cast_nullable_to_non_nullable
 as int,error: freezed == error ? _self.error : error // ignore: cast_nullable_to_non_nullable
+as String?,markReadError: freezed == markReadError ? _self.markReadError : markReadError // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -156,10 +160,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<NotificationModel> items,  bool isLoading,  bool isLoadingMore,  bool hasMore,  int currentPage,  String? error)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<NotificationModel> items,  bool isLoading,  bool isLoadingMore,  bool hasMore,  int currentPage,  String? error,  String? markReadError)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NotificationState() when $default != null:
-return $default(_that.items,_that.isLoading,_that.isLoadingMore,_that.hasMore,_that.currentPage,_that.error);case _:
+return $default(_that.items,_that.isLoading,_that.isLoadingMore,_that.hasMore,_that.currentPage,_that.error,_that.markReadError);case _:
   return orElse();
 
 }
@@ -177,10 +181,10 @@ return $default(_that.items,_that.isLoading,_that.isLoadingMore,_that.hasMore,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<NotificationModel> items,  bool isLoading,  bool isLoadingMore,  bool hasMore,  int currentPage,  String? error)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<NotificationModel> items,  bool isLoading,  bool isLoadingMore,  bool hasMore,  int currentPage,  String? error,  String? markReadError)  $default,) {final _that = this;
 switch (_that) {
 case _NotificationState():
-return $default(_that.items,_that.isLoading,_that.isLoadingMore,_that.hasMore,_that.currentPage,_that.error);case _:
+return $default(_that.items,_that.isLoading,_that.isLoadingMore,_that.hasMore,_that.currentPage,_that.error,_that.markReadError);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -197,10 +201,10 @@ return $default(_that.items,_that.isLoading,_that.isLoadingMore,_that.hasMore,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<NotificationModel> items,  bool isLoading,  bool isLoadingMore,  bool hasMore,  int currentPage,  String? error)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<NotificationModel> items,  bool isLoading,  bool isLoadingMore,  bool hasMore,  int currentPage,  String? error,  String? markReadError)?  $default,) {final _that = this;
 switch (_that) {
 case _NotificationState() when $default != null:
-return $default(_that.items,_that.isLoading,_that.isLoadingMore,_that.hasMore,_that.currentPage,_that.error);case _:
+return $default(_that.items,_that.isLoading,_that.isLoadingMore,_that.hasMore,_that.currentPage,_that.error,_that.markReadError);case _:
   return null;
 
 }
@@ -212,7 +216,7 @@ return $default(_that.items,_that.isLoading,_that.isLoadingMore,_that.hasMore,_t
 
 
 class _NotificationState implements NotificationState {
-  const _NotificationState({ List<NotificationModel> items = const [], this.isLoading = false, this.isLoadingMore = false, this.hasMore = true, this.currentPage = 1, this.error}): _items = items;
+  const _NotificationState({ List<NotificationModel> items = const [], this.isLoading = false, this.isLoadingMore = false, this.hasMore = true, this.currentPage = 1, this.error, this.markReadError}): _items = items;
   
 
  final  List<NotificationModel> _items;
@@ -227,6 +231,10 @@ class _NotificationState implements NotificationState {
 @override@JsonKey() final  bool hasMore;
 @override@JsonKey() final  int currentPage;
 @override final  String? error;
+/// Set when a mark-as-read call fails after an optimistic update. The
+/// update is rolled back so the badge stays truthful, and the screen
+/// toasts this message.
+@override final  String? markReadError;
 
 /// Create a copy of NotificationState
 /// with the given fields replaced by the non-null parameter values.
@@ -238,16 +246,16 @@ _$NotificationStateCopyWith<_NotificationState> get copyWith => __$NotificationS
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationState&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isLoadingMore, isLoadingMore) || other.isLoadingMore == isLoadingMore)&&(identical(other.hasMore, hasMore) || other.hasMore == hasMore)&&(identical(other.currentPage, currentPage) || other.currentPage == currentPage)&&(identical(other.error, error) || other.error == error));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationState&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isLoadingMore, isLoadingMore) || other.isLoadingMore == isLoadingMore)&&(identical(other.hasMore, hasMore) || other.hasMore == hasMore)&&(identical(other.currentPage, currentPage) || other.currentPage == currentPage)&&(identical(other.error, error) || other.error == error)&&(identical(other.markReadError, markReadError) || other.markReadError == markReadError));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_items),isLoading,isLoadingMore,hasMore,currentPage,error);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_items),isLoading,isLoadingMore,hasMore,currentPage,error,markReadError);
 
 @override
 String toString() {
-  return 'NotificationState(items: $items, isLoading: $isLoading, isLoadingMore: $isLoadingMore, hasMore: $hasMore, currentPage: $currentPage, error: $error)';
+  return 'NotificationState(items: $items, isLoading: $isLoading, isLoadingMore: $isLoadingMore, hasMore: $hasMore, currentPage: $currentPage, error: $error, markReadError: $markReadError)';
 }
 
 
@@ -258,7 +266,7 @@ abstract mixin class _$NotificationStateCopyWith<$Res> implements $NotificationS
   factory _$NotificationStateCopyWith(_NotificationState value, $Res Function(_NotificationState) _then) = __$NotificationStateCopyWithImpl;
 @override @useResult
 $Res call({
- List<NotificationModel> items, bool isLoading, bool isLoadingMore, bool hasMore, int currentPage, String? error
+ List<NotificationModel> items, bool isLoading, bool isLoadingMore, bool hasMore, int currentPage, String? error, String? markReadError
 });
 
 
@@ -275,7 +283,7 @@ class __$NotificationStateCopyWithImpl<$Res>
 
 /// Create a copy of NotificationState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? items = null,Object? isLoading = null,Object? isLoadingMore = null,Object? hasMore = null,Object? currentPage = null,Object? error = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? items = null,Object? isLoading = null,Object? isLoadingMore = null,Object? hasMore = null,Object? currentPage = null,Object? error = freezed,Object? markReadError = freezed,}) {
   return _then(_NotificationState(
 items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
 as List<NotificationModel>,isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
@@ -283,6 +291,7 @@ as bool,isLoadingMore: null == isLoadingMore ? _self.isLoadingMore : isLoadingMo
 as bool,hasMore: null == hasMore ? _self.hasMore : hasMore // ignore: cast_nullable_to_non_nullable
 as bool,currentPage: null == currentPage ? _self.currentPage : currentPage // ignore: cast_nullable_to_non_nullable
 as int,error: freezed == error ? _self.error : error // ignore: cast_nullable_to_non_nullable
+as String?,markReadError: freezed == markReadError ? _self.markReadError : markReadError // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

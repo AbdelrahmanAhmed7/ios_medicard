@@ -1,7 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:medicard/core/auth/auth_session_storage.dart';
 import 'package:medicard/core/constants/api_result.dart';
+import 'package:medicard/core/constants/constants.dart';
+import 'package:medicard/core/helpers/shared_pref_helper.dart';
+import 'package:medicard/core/network/dio_factory.dart';
 import 'package:medicard/core/theming/app_toast.dart';
 import 'package:medicard/core/utils/api_error_parser.dart';
 import '../../data/models/profile_response_model.dart';
@@ -247,6 +251,18 @@ class ProfileCubit extends Cubit<ProfileState> {
       showErrorToast(parseApiError(e));
       if (!isClosed) emit(ProfileState.success(currentData));
       return false;
+    }
+  }
+
+  /// Single teardown point for a user-initiated sign-out: session, cached
+  /// card number, and the auth header. Screens navigate, never clear.
+  Future<void> logout() async {
+    try {
+      await const AuthSessionStorage().clearSession();
+      await SharedPrefHelper.removeData(SharedPrefKeys.medicardCardNo);
+      DioFactory.clearTokenFromHeader();
+    } catch (e) {
+      if (kDebugMode) debugPrint('[ProfileCubit] logout teardown: $e');
     }
   }
 }

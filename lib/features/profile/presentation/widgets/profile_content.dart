@@ -7,11 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:medicard/core/auth/auth_session_storage.dart';
-import 'package:medicard/core/constants/constants.dart';
 import 'package:medicard/core/cubit/localization_cubit.dart';
-import 'package:medicard/core/helpers/shared_pref_helper.dart';
-import 'package:medicard/core/network/dio_factory.dart';
 import 'package:medicard/core/widgets/app_blue_header.dart';
 
 import '../../../../core/widgets/auth_shared_widgets.dart';
@@ -852,9 +848,7 @@ Future<void> showLogoutConfirmation(BuildContext context) async {
   );
 
   if (confirmed == true && context.mounted) {
-    await const AuthSessionStorage().clearSession();
-    await SharedPrefHelper.removeData(SharedPrefKeys.medicardCardNo);
-    DioFactory.clearTokenFromHeader();
+    await context.read<ProfileCubit>().logout();
     if (context.mounted) context.go('/medicard-login');
   }
 }

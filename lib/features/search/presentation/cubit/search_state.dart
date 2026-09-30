@@ -41,6 +41,12 @@ class SearchState {
   final Set<int> pendingServiceIds;
   final String? cartActionError;
 
+  /// Message shown when the Provider-tab categories could not be loaded.
+  final String? categoriesError;
+
+  /// Message shown when the Services-tab categories could not be loaded.
+  final String? serviceCategoriesError;
+
   /// Message shown when a filter could not be applied, e.g. the "Nearest to
   /// me" sort was requested but the user's location could not be resolved.
   final String? filterError;
@@ -69,6 +75,8 @@ class SearchState {
     this.loadingMoreServiceCategoryIds = const {},
     this.pendingServiceIds = const {},
     this.cartActionError,
+    this.categoriesError,
+    this.serviceCategoriesError,
     this.filterError,
   });
 
@@ -100,6 +108,10 @@ class SearchState {
     Set<int>? pendingServiceIds,
     String? cartActionError,
     bool clearCartActionError = false,
+    String? categoriesError,
+    bool clearCategoriesError = false,
+    String? serviceCategoriesError,
+    bool clearServiceCategoriesError = false,
     String? filterError,
     bool clearFilterError = false,
   }) {
@@ -137,6 +149,12 @@ class SearchState {
       cartActionError: clearCartActionError
           ? null
           : (cartActionError ?? this.cartActionError),
+      categoriesError: clearCategoriesError
+          ? null
+          : (categoriesError ?? this.categoriesError),
+      serviceCategoriesError: clearServiceCategoriesError
+          ? null
+          : (serviceCategoriesError ?? this.serviceCategoriesError),
       filterError: clearFilterError
           ? null
           : (filterError ?? this.filterError),

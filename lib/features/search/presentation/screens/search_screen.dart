@@ -134,6 +134,23 @@ class _SearchScreenState extends State<SearchScreen>
             showErrorToast(state.filterError!);
           },
         ),
+        BlocListener<SearchCubit, SearchState>(
+          listenWhen: (previous, current) =>
+              previous.categoriesError != current.categoriesError &&
+              current.categoriesError != null,
+          listener: (context, state) {
+            showErrorToast(state.categoriesError!);
+          },
+        ),
+        BlocListener<SearchCubit, SearchState>(
+          listenWhen: (previous, current) =>
+              previous.serviceCategoriesError !=
+                  current.serviceCategoriesError &&
+              current.serviceCategoriesError != null,
+          listener: (context, state) {
+            showErrorToast(state.serviceCategoriesError!);
+          },
+        ),
       ],
       child: Scaffold(
         backgroundColor: const Color(0xFFF9FAFB),
