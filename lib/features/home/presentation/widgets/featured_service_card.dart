@@ -256,50 +256,14 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
       context: cardContext,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (sheetContext) {
-        return FutureBuilder<ApiResult<PackageDetailsResponse>>(
-          future: sl<MedicardNetworkRepository>().getPackageDetails(
-            packageId: packageId,
-          ),
-          builder: (context, snapshot) {
-            final isLoading = snapshot.connectionState != ConnectionState.done;
-            final result = snapshot.data;
-
-            return Container(
-              constraints: BoxConstraints(
-                maxHeight: MediaQuery.sizeOf(context).height * 0.82,
-              ),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-              ),
-              child: isLoading
-                  ? const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(40),
-                        child: CircularProgressIndicator(),
-                      ),
-                    )
-                  : result == null
-                  ? const SizedBox.shrink()
-                  : result.when(
-                      success: (response) => _PackageDetailsSheetContent(
-                        details: response.data,
-                        fallback: service,
-                        onBook: () {
-                          Navigator.of(sheetContext).pop();
-                          _bookPackage(cardContext);
-                        },
-                      ),
-                      failure: (error) => Padding(
-                        padding: const EdgeInsets.all(24),
-                        child: Text(error),
-                      ),
-                    ),
-            );
-          },
-        );
-      },
+      builder: (sheetContext) => _PackageDetailsSheet(
+        packageId: packageId,
+        fallback: service,
+        onBook: () {
+          Navigator.of(sheetContext).pop();
+          _bookPackage(cardContext);
+        },
+      ),
     );
   }
 
@@ -336,6 +300,74 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
     } finally {
       _isBooking = false;
     }
+  }
+}
+
+class _PackageDetailsSheet extends StatefulWidget {
+  final int packageId;
+  final FeaturedServiceModel fallback;
+  final VoidCallback onBook;
+
+  const _PackageDetailsSheet({
+    required this.packageId,
+    required this.fallback,
+    required this.onBook,
+  });
+
+  @override
+  State<_PackageDetailsSheet> createState() => _PackageDetailsSheetState();
+}
+
+class _PackageDetailsSheetState extends State<_PackageDetailsSheet> {
+  late final Future<ApiResult<PackageDetailsResponse>> _detailsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _detailsFuture = sl<MedicardNetworkRepository>().getPackageDetails(
+      packageId: widget.packageId,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<ApiResult<PackageDetailsResponse>>(
+      future: _detailsFuture,
+      builder: (context, snapshot) {
+        final isLoading = snapshot.connectionState != ConnectionState.done;
+        final result = snapshot.data;
+
+        return Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.sizeOf(context).height * 0.82,
+          ),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          ),
+          child: isLoading
+              ? const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(40),
+                    child: CircularProgressIndicator(),
+                  ),
+                )
+              : result == null
+              ? const SizedBox.shrink()
+              : result.when(
+                  success: (response) => _PackageDetailsSheetContent(
+                    details: response.data,
+                    fallback: widget.fallback,
+                    onBook: widget.onBook,
+                  ),
+                  failure: (error) => Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Text(error),
+                  ),
+                ),
+        );
+      },
+    );
   }
 }
 

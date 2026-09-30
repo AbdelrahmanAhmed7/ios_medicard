@@ -9,10 +9,9 @@ import '../../../../../core/utils/language_helper.dart';
 import '../../../../../core/auth/auth_session_storage.dart';
 import '../../../../../core/network/dio_factory.dart';
 import '../../data/models/activate_card_request_model.dart';
-import '../../data/repository/activate_card_repository_impl.dart';
-import '../../domain/usecases/activate_card_usecase.dart';
 import '../cubit/activate_card_cubit.dart';
 import '../cubit/activate_card_state.dart';
+import '../../../../core/di/service_locator.dart';
 import '../../../../../core/theming/app_toast.dart';
 import '../../../../../core/widgets/auth_shared_widgets.dart';
 
@@ -104,8 +103,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
-          ActivateCardCubit(ActivateCardUseCase(ActivateCardRepositoryImpl())),
+      create: (_) => sl<ActivateCardCubit>(),
       child: BlocListener<ActivateCardCubit, ActivateCardState>(
         listener: (context, state) {
           if (state is ActivateCardSuccess) {

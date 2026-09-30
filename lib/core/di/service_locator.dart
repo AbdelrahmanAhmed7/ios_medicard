@@ -67,6 +67,10 @@ import '../../features/cart/data/repository/cart_repository_impl.dart';
 import '../../features/cart/domain/repository/cart_repository.dart';
 import '../../features/cart/domain/services/cart_sync_service.dart';
 import '../../features/cart/presentation/cubit/cart_cubit.dart';
+import '../../features/activate_card/data/repository/activate_card_repository_impl.dart';
+import '../../features/activate_card/domain/repository/activate_card_repository.dart';
+import '../../features/activate_card/domain/usecases/activate_card_usecase.dart';
+import '../../features/activate_card/presentation/cubit/activate_card_cubit.dart';
 import '../../medicard_network/logic/provider_page_cubit.dart';
 import '../../medicard_network/repository/medicard_network_repository.dart';
 import '../../medicard_network/service/medicard_network_api_service.dart';
@@ -173,6 +177,9 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<FamilyMembersRepository>(
     () => FamilyMembersRepositoryImpl(sl()),
   );
+  sl.registerLazySingleton<ActivateCardRepository>(
+    () => ActivateCardRepositoryImpl(),
+  );
   sl.registerLazySingleton<LocationService>(() => LocationService());
   sl.registerLazySingleton<LocationRepository>(() => LocationRepository());
 
@@ -207,6 +214,9 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory<GetContentUseCase>(() => GetContentUseCase(sl()));
   sl.registerFactory<GetGuestHomeDataUseCase>(
     () => GetGuestHomeDataUseCase(sl()),
+  );
+  sl.registerFactory<ActivateCardUseCase>(
+    () => ActivateCardUseCase(sl<ActivateCardRepository>()),
   );
 
   // Search use cases
@@ -266,6 +276,7 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory<ContentCubit>(() => ContentCubit(sl()));
   sl.registerFactory<FamilyMembersCubit>(() => FamilyMembersCubit(sl()));
   sl.registerFactory<GuestHomeCubit>(() => GuestHomeCubit(sl(), sl()));
+  sl.registerFactory<ActivateCardCubit>(() => ActivateCardCubit(sl()));
 
   // Search cubits
   sl.registerFactory<SearchCubit>(
