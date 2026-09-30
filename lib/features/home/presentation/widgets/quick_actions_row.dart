@@ -3,6 +3,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
 import '../../data/home_mock_data.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
+
 class QuickActionsRow extends StatelessWidget {
   final List<QuickAction> actions;
 
@@ -39,7 +42,7 @@ class QuickActionsRow extends StatelessWidget {
                             const SizedBox(height: 6),
                             Text(
                               action.labelKey.tr(),
-                              style: const TextStyle(
+                              style: AppTextStyles.of(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                                 color: Color(0xFF1A1A2E),

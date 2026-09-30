@@ -20,12 +20,14 @@ class GuestHomeCubit extends Cubit<GuestHomeState> {
         latitude: location?.latitude,
         longitude: location?.longitude,
       );
+      if (isClosed) return;
 
       result.when(
         success: (data) => emit(GuestHomeState.success(data)),
         failure: (message) => emit(GuestHomeState.failed(message)),
       );
     } catch (e) {
+      if (isClosed) return;
       emit(GuestHomeState.failed(e.toString()));
     }
   }

@@ -5,6 +5,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../data/models/search_provider_model.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
+
 class ProviderCard extends StatelessWidget {
   final SearchProviderModel provider;
 
@@ -45,7 +48,7 @@ class ProviderCard extends StatelessWidget {
                     if (_hasText(provider.providerName)) ...[
                       Text(
                         provider.providerName!.trim(),
-                        style: TextStyle(
+                        style: AppTextStyles.of(
                           fontWeight: FontWeight.w500,
                           fontSize: 16.sp,
                           color: const Color(0xFF000000),
@@ -136,7 +139,7 @@ class _DiscountChipsRow extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: TextStyle(
+        style: AppTextStyles.of(
           fontSize: 11.sp,
           color: const Color(0xFF2D5FA6),
           fontWeight: FontWeight.w500,
@@ -167,7 +170,7 @@ class _RatingAndLocationRow extends StatelessWidget {
           SizedBox(width: 4.w),
           Text(
             provider.averageRating!.toStringAsFixed(1),
-            style: TextStyle(fontSize: 12.sp),
+            style: AppTextStyles.of(fontSize: 12.sp),
           ),
         ],
         if (hasRating && hasDistance) const Spacer(),
@@ -181,7 +184,7 @@ class _RatingAndLocationRow extends StatelessWidget {
           Flexible(
             child: Text(
               '${provider.distanceKm!.toStringAsFixed(1)} km',
-              style: TextStyle(fontSize: 12.sp),
+              style: AppTextStyles.of(fontSize: 12.sp),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),

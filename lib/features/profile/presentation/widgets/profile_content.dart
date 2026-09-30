@@ -18,6 +18,9 @@ import '../../../../core/widgets/auth_shared_widgets.dart';
 import '../../data/models/profile_response_model.dart';
 import '../cubit/profile_cubit.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
+
 class ProfileContent extends StatelessWidget {
   final ProfileData data;
 
@@ -56,7 +59,7 @@ class ProfileContent extends StatelessWidget {
                 label: 'profile.rewards'.tr(),
                 trailing: Text(
                   'profile.points_count'.tr(args: ['100']),
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     color: kAuthGreyText,
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w500,
@@ -147,7 +150,7 @@ class ProfileContent extends StatelessWidget {
               ),
               child: Text(
                 'common.delete_account'.tr(),
-                style: TextStyle(
+                style: AppTextStyles.of(
                   color: kAuthBlue,
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
@@ -176,7 +179,7 @@ class ProfileContent extends StatelessWidget {
                   SizedBox(width: 8.w),
                   Text(
                     'common.logout'.tr(),
-                    style: TextStyle(
+                    style: AppTextStyles.of(
                       color: Colors.red,
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
@@ -227,7 +230,7 @@ class _UserInfoCard extends StatelessWidget {
                             data.firstName?.trim(),
                             data.lastName?.trim(),
                           ].where((s) => s != null && s.isNotEmpty).join(' '),
-                          style: TextStyle(
+                          style: AppTextStyles.of(
                             color: Colors.black,
                             fontSize: 17.sp,
                             fontWeight: FontWeight.w500,
@@ -236,7 +239,7 @@ class _UserInfoCard extends StatelessWidget {
                         SizedBox(height: 4.h),
                         Text(
                           'profile.standard_plan'.tr(),
-                          style: TextStyle(
+                          style: AppTextStyles.of(
                             color: kAuthGreyText,
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w500,
@@ -319,7 +322,7 @@ class _ActivateCardBanner extends StatelessWidget {
                   children: [
                     Text(
                       'profile.activate_card'.tr(),
-                      style: TextStyle(
+                      style: AppTextStyles.of(
                         color: Colors.black,
                         fontSize: 15.sp,
                         fontWeight: FontWeight.w700,
@@ -328,7 +331,7 @@ class _ActivateCardBanner extends StatelessWidget {
                     SizedBox(height: 2.h),
                     Text(
                       'profile.activate_card_subtitle'.tr(),
-                      style: TextStyle(
+                      style: AppTextStyles.of(
                         color: kAuthGreyText,
                         fontSize: 12.5.sp,
                         height: 1.3,
@@ -432,7 +435,7 @@ class _CardNumberInputSheetState extends State<_CardNumberInputSheet> {
             SizedBox(height: 14.h),
             Text(
               'profile.activate_card'.tr(),
-              style: TextStyle(
+              style: AppTextStyles.of(
                 fontSize: 20.sp,
                 fontWeight: FontWeight.w700,
                 color: const Color(0xFF111827),
@@ -442,7 +445,7 @@ class _CardNumberInputSheetState extends State<_CardNumberInputSheet> {
             Text(
               'profile.activate_card_subtitle'.tr(),
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: AppTextStyles.of(
                 fontSize: 14.sp,
                 height: 1.35,
                 color: const Color(0xFF6B7280),
@@ -508,7 +511,7 @@ class _CardNumberInputSheetState extends State<_CardNumberInputSheet> {
                 ),
                 child: Text(
                   'profile.activate_card'.tr(),
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
                   ),
@@ -530,7 +533,7 @@ class _CardNumberInputSheetState extends State<_CardNumberInputSheet> {
                 ),
                 child: Text(
                   'common.cancel'.tr(),
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w600,
                   ),
@@ -600,7 +603,7 @@ class _SectionTitle extends StatelessWidget {
       padding: EdgeInsetsDirectional.only(start: 20.w, top: 16.h, bottom: 12.h),
       child: Text(
         title,
-        style: TextStyle(
+        style: AppTextStyles.of(
           color: Colors.black,
           fontSize: 18.sp,
           fontWeight: FontWeight.w700,
@@ -668,7 +671,7 @@ class _Item extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: TextStyle(
+                style: AppTextStyles.of(
                   color: Colors.black,
                   fontSize: 15.sp,
                   fontWeight: FontWeight.w500,
@@ -717,7 +720,7 @@ class _LanguageItem extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: TextStyle(
+                style: AppTextStyles.of(
                   color: Colors.black,
                   fontSize: 15.sp,
                   fontWeight: FontWeight.w500,
@@ -729,7 +732,7 @@ class _LanguageItem extends StatelessWidget {
               children: [
                 Text(
                   currentLanguage,
-                  style: TextStyle(color: kAuthGreyText, fontSize: 14.sp),
+                  style: AppTextStyles.of(color: kAuthGreyText, fontSize: 14.sp),
                 ),
                 SizedBox(width: 4.w),
                 Icon(
@@ -790,7 +793,7 @@ Future<void> showLogoutConfirmation(BuildContext context) async {
               SizedBox(height: 14.h),
               Text(
                 'common.logout_confirm_title'.tr(),
-                style: TextStyle(
+                style: AppTextStyles.of(
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFF111827),
@@ -800,7 +803,7 @@ Future<void> showLogoutConfirmation(BuildContext context) async {
               Text(
                 'common.logout_confirm_message'.tr(),
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: AppTextStyles.of(
                   fontSize: 14.sp,
                   height: 1.35,
                   color: const Color(0xFF6B7280),

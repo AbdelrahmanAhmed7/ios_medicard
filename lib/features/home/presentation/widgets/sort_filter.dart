@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
 enum SortOption { nearest, highestRating }
 
 class SortFilterSheet extends StatefulWidget {
@@ -47,7 +49,7 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
           // Sort By
           Text(
             'sort_filter.sort_by'.tr(),
-            style: const TextStyle(
+            style: AppTextStyles.of(
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: Color(0xFF1A1A2E),
@@ -64,7 +66,7 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
           // Location
           Text(
             'sort_filter.location'.tr(),
-            style: const TextStyle(
+            style: AppTextStyles.of(
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: Color(0xFF1A1A2E),
@@ -116,7 +118,7 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
               ),
               child: Text(
                 'common.apply'.tr(),
-                style: const TextStyle(
+                style: AppTextStyles.of(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
@@ -157,7 +159,7 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
             const SizedBox(width: 12),
             Text(
               label,
-              style: const TextStyle(
+              style: AppTextStyles.of(
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
                 color: Color(0xFF1A1A2E),
@@ -187,7 +189,7 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
           value: value,
           hint: Text(
             hint,
-            style: const TextStyle(
+            style: AppTextStyles.of(
               fontSize: 13,
               color: Color(0xFF6B7280),
             ),
@@ -203,7 +205,7 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
                   value: e,
                   child: Text(
                     e,
-                    style: const TextStyle(
+                    style: AppTextStyles.of(
                       fontSize: 13,
                       color: Color(0xFF1A1A2E),
                     ),

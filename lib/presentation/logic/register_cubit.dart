@@ -42,6 +42,7 @@ class RegisterCubit extends Cubit<RegisterState> {
       );
 
       final result = await _registerUseCase.call(request);
+      if (isClosed) return;
 
       result.when(
         success: (response) async {
@@ -70,13 +71,16 @@ class RegisterCubit extends Cubit<RegisterState> {
             await const AuthSessionStorage().clearSession();
             DioFactory.clearTokenFromHeader();
           }
+          if (isClosed) return;
           emit(RegisterState.success(response));
         },
         failure: (message) {
+          if (isClosed) return;
           emit(RegisterState.failed(error: message));
         },
       );
     } catch (e) {
+      if (isClosed) return;
       emit(RegisterState.failed(error: parseApiError(e)));
     }
   }

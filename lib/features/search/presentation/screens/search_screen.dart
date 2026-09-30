@@ -15,6 +15,8 @@ import '../widgets/filter_bottom_sheet.dart';
 import '../widgets/provider_card.dart';
 import '../widgets/search_shimmer.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
 class SearchScreen extends StatefulWidget {
   final double? userLatitude;
   final double? userLongitude;
@@ -153,11 +155,11 @@ class _SearchScreenState extends State<SearchScreen>
               color: Colors.white,
               child: TabBar(
                 controller: _tabController,
-                labelStyle: TextStyle(
+                labelStyle: AppTextStyles.of(
                   fontWeight: FontWeight.w600,
                   fontSize: 14.sp,
                 ),
-                unselectedLabelStyle: TextStyle(
+                unselectedLabelStyle: AppTextStyles.of(
                   fontWeight: FontWeight.w400,
                   fontSize: 14.sp,
                 ),
@@ -227,7 +229,7 @@ class _SearchAppBar extends StatelessWidget {
                   controller: controller,
                   autofocus: true,
                   onChanged: onChanged,
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     fontSize: 14.sp,
                     color: const Color(0xFF1A1A2E),
                   ),
@@ -235,7 +237,7 @@ class _SearchAppBar extends StatelessWidget {
                     filled: true,
                     fillColor: Colors.white,
                     hintText: 'home.search_hint'.tr(),
-                    hintStyle: const TextStyle(
+                    hintStyle: AppTextStyles.of(
                       color: Color(0xFF9CA3AF),
                       fontSize: 14,
                     ),
@@ -556,7 +558,7 @@ class _ServicesTabState extends State<_ServicesTab> {
             SizedBox(height: 12.h),
             Text(
               'search.no_services_found'.tr(),
-              style: TextStyle(
+              style: AppTextStyles.of(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
                 color: const Color(0xFF6B7280),
@@ -589,7 +591,7 @@ class _ServicesTabState extends State<_ServicesTab> {
               Text(
                 state.servicesError!,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: AppTextStyles.of(
                   fontSize: 14.sp,
                   color: const Color(0xFF6B7280),
                 ),
@@ -612,7 +614,7 @@ class _ServicesTabState extends State<_ServicesTab> {
                 ),
                 child: Text(
                   'common.retry'.tr(),
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     fontWeight: FontWeight.w600,
                     fontSize: 14.sp,
                     color: Colors.white,
@@ -638,7 +640,7 @@ class _ServicesTabState extends State<_ServicesTab> {
             SizedBox(height: 12.h),
             Text(
               'search.no_services_found'.tr(),
-              style: TextStyle(
+              style: AppTextStyles.of(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
                 color: const Color(0xFF6B7280),
@@ -783,7 +785,7 @@ class _ServiceCard extends StatelessWidget {
               children: [
                 Text(
                   serviceName,
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w600,
                     color: const Color(0xFF111827),
@@ -902,7 +904,7 @@ class _ChooseProviderBar extends StatelessWidget {
                 child: Center(
                   child: Text(
                     '$count',
-                    style: TextStyle(
+                    style: AppTextStyles.of(
                       color: Colors.white,
                       fontSize: 13.sp,
                       fontWeight: FontWeight.bold,
@@ -913,7 +915,7 @@ class _ChooseProviderBar extends StatelessWidget {
               SizedBox(width: 10.w),
               Text(
                 'cart.choose_provider'.tr(),
-                style: TextStyle(
+                style: AppTextStyles.of(
                   color: Colors.white,
                   fontSize: 15.sp,
                   fontWeight: FontWeight.w600,
@@ -944,7 +946,7 @@ class _EmptyView extends StatelessWidget {
           SizedBox(height: 12.h),
           Text(
             'search.no_providers_found'.tr(),
-            style: TextStyle(
+            style: AppTextStyles.of(
               fontSize: 15.sp,
               fontWeight: FontWeight.w600,
               color: const Color(0xFF6B7280),
@@ -953,7 +955,7 @@ class _EmptyView extends StatelessWidget {
           SizedBox(height: 6.h),
           Text(
             'search.try_different_keyword'.tr(),
-            style: TextStyle(
+            style: AppTextStyles.of(
               fontSize: 13.sp,
               color: const Color(0xFF9CA3AF),
             ),
@@ -987,7 +989,7 @@ class _ErrorView extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: AppTextStyles.of(
                 fontSize: 14.sp,
                 color: const Color(0xFF6B7280),
               ),
@@ -1005,7 +1007,7 @@ class _ErrorView extends StatelessWidget {
               ),
               child: Text(
                 'common.retry'.tr(),
-                style: TextStyle(
+                style: AppTextStyles.of(
                   fontWeight: FontWeight.w600,
                   fontSize: 14.sp,
                   color: Colors.white,

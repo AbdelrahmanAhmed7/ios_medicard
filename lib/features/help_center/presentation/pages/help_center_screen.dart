@@ -5,6 +5,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/services/url_launcher_service.dart';
 import '../../../../core/widgets/app_blue_header.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
 class HelpCenterScreen extends StatelessWidget {
   const HelpCenterScreen({super.key});
 
@@ -53,7 +55,7 @@ class HelpCenterScreen extends StatelessWidget {
                               children: [
                                 Text(
                                   'help_center.title'.tr(),
-                                  style: TextStyle(
+                                  style: AppTextStyles.of(
                                     fontSize: 17.sp,
                                     fontWeight: FontWeight.w700,
                                     color: const Color(0xFF111827),
@@ -62,7 +64,7 @@ class HelpCenterScreen extends StatelessWidget {
                                 SizedBox(height: 2.h),
                                 Text(
                                   'help_center.subtitle'.tr(),
-                                  style: TextStyle(
+                                  style: AppTextStyles.of(
                                     fontSize: 13.sp,
                                     color: const Color(0xFF6B7280),
                                   ),
@@ -80,7 +82,7 @@ class HelpCenterScreen extends StatelessWidget {
 
                 Text(
                   'help_center.contact_us'.tr(),
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w700,
                     color: const Color(0xFF374151),
@@ -216,7 +218,7 @@ class _ContactTile extends StatelessWidget {
                   children: [
                     Text(
                       label,
-                      style: TextStyle(
+                      style: AppTextStyles.of(
                         fontSize: 12.sp,
                         color: const Color(0xFF6B7280),
                         fontWeight: FontWeight.w500,
@@ -225,7 +227,7 @@ class _ContactTile extends StatelessWidget {
                     SizedBox(height: 2.h),
                     Text(
                       value,
-                      style: TextStyle(
+                      style: AppTextStyles.of(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w600,
                         color: const Color(0xFF111827),

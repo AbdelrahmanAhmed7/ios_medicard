@@ -3,6 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../constants/app_assets.dart';
 
+import '../theming/app_text_styles.dart';
+
 // ── Design tokens ────────────────────────────────────────────────────────────
 
 const kAuthBlue = Color(0xFF3872B1);
@@ -20,7 +22,7 @@ class AuthFieldLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final labelStyle = TextStyle(
+    final labelStyle = AppTextStyles.of(
       fontSize: 13.sp,
       color: kAuthGreyText,
       fontWeight: FontWeight.w500,
@@ -91,7 +93,7 @@ class AuthGenderOption extends StatelessWidget {
           SizedBox(width: 8.w),
           Text(
             label,
-            style: TextStyle(
+            style: AppTextStyles.of(
               fontSize: 14.sp,
               color: selected ? Colors.black : kAuthGreyText,
               fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
@@ -111,7 +113,7 @@ InputDecoration authInputDecoration({
 }) {
   return InputDecoration(
     hintText: hintText,
-    hintStyle: TextStyle(fontSize: 14.sp, color: const Color(0xFFB0B8C1)),
+    hintStyle: AppTextStyles.of(fontSize: 14.sp, color: const Color(0xFFB0B8C1)),
     filled: true,
     fillColor: Colors.white,
     suffixIcon: suffixIcon,
@@ -200,7 +202,7 @@ class AuthBlueHeader extends StatelessWidget {
           SizedBox(height: 16.h),
           Text(
             title,
-            style: TextStyle(
+            style: AppTextStyles.of(
               fontSize: 22.sp,
               fontWeight: FontWeight.bold,
               color: Colors.white,
@@ -253,7 +255,7 @@ class AuthPrimaryButton extends StatelessWidget {
               )
             : Text(
                 label,
-                style: TextStyle(
+                style: AppTextStyles.of(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,

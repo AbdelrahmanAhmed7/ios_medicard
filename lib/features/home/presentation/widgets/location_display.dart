@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
+
 class LocationDisplay extends StatelessWidget {
   final String text;
   final VoidCallback onTap;
@@ -19,7 +22,7 @@ class LocationDisplay extends StatelessWidget {
           Flexible(
             child: Text(
               text,
-              style: const TextStyle(
+              style: AppTextStyles.of(
                 fontWeight: FontWeight.w600,
                 fontSize: 14,
                 color: Colors.white,

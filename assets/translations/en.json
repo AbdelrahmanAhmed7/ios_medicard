@@ -284,7 +284,7 @@
     "pending": "Pending",
     "completed": "Completed",
     "nav_home": "Home",
-    "nav_ecard": "E card",
+    "nav_ecard": "E-card",
     "nav_activity": "Activity",
     "nav_profile": "Profile"
   },
@@ -470,7 +470,7 @@
     "years_ago": "{}y"
   },
   "ecard": {
-    "title": "E Card",
+    "title": "E-Card",
     "no_card_title": "You don't have a card yet",
     "no_card_message": "Get a MediCard to access 2,400+ doctors, labs, pharmacies and gyms across Egypt with exclusive member discounts.",
     "expiry_date": "Expiry"

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../theming/app_text_styles.dart';
+
 /// Content height shared by the primary BottomNavigationBar screens.
 /// The system status-bar height is added by [SafeArea].
 const double kMainTabHeaderContentHeight = 120;
@@ -144,7 +146,7 @@ class AppBlueHeader extends StatelessWidget {
                         children: [
                           Text(
                             title!,
-                            style: TextStyle(
+                            style: AppTextStyles.of(
                               fontSize: 22.sp,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
@@ -156,7 +158,7 @@ class AppBlueHeader extends StatelessWidget {
                             SizedBox(height: 2.h),
                             Text(
                               subtitle!,
-                              style: TextStyle(
+                              style: AppTextStyles.of(
                                 fontSize: 13.sp,
                                 color: Colors.white.withValues(alpha: 0.8),
                               ),

@@ -4,6 +4,27 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'app_colors.dart';
 import 'font_manager.dart';
 
+/// Canonical font sizes used across the app.
+///
+/// Reference these tokens (with `.sp`) instead of raw numeric literals so
+/// that the typography scale can be adjusted in this one place.
+abstract final class AppFontSizes {
+  static const double s10 = 10;
+  static const double s11 = 11;
+  static const double s12 = 12;
+  static const double s13 = 13;
+  static const double s14 = 14;
+  static const double s15 = 15;
+  static const double s16 = 16;
+  static const double s17 = 17;
+  static const double s18 = 18;
+  static const double s19 = 19;
+  static const double s20 = 20;
+  static const double s22 = 22;
+  static const double s24 = 24;
+  static const double s48 = 48;
+}
+
 class AppTextStyles {
   // Base text style builder
   static TextStyle _baseStyle(
@@ -32,6 +53,36 @@ class AppTextStyles {
       fontSize: fontSize,
       fontWeight: fontWeight,
       color: color,
+    );
+  }
+
+  /// Single entry point for every text style in the app.
+  ///
+  /// The font family is inherited from [ThemeData] (via [FontManager]), so
+  /// callers only pass the properties they need. This is the one choke point
+  /// that allows future global typography changes (scale, family, weights)
+  /// without touching call sites.
+  static TextStyle of({
+    double? fontSize,
+    FontWeight? fontWeight,
+    Color? color,
+    double? height,
+    double? letterSpacing,
+    TextDecoration? decoration,
+    FontStyle? fontStyle,
+    Color? decorationColor,
+    double? decorationThickness,
+  }) {
+    return TextStyle(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color,
+      height: height,
+      letterSpacing: letterSpacing,
+      decoration: decoration,
+      fontStyle: fontStyle,
+      decorationColor: decorationColor,
+      decorationThickness: decorationThickness,
     );
   }
 

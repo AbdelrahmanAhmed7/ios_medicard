@@ -13,6 +13,7 @@ class AppRefreshCubit extends Cubit<AppRefreshState> {
   final ValueNotifier<int> languageRefresh = ValueNotifier(0);
 
   void triggerLanguageRefresh() {
+    if (isClosed) return;
     emit(const AppRefreshState.languageChanged());
     emit(const AppRefreshState.initial());
     languageRefresh.value++;
@@ -22,6 +23,7 @@ class AppRefreshCubit extends Cubit<AppRefreshState> {
   /// (refresh token missing, expired, or refresh API call failed).
   /// The UI layer should listen for this and redirect to the login screen.
   void triggerSessionExpired() {
+    if (isClosed) return;
     emit(const AppRefreshState.sessionExpired());
     emit(const AppRefreshState.initial());
   }

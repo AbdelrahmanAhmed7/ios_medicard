@@ -14,7 +14,9 @@ import '../../../../features/family_members/data/models/family_member_model.dart
 import '../../../../network/data/provider_page_response_model.dart';
 import '../cubit/cart_cubit.dart';
 import '../cubit/cart_state.dart';
-import 'order_confirmed_screen.dart';
+
+import '../../../home/presentation/widgets/order_placed_dialog.dart';
+import '../../../../core/theming/app_text_styles.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final int? initialProviderId;
@@ -68,7 +70,9 @@ class _CheckoutScreenState extends State<CheckoutScreen>
     // navigate to the activity tab so they can see their order status.
     if (state == AppLifecycleState.resumed && _didLaunchPayment && mounted) {
       _didLaunchPayment = false;
-      context.go('/medicard-home?tab=activity&paymentSuccess=true');
+      // Payment status cannot be verified from the backend, so land on the
+      // activity tab where the real invoice status is shown.
+      context.go('/medicard-home?tab=activity');
     }
   }
 
@@ -109,10 +113,13 @@ class _CheckoutScreenState extends State<CheckoutScreen>
               return;
             }
             if (!context.mounted) return;
-            context.go(
-              '/order-confirmed',
-              extra: _confirmedArgsFromState(state),
+            await OrderPlacedDialog.maybeShow(
+              context,
+              orderNumber: state.createdInvoiceId,
             );
+            if (context.mounted) {
+              context.go('/medicard-home?tab=activity');
+            }
           }
         },
         builder: (context, state) {
@@ -182,10 +189,6 @@ class _CheckoutScreenState extends State<CheckoutScreen>
       ],
     );
   }
-}
-
-OrderConfirmedArgs _confirmedArgsFromState(CartState state) {
-  return OrderConfirmedArgs(orderNumber: state.createdInvoiceId ?? '-');
 }
 
 class _PatientDropdown extends StatelessWidget {
@@ -504,7 +507,7 @@ class _PayButton extends StatelessWidget {
                   paymentLink,
                 );
                 if (opened && context.mounted) {
-                  context.go('/medicard-home?tab=activity&paymentSuccess=true');
+                  context.go('/medicard-home?tab=activity');
                 }
               }
             : () {
@@ -539,7 +542,7 @@ class _PayButton extends StatelessWidget {
                     : state.paymentMethod == CartPaymentMethod.visa
                     ? 'cart.pay_with_visa'.tr()
                     : 'cart.pay'.tr(),
-                style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w600),
+                style: AppTextStyles.of(fontSize: 18.sp, fontWeight: FontWeight.w600),
               ),
       ),
     );
@@ -588,7 +591,7 @@ class _SummaryRow extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: TextStyle(
+              style: AppTextStyles.of(
                 fontSize: 15.sp,
                 fontWeight: isBold ? FontWeight.w600 : FontWeight.w400,
                 color: Colors.black,
@@ -600,7 +603,7 @@ class _SummaryRow extends StatelessWidget {
             child: Text(
               value,
               textAlign: TextAlign.end,
-              style: TextStyle(
+              style: AppTextStyles.of(
                 fontSize: 14.sp,
                 fontWeight: isBold ? FontWeight.w600 : FontWeight.w400,
                 color: valueColor ?? const Color(0xFF444D5D),
@@ -622,7 +625,7 @@ class _SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: TextStyle(
+      style: AppTextStyles.of(
         fontSize: 18.sp,
         fontWeight: FontWeight.w700,
         color: const Color(0xFF2E2E2E),
@@ -654,7 +657,7 @@ class _ErrorView extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14.sp, color: const Color(0xFF64748B)),
+              style: AppTextStyles.of(fontSize: 14.sp, color: const Color(0xFF64748B)),
             ),
             SizedBox(height: 16.h),
             ElevatedButton(

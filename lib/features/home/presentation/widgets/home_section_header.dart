@@ -1,6 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
 /// Reusable section header: "Title  View all ›"
 /// Used by Pending Appointments, Nearest Providers, Featured Services.
 class HomeSectionHeader extends StatelessWidget {
@@ -19,7 +21,7 @@ class HomeSectionHeader extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(
+              style: AppTextStyles.of(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFF1A1A2E),
@@ -37,16 +39,16 @@ class HomeSectionHeader extends StatelessWidget {
                   children: [
                     Text(
                       'home.view_all'.tr(),
-                      style: const TextStyle(
+                      style: AppTextStyles.of(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF2D5FA6),
                       ),
                     ),
                     const SizedBox(width: 2),
-                    const Text(
+                    Text(
                       '›',
-                      style: TextStyle(
+                      style: AppTextStyles.of(
                         fontSize: 18,
                         color: Color(0xFF2D5FA6),
                         fontWeight: FontWeight.w600,

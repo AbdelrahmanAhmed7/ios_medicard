@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../services/haptic_feedback_service.dart';
 
+import 'app_text_styles.dart';
+
 enum ToastType { success, error, warning, info }
 
 // ── Global navigator key — set this on MaterialApp.router ──────────────────
@@ -188,7 +190,7 @@ class _LoginRequiredToastState extends State<_LoginRequiredToast>
                   Expanded(
                     child: Text(
                       'auth.please_login_first'.tr(),
-                      style: const TextStyle(
+                      style: AppTextStyles.of(
                         color: Colors.white,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -213,7 +215,7 @@ class _LoginRequiredToastState extends State<_LoginRequiredToast>
                       ),
                       child: Text(
                         'auth.register.loginNow'.tr(),
-                        style: const TextStyle(
+                        style: AppTextStyles.of(
                           color: Colors.white,
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -325,7 +327,7 @@ class _ToastWidgetState extends State<_ToastWidget>
                   Expanded(
                     child: Text(
                       widget.message,
-                      style: const TextStyle(
+                      style: AppTextStyles.of(
                         color: Colors.white,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,

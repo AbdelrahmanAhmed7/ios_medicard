@@ -7,6 +7,8 @@ import '../cubit/filter_cubit.dart';
 import '../cubit/filter_state.dart';
 import '../cubit/search_cubit.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
 class FilterBottomSheet extends StatelessWidget {
   const FilterBottomSheet({super.key, this.hideProviderFilters = false});
 
@@ -64,7 +66,7 @@ class FilterBottomSheet extends StatelessWidget {
                   children: [
                     Text(
                       'search.filter'.tr(),
-                      style: TextStyle(
+                      style: AppTextStyles.of(
                         fontWeight: FontWeight.w700,
                         fontSize: 18.sp,
                         color: const Color(0xFF1A1A2E),
@@ -79,7 +81,7 @@ class FilterBottomSheet extends StatelessWidget {
                       ),
                       child: Text(
                         'search.reset'.tr(),
-                        style: TextStyle(
+                        style: AppTextStyles.of(
                           fontWeight: FontWeight.w500,
                           fontSize: 14.sp,
                           color: const Color(0xFF2D5FA6),
@@ -180,7 +182,7 @@ class FilterBottomSheet extends StatelessWidget {
                     },
                     child: Text(
                       'search.apply_filters'.tr(),
-                      style: TextStyle(
+                      style: AppTextStyles.of(
                         fontWeight: FontWeight.w600,
                         fontSize: 15.sp,
                         color: Colors.white,
@@ -205,7 +207,7 @@ class _SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
-      style: TextStyle(
+      style: AppTextStyles.of(
         fontWeight: FontWeight.w600,
         fontSize: 15.sp,
         color: const Color(0xFF374151),
@@ -259,7 +261,7 @@ class _SortOptionTile extends StatelessWidget {
             SizedBox(width: 10.w),
             Text(
               label,
-              style: TextStyle(
+              style: AppTextStyles.of(
                 fontSize: 14.sp,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                 color: isSelected
@@ -317,7 +319,7 @@ class _LookupDropdown extends StatelessWidget {
                 isExpanded: true,
                 hint: Text(
                   hint,
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     fontSize: 13.sp,
                     color: const Color(0xFF9CA3AF),
                   ),
@@ -325,7 +327,7 @@ class _LookupDropdown extends StatelessWidget {
                 value: value,
                 items: items,
                 onChanged: isDisabled ? null : onChanged,
-                style: TextStyle(
+                style: AppTextStyles.of(
                   fontSize: 13.sp,
                   color: const Color(0xFF1A1A2E),
                 ),

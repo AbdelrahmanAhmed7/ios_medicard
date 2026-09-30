@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/utils/app_date_formatter.dart';
 import '../../domain/models/appointment_model.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
 class PendingAppointmentCard extends StatelessWidget {
   final AppointmentModel appointment;
 
@@ -60,7 +62,7 @@ class PendingAppointmentCard extends StatelessWidget {
                   children: [
                     Text(
                       appointment.providerName,
-                      style: const TextStyle(
+                      style: AppTextStyles.of(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         color: Color(0xFF1A1A2E),
@@ -72,7 +74,7 @@ class PendingAppointmentCard extends StatelessWidget {
                       const SizedBox(height: 3),
                       Text(
                         appointment.service,
-                        style: const TextStyle(
+                        style: AppTextStyles.of(
                           fontSize: 11,
                           fontWeight: FontWeight.w400,
                           color: Color(0xFF6B7280),
@@ -85,7 +87,7 @@ class PendingAppointmentCard extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         appointment.branch,
-                        style: const TextStyle(
+                        style: AppTextStyles.of(
                           fontSize: 11,
                           fontWeight: FontWeight.w400,
                           color: Color(0xFF6B7280),
@@ -119,7 +121,7 @@ class PendingAppointmentCard extends StatelessWidget {
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: AppTextStyles.of(
                             fontSize: 11,
                             fontWeight: FontWeight.w400,
                             color: Color(0xFF6B7280),
@@ -169,7 +171,7 @@ class _StatusBadge extends StatelessWidget {
               _localizedStatus(status),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
+              style: AppTextStyles.of(
                 fontSize: 11,
                 fontWeight: FontWeight.w400,
                 color: color,

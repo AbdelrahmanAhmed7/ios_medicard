@@ -12,6 +12,8 @@ import '../core/widgets/auth_shared_widgets.dart';
 import 'logic/medicard_login_cubit.dart';
 import 'logic/medicard_login_state.dart';
 
+import '../core/theming/app_text_styles.dart';
+
 class MediCardLoginScreen extends StatefulWidget {
   const MediCardLoginScreen({super.key});
 
@@ -132,7 +134,7 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
                           // Sign In title
                           Text(
                             'auth.login.title'.tr(),
-                            style: TextStyle(
+                            style: AppTextStyles.of(
                               fontSize: 24.sp,
                               fontWeight: FontWeight.bold,
                               color: Colors.black,
@@ -157,7 +159,7 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
                                 },
                                 child: Text(
                                   'auth.login.forgotPassword'.tr(),
-                                  style: TextStyle(
+                                  style: AppTextStyles.of(
                                     fontSize: 13.sp,
                                     color: kAuthBlue,
                                   ),
@@ -174,7 +176,7 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
                             children: [
                               Text(
                                 'auth.login.dontHaveAccount'.tr(),
-                                style: TextStyle(
+                                style: AppTextStyles.of(
                                   fontSize: 13.sp,
                                   color: kAuthGreyText,
                                 ),
@@ -184,7 +186,7 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
                                 onTap: () => context.push('/medicard-register'),
                                 child: Text(
                                   'auth.login.registerNow'.tr(),
-                                  style: TextStyle(
+                                  style: AppTextStyles.of(
                                     fontSize: 13.sp,
                                     color: kAuthBlue,
                                     fontWeight: FontWeight.bold,
@@ -241,7 +243,7 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
         FilteringTextInputFormatter.digitsOnly,
         LengthLimitingTextInputFormatter(12),
       ],
-      style: TextStyle(fontSize: 15.sp, color: Colors.black),
+      style: AppTextStyles.of(fontSize: 15.sp, color: Colors.black),
       decoration: authInputDecoration(
         hintText: 'auth.login.identifierHint'.tr(),
       ).copyWith(counterText: ''),
@@ -253,7 +255,7 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
     return TextFormField(
       controller: _passwordController,
       obscureText: _obscurePassword,
-      style: TextStyle(fontSize: 15.sp, color: Colors.black),
+      style: AppTextStyles.of(fontSize: 15.sp, color: Colors.black),
       decoration: authInputDecoration(
         hintText: '••••••••',
         suffixIcon: GestureDetector(
@@ -321,7 +323,7 @@ class _OrDivider extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 12.w),
           child: Text(
             'auth.login.or'.tr(),
-            style: TextStyle(fontSize: 13.sp, color: kAuthGreyText),
+            style: AppTextStyles.of(fontSize: 13.sp, color: kAuthGreyText),
           ),
         ),
         const Expanded(child: Divider(color: Color(0xFFD1D5DB), thickness: 1)),
@@ -352,7 +354,7 @@ class _ActivateCardButton extends StatelessWidget {
         ),
         child: Text(
           'auth.login.activateCard'.tr(),
-          style: TextStyle(
+          style: AppTextStyles.of(
             fontSize: 16.sp,
             fontWeight: FontWeight.bold,
             color: kAuthBlue,
@@ -384,7 +386,7 @@ class _ContinueAsGuestButton extends StatelessWidget {
         ),
         child: Text(
           'auth.login.continueAsGuest'.tr(),
-          style: TextStyle(
+          style: AppTextStyles.of(
             fontSize: 16.sp,
             fontWeight: FontWeight.w600,
             color: Colors.grey.shade700,

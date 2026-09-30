@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../data/models/category_model.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
+
 class CategoryChip extends StatelessWidget {
   final CategoryModel? category;
   final bool isSelected;
@@ -75,7 +78,7 @@ class CategoryChip extends StatelessWidget {
                 SizedBox(height: 6.h),
                 Text(
                   label,
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     fontSize: 12.sp,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                     color: isSelected ? activeColor : inactiveContentColor,
@@ -98,7 +101,7 @@ class CategoryChip extends StatelessWidget {
                 ),
                 child: Text(
                   badgeCount.toString(),
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     color: Colors.white,
                     fontSize: 10.sp,
                     fontWeight: FontWeight.bold,

@@ -3,6 +3,8 @@ import 'package:easy_localization/easy_localization.dart';
 
 import '../../domain/models/home_failure.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
 /// Full-content error state shown inside the sliver scroll when the API fails.
 /// Displays a friendly message and a retry button.
 class HomeErrorView extends StatelessWidget {
@@ -62,7 +64,7 @@ class HomeErrorView extends StatelessWidget {
               Text(
                 'home.network_error_title'.tr(),
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: AppTextStyles.of(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: theme.colorScheme.onSurface,
@@ -72,7 +74,7 @@ class HomeErrorView extends StatelessWidget {
               Text(
                 message ?? messageKey.tr(),
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: AppTextStyles.of(
                   fontSize: 13,
                   fontWeight: FontWeight.w400,
                   color: theme.colorScheme.onSurfaceVariant,
@@ -95,7 +97,7 @@ class HomeErrorView extends StatelessWidget {
                       : const Icon(Icons.refresh_rounded, size: 18),
                   label: Text(
                     (isRetrying ? 'home.retrying' : 'common.try_again').tr(),
-                    style: const TextStyle(
+                    style: AppTextStyles.of(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),

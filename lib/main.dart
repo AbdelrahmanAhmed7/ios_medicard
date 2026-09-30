@@ -19,6 +19,8 @@ import 'core/network/connectivity_service.dart';
 import 'core/network/dio_factory.dart';
 import 'core/routing/app_router.dart';
 import 'core/services/app_language_manager.dart';
+import 'core/theming/app_colors.dart';
+import 'core/theming/app_text_styles.dart';
 import 'core/theming/font_manager.dart';
 import 'features/notifications/push_notification_service.dart';
 import 'firebase_options.dart';
@@ -151,6 +153,78 @@ class _MyAppState extends State<MyApp> {
                 theme: ThemeData(
                   fontFamily: FontManager.getFontFamily(context),
                   useMaterial3: true,
+                  textTheme: TextTheme(
+                    displayLarge: AppTextStyles.of(
+                      fontSize: AppFontSizes.s48,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.blackClr,
+                    ),
+                    displayMedium: AppTextStyles.of(
+                      fontSize: AppFontSizes.s24,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.blackClr,
+                    ),
+                    displaySmall: AppTextStyles.of(
+                      fontSize: AppFontSizes.s22,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.blackClr,
+                    ),
+                    headlineMedium: AppTextStyles.of(
+                      fontSize: AppFontSizes.s20,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.blackClr,
+                    ),
+                    headlineSmall: AppTextStyles.of(
+                      fontSize: AppFontSizes.s18,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.blackClr,
+                    ),
+                    titleLarge: AppTextStyles.of(
+                      fontSize: AppFontSizes.s16,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.blackClr,
+                    ),
+                    titleMedium: AppTextStyles.of(
+                      fontSize: AppFontSizes.s14,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.blackClr,
+                    ),
+                    titleSmall: AppTextStyles.of(
+                      fontSize: AppFontSizes.s12,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.blackClr,
+                    ),
+                    bodyLarge: AppTextStyles.of(
+                      fontSize: AppFontSizes.s15,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.blackClr,
+                    ),
+                    bodyMedium: AppTextStyles.of(
+                      fontSize: AppFontSizes.s14,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.blackClr,
+                    ),
+                    bodySmall: AppTextStyles.of(
+                      fontSize: AppFontSizes.s12,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.greyClr,
+                    ),
+                    labelLarge: AppTextStyles.of(
+                      fontSize: AppFontSizes.s14,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.primaryClr,
+                    ),
+                    labelMedium: AppTextStyles.of(
+                      fontSize: AppFontSizes.s12,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.primaryClr,
+                    ),
+                    labelSmall: AppTextStyles.of(
+                      fontSize: AppFontSizes.s10,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.greyClr,
+                    ),
+                  ),
                 ),
                 localizationsDelegates: context.localizationDelegates,
                 supportedLocales: context.supportedLocales,

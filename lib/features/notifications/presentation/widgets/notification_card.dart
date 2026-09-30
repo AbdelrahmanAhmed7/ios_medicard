@@ -5,6 +5,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../data/model/notification_model.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
+
 class NotificationCard extends StatelessWidget {
   final NotificationModel notification;
   final VoidCallback onTap;
@@ -59,7 +62,7 @@ class NotificationCard extends StatelessWidget {
                   SizedBox(height: 2.h),
                   Text(
                     notification.title,
-                    style: TextStyle(
+                    style: AppTextStyles.of(
                       fontWeight: FontWeight.w600,
                       fontSize: 14.sp,
                       color: const Color(0xFF3B82F6),
@@ -71,7 +74,7 @@ class NotificationCard extends StatelessWidget {
                   SizedBox(height: 4.h),
                   Text(
                     notification.body,
-                    style: TextStyle(
+                    style: AppTextStyles.of(
                       fontWeight: FontWeight.w400,
                       fontSize: 13.sp,
                       color: const Color(0xFF64748B),
@@ -88,7 +91,7 @@ class NotificationCard extends StatelessWidget {
               padding: EdgeInsets.only(top: 2.h),
               child: Text(
                 _formatRelativeTime(notification.createdAt),
-                style: TextStyle(
+                style: AppTextStyles.of(
                   fontWeight: FontWeight.w400,
                   fontSize: 11.sp,
                   color: const Color(0xFF94A3B8),

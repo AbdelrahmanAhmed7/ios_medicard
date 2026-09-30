@@ -14,6 +14,9 @@ import '../../../../core/widgets/auth_shared_widgets.dart';
 import '../cubit/forgot_password_cubit.dart';
 import '../cubit/forgot_password_state.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
+
 class OtpVerificationScreen extends StatefulWidget {
   final String phoneNumber;
   final String otp;
@@ -169,7 +172,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                             'auth.forgot.otp_subtitle'.tr(
                               args: [widget.phoneNumber],
                             ),
-                            style: TextStyle(
+                            style: AppTextStyles.of(
                               fontSize: 15.sp,
                               color: kAuthGreyText,
                               height: 1.4,
@@ -228,7 +231,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                                         ],
                                       )
                                     : 'auth.forgot.resend'.tr(),
-                                style: TextStyle(
+                                style: AppTextStyles.of(
                                   fontSize: 14.sp,
                                   color: kAuthBlue,
                                   fontWeight: FontWeight.w600,
@@ -274,7 +277,7 @@ class _OtpPreviewCard extends StatelessWidget {
           Expanded(
             child: Text(
               'auth.forgot.otp_preview'.tr(args: [otp, '$secondsLeft']),
-              style: TextStyle(
+              style: AppTextStyles.of(
                 fontSize: 13.5.sp,
                 color: const Color(0xFF111827),
                 height: 1.35,

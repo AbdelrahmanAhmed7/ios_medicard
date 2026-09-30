@@ -8,6 +8,9 @@ import '../../../ecard/data/models/card_data_response_model.dart';
 import '../../../ecard/presentation/cubit/ecard_cubit.dart';
 import '../../../ecard/presentation/cubit/ecard_state.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
+
 class ECardScreen extends StatefulWidget {
   const ECardScreen({super.key});
 
@@ -92,7 +95,7 @@ class _ECardErrorView extends StatelessWidget {
                   ? message
                   : 'errors.something_went_wrong'.tr(),
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: AppTextStyles.of(
                 color: const Color(0xFF6B7280),
                 fontSize: 14.sp,
               ),
@@ -134,7 +137,7 @@ class _NoCardView extends StatelessWidget {
             Text(
               'ecard.no_card_title'.tr(),
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: AppTextStyles.of(
                 color: const Color(0xFF111D37),
                 fontSize: 20.sp,
                 fontWeight: FontWeight.w700,
@@ -145,7 +148,7 @@ class _NoCardView extends StatelessWidget {
             Text(
               'ecard.no_card_message'.tr(),
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: AppTextStyles.of(
                 color: const Color(0xFF435579),
                 fontSize: 12.sp,
                 height: 1.18,
@@ -217,7 +220,7 @@ class _MediCardPreview extends StatelessWidget {
                   ),
                   child: Text(
                     plan,
-                    style: TextStyle(
+                    style: AppTextStyles.of(
                       color: Colors.white,
                       fontSize: 12.sp,
                       fontWeight: FontWeight.w700,
@@ -231,7 +234,7 @@ class _MediCardPreview extends StatelessWidget {
               top: 88.h,
               child: Text(
                 number.isEmpty ? '—' : number,
-                style: TextStyle(
+                style: AppTextStyles.of(
                   color: Colors.white,
                   fontSize: 18.sp,
                   fontWeight: FontWeight.w600,
@@ -247,7 +250,7 @@ class _MediCardPreview extends StatelessWidget {
                 name.isEmpty ? '—' : name,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
+                style: AppTextStyles.of(
                   color: Colors.white,
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w700,
@@ -263,7 +266,7 @@ class _MediCardPreview extends StatelessWidget {
                 children: [
                   Text(
                     'ecard.expiry_date'.tr(),
-                    style: TextStyle(
+                    style: AppTextStyles.of(
                       color: Colors.white.withValues(alpha: 0.75),
                       fontSize: 9.sp,
                       fontWeight: FontWeight.w500,
@@ -272,7 +275,7 @@ class _MediCardPreview extends StatelessWidget {
                   SizedBox(height: 2.h),
                   Text(
                     expiry,
-                    style: TextStyle(
+                    style: AppTextStyles.of(
                       color: Colors.white,
                       fontSize: 12.sp,
                       fontWeight: FontWeight.w700,

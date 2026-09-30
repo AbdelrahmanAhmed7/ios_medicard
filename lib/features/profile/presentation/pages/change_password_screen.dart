@@ -9,6 +9,8 @@ import '../../../../core/widgets/auth_shared_widgets.dart';
 import '../cubit/change_password_cubit.dart';
 import '../cubit/change_password_state.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
 
@@ -182,7 +184,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         SizedBox(width: 8.w),
                         Text(
                           'profile.change_password'.tr(),
-                          style: TextStyle(
+                          style: AppTextStyles.of(
                             fontSize: 20.sp,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
@@ -319,14 +321,14 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       focusNode: focusNode,
       obscureText: !showPassword,
       autovalidateMode: autovalidateMode,
-      style: TextStyle(
+      style: AppTextStyles.of(
         fontSize: 15.sp,
         color: Colors.black,
         fontWeight: FontWeight.w500,
       ),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: TextStyle(
+        hintStyle: AppTextStyles.of(
           fontSize: 14.sp,
           color: Colors.grey.shade400,
           fontWeight: FontWeight.w400,
@@ -335,7 +337,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         fillColor: Colors.white,
         contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
         errorMaxLines: 3,
-        errorStyle: TextStyle(
+        errorStyle: AppTextStyles.of(
           fontSize: 12.sp,
           height: 1.3,
         ),
@@ -381,7 +383,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       children: [
         Text(
           'auth.register.passwordRequirementsTitle'.tr(),
-          style: TextStyle(
+          style: AppTextStyles.of(
             fontSize: 12.sp,
             color: kAuthGreyText,
             fontWeight: FontWeight.w600,
@@ -438,7 +440,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           Expanded(
             child: Text(
               label,
-              style: TextStyle(
+              style: AppTextStyles.of(
                 fontSize: 12.sp,
                 color: color,
                 fontWeight: isMet ? FontWeight.w600 : FontWeight.w400,
@@ -461,7 +463,7 @@ class _FieldLabel extends StatelessWidget {
       padding: EdgeInsets.only(bottom: 6.h, top: 4.h),
       child: Text(
         label,
-        style: TextStyle(
+        style: AppTextStyles.of(
           fontSize: 15.sp,
           fontWeight: FontWeight.w600,
           color: Colors.black87,

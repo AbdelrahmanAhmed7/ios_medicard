@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
 /// Shown in the success state when the API returns no data at all.
 class HomeEmptyView extends StatelessWidget {
   const HomeEmptyView({super.key});
@@ -16,7 +18,7 @@ class HomeEmptyView extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             'home.no_data_available'.tr(),
-            style: const TextStyle(
+            style: AppTextStyles.of(
               fontSize: 15,
               fontWeight: FontWeight.w600,
               color: Color(0xFF6B7280),
@@ -26,7 +28,7 @@ class HomeEmptyView extends StatelessWidget {
           Text(
             'home.pull_down_refresh'.tr(),
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: AppTextStyles.of(
               fontSize: 13,
               color: Color(0xFF9CA3AF),
               height: 1.5,

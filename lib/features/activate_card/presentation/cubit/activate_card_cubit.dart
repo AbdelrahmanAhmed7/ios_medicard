@@ -11,6 +11,7 @@ class ActivateCardCubit extends Cubit<ActivateCardState> {
   Future<void> activateCard(ActivateCardRequestModel request) async {
     emit(ActivateCardLoading());
     final result = await _useCase(request);
+    if (isClosed) return;
     result.fold(
       (error) => emit(ActivateCardError(error)),
       (response) => emit(ActivateCardSuccess(response)),

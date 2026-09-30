@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/theming/app_text_styles.dart';
+
 // Sample review model for demo purposes
 class Review {
   final String userName;
@@ -109,7 +111,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
         child: Center(
           child: Text(
             'Share your review',
-            style: TextStyle(
+            style: AppTextStyles.of(
               fontSize: 16.sp,
               fontWeight: FontWeight.w600,
               color: const Color(0xFF2D5FA6),
@@ -154,7 +156,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                 children: [
                   Text(
                     widget.providerName ?? '',
-                    style: TextStyle(
+                    style: AppTextStyles.of(
                       color: Colors.white,
                       fontSize: 18.sp,
                       fontWeight: FontWeight.bold,
@@ -170,7 +172,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                   ),
                   Text(
                     'Reviews',
-                    style: TextStyle(
+                    style: AppTextStyles.of(
                       color: Colors.white70,
                       fontSize: 18.sp,
                       fontWeight: FontWeight.w500,
@@ -195,7 +197,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                           children: [
                             Text(
                               '4.5',
-                              style: TextStyle(
+                              style: AppTextStyles.of(
                                 fontSize: 48.sp,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
@@ -218,7 +220,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                           ),
                           child: Text(
                             '653 reviews',
-                            style: TextStyle(
+                            style: AppTextStyles.of(
                               fontSize: 12.sp,
                               color: Colors.white,
                             ),
@@ -265,7 +267,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
         children: [
           Text(
             '$stars',
-            style: TextStyle(
+            style: AppTextStyles.of(
               fontSize: 12.sp,
               color: Colors.white,
               fontWeight: FontWeight.w500,
@@ -306,7 +308,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
           SizedBox(width: 8.w),
           Text(
             '$count',
-            style: TextStyle(
+            style: AppTextStyles.of(
               fontSize: 12.sp,
               color: Colors.white,
               fontWeight: FontWeight.w500,
@@ -377,7 +379,7 @@ class _ReviewCard extends StatelessWidget {
                     children: [
                       Text(
                         review.userName,
-                        style: TextStyle(
+                        style: AppTextStyles.of(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.bold,
                           color: const Color(0xFF0F172A),
@@ -412,7 +414,7 @@ class _ReviewCard extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: Text(
               review.date,
-              style: TextStyle(
+              style: AppTextStyles.of(
                 fontSize: 12.sp,
                 color: const Color(0xFF64748B),
               ),
@@ -421,7 +423,7 @@ class _ReviewCard extends StatelessWidget {
           SizedBox(height: 12.h),
           Text(
             review.text,
-            style: TextStyle(
+            style: AppTextStyles.of(
               fontSize: 14.sp,
               color: const Color(0xFF475569),
             ),

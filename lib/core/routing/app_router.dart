@@ -7,7 +7,6 @@ import '../../core/auth/auth_refresh_service.dart';
 import '../../features/cart/presentation/cubit/cart_cubit.dart';
 import '../../features/cart/presentation/pages/checkout_screen.dart';
 import '../../features/cart/presentation/pages/cart_screen.dart';
-import '../../features/cart/presentation/pages/order_confirmed_screen.dart';
 import '../../features/activity/domain/models/invoice_item.dart';
 import '../../features/activity/presentation/pages/invoice_details_screen.dart';
 import '../../features/activate_card/presentation/pages/activate_card_screen.dart';
@@ -241,11 +240,8 @@ class AppRouter {
           path: '/medicard-home',
           builder: (context, state) {
             final tab = state.uri.queryParameters['tab'];
-            final paymentSuccess =
-                state.uri.queryParameters['paymentSuccess'] == 'true';
             return HomeScreen(
               initialIndex: tab == 'activity' ? 2 : 0,
-              showPaymentSuccessDialog: paymentSuccess,
             );
           },
         ),
@@ -508,18 +504,6 @@ class AppRouter {
               create: (_) => sl<CartCubit>(),
               child: const CheckoutScreen(),
             );
-          },
-        ),
-        GoRoute(
-          path: '/order-confirmed',
-          builder: (context, state) {
-            final args = state.extra as OrderConfirmedArgs?;
-            if (args == null) {
-              return const OrderConfirmedScreen(
-                args: OrderConfirmedArgs(orderNumber: '-'),
-              );
-            }
-            return OrderConfirmedScreen(args: args);
           },
         ),
         GoRoute(

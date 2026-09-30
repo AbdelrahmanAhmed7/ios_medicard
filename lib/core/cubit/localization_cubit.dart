@@ -25,17 +25,20 @@ class LocalizationCubit extends Cubit<LocalizationState> {
     debugPrint('🌍 LocalizationState.loading emitted');
     try {
       await _languageManager.setLanguage(language);
+      if (isClosed) return;
       if (context.mounted) {
         debugPrint('🌍 Calling context.setLocale(Locale($language))');
         await context.setLocale(Locale(language));
         debugPrint('🌍 context.setLocale completed');
       }
+      if (isClosed) return;
       emit(LocalizationState.loaded(language));
       debugPrint('🌍 LocalizationState.loaded emitted');
       _appRefreshCubit.triggerLanguageRefresh();
       debugPrint('🌍 AppRefreshCubit.triggerLanguageRefresh called');
     } catch (e) {
       debugPrint('🌍 Error changing language: $e');
+      if (isClosed) return;
       emit(LocalizationState.error(e.toString()));
     }
   }

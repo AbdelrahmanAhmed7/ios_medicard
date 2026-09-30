@@ -3,6 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/widgets/auth_shared_widgets.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
+
 class ContentErrorView extends StatelessWidget {
   final VoidCallback onRetry;
   final String message;
@@ -29,7 +32,7 @@ class ContentErrorView extends StatelessWidget {
             SizedBox(height: 20.h),
             Text(
               'content.load_failed_title'.tr(),
-              style: TextStyle(
+              style: AppTextStyles.of(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w700,
                 color: const Color(0xFF1A1A2E),
@@ -39,7 +42,7 @@ class ContentErrorView extends StatelessWidget {
             SizedBox(height: 8.h),
             Text(
               message,
-              style: TextStyle(
+              style: AppTextStyles.of(
                 fontSize: 14.sp,
                 color: const Color(0xFF6B7280),
                 height: 1.5,

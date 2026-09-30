@@ -40,6 +40,7 @@ class CartCubit extends Cubit<CartState> {
       ),
     );
     final result = await _repository.getCategoryServices(categoryId);
+    if (isClosed) return;
     result.when(
       success: (categoryServices) {
         emit(
@@ -79,6 +80,7 @@ class CartCubit extends Cubit<CartState> {
     // Remove from pending regardless of result
     final newPendingIds = Set<int>.from(state.pendingServiceIds)
       ..remove(serviceId);
+    if (isClosed) return;
 
     result.when(
       success: (_) {
@@ -109,6 +111,7 @@ class CartCubit extends Cubit<CartState> {
     );
 
     final result = await _repository.removeFromCart(serviceId);
+    if (isClosed) return;
     // Remove from pending regardless of result
     final newPendingIds = Set<int>.from(state.pendingServiceIds)
       ..remove(serviceId);
@@ -179,6 +182,7 @@ class CartCubit extends Cubit<CartState> {
     );
 
     final cartResult = await _repository.getCart();
+    if (isClosed) return;
     cartResult.when(
       success: (cart) {
         emit(state.copyWith(cart: cart, isCartLoading: false));
@@ -189,6 +193,7 @@ class CartCubit extends Cubit<CartState> {
     );
 
     final providersResult = await _repository.getChooseProviders();
+    if (isClosed) return;
     providersResult.when(
       success: (providers) {
         emit(
@@ -246,6 +251,7 @@ class CartCubit extends Cubit<CartState> {
       ),
     );
     final result = await _repository.getChooseProviders();
+    if (isClosed) return;
     result.when(
       success: (providers) {
         emit(
@@ -310,6 +316,7 @@ class CartCubit extends Cubit<CartState> {
     Cart? cart = state.cart;
     if (cart == null && packageId == null) {
       final cartResult = await _repository.getCart();
+      if (isClosed) return;
       final failed = cartResult.when(
         success: (loadedCart) {
           cart = loadedCart;
@@ -337,6 +344,7 @@ class CartCubit extends Cubit<CartState> {
     final checkoutProvider =
         selectedProvider ??
         await _loadProviderOption(initialProviderId ?? providerId);
+    if (isClosed) return;
 
     if (checkoutProvider == null) {
       emit(
@@ -665,6 +673,7 @@ class CartCubit extends Cubit<CartState> {
         cartId: service.cartItemId,
         providerId: provider.providerId,
       );
+      if (isClosed) return false;
 
       final failed = result.when(
         success: (_) => null,
@@ -682,6 +691,7 @@ class CartCubit extends Cubit<CartState> {
     }
 
     final refreshedCart = await _repository.getCart();
+    if (isClosed) return false;
     final nextCart = refreshedCart.when(
       success: (cart) => cart,
       failure: (_) => state.cart?.assignProvider(provider),

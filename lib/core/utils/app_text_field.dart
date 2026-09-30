@@ -4,6 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../theming/app_colors.dart';
 
+import '../theming/app_text_styles.dart';
+
+
 class AppTextField extends StatefulWidget {
   final TextEditingController? controller;
   final String? hintText;
@@ -136,7 +139,7 @@ class _AppTextFieldState extends State<AppTextField>
                 padding: EdgeInsets.only(bottom: 8.h, left: 4.w),
                 child: Text(
                   widget.label!,
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w500,
                     color: hasError ? AppColors.errorClr : AppColors.blackClr,
@@ -179,7 +182,7 @@ class _AppTextFieldState extends State<AppTextField>
                     fieldState.didChange(value);
                     if (_touched) fieldState.validate();
                   },
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     fontSize: 14.sp,
                     color: AppColors.blackClr,
                     fontWeight: FontWeight.w400,
@@ -190,7 +193,7 @@ class _AppTextFieldState extends State<AppTextField>
                       vertical: 14.h,
                     ),
                     hintText: widget.hintText,
-                    hintStyle: TextStyle(
+                    hintStyle: AppTextStyles.of(
                       fontSize: 14.sp,
                       color: AppColors.greyClr,
                       fontWeight: FontWeight.w400,
@@ -215,7 +218,7 @@ class _AppTextFieldState extends State<AppTextField>
                     errorBorder: _buildBorder(AppColors.errorClr, 1.5),
                     focusedErrorBorder: _buildBorder(AppColors.errorClr, 2.0),
                     disabledBorder: _buildBorder(Colors.grey.shade200, 1.0),
-                    errorStyle: const TextStyle(height: 0, fontSize: 0),
+                    errorStyle: AppTextStyles.of(height: 0, fontSize: 0),
                     errorMaxLines: 1,
                   ),
                 ),
@@ -238,7 +241,7 @@ class _AppTextFieldState extends State<AppTextField>
                     Expanded(
                       child: Text(
                         effectiveError,
-                        style: TextStyle(
+                        style: AppTextStyles.of(
                           color: AppColors.errorClr,
                           fontSize: 12.sp,
                           height: 1.2,

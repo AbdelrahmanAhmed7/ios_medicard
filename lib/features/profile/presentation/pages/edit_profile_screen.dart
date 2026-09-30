@@ -14,6 +14,8 @@ import '../../../../core/widgets/auth_shared_widgets.dart';
 import '../../data/models/profile_response_model.dart';
 import '../cubit/profile_cubit.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
 class EditProfileScreen extends StatefulWidget {
   final ProfileData profileData;
 
@@ -113,7 +115,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                     title: Text(
                       'edit_profile.change_photo'.tr(),
-                      style: TextStyle(
+                      style: AppTextStyles.of(
                         fontSize: 15.sp,
                         fontWeight: FontWeight.w600,
                         color: Colors.black87,
@@ -133,7 +135,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                       title: Text(
                         'edit_profile.remove_photo'.tr(),
-                        style: TextStyle(
+                        style: AppTextStyles.of(
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w600,
                           color: Colors.red,
@@ -525,7 +527,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             alignment: Alignment.center,
                             child: Text(
                               '+20',
-                              style: TextStyle(
+                              style: AppTextStyles.of(
                                 fontSize: 15.sp,
                                 color: Colors.black54,
                                 fontWeight: FontWeight.w500,
@@ -558,7 +560,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           child: TextFormField(
                             controller: _birthDateController,
                             readOnly: true,
-                            style: TextStyle(
+                            style: AppTextStyles.of(
                               fontSize: 15.sp,
                               color: _birthDate.isEmpty
                                   ? Colors.grey.shade400
@@ -567,7 +569,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             ),
                             decoration: InputDecoration(
                               hintText: 'edit_profile.date_of_birth'.tr(),
-                              hintStyle: TextStyle(
+                              hintStyle: AppTextStyles.of(
                                 fontSize: 14.sp,
                                 color: Colors.grey.shade400,
                                 fontWeight: FontWeight.w400,
@@ -830,14 +832,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       autovalidateMode: focusKey != null && _touchedFields.contains(focusKey)
           ? AutovalidateMode.onUserInteraction
           : AutovalidateMode.disabled,
-      style: TextStyle(
+      style: AppTextStyles.of(
         fontSize: 15.sp,
         color: readOnly ? Colors.grey.shade500 : Colors.black,
         fontWeight: FontWeight.w500,
       ),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: TextStyle(
+        hintStyle: AppTextStyles.of(
           fontSize: 14.sp,
           color: Colors.grey.shade400,
           fontWeight: FontWeight.w400,
@@ -879,13 +881,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       initialValue: _isMale,
       hint: Text(
         'edit_profile.select_an_option'.tr(),
-        style: TextStyle(
+        style: AppTextStyles.of(
           fontSize: 14.sp,
           color: Colors.grey.shade400,
           fontWeight: FontWeight.w400,
         ),
       ),
-      style: TextStyle(
+      style: AppTextStyles.of(
         fontSize: 15.sp,
         color: Colors.black,
         fontWeight: FontWeight.w500,
@@ -926,7 +928,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       children: [
         Text(
           '*',
-          style: TextStyle(
+          style: AppTextStyles.of(
             fontSize: 13.sp,
             color: Colors.red,
             fontWeight: FontWeight.w700,
@@ -936,7 +938,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         Expanded(
           child: Text(
             text,
-            style: TextStyle(
+            style: AppTextStyles.of(
               fontSize: 12.sp,
               color: Colors.grey.shade600,
               fontWeight: FontWeight.w500,
@@ -958,7 +960,7 @@ class _FieldLabel extends StatelessWidget {
       padding: EdgeInsets.only(bottom: 6.h, top: 4.h),
       child: Text(
         label,
-        style: TextStyle(
+        style: AppTextStyles.of(
           fontSize: 15.sp,
           fontWeight: FontWeight.w600,
           color: Colors.black87,

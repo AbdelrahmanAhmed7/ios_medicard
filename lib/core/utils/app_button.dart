@@ -3,6 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../theming/app_colors.dart';
 import '../services/haptic_feedback_service.dart';
 
+import '../theming/app_text_styles.dart';
+
+
 class AppButton extends StatefulWidget {
   final String text;
   final VoidCallback? onPressed;
@@ -114,7 +117,7 @@ class _AppButtonState extends State<AppButton>
           Flexible(
             child: Text(
               widget.text,
-              style: TextStyle(
+              style: AppTextStyles.of(
                 fontSize: 16.sp,
                 color: widget.textColor ?? Colors.white,
                 fontWeight: FontWeight.w600,
@@ -333,7 +336,7 @@ class _AppOutlineButtonState extends State<AppOutlineButton>
                 Flexible(
                   child: Text(
                     widget.text,
-                    style: TextStyle(
+                    style: AppTextStyles.of(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
                     ),

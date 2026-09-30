@@ -4,6 +4,8 @@ import 'package:medicard/core/theming/app_colors.dart';
 
 import '../services/haptic_feedback_service.dart';
 
+import 'app_text_styles.dart';
+
 enum SnackBarType { success, error, warning, info }
 
 void showAppSnackBar(
@@ -98,7 +100,7 @@ void showAppSnackBar(
                   children: [
                     Text(
                       snackBarConfig.title,
-                      style: TextStyle(
+                      style: AppTextStyles.of(
                         color: Colors.white,
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w600,
@@ -108,7 +110,7 @@ void showAppSnackBar(
                     SizedBox(height: 2.h),
                     Text(
                       message,
-                      style: TextStyle(
+                      style: AppTextStyles.of(
                         color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w400,
@@ -139,7 +141,7 @@ void showAppSnackBar(
                     ),
                     child: Text(
                       actionLabel,
-                      style: TextStyle(
+                      style: AppTextStyles.of(
                         color: Colors.white,
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w600,

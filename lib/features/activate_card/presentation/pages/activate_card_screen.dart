@@ -16,6 +16,8 @@ import '../cubit/activate_card_state.dart';
 import '../../../../../core/theming/app_toast.dart';
 import '../../../../../core/widgets/auth_shared_widgets.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
 class ActivateCardScreen extends StatefulWidget {
   const ActivateCardScreen({super.key});
 
@@ -152,7 +154,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
 
                           Text(
                             'activate_card.title'.tr(),
-                            style: TextStyle(
+                            style: AppTextStyles.of(
                               fontSize: 24.sp,
                               fontWeight: FontWeight.bold,
                               color: Colors.black,
@@ -161,7 +163,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                           SizedBox(height: 6.h),
                           Text(
                             'activate_card.subtitle'.tr(),
-                            style: TextStyle(
+                            style: AppTextStyles.of(
                               fontSize: 13.sp,
                               color: kAuthGreyText,
                             ),
@@ -411,7 +413,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                             children: [
                               Text(
                                 'auth.register.alreadyHaveAccount'.tr(),
-                                style: TextStyle(
+                                style: AppTextStyles.of(
                                   fontSize: 13.sp,
                                   color: kAuthGreyText,
                                 ),
@@ -420,7 +422,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                                 onTap: () => context.go('/medicard-login'),
                                 child: Text(
                                   'auth.login.loginButton'.tr(),
-                                  style: TextStyle(
+                                  style: AppTextStyles.of(
                                     fontSize: 13.sp,
                                     color: kAuthBlue,
                                     fontWeight: FontWeight.bold,
@@ -476,7 +478,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
       autovalidateMode: isTouched
           ? AutovalidateMode.onUserInteraction
           : AutovalidateMode.disabled,
-      style: TextStyle(fontSize: 15.sp, color: Colors.black),
+      style: AppTextStyles.of(fontSize: 15.sp, color: Colors.black),
       decoration: authInputDecoration(
         hintText: hintText,
       ).copyWith(counterText: ''),
@@ -515,7 +517,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
       autovalidateMode: isTouched
           ? AutovalidateMode.onUserInteraction
           : AutovalidateMode.disabled,
-      style: TextStyle(fontSize: 15.sp, color: Colors.black),
+      style: AppTextStyles.of(fontSize: 15.sp, color: Colors.black),
       decoration: authInputDecoration(
         hintText: hintText,
         suffixIcon: GestureDetector(
@@ -553,7 +555,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
       children: [
         Text(
           'auth.register.passwordRequirementsTitle'.tr(),
-          style: TextStyle(
+          style: AppTextStyles.of(
             fontSize: 12.sp,
             color: kAuthGreyText,
             fontWeight: FontWeight.w600,
@@ -610,7 +612,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
           Expanded(
             child: Text(
               label,
-              style: TextStyle(
+              style: AppTextStyles.of(
                 fontSize: 12.sp,
                 color: color,
                 fontWeight: isMet ? FontWeight.w600 : FontWeight.w400,
@@ -628,7 +630,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
       children: [
         Text(
           '*',
-          style: TextStyle(
+          style: AppTextStyles.of(
             fontSize: 13.sp,
             color: Colors.red,
             fontWeight: FontWeight.w700,
@@ -638,7 +640,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
         Expanded(
           child: Text(
             text,
-            style: TextStyle(
+            style: AppTextStyles.of(
               fontSize: 12.sp,
               color: kAuthGreyText,
               fontWeight: FontWeight.w500,
@@ -659,7 +661,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
       autovalidateMode: isTouched
           ? AutovalidateMode.onUserInteraction
           : AutovalidateMode.disabled,
-      style: TextStyle(fontSize: 15.sp, color: Colors.black),
+      style: AppTextStyles.of(fontSize: 15.sp, color: Colors.black),
       onTap: () async {
         FocusScope.of(context).unfocus();
         final date = await showDatePicker(
@@ -676,7 +678,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
             );
           },
         );
-        if (date != null) {
+        if (date != null && mounted) {
           setState(() {
             _birthDateController.text =
                 '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';

@@ -12,6 +12,8 @@ import '../data/auth_response_model.dart';
 import 'logic/register_cubit.dart';
 import 'logic/register_state.dart';
 
+import '../core/theming/app_text_styles.dart';
+
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -341,7 +343,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                           Text(
                             'auth.register.title'.tr(),
-                            style: TextStyle(
+                            style: AppTextStyles.of(
                               fontSize: 24.sp,
                               fontWeight: FontWeight.bold,
                               color: Colors.black,
@@ -350,7 +352,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           SizedBox(height: 6.h),
                           Text(
                             'auth.register.subtitle'.tr(),
-                            style: TextStyle(
+                            style: AppTextStyles.of(
                               fontSize: 13.sp,
                               color: kAuthGreyText,
                             ),
@@ -554,7 +556,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             children: [
                               Text(
                                 'auth.register.alreadyHaveAccount'.tr(),
-                                style: TextStyle(
+                                style: AppTextStyles.of(
                                   fontSize: 13.sp,
                                   color: kAuthGreyText,
                                 ),
@@ -563,7 +565,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 onTap: () => context.go('/medicard-login'),
                                 child: Text(
                                   'auth.register.loginNow'.tr(),
-                                  style: TextStyle(
+                                  style: AppTextStyles.of(
                                     fontSize: 13.sp,
                                     color: kAuthBlue,
                                     fontWeight: FontWeight.bold,
@@ -609,7 +611,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           : AutovalidateMode.disabled,
       onChanged: onChanged,
       inputFormatters: inputFormatters,
-      style: TextStyle(fontSize: 15.sp, color: Colors.black),
+      style: AppTextStyles.of(fontSize: 15.sp, color: Colors.black),
       decoration: authInputDecoration(hintText: hintText),
       validator:
           validator ??
@@ -639,7 +641,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       autovalidateMode: focusKey != null && _touchedFields.contains(focusKey)
           ? AutovalidateMode.onUserInteraction
           : AutovalidateMode.disabled,
-      style: TextStyle(fontSize: 15.sp, color: Colors.black),
+      style: AppTextStyles.of(fontSize: 15.sp, color: Colors.black),
       decoration: authInputDecoration(
         hintText: hintText,
         suffixIcon: GestureDetector(
@@ -668,7 +670,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       children: [
         Text(
           'auth.register.passwordRequirementsTitle'.tr(),
-          style: TextStyle(
+          style: AppTextStyles.of(
             fontSize: 12.sp,
             color: kAuthGreyText,
             fontWeight: FontWeight.w600,
@@ -725,7 +727,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           Expanded(
             child: Text(
               label,
-              style: TextStyle(
+              style: AppTextStyles.of(
                 fontSize: 12.sp,
                 color: color,
                 fontWeight: isMet ? FontWeight.w600 : FontWeight.w400,
@@ -743,7 +745,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       children: [
         Text(
           '*',
-          style: TextStyle(
+          style: AppTextStyles.of(
             fontSize: 13.sp,
             color: Colors.red,
             fontWeight: FontWeight.w700,
@@ -753,7 +755,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         Expanded(
           child: Text(
             text,
-            style: TextStyle(
+            style: AppTextStyles.of(
               fontSize: 12.sp,
               color: kAuthGreyText,
               fontWeight: FontWeight.w500,
@@ -779,7 +781,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           children: [
             Text(
               _birthDate,
-              style: TextStyle(fontSize: 15.sp, color: Colors.black),
+              style: AppTextStyles.of(fontSize: 15.sp, color: Colors.black),
             ),
             Icon(
               Icons.calendar_today_outlined,

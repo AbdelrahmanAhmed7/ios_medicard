@@ -6,6 +6,9 @@ import 'package:medicard/core/widgets/app_blue_header.dart';
 import '../cubit/profile_cubit.dart';
 import 'profile_content.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
+
 class ProfileErrorView extends StatelessWidget {
   final String error;
 
@@ -42,7 +45,7 @@ class ProfileErrorView extends StatelessWidget {
                         ? 'errors.something_went_wrong'.tr()
                         : error,
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: const Color(0xFF6B7280)),
+                    style: AppTextStyles.of(color: const Color(0xFF6B7280)),
                   ),
                 ),
                 SizedBox(height: 16.h),
@@ -74,7 +77,7 @@ class ProfileErrorView extends StatelessWidget {
                   SizedBox(width: 8.w),
                   Text(
                     'common.logout'.tr(),
-                    style: TextStyle(
+                    style: AppTextStyles.of(
                       color: Colors.red,
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w600,

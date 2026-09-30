@@ -8,6 +8,9 @@ import '../../../../core/utils/app_date_formatter.dart';
 import '../../../../core/widgets/app_blue_header.dart';
 import '../../domain/models/appointment_model.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
+
 class PendingAppointmentDetailsScreen extends StatelessWidget {
   final AppointmentModel appointment;
 
@@ -54,7 +57,7 @@ class PendingAppointmentDetailsScreen extends StatelessWidget {
                                 children: [
                                   Text(
                                     appointment.providerName,
-                                    style: TextStyle(
+                                    style: AppTextStyles.of(
                                       fontSize: 16.sp,
                                       fontWeight: FontWeight.w700,
                                     ),
@@ -63,7 +66,7 @@ class PendingAppointmentDetailsScreen extends StatelessWidget {
                                     SizedBox(height: 4.h),
                                     Text(
                                       appointment.branch,
-                                      style: TextStyle(
+                                      style: AppTextStyles.of(
                                         fontSize: 13.sp,
                                         color: const Color(0xFF6B7280),
                                       ),
@@ -145,7 +148,7 @@ class _InfoRow extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: TextStyle(
+              style: AppTextStyles.of(
                 fontSize: 15.sp,
                 fontWeight: FontWeight.w400,
               ),
@@ -158,7 +161,7 @@ class _InfoRow extends StatelessWidget {
               textAlign: TextAlign.end,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
+              style: AppTextStyles.of(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w400,
                 color: const Color(0xFF4B5563),
@@ -192,7 +195,7 @@ class _StatusBadge extends StatelessWidget {
       ),
       child: Text(
         _localizedStatus(status),
-        style: TextStyle(fontSize: 13.sp, color: color),
+        style: AppTextStyles.of(fontSize: 13.sp, color: color),
       ),
     );
   }

@@ -16,6 +16,9 @@ import '../../../../network/data/provider_services_response_model.dart';
 import '../../logic/provider_page_cubit.dart';
 import '../../logic/provider_page_state.dart';
 
+import '../../../core/theming/app_text_styles.dart';
+
+
 class ProviderPageScreen extends StatefulWidget {
   final int providerId;
 
@@ -125,7 +128,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
               child: Center(
                 child: Text(
                   '${state.getCartItemCount()}',
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     color: Colors.white,
                     fontSize: 18.sp,
                     fontWeight: FontWeight.bold,
@@ -137,7 +140,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
             Expanded(
               child: Text(
                 'cart.view_cart'.tr(),
-                style: TextStyle(
+                style: AppTextStyles.of(
                   color: Colors.white,
                   fontSize: 18.sp,
                   fontWeight: FontWeight.w600,
@@ -204,7 +207,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                 filled: true,
                 fillColor: Colors.white,
                 hintText: 'provider_page.search_services'.tr(),
-                hintStyle: TextStyle(
+                hintStyle: AppTextStyles.of(
                   color: const Color(0xFF9CA3AF),
                   fontSize: 14.sp,
                 ),
@@ -242,7 +245,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                 state.catalogView == ProviderViewType.packages
                     ? 'provider_page.packages'.tr()
                     : 'provider_page.services'.tr(),
-                style: TextStyle(
+                style: AppTextStyles.of(
                   color: const Color(0xFF64748B),
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w500,
@@ -259,7 +262,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                   value: ProviderViewType.services,
                   child: Text(
                     'provider_page.services'.tr(),
-                    style: TextStyle(
+                    style: AppTextStyles.of(
                       color: const Color(0xFF64748B),
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w500,
@@ -270,7 +273,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                   value: ProviderViewType.packages,
                   child: Text(
                     'provider_page.packages'.tr(),
-                    style: TextStyle(
+                    style: AppTextStyles.of(
                       color: const Color(0xFF64748B),
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w500,
@@ -405,7 +408,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
           padding: EdgeInsets.symmetric(vertical: 40.h),
           child: Text(
             'provider_page.no_services_found'.tr(),
-            style: TextStyle(color: const Color(0xFF64748B), fontSize: 14.sp),
+            style: AppTextStyles.of(color: const Color(0xFF64748B), fontSize: 14.sp),
           ),
         ),
       );
@@ -472,7 +475,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
           padding: EdgeInsets.symmetric(vertical: 40.h),
           child: Text(
             'provider_page.no_services_found'.tr(),
-            style: TextStyle(color: const Color(0xFF64748B), fontSize: 14.sp),
+            style: AppTextStyles.of(color: const Color(0xFF64748B), fontSize: 14.sp),
           ),
         ),
       );
@@ -534,7 +537,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
               children: [
                 Text(
                   serviceName,
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w600,
                     color: const Color(0xFF0F172A),
@@ -561,7 +564,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                       SizedBox(width: 4.w),
                       Text(
                         'Added to cart',
-                        style: TextStyle(
+                        style: AppTextStyles.of(
                           fontSize: 12.sp,
                           color: const Color(0xFF3872B1),
                           fontWeight: FontWeight.w500,
@@ -594,7 +597,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                 ),
                 child: Text(
                   'Remove',
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     fontSize: 12.sp,
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
@@ -659,7 +662,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
               children: [
                 Text(
                   service.serviceName ?? '',
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
                     color: Colors.black,
@@ -691,7 +694,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                 SizedBox(height: 9.h),
                 Text(
                   'Full haematology panel including WBC, RBC, platelets',
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     fontSize: 12.sp,
                     color: const Color(0xFF475569),
                   ),
@@ -704,7 +707,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                     if (service.priceBefore != null) ...[
                       Text(
                         '${_formatPrice(service.priceBefore)} EGP',
-                        style: TextStyle(
+                        style: AppTextStyles.of(
                           fontSize: 12.sp,
                           color: Colors.black,
                           decoration: TextDecoration.lineThrough,
@@ -715,7 +718,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                     if (service.priceAfter != null)
                       Text(
                         '${_formatPrice(service.priceAfter)} EGP',
-                        style: TextStyle(
+                        style: AppTextStyles.of(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w500,
                           color: const Color(0xFF1F6BC1),
@@ -903,7 +906,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
               children: [
                 Text(
                   review.userName ?? '',
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w700,
                     color: const Color(0xFF0F172A),
@@ -925,7 +928,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                   SizedBox(height: 6.h),
                   Text(
                     formattedDate,
-                    style: TextStyle(
+                    style: AppTextStyles.of(
                       fontSize: 12.sp,
                       color: const Color(0xFF94A3B8),
                       fontWeight: FontWeight.w400,
@@ -936,7 +939,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                   SizedBox(height: 8.h),
                   Text(
                     ratingText,
-                    style: TextStyle(
+                    style: AppTextStyles.of(
                       fontSize: 13.sp,
                       color: const Color(0xFF475569),
                       height: 1.35,
@@ -1035,7 +1038,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                   children: [
                     Text(
                       packageData.name ?? '',
-                      style: TextStyle(
+                      style: AppTextStyles.of(
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w700,
                         color: Colors.black,
@@ -1052,7 +1055,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                           Flexible(
                             child: Text(
                               '${_formatPrice(packageData.priceBefore)} EGP',
-                              style: TextStyle(
+                              style: AppTextStyles.of(
                                 fontSize: 11.sp,
                                 color: Colors.black,
                                 decoration: TextDecoration.lineThrough,
@@ -1065,7 +1068,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                         if (packageData.priceAfter != null)
                           Text(
                             '${_formatPrice(packageData.priceAfter)} EGP',
-                            style: TextStyle(
+                            style: AppTextStyles.of(
                               fontSize: 13.sp,
                               fontWeight: FontWeight.w500,
                               color: const Color(0xFF1F6BC1),
@@ -1241,7 +1244,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                               bottom: 18.h,
                               child: Text(
                                 name,
-                                style: TextStyle(
+                                style: AppTextStyles.of(
                                   color: Colors.white,
                                   fontSize: 24.sp,
                                   fontWeight: FontWeight.w700,
@@ -1265,7 +1268,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                                   ),
                                   child: Text(
                                     'Save ${discount.toStringAsFixed(0)}%',
-                                    style: TextStyle(
+                                    style: AppTextStyles.of(
                                       color: const Color(0xFF16A99A),
                                       fontSize: 13.sp,
                                       fontWeight: FontWeight.w700,
@@ -1287,7 +1290,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                               : error != null
                               ? Text(
                                   error,
-                                  style: TextStyle(
+                                  style: AppTextStyles.of(
                                     color: const Color(0xFFEF4444),
                                     fontSize: 13.sp,
                                   ),
@@ -1297,7 +1300,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                                   children: [
                                     Text(
                                       description,
-                                      style: TextStyle(
+                                      style: AppTextStyles.of(
                                         color: const Color(0xFF4B5563),
                                         fontSize: 14.sp,
                                         height: 1.24,
@@ -1306,7 +1309,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                                     SizedBox(height: 28.h),
                                     Text(
                                       'Tests included',
-                                      style: TextStyle(
+                                      style: AppTextStyles.of(
                                         color: Colors.black,
                                         fontSize: 16.sp,
                                         fontWeight: FontWeight.w700,
@@ -1321,7 +1324,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                                       children: [
                                         Text(
                                           'Total',
-                                          style: TextStyle(
+                                          style: AppTextStyles.of(
                                             color: const Color(0xFF64748B),
                                             fontSize: 17.sp,
                                             fontWeight: FontWeight.w700,
@@ -1331,7 +1334,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                                         if (priceBefore != null) ...[
                                           Text(
                                             '${_formatPrice(priceBefore)} EGP',
-                                            style: TextStyle(
+                                            style: AppTextStyles.of(
                                               color: Colors.black,
                                               fontSize: 13.sp,
                                               decoration:
@@ -1343,7 +1346,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                                         if (priceAfter != null)
                                           Text(
                                             '${_formatPrice(priceAfter)} EGP',
-                                            style: TextStyle(
+                                            style: AppTextStyles.of(
                                               color: const Color(0xFF1F6BC1),
                                               fontSize: 18.sp,
                                               fontWeight: FontWeight.w500,
@@ -1381,7 +1384,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                                         ),
                                         child: Text(
                                           'Add',
-                                          style: TextStyle(
+                                          style: AppTextStyles.of(
                                             fontSize: 20.sp,
                                             fontWeight: FontWeight.w600,
                                           ),
@@ -1486,7 +1489,7 @@ class _ProviderInfoRow extends StatelessWidget {
             children: [
               Text(
                 data.providerName,
-                style: TextStyle(
+                style: AppTextStyles.of(
                   fontSize: 22.sp,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -1517,7 +1520,7 @@ class _ProviderInfoRow extends StatelessWidget {
                         child: Text(
                           selectedBranch?.branchName ??
                               'provider_page.select_branch'.tr(),
-                          style: TextStyle(
+                          style: AppTextStyles.of(
                             fontSize: 13.sp,
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
@@ -1541,7 +1544,7 @@ class _ProviderInfoRow extends StatelessWidget {
                   SizedBox(width: 4.w),
                   Text(
                     'provider_page.services_count'.tr(args: ['$servicesCount']),
-                    style: TextStyle(color: Colors.white, fontSize: 12.sp),
+                    style: AppTextStyles.of(color: Colors.white, fontSize: 12.sp),
                   ),
                   if (data.phones != null && data.phones!.isNotEmpty) ...[
                     SizedBox(width: 14.w),
@@ -1559,7 +1562,7 @@ class _ProviderInfoRow extends StatelessWidget {
                           SizedBox(width: 4.w),
                           Text(
                             data.phones!.first,
-                            style: TextStyle(
+                            style: AppTextStyles.of(
                               color: Colors.white,
                               fontSize: 12.sp,
                             ),
@@ -1594,7 +1597,7 @@ class _ProviderInfoRow extends StatelessWidget {
                   SizedBox(width: 4.w),
                   Text(
                     '${data.rating} (${data.reviewsCount ?? 0})',
-                    style: TextStyle(
+                    style: AppTextStyles.of(
                       color: Colors.white,
                       fontSize: 11.sp,
                       fontWeight: FontWeight.bold,
@@ -1619,7 +1622,7 @@ class PackageServiceNames extends StatelessWidget {
     if (serviceNames.isEmpty) {
       return Text(
         'No services found',
-        style: TextStyle(fontSize: 11.sp, color: const Color(0xFF94A3B8)),
+        style: AppTextStyles.of(fontSize: 11.sp, color: const Color(0xFF94A3B8)),
       );
     }
 
@@ -1639,7 +1642,7 @@ class PackageServiceNames extends StatelessWidget {
               Expanded(
                 child: Text(
                   name,
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     fontSize: 11.sp,
                     color: const Color(0xFF475569),
                     fontWeight: FontWeight.w500,
@@ -1670,7 +1673,7 @@ class _PackagePlainServiceNames extends StatelessWidget {
     if (serviceNames.isEmpty) {
       return Text(
         'No services found',
-        style: TextStyle(fontSize: 14.sp, color: const Color(0xFF64748B)),
+        style: AppTextStyles.of(fontSize: 14.sp, color: const Color(0xFF64748B)),
       );
     }
 
@@ -1681,7 +1684,7 @@ class _PackagePlainServiceNames extends StatelessWidget {
           padding: EdgeInsets.only(bottom: 2.h),
           child: Text(
             '${index + 1}-${serviceNames[index]}',
-            style: TextStyle(
+            style: AppTextStyles.of(
               fontSize: 14.sp,
               color: const Color(0xFF4B5563),
               height: 1.22,
@@ -1724,7 +1727,7 @@ class _ServiceBadge extends StatelessWidget {
           ],
           Text(
             label,
-            style: TextStyle(
+            style: AppTextStyles.of(
               color: color,
               fontSize: 11.sp,
               fontWeight: FontWeight.w500,
@@ -1796,7 +1799,7 @@ class _CategoryTabChip extends StatelessWidget {
                 ],
                 Text(
                   tab.categoryName,
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w600,
                     color: isSelected ? Colors.white : const Color(0xFF3872B1),
@@ -1827,7 +1830,7 @@ class _CategoryTabChip extends StatelessWidget {
                 child: Center(
                   child: Text(
                     '${tab.selectedCount}',
-                    style: TextStyle(
+                    style: AppTextStyles.of(
                       color: Colors.white,
                       fontSize: 10.sp,
                       fontWeight: FontWeight.bold,

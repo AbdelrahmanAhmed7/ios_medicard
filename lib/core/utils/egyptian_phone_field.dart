@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../theming/app_colors.dart';
 
+import '../theming/app_text_styles.dart';
+
 /// Reusable Egyptian phone number field with flag and +20 prefix
 class EgyptianPhoneField extends StatefulWidget {
   final TextEditingController controller;
@@ -108,11 +110,11 @@ class _EgyptianPhoneFieldState extends State<EgyptianPhoneField> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text('🇪🇬', style: TextStyle(fontSize: 20.sp)),
+                          Text('🇪🇬', style: AppTextStyles.of(fontSize: 20.sp)),
                           SizedBox(width: 4.w),
                           Text(
                             '+20',
-                            style: TextStyle(
+                            style: AppTextStyles.of(
                               fontSize: 14.sp,
                               color: Colors.grey[700],
                             ),
@@ -168,7 +170,7 @@ class _EgyptianPhoneFieldState extends State<EgyptianPhoneField> {
                         maxLength: widget.maxLength,
                         keyboardType: TextInputType.phone,
                         textDirection: ui.TextDirection.ltr,
-                        style: TextStyle(fontSize: 14.sp),
+                        style: AppTextStyles.of(fontSize: 14.sp),
                         onChanged: (value) {
                           fieldState.didChange(value);
                           if (_touched) fieldState.validate();
@@ -180,7 +182,7 @@ class _EgyptianPhoneFieldState extends State<EgyptianPhoneField> {
                             vertical: 12.h,
                           ),
                           hintText: widget.hintText ?? 'auth.signup.validation.phone_hint'.tr(),
-                          hintStyle: TextStyle(
+                          hintStyle: AppTextStyles.of(
                             fontSize: 14.sp,
                             color: Colors.grey,
                           ),
@@ -203,7 +205,7 @@ class _EgyptianPhoneFieldState extends State<EgyptianPhoneField> {
                 padding: EdgeInsets.only(top: 6.h, left: 8.w),
                 child: Text(
                   fieldState.errorText ?? '',
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     color: AppColors.errorClr,
                     fontSize: 12.sp,
                     height: 1.2,

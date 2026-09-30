@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../network/data/provider_page_response_model.dart';
 
+import '../../../core/theming/app_text_styles.dart';
+
 class BranchesScreen extends StatefulWidget {
   final List<ProviderBranch> branches;
   final String? providerName;
@@ -62,13 +64,13 @@ class _BranchesScreenState extends State<BranchesScreen> {
             padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 0),
             child: TextField(
               controller: _searchController,
-              style: TextStyle(fontSize: 14.sp, color: Colors.black),
+              style: AppTextStyles.of(fontSize: 14.sp, color: Colors.black),
               inputFormatters: [
                 FilteringTextInputFormatter.singleLineFormatter,
               ],
               decoration: InputDecoration(
                 hintText: 'provider_page.search_branches'.tr(),
-                hintStyle: TextStyle(
+                hintStyle: AppTextStyles.of(
                   fontSize: 13.sp,
                   color: Colors.grey.shade400,
                 ),
@@ -117,7 +119,7 @@ class _BranchesScreenState extends State<BranchesScreen> {
                 alignment: AlignmentDirectional.centerStart,
                 child: Text(
                   'provider_page.branches_found'.tr(args: ['${filtered.length}']),
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     fontSize: 12.sp,
                     color: const Color(0xFF6B7280),
                   ),
@@ -143,7 +145,7 @@ class _BranchesScreenState extends State<BranchesScreen> {
                           Text(
                             'provider_page.no_branches_found'.tr(),
                             textAlign: TextAlign.center,
-                            style: TextStyle(
+                            style: AppTextStyles.of(
                               fontSize: 15.sp,
                               fontWeight: FontWeight.w500,
                               color: const Color(0xFF6B7280),
@@ -199,7 +201,7 @@ class _BranchesScreenState extends State<BranchesScreen> {
                 children: [
                   Text(
                     widget.providerName ?? '',
-                    style: TextStyle(
+                    style: AppTextStyles.of(
                       color: Colors.white,
                       fontSize: 18.sp,
                       fontWeight: FontWeight.bold,
@@ -215,7 +217,7 @@ class _BranchesScreenState extends State<BranchesScreen> {
                   ),
                   Text(
                     'provider_page.branches'.tr(),
-                    style: TextStyle(
+                    style: AppTextStyles.of(
                       color: Colors.white70,
                       fontSize: 18.sp,
                       fontWeight: FontWeight.w500,
@@ -266,7 +268,7 @@ class _BranchCard extends StatelessWidget {
           children: [
             Text(
               branch.branchName,
-              style: TextStyle(
+              style: AppTextStyles.of(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.bold,
                 color: const Color(0xFF0F172A),
@@ -288,7 +290,7 @@ class _BranchCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       branch.fullAddress!,
-                      style: TextStyle(
+                      style: AppTextStyles.of(
                         fontSize: 12.sp,
                         color: const Color(0xFF6B7280),
                       ),
@@ -313,7 +315,7 @@ class _BranchCard extends StatelessWidget {
                     SizedBox(width: 4.w),
                     Text(
                       'provider_page.open_map'.tr(),
-                      style: TextStyle(
+                      style: AppTextStyles.of(
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w500,
                         color: const Color(0xFF2D5FA6),

@@ -12,6 +12,10 @@ import '../../domain/models/invoice_details.dart';
 import '../../domain/models/invoice_item.dart';
 import '../../domain/repositories/invoice_repository.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+import '../../../../core/utils/image_url_resolver.dart';
+
+
 class InvoiceDetailsScreen extends StatefulWidget {
   final InvoiceItem invoice;
   final int tab;
@@ -110,7 +114,7 @@ class _DetailsBody extends StatelessWidget {
             Expanded(
               child: Text(
                 'activity.order_number'.tr(args: ['${details.invoiceId}']),
-                style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700),
+                style: AppTextStyles.of(fontSize: 18.sp, fontWeight: FontWeight.w700),
               ),
             ),
             _StatusBadge(status: details.status),
@@ -197,7 +201,7 @@ class _StatusBadge extends StatelessWidget {
             : isCompleted
             ? 'home.completed'.tr()
             : _localizedStatus(status),
-        style: TextStyle(fontSize: 13.sp, color: color),
+        style: AppTextStyles.of(fontSize: 13.sp, color: color),
       ),
     );
   }
@@ -210,12 +214,7 @@ class _ProviderHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const baseImageUrl =
-        'https://medicard-api-v2.medicardeg.com/uploads/providers/';
-    final imageUrl =
-        invoice.providerImageUrl != null && invoice.providerImageUrl!.isNotEmpty
-        ? '$baseImageUrl${invoice.providerImageUrl}'
-        : null;
+    final imageUrl = resolveImageUrl(invoice.providerImageUrl);
 
     return Padding(
       padding: EdgeInsets.all(16.w),
@@ -244,7 +243,7 @@ class _ProviderHeader extends StatelessWidget {
               children: [
                 Text(
                   invoice.providerName,
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w700,
                   ),
@@ -252,7 +251,7 @@ class _ProviderHeader extends StatelessWidget {
                 SizedBox(height: 4.h),
                 Text(
                   invoice.branchName,
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     fontSize: 13.sp,
                     color: const Color(0xFF6B7280),
                   ),
@@ -306,7 +305,7 @@ class _InfoRow extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: TextStyle(
+              style: AppTextStyles.of(
                 fontSize: 15.sp,
                 fontWeight: isBold ? FontWeight.w600 : FontWeight.w400,
               ),
@@ -319,7 +318,7 @@ class _InfoRow extends StatelessWidget {
               textAlign: TextAlign.end,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
+              style: AppTextStyles.of(
                 fontSize: 14.sp,
                 fontWeight: isBold ? FontWeight.w600 : FontWeight.w400,
                 color: valueColor ?? const Color(0xFF4B5563),
@@ -389,7 +388,7 @@ class _DetailsActionsState extends State<_DetailsActions> {
                 SizedBox(height: 14.h),
                 Text(
                   'activity.cancel_invoice_confirm_title'.tr(),
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     fontSize: 20.sp,
                     fontWeight: FontWeight.w700,
                     color: const Color(0xFF111827),
@@ -399,7 +398,7 @@ class _DetailsActionsState extends State<_DetailsActions> {
                 Text(
                   'activity.cancel_invoice_confirm_message'.tr(),
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     fontSize: 14.sp,
                     height: 1.35,
                     color: const Color(0xFF6B7280),
@@ -481,7 +480,7 @@ class _DetailsActionsState extends State<_DetailsActions> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(9.r),
                 ),
-                textStyle: TextStyle(
+                textStyle: AppTextStyles.of(
                   fontSize: 18.sp,
                   fontWeight: FontWeight.w500,
                 ),
@@ -517,7 +516,7 @@ class _DetailsActionsState extends State<_DetailsActions> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(9.r),
                 ),
-                textStyle: TextStyle(
+                textStyle: AppTextStyles.of(
                   fontSize: 18.sp,
                   fontWeight: FontWeight.w500,
                 ),
@@ -597,7 +596,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
             ),
             Text(
               'activity.share_your_review'.tr(),
-              style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w700),
+              style: AppTextStyles.of(fontSize: 22.sp, fontWeight: FontWeight.w700),
             ),
             SizedBox(height: 14.h),
             Row(
@@ -626,7 +625,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
               SizedBox(height: 6.h),
               Text(
                 _errorText!,
-                style: TextStyle(fontSize: 12.sp, color: const Color(0xFFEF4444)),
+                style: AppTextStyles.of(fontSize: 12.sp, color: const Color(0xFFEF4444)),
               ),
             ],
             SizedBox(height: 10.h),

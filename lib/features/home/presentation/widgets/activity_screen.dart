@@ -10,6 +10,10 @@ import '../../../activity/domain/models/invoice_item.dart';
 import '../../../activity/presentation/cubit/activity_cubit.dart';
 import '../../../activity/presentation/cubit/activity_state.dart';
 
+import '../../../../core/utils/image_url_resolver.dart';
+import '../../../../core/theming/app_text_styles.dart';
+
+
 class ActivityScreen extends StatefulWidget {
   const ActivityScreen({super.key});
 
@@ -66,8 +70,8 @@ class _ActivityScreenState extends State<ActivityScreen>
             indicatorSize: TabBarIndicatorSize.tab,
             labelColor: kAuthBlue,
             unselectedLabelColor: const Color(0xFF4B5563),
-            labelStyle: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500),
-            unselectedLabelStyle: TextStyle(
+            labelStyle: AppTextStyles.of(fontSize: 14.sp, fontWeight: FontWeight.w500),
+            unselectedLabelStyle: AppTextStyles.of(
               fontSize: 14.sp,
               fontWeight: FontWeight.w400,
             ),
@@ -176,7 +180,7 @@ class _ErrorView extends StatelessWidget {
             Text(
               error,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14.sp, color: const Color(0xFF6B7280)),
+              style: AppTextStyles.of(fontSize: 14.sp, color: const Color(0xFF6B7280)),
             ),
             SizedBox(height: 16.h),
             ElevatedButton(
@@ -184,7 +188,7 @@ class _ErrorView extends StatelessWidget {
               style: ElevatedButton.styleFrom(backgroundColor: kAuthBlue),
               child: Text(
                 'common.retry'.tr(),
-                style: const TextStyle(color: Colors.white),
+                style: AppTextStyles.of(color: Colors.white),
               ),
             ),
           ],
@@ -360,7 +364,7 @@ class _ActivityEmptyView extends StatelessWidget {
             Text(
               title,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: AppTextStyles.of(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w700,
                 color: const Color(0xFF111827),
@@ -370,7 +374,7 @@ class _ActivityEmptyView extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: AppTextStyles.of(
                 fontSize: 14.sp,
                 height: 1.45,
                 color: const Color(0xFF6B7280),
@@ -391,12 +395,7 @@ class _InvoiceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final formattedDate = DateFormat('dd MMM yyyy').format(item.date);
-    const baseImageUrl =
-        'https://medicard-api-v2.medicardeg.com/uploads/providers/';
-    final imageUrl =
-        (item.providerImageUrl != null && item.providerImageUrl!.isNotEmpty)
-        ? '$baseImageUrl${item.providerImageUrl}'
-        : null;
+    final imageUrl = resolveImageUrl(item.providerImageUrl);
 
     return InkWell(
       borderRadius: BorderRadius.circular(16.r),
@@ -482,7 +481,7 @@ class _InvoiceCard extends StatelessWidget {
                 children: [
                   Text(
                     item.providerName,
-                    style: TextStyle(
+                    style: AppTextStyles.of(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
                       color: const Color(0xFF111827),
@@ -493,7 +492,7 @@ class _InvoiceCard extends StatelessWidget {
                   SizedBox(height: 2.h),
                   Text(
                     item.branchName,
-                    style: TextStyle(
+                    style: AppTextStyles.of(
                       fontSize: 13.sp,
                       fontWeight: FontWeight.w400,
                       color: const Color(0xFF6B7280),
@@ -514,7 +513,7 @@ class _InvoiceCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             item.beneficiaryName!,
-                            style: TextStyle(
+                            style: AppTextStyles.of(
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w400,
                               color: const Color(0xFF6B7280),
@@ -533,7 +532,7 @@ class _InvoiceCard extends StatelessWidget {
                     children: [
                       Text(
                         formattedDate,
-                        style: TextStyle(
+                        style: AppTextStyles.of(
                           fontSize: 13.sp,
                           fontWeight: FontWeight.w400,
                           color: const Color(0xFF6B7280),
@@ -581,7 +580,7 @@ class _InvoiceActionButton extends StatelessWidget {
           SizedBox(width: 4.w),
           Text(
             'activity.details'.tr(),
-            style: TextStyle(
+            style: AppTextStyles.of(
               fontSize: 13.sp,
               fontWeight: FontWeight.w500,
               color: kAuthBlue,

@@ -12,6 +12,9 @@ import '../../data/models/family_member_model.dart';
 import '../cubit/family_members_cubit.dart';
 import '../cubit/family_members_state.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
+
 class FamilyMembersListScreen extends StatefulWidget {
   const FamilyMembersListScreen({super.key});
 
@@ -70,7 +73,7 @@ class _FamilyMembersListScreenState extends State<FamilyMembersListScreen> {
                         Expanded(
                           child: Text(
                             'family_members.title'.tr(),
-                            style: TextStyle(
+                            style: AppTextStyles.of(
                               fontSize: 20.sp,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
@@ -158,7 +161,7 @@ class _FamilyMembersListScreenState extends State<FamilyMembersListScreen> {
           SizedBox(height: 16.h),
           Text(
             'family_members.no_family_members'.tr(),
-            style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w600),
+            style: AppTextStyles.of(fontSize: 18.sp, fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -186,11 +189,11 @@ class _FamilyMemberListItem extends StatelessWidget {
           title: Text(
             member.fullName ??
                 '${member.firstName ?? ''} ${member.lastName ?? ''}',
-            style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
+            style: AppTextStyles.of(fontSize: 16.sp, fontWeight: FontWeight.w500),
           ),
           subtitle: Text(
             RelationHelper.getLocalizedRelation(member.relation),
-            style: TextStyle(color: kAuthGreyText, fontSize: 14.sp),
+            style: AppTextStyles.of(color: kAuthGreyText, fontSize: 14.sp),
           ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,

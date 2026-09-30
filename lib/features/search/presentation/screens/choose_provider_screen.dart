@@ -10,6 +10,8 @@ import '../../../cart/domain/models/provider_option.dart';
 import '../../../cart/presentation/cubit/cart_cubit.dart';
 import '../../../cart/presentation/cubit/cart_state.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
 class ChooseProviderScreen extends StatelessWidget {
   const ChooseProviderScreen({super.key});
 
@@ -154,7 +156,7 @@ class _ProviderCard extends StatelessWidget {
                     children: [
                       Text(
                         provider.providerName,
-                        style: TextStyle(
+                        style: AppTextStyles.of(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w600,
                           color: const Color(0xFF0F172A),
@@ -206,7 +208,7 @@ class _ProviderCard extends StatelessWidget {
                       provider.totalPriceBefore.toStringAsFixed(0),
                     ],
                   ),
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     fontSize: 12.sp,
                     color: const Color(0xFF94A3B8),
                     decoration: TextDecoration.lineThrough,
@@ -217,7 +219,7 @@ class _ProviderCard extends StatelessWidget {
                   'cart.egp_amount'.tr(
                     args: [provider.totalPriceAfter.toStringAsFixed(0)],
                   ),
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     fontSize: 17.sp,
                     fontWeight: FontWeight.bold,
                     color: const Color(0xFF3872B1),
@@ -260,7 +262,7 @@ class _ChooseProviderBottomBar extends StatelessWidget {
             children: [
               Text(
                 provider.providerName,
-                style: TextStyle(
+                style: AppTextStyles.of(
                   fontSize: 15.sp,
                   fontWeight: FontWeight.w600,
                   color: const Color(0xFF0F172A),
@@ -270,7 +272,7 @@ class _ChooseProviderBottomBar extends StatelessWidget {
                 'cart.egp_amount'.tr(
                   args: [provider.totalPriceAfter.toStringAsFixed(0)],
                 ),
-                style: TextStyle(
+                style: AppTextStyles.of(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.bold,
                   color: const Color(0xFF3872B1),
@@ -335,7 +337,7 @@ class _ChooseProviderBottomBar extends StatelessWidget {
                         )
                       : Text(
                           'cart.confirm_provider'.tr(),
-                          style: TextStyle(
+                          style: AppTextStyles.of(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
@@ -365,7 +367,7 @@ class _Initials extends StatelessWidget {
       child: Center(
         child: Text(
           initials,
-          style: TextStyle(
+          style: AppTextStyles.of(
             fontSize: 20.sp,
             fontWeight: FontWeight.bold,
             color: const Color(0xFF3872B1),
@@ -395,7 +397,7 @@ class _EmptyView extends StatelessWidget {
           SizedBox(height: 16.h),
           Text(
             'search.no_providers_found'.tr(),
-            style: TextStyle(
+            style: AppTextStyles.of(
               fontSize: 17.sp,
               fontWeight: FontWeight.w600,
               color: const Color(0xFF6B7280),
@@ -405,7 +407,7 @@ class _EmptyView extends StatelessWidget {
           Text(
             'cart.no_providers_available'.tr(),
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13.sp, color: const Color(0xFF9CA3AF)),
+            style: AppTextStyles.of(fontSize: 13.sp, color: const Color(0xFF9CA3AF)),
           ),
         ],
       ),
@@ -436,7 +438,7 @@ class _ErrorView extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14.sp, color: const Color(0xFF6B7280)),
+              style: AppTextStyles.of(fontSize: 14.sp, color: const Color(0xFF6B7280)),
             ),
             SizedBox(height: 16.h),
             ElevatedButton(
@@ -450,7 +452,7 @@ class _ErrorView extends StatelessWidget {
               ),
               child: Text(
                 'common.retry'.tr(),
-                style: TextStyle(
+                style: AppTextStyles.of(
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
                 ),

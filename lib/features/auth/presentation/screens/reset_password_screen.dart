@@ -9,6 +9,9 @@ import '../../../../core/widgets/auth_shared_widgets.dart';
 import '../cubit/forgot_password_cubit.dart';
 import '../cubit/forgot_password_state.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
+
 class ResetPasswordScreen extends StatefulWidget {
   final String phoneNumber;
   final String token;
@@ -157,7 +160,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           SizedBox(height: 28.h),
                           Text(
                             'auth.forgot.reset_subtitle'.tr(),
-                            style: TextStyle(
+                            style: AppTextStyles.of(
                               fontSize: 15.sp,
                               color: kAuthGreyText,
                               height: 1.4,
@@ -247,7 +250,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       children: [
         Text(
           'auth.register.passwordRequirementsTitle'.tr(),
-          style: TextStyle(
+          style: AppTextStyles.of(
             fontSize: 12.sp,
             color: kAuthGreyText,
             fontWeight: FontWeight.w600,
@@ -304,7 +307,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
           Expanded(
             child: Text(
               label,
-              style: TextStyle(
+              style: AppTextStyles.of(
                 fontSize: 12.sp,
                 color: color,
                 fontWeight: isMet ? FontWeight.w600 : FontWeight.w400,

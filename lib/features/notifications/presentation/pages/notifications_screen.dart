@@ -8,6 +8,9 @@ import '../cubit/notifivation_cubit.dart';
 import '../cubit/notification_state.dart';
 import '../widgets/notification_card.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
+
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
 
@@ -194,7 +197,7 @@ class _NotificationsTabsHeader extends StatelessWidget {
                   SizedBox(width: 6.w),
                   Text(
                     'notifications.mark_all_read'.tr(),
-                    style: TextStyle(
+                    style: AppTextStyles.of(
                       fontWeight: FontWeight.w500,
                       fontSize: 13.sp,
                       color: const Color(0xFF1E293B),
@@ -230,7 +233,7 @@ class _NotificationTab extends StatelessWidget {
         children: [
           Text(
             title,
-            style: TextStyle(
+            style: AppTextStyles.of(
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
               fontSize: 16.sp,
               color: isSelected
@@ -281,7 +284,7 @@ class _NotificationsMessage extends StatelessWidget {
             Text(
               title,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: AppTextStyles.of(
                 fontWeight: FontWeight.w600,
                 fontSize: 16.sp,
                 color: const Color(0xFF1E293B),
@@ -291,7 +294,7 @@ class _NotificationsMessage extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: AppTextStyles.of(
                 fontWeight: FontWeight.w400,
                 fontSize: 13.sp,
                 color: const Color(0xFF64748B),

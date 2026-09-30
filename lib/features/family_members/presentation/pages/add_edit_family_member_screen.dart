@@ -10,6 +10,9 @@ import '../../data/models/family_member_model.dart';
 import '../cubit/family_members_cubit.dart';
 import '../cubit/family_members_state.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
+
 class AddEditFamilyMemberScreen extends StatefulWidget {
   final FamilyMemberModel? member;
 
@@ -176,7 +179,7 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
                             widget.member == null
                                 ? 'family_members.add_member'.tr()
                                 : 'family_members.edit_member'.tr(),
-                            style: TextStyle(
+                            style: AppTextStyles.of(
                               fontSize: 20.sp,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
@@ -265,7 +268,7 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
       autovalidateMode: focusKey != null && _touchedFields.contains(focusKey)
           ? AutovalidateMode.onUserInteraction
           : AutovalidateMode.disabled,
-      style: TextStyle(
+      style: AppTextStyles.of(
         fontSize: 15.sp,
         color: Colors.black,
         fontWeight: FontWeight.w500,
@@ -293,7 +296,7 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
         }
         return null;
       },
-      style: TextStyle(
+      style: AppTextStyles.of(
         fontSize: 15.sp,
         color: Colors.black,
         fontWeight: FontWeight.w500,
@@ -329,7 +332,7 @@ class _FieldLabel extends StatelessWidget {
       padding: EdgeInsets.only(bottom: 8.h, top: 4.h),
       child: Text(
         label,
-        style: TextStyle(
+        style: AppTextStyles.of(
           fontSize: 15.sp,
           fontWeight: FontWeight.w600,
           color: Colors.black87,

@@ -18,6 +18,9 @@ import '../cubit/guest_home_cubit.dart';
 import '../cubit/guest_home_state.dart';
 import '../mappers/guest_home_mappers.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
+
 class GuestHomeScreen extends StatefulWidget {
   const GuestHomeScreen({super.key});
 
@@ -130,7 +133,7 @@ class _GuestHomeHeader extends StatelessWidget {
               children: [
                 Text(
                   'guest_home.welcome_title'.tr(),
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
@@ -139,7 +142,7 @@ class _GuestHomeHeader extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   'guest_home.explore_health_services'.tr(),
-                  style: TextStyle(color: Colors.white70, fontSize: 14),
+                  style: AppTextStyles.of(color: Colors.white70, fontSize: 14),
                 ),
               ],
             ),

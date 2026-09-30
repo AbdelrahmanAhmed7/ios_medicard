@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
 class HomeBottomNav extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
@@ -99,7 +101,7 @@ class _NavColumn extends StatelessWidget {
             const SizedBox(height: 7),
             Text(
               item.labelKey.tr(context: context),
-              style: TextStyle(
+              style: AppTextStyles.of(
                 color: color,
                 fontSize: 14,
                 fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,

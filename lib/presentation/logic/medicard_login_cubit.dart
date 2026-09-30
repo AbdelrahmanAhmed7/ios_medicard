@@ -33,6 +33,7 @@ class MedicardLoginCubit extends Cubit<MedicardLoginState> {
       );
 
       final result = await _loginCardUseCase.call(request);
+      if (isClosed) return;
 
       result.when(
         success: (response) async {
@@ -54,13 +55,16 @@ class MedicardLoginCubit extends Cubit<MedicardLoginState> {
             );
             DioFactory.setTokenIntoHeaderAfterLogin(token);
           }
+          if (isClosed) return;
           emit(MedicardLoginState.success(response));
         },
         failure: (message) {
+          if (isClosed) return;
           emit(MedicardLoginState.failed(error: message));
         },
       );
     } catch (e) {
+      if (isClosed) return;
       emit(MedicardLoginState.failed(error: parseApiError(e)));
     }
   }

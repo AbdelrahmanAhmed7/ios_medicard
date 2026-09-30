@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
+
 class SearchBarWidget extends StatelessWidget {
   final double? latitude;
   final double? longitude;
@@ -23,7 +26,7 @@ class SearchBarWidget extends StatelessWidget {
             filled: true,
             fillColor: Colors.white,
             hintText: 'home.search_hint'.tr(),
-            hintStyle: const TextStyle(
+            hintStyle: AppTextStyles.of(
               color: Color(0xFF9CA3AF),
               fontSize: 14,
             ),

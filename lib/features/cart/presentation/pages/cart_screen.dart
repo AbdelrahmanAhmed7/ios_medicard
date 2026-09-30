@@ -11,6 +11,8 @@ import '../cubit/cart_state.dart';
 import '../../domain/models/cart_item.dart';
 import '../../domain/models/category_counter.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
 class CartScreen extends StatefulWidget {
   final int? initialProviderId;
   final ProviderBranch? initialBranch;
@@ -150,7 +152,7 @@ class _CartActionsHeader extends StatelessWidget {
         Expanded(
           child: Text(
             'cart.items_in_cart'.tr(args: ['$itemCount']),
-            style: TextStyle(
+            style: AppTextStyles.of(
               fontSize: 15.sp,
               fontWeight: FontWeight.w700,
               color: const Color(0xFF1F2937),
@@ -217,7 +219,7 @@ Future<void> _showClearCartSheet(BuildContext context) async {
               SizedBox(height: 14.h),
               Text(
                 'cart.clear_cart_question'.tr(),
-                style: TextStyle(
+                style: AppTextStyles.of(
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFF111827),
@@ -227,7 +229,7 @@ Future<void> _showClearCartSheet(BuildContext context) async {
               Text(
                 'cart.clear_cart_confirmation'.tr(),
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: AppTextStyles.of(
                   fontSize: 14.sp,
                   height: 1.35,
                   color: const Color(0xFF6B7280),
@@ -294,7 +296,7 @@ class _CategoryBadgesRow extends StatelessWidget {
       children: [
         Text(
           'cart.categories'.tr(),
-          style: TextStyle(
+          style: AppTextStyles.of(
             fontSize: 15.sp,
             fontWeight: FontWeight.w600,
             color: const Color(0xFF334155),
@@ -344,7 +346,7 @@ class _CartSyncWarning extends StatelessWidget {
           Expanded(
             child: Text(
               message,
-              style: TextStyle(
+              style: AppTextStyles.of(
                 fontSize: 12.sp,
                 color: const Color(0xFF92400E),
                 fontWeight: FontWeight.w500,
@@ -380,7 +382,7 @@ class _CategoryChip extends StatelessWidget {
           ),
           child: Text(
             counter.categoryName,
-            style: TextStyle(
+            style: AppTextStyles.of(
               fontSize: 13.sp,
               fontWeight: FontWeight.w600,
               color: const Color(0xFF3872B1),
@@ -404,7 +406,7 @@ class _CategoryChip extends StatelessWidget {
               child: Center(
                 child: Text(
                   '${counter.count}',
-                  style: TextStyle(
+                  style: AppTextStyles.of(
                     color: Colors.white,
                     fontSize: 11.sp,
                     fontWeight: FontWeight.bold,
@@ -450,7 +452,7 @@ class _CartItemCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       item.serviceName,
-                      style: TextStyle(
+                      style: AppTextStyles.of(
                         fontSize: 15.sp,
                         fontWeight: FontWeight.w600,
                         color: Colors.black87, // ليتناسب مع الصورة
@@ -525,7 +527,7 @@ class _CartItemCard extends StatelessWidget {
                               Text(
                                 item.providerName ??
                                     'cart.no_provider_selected'.tr(),
-                                style: TextStyle(
+                                style: AppTextStyles.of(
                                   fontSize: 11.sp,
                                   color: const Color(0xFFD97706),
                                   fontWeight: FontWeight.w500,
@@ -557,7 +559,7 @@ class _CartItemCard extends StatelessWidget {
                                   item.discountPercentage!.toStringAsFixed(0),
                                 ],
                               ),
-                              style: TextStyle(
+                              style: AppTextStyles.of(
                                 color: const Color(0xFF3872B1),
                                 fontSize: 11.sp,
                                 fontWeight: FontWeight.w500,
@@ -580,7 +582,7 @@ class _CartItemCard extends StatelessWidget {
                             'cart.egp_amount'.tr(
                               args: [item.priceBefore!.toStringAsFixed(0)],
                             ),
-                            style: TextStyle(
+                            style: AppTextStyles.of(
                               fontSize: 11.sp,
                               color: Colors.black, // نفس اللون في الصورة
                               decoration: item.priceAfter != null
@@ -595,7 +597,7 @@ class _CartItemCard extends StatelessWidget {
                             'cart.egp_amount'.tr(
                               args: [item.priceAfter!.toStringAsFixed(0)],
                             ),
-                            style: TextStyle(
+                            style: AppTextStyles.of(
                               fontSize: 14.sp,
                               fontWeight: FontWeight.bold,
                               color: const Color(
@@ -608,7 +610,7 @@ class _CartItemCard extends StatelessWidget {
                   else
                     Text(
                       'cart.price_unavailable'.tr(),
-                      style: TextStyle(
+                      style: AppTextStyles.of(
                         fontSize: 12.sp,
                         color: const Color(0xFF94A3B8),
                         fontWeight: FontWeight.w500,
@@ -680,7 +682,7 @@ class _CartBottomBar extends StatelessWidget {
                     Expanded(
                       child: Text(
                         'cart.some_items_need_provider'.tr(),
-                        style: TextStyle(
+                        style: AppTextStyles.of(
                           fontSize: 13.sp,
                           color: const Color(0xFFC2410C),
                           fontWeight: FontWeight.w500,
@@ -734,7 +736,7 @@ class _CartBottomBar extends StatelessWidget {
                 hasAssigned
                     ? 'cart.checkout'.tr()
                     : 'cart.choose_provider'.tr(),
-                style: TextStyle(
+                style: AppTextStyles.of(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600, // خط عريض وواضح
                   color: Colors.white,
@@ -787,7 +789,7 @@ class _EmptyCartView extends StatelessWidget {
           Text(
             'cart.empty_title'.tr(),
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: AppTextStyles.of(
               fontSize: 22.sp,
               fontWeight: FontWeight.w700,
               color: const Color(0xFF111827),
@@ -797,7 +799,7 @@ class _EmptyCartView extends StatelessWidget {
           Text(
             'cart.empty_message'.tr(),
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: AppTextStyles.of(
               fontSize: 14.sp,
               height: 1.4,
               color: const Color(0xFF6B7280),
@@ -850,7 +852,7 @@ class _ErrorView extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14.sp, color: const Color(0xFF6B7280)),
+              style: AppTextStyles.of(fontSize: 14.sp, color: const Color(0xFF6B7280)),
             ),
             SizedBox(height: 16.h),
             ElevatedButton(
@@ -864,7 +866,7 @@ class _ErrorView extends StatelessWidget {
               ),
               child: Text(
                 'common.retry'.tr(),
-                style: TextStyle(
+                style: AppTextStyles.of(
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
                 ),

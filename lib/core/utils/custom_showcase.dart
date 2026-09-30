@@ -209,7 +209,7 @@ class _CustomShowcaseOverlayState extends State<CustomShowcaseOverlay>
                               ),
                               child: Text(
                                 'common.skip'.tr(),
-                                style: TextStyle(
+                                style: AppTextStyles.of(
                                   color: AppColors.greyClr,
                                   fontSize: 14.sp,
                                 ),
@@ -237,7 +237,7 @@ class _CustomShowcaseOverlayState extends State<CustomShowcaseOverlay>
                                   ),
                                   child: Text(
                                     'common.next'.tr(),
-                                    style: TextStyle(
+                                    style: AppTextStyles.of(
                                       fontSize: 14.sp,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -260,7 +260,7 @@ class _CustomShowcaseOverlayState extends State<CustomShowcaseOverlay>
                                   ),
                                   child: Text(
                                     'dialog.got_it'.tr(),
-                                    style: TextStyle(
+                                    style: AppTextStyles.of(
                                       fontSize: 14.sp,
                                       fontWeight: FontWeight.w600,
                                     ),

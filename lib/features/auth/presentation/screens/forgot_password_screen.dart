@@ -11,6 +11,8 @@ import '../../../../core/widgets/auth_shared_widgets.dart';
 import '../cubit/forgot_password_cubit.dart';
 import '../cubit/forgot_password_state.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
 
@@ -139,7 +141,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           SizedBox(height: 28.h),
                           Text(
                             'auth.forgot.subtitle'.tr(),
-                            style: TextStyle(
+                            style: AppTextStyles.of(
                               fontSize: 15.sp,
                               color: kAuthGreyText,
                               height: 1.4,
