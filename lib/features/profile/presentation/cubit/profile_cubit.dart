@@ -1,11 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:medicard/core/auth/auth_session_storage.dart';
 import 'package:medicard/core/constants/api_result.dart';
-import 'package:medicard/core/constants/constants.dart';
-import 'package:medicard/core/helpers/shared_pref_helper.dart';
-import 'package:medicard/core/network/dio_factory.dart';
 import 'package:medicard/core/theming/app_toast.dart';
 import 'package:medicard/core/utils/api_error_parser.dart';
 import '../../data/models/profile_response_model.dart';
@@ -14,6 +10,7 @@ import '../../domain/usecases/update_profile_v2_usecase.dart';
 import '../../domain/usecases/delete_profile_image_usecase.dart';
 import '../../domain/usecases/change_language_usecase.dart';
 import '../../domain/usecases/activate_member_card_usecase.dart';
+import '../../../../domain/usecases/logout_usecase.dart';
 import 'profile_state.dart';
 
 class ProfileCubit extends Cubit<ProfileState> {
@@ -22,6 +19,7 @@ class ProfileCubit extends Cubit<ProfileState> {
   final DeleteProfileImageUseCase _deleteProfileImageUseCase;
   final ChangeLanguageUseCase _changeLanguageUseCase;
   final ActivateMemberCardUseCase _activateMemberCardUseCase;
+  final LogoutUseCase _logoutUseCase;
   Future<void>? _profileLoad;
 
   ProfileCubit(
@@ -30,6 +28,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     this._deleteProfileImageUseCase,
     this._changeLanguageUseCase,
     this._activateMemberCardUseCase,
+    this._logoutUseCase,
   ) : super(const ProfileState.initial());
 
   Future<void> loadProfile({bool forceRefresh = false}) {
@@ -254,15 +253,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     }
   }
 
-  /// Single teardown point for a user-initiated sign-out: session, cached
-  /// card number, and the auth header. Screens navigate, never clear.
-  Future<void> logout() async {
-    try {
-      await const AuthSessionStorage().clearSession();
-      await SharedPrefHelper.removeData(SharedPrefKeys.medicardCardNo);
-      DioFactory.clearTokenFromHeader();
-    } catch (e) {
-      if (kDebugMode) debugPrint('[ProfileCubit] logout teardown: $e');
-    }
-  }
+  /// Single teardown point for a user-initiated sign-out. Screens navigate,
+  /// never clear: the credential-storage details live in [LogoutUseCase].
+  Future<void> logout() => _logoutUseCase();
 }

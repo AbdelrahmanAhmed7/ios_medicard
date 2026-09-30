@@ -12,6 +12,7 @@ import '../../domain/usecases/get_home_info_usecase.dart';
 import '../../domain/usecases/get_personal_info_usecase.dart';
 import '../../domain/usecases/get_support_contacts_usecase.dart';
 import '../../domain/usecases/login_card_usecase.dart';
+import '../../domain/usecases/logout_usecase.dart';
 import '../../domain/usecases/register_usecase.dart';
 import '../../domain/usecases/update_profile_usecase.dart';
 import '../../features/auth/domain/usecases/send_otp_usecase.dart';
@@ -75,6 +76,7 @@ import '../../features/activate_card/data/repository/activate_card_repository_im
 import '../../features/activate_card/domain/repository/activate_card_repository.dart';
 import '../../features/activate_card/domain/usecases/activate_card_usecase.dart';
 import '../../features/activate_card/presentation/cubit/activate_card_cubit.dart';
+import '../../medicard_network/domain/usecases/get_package_details_usecase.dart';
 import '../../medicard_network/logic/provider_page_cubit.dart';
 import '../../medicard_network/repository/medicard_network_repository.dart';
 import '../../medicard_network/service/medicard_network_api_service.dart';
@@ -189,6 +191,10 @@ Future<void> setupServiceLocator() async {
 
   // ── 8. Use cases ──────────────────────────────────────────────────────────
   sl.registerFactory<LoginCardUseCase>(() => LoginCardUseCase(sl()));
+  sl.registerFactory<LogoutUseCase>(() => const LogoutUseCase());
+  sl.registerFactory<GetPackageDetailsUseCase>(
+    () => GetPackageDetailsUseCase(sl<MedicardNetworkRepository>()),
+  );
   sl.registerFactory<RegisterUseCase>(() => RegisterUseCase(sl()));
   sl.registerFactory<SendOtpUseCase>(() => SendOtpUseCase(sl()));
   sl.registerFactory<VerifyOtpUseCase>(() => VerifyOtpUseCase(sl()));
@@ -282,7 +288,7 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory<ActivityCubit>(() => ActivityCubit(sl()));
   sl.registerFactory<LocationCubit>(() => LocationCubit(sl(), sl()));
   sl.registerFactory<ProfileCubit>(
-    () => ProfileCubit(sl(), sl(), sl(), sl(), sl()),
+    () => ProfileCubit(sl(), sl(), sl(), sl(), sl(), sl()),
   );
   sl.registerFactory<ECardCubit>(() => ECardCubit(sl()));
   sl.registerFactory<ChangePasswordCubit>(() => ChangePasswordCubit(sl()));

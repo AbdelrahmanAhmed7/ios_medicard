@@ -7,7 +7,7 @@ import '../../../../core/auth/auth_session_storage.dart';
 import '../../../../core/constants/api_result.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/theming/app_toast.dart';
-import '../../../../medicard_network/repository/medicard_network_repository.dart';
+import '../../../../medicard_network/domain/usecases/get_package_details_usecase.dart';
 import '../../../../network/data/provider_page_response_model.dart';
 import '../../domain/models/featured_service_model.dart';
 
@@ -324,7 +324,7 @@ class _PackageDetailsSheetState extends State<_PackageDetailsSheet> {
   @override
   void initState() {
     super.initState();
-    _detailsFuture = sl<MedicardNetworkRepository>().getPackageDetails(
+    _detailsFuture = sl<GetPackageDetailsUseCase>().call(
       packageId: widget.packageId,
     );
   }

@@ -640,7 +640,13 @@ class CartCubit extends Cubit<CartState> {
     if (isClosed) return;
     result.when(
       success: (cart) => emit(state.copyWith(cart: cart)),
-      failure: (_) {},
+      // Post-invoice background refresh: logged, never toasted — the invoice
+      // already succeeded and nagging here would be noise.
+      failure: (message) {
+        if (kDebugMode) {
+          debugPrint('[CartCubit] post-invoice cart sync: $message');
+        }
+      },
     );
   }
 

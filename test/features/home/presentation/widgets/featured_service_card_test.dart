@@ -6,6 +6,7 @@ import 'package:medicard/core/constants/api_result.dart';
 import 'package:medicard/core/di/service_locator.dart';
 import 'package:medicard/features/home/domain/models/featured_service_model.dart';
 import 'package:medicard/features/home/presentation/widgets/featured_service_card.dart';
+import 'package:medicard/medicard_network/domain/usecases/get_package_details_usecase.dart';
 import 'package:medicard/medicard_network/repository/medicard_network_repository.dart';
 import 'package:medicard/network/data/provider_page_response_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -96,6 +97,9 @@ void main() {
       await sl.reset();
       fake = _FakeMedicardNetworkRepository();
       sl.registerSingleton<MedicardNetworkRepository>(fake);
+      sl.registerFactory<GetPackageDetailsUseCase>(
+        () => GetPackageDetailsUseCase(fake),
+      );
       // Wide surface + small DPR so dp width is large enough that the card's
       // Rows (price + CTA) don't overflow during layout in tests.
       TestWidgetsFlutterBinding.instance.platformDispatcher.views.first

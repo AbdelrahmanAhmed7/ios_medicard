@@ -6,12 +6,11 @@ import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 import '../../../../../core/utils/language_helper.dart';
-import '../../../../../core/auth/auth_session_storage.dart';
-import '../../../../../core/network/dio_factory.dart';
 import '../../data/models/activate_card_request_model.dart';
 import '../cubit/activate_card_cubit.dart';
 import '../cubit/activate_card_state.dart';
 import '../../../../core/di/service_locator.dart';
+import '../../../../domain/usecases/logout_usecase.dart';
 import '../../../../../core/theming/app_toast.dart';
 import '../../../../../core/widgets/auth_shared_widgets.dart';
 
@@ -113,8 +112,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                   : 'activate_card.success'.tr(),
             );
             WidgetsBinding.instance.addPostFrameCallback((_) async {
-              await const AuthSessionStorage().clearSession();
-              DioFactory.clearTokenFromHeader();
+              await sl<LogoutUseCase>()();
               if (!mounted) return;
               this.context.go('/medicard-login');
             });
