@@ -61,7 +61,11 @@ import '../../features/guest_home/presentation/cubit/guest_home_cubit.dart';
 import '../../features/activity/data/data_source/invoice_remote_data_source.dart';
 import '../../features/activity/data/repositories/invoice_repository_impl.dart';
 import '../../features/activity/domain/repositories/invoice_repository.dart';
+import '../../features/activity/domain/usecases/cancel_invoice_usecase.dart';
+import '../../features/activity/domain/usecases/create_review_usecase.dart';
+import '../../features/activity/domain/usecases/get_invoice_details_usecase.dart';
 import '../../features/activity/presentation/cubit/activity_cubit.dart';
+import '../../features/activity/presentation/cubit/invoice_details_cubit.dart';
 import '../../features/cart/data/api/cart_remote_data_source.dart';
 import '../../features/cart/data/repository/cart_repository_impl.dart';
 import '../../features/cart/domain/repository/cart_repository.dart';
@@ -218,6 +222,15 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory<ActivateCardUseCase>(
     () => ActivateCardUseCase(sl<ActivateCardRepository>()),
   );
+  sl.registerFactory<GetInvoiceDetailsUseCase>(
+    () => GetInvoiceDetailsUseCase(sl<InvoiceRepository>()),
+  );
+  sl.registerFactory<CancelInvoiceUseCase>(
+    () => CancelInvoiceUseCase(sl<InvoiceRepository>()),
+  );
+  sl.registerFactory<CreateReviewUseCase>(
+    () => CreateReviewUseCase(sl<InvoiceRepository>()),
+  );
 
   // Search use cases
   sl.registerFactory<SearchProvidersUseCase>(
@@ -277,6 +290,9 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory<FamilyMembersCubit>(() => FamilyMembersCubit(sl()));
   sl.registerFactory<GuestHomeCubit>(() => GuestHomeCubit(sl(), sl()));
   sl.registerFactory<ActivateCardCubit>(() => ActivateCardCubit(sl()));
+  sl.registerFactory<InvoiceDetailsCubit>(
+    () => InvoiceDetailsCubit(sl(), sl(), sl()),
+  );
 
   // Search cubits
   sl.registerFactory<SearchCubit>(

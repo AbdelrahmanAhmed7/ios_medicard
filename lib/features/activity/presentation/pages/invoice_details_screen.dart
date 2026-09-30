@@ -1,91 +1,72 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/service_locator.dart';
-import '../../../../core/constants/api_result.dart';
 import '../../../../core/theming/app_toast.dart';
 import '../../../../core/widgets/app_blue_header.dart';
 import '../../domain/models/invoice_details.dart';
 import '../../domain/models/invoice_item.dart';
-import '../../domain/repositories/invoice_repository.dart';
+import '../cubit/invoice_details_cubit.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 import '../../../../core/utils/image_url_resolver.dart';
 
 
-class InvoiceDetailsScreen extends StatefulWidget {
+class InvoiceDetailsScreen extends StatelessWidget {
   final InvoiceItem invoice;
   final int tab;
 
   const InvoiceDetailsScreen({super.key, required this.invoice, this.tab = 0});
 
   @override
-  State<InvoiceDetailsScreen> createState() => _InvoiceDetailsScreenState();
-}
-
-class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
-  late final Future<InvoiceDetails?> _detailsFuture;
-  String? _error;
-
-  @override
-  void initState() {
-    super.initState();
-    _detailsFuture = _loadDetails();
-  }
-
-  Future<InvoiceDetails?> _loadDetails() async {
-    final result = await sl<InvoiceRepository>().getInvoiceDetails(
-      widget.invoice.invoiceId,
-    );
-    return result.when(
-      success: (details) => details,
-      failure: (message) {
-        _error = message;
-        return null;
-      },
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F8),
-      body: Column(
-        children: [
-          AppBlueHeader(
-            title: 'activity.appointment_details'.tr(),
-            bottomRadius: 18,
-            onBack: () => context.pop(),
-          ),
-          Expanded(
-            child: FutureBuilder<InvoiceDetails?>(
-              future: _detailsFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState != ConnectionState.done) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF3872B1)),
-                  );
-                }
-                final details = snapshot.data;
-                if (details == null) {
-                  return Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(24.w),
-                      child: Text(
-                        _error ?? 'activity.invoice_details_load_failed'.tr(),
-                        textAlign: TextAlign.center,
+    return BlocProvider(
+      create: (_) => sl<InvoiceDetailsCubit>()
+        ..loadDetails(invoice.invoiceId),
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF7F7F8),
+        body: Column(
+          children: [
+            AppBlueHeader(
+              title: 'activity.appointment_details'.tr(),
+              bottomRadius: 18,
+              onBack: () => context.pop(),
+            ),
+            Expanded(
+              child: BlocBuilder<InvoiceDetailsCubit, InvoiceDetailsState>(
+                builder: (context, state) {
+                  return switch (state) {
+                    InvoiceDetailsLoaded(:final details) => _DetailsBody(
+                      invoice: invoice,
+                      details: details,
+                      tab: tab,
+                    ),
+                    InvoiceDetailsLoadFailure(:final message) => Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(24.w),
+                        child: Text(
+                          message.isEmpty
+                              ? 'activity.invoice_details_load_failed'.tr()
+                              : message,
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     ),
-                  );
-                }
-                return _DetailsBody(invoice: widget.invoice, details: details, tab: widget.tab);
-              },
+                    _ => const Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFF3872B1),
+                      ),
+                    ),
+                  };
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -449,19 +430,18 @@ class _DetailsActionsState extends State<_DetailsActions> {
     if (confirmed != true || !mounted) return;
 
     setState(() => _isCanceling = true);
-    final result = await sl<InvoiceRepository>().cancelInvoice(
+    final error = await context.read<InvoiceDetailsCubit>().cancelInvoice(
       widget.invoice.invoiceId,
     );
     if (!mounted) return;
     setState(() => _isCanceling = false);
 
-    result.when(
-      success: (_) {
-        showSuccessToast('activity.cancel_invoice_success'.tr());
-        context.pop(true);
-      },
-      failure: (message) => showErrorToast(message),
-    );
+    if (error == null) {
+      showSuccessToast('activity.cancel_invoice_success'.tr());
+      context.pop(true);
+    } else {
+      showErrorToast(error);
+    }
   }
 
   @override
@@ -561,20 +541,19 @@ class _ReviewDialogState extends State<_ReviewDialog> {
       _isSubmitting = true;
       _errorText = null;
     });
-    final result = await sl<InvoiceRepository>().createReview(
+    final error = await context.read<InvoiceDetailsCubit>().submitReview(
       invoiceId: widget.invoiceId,
       rating: _rating,
       ratingText: text.isEmpty ? null : text,
     );
     if (!mounted) return;
     setState(() => _isSubmitting = false);
-    result.when(
-      success: (_) {
-        context.pop(true);
-        showSuccessToast('activity.review_submitted_successfully'.tr());
-      },
-      failure: (message) => showErrorToast(message),
-    );
+    if (error == null) {
+      context.pop(true);
+      showSuccessToast('activity.review_submitted_successfully'.tr());
+    } else {
+      showErrorToast(error);
+    }
   }
 
   @override
