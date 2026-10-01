@@ -147,7 +147,6 @@ class HelpCenterScreen extends StatelessWidget {
   }
 }
 
-// ─── Info Card ────────────────────────────────────────────────────────────────
 
 class _InfoCard extends StatelessWidget {
   final Widget child;
@@ -168,7 +167,6 @@ class _InfoCard extends StatelessWidget {
   }
 }
 
-// ─── Contact Tile ─────────────────────────────────────────────────────────────
 
 class _ContactTile extends StatelessWidget {
   final IconData icon;

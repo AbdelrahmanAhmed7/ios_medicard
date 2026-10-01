@@ -2,7 +2,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'choose_providers_dto.g.dart';
 
-// ─── Outer envelope ───────────────────────────────────────────────────────────
 
 @JsonSerializable()
 class ChooseProvidersDto {
@@ -26,7 +25,6 @@ class ChooseProvidersDto {
   Map<String, dynamic> toJson() => _$ChooseProvidersDtoToJson(this);
 }
 
-// ─── data object ─────────────────────────────────────────────────────────────
 
 @JsonSerializable()
 class ChooseProvidersDataDto {
@@ -50,7 +48,6 @@ class ChooseProvidersDataDto {
   Map<String, dynamic> toJson() => _$ChooseProvidersDataDtoToJson(this);
 }
 
-// ─── Single provider option ───────────────────────────────────────────────────
 
 @JsonSerializable()
 class ProviderOptionDto {
@@ -84,7 +81,6 @@ class ProviderOptionDto {
   Map<String, dynamic> toJson() => _$ProviderOptionDtoToJson(this);
 }
 
-// ─── Service inside a provider option ────────────────────────────────────────
 
 @JsonSerializable()
 class ProviderCoveredServiceDto {

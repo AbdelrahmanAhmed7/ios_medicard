@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SharedPrefHelper {
   SharedPrefHelper._();
 
-  // ====================== SharedPreferences ======================
 
   static SharedPreferences? _prefs;
 
@@ -70,14 +69,12 @@ class SharedPrefHelper {
     await prefs.clear();
   }
 
-  // ====================== Secure Storage ======================
 
   static final FlutterSecureStorage _secureStorage = FlutterSecureStorage(
     aOptions: AndroidOptions(resetOnError: false),
     iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
   );
 
-  // ---------------------- Write ----------------------
 
   static Future<void> setSecuredString(String key, String value) async {
     if (kDebugMode) debugPrint("SecureStorage : set $key");
@@ -97,7 +94,6 @@ class SharedPrefHelper {
     }
   }
 
-  // ---------------------- Read ----------------------
 
   static Future<String> getSecuredString(String key) async {
     if (kDebugMode) debugPrint("SecureStorage : get $key");
@@ -119,7 +115,6 @@ class SharedPrefHelper {
     }
   }
 
-  // ---------------------- Clear ----------------------
 
   static Future<void> clearAllSecuredData() async {
     if (kDebugMode) debugPrint("SecureStorage : cleared all");

@@ -77,7 +77,6 @@ class ChooseProviderScreen extends StatelessWidget {
   }
 }
 
-// ─── Provider Card ────────────────────────────────────────────────────────────
 
 class _ProviderCard extends StatelessWidget {
   final ProviderOption provider;
@@ -234,7 +233,6 @@ class _ProviderCard extends StatelessWidget {
   }
 }
 
-// ─── Bottom confirm bar ───────────────────────────────────────────────────────
 
 class _ChooseProviderBottomBar extends StatelessWidget {
   final ProviderOption provider;
@@ -353,7 +351,6 @@ class _ChooseProviderBottomBar extends StatelessWidget {
   }
 }
 
-// ─── Initials fallback ────────────────────────────────────────────────────────
 
 class _Initials extends StatelessWidget {
   final String name;
@@ -378,7 +375,6 @@ class _Initials extends StatelessWidget {
   }
 }
 
-// ─── Empty & error states ─────────────────────────────────────────────────────
 
 class _EmptyView extends StatelessWidget {
   const _EmptyView();

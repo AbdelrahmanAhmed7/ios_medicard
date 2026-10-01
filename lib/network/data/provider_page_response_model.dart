@@ -146,7 +146,6 @@ class ProviderBranch {
   String? get mapsUrl => mapUrl;
 }
 
-// ============ REVIEWS ============
 @JsonSerializable(explicitToJson: true)
 class ProviderReviewsResponse {
   final int? httpStatusCode;
@@ -213,7 +212,6 @@ class ProviderReview {
   Map<String, dynamic> toJson() => _$ProviderReviewToJson(this);
 }
 
-// ============ PACKAGES ============
 @JsonSerializable(explicitToJson: true)
 class ProviderPackagesResponse {
   final int? httpStatusCode;

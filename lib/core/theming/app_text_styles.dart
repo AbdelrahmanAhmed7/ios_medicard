@@ -86,7 +86,6 @@ class AppTextStyles {
     );
   }
 
-  // ============= Common Styles =============
 
   // Size 20
   static TextStyle font20BlackSemiBold(BuildContext context) => custom(

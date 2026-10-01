@@ -340,7 +340,6 @@ class PushNotificationService {
     }
   }
 
-  // ---- Helpers for rich notifications (Android) ----
   Future<Uint8List> _downloadBytes(String url) async {
     final req = await HttpClient().getUrl(Uri.parse(url));
     final res = await req.close();
