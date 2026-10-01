@@ -297,6 +297,13 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
   Future<void> selectCategoryTab(int index) async {}
   Future<void> retryTabLoad(int index) async {}
 
+  /// Returns true when a stored auth token exists. Screens use this as the
+  /// login gate instead of reaching into session storage themselves.
+  Future<bool> requireAuth() async {
+    final token = await sl<AuthSessionStorage>().getAccessToken();
+    return token != null && token.isNotEmpty;
+  }
+
   /// Adds a service to the cart. Returns true when the user must log in first.
   Future<bool> addToCart(int serviceId, {int? categoryId}) async {
     if (isClosed || state.pendingCartActionIds.contains(serviceId)) {

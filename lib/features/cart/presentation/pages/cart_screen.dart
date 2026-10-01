@@ -39,6 +39,13 @@ class _CartScreenState extends State<CartScreen> {
           AppBlueHeader(title: 'cart.title'.tr(), bottomRadius: 20),
           Expanded(
             child: BlocBuilder<CartCubit, CartState>(
+              // The list renders cart items/loading/error only. Pending-id
+              // churn (per-item spinners) and checkout/provider slices have
+              // their own scoped builders and must not rebuild the list.
+              buildWhen: (previous, current) =>
+                  previous.cart != current.cart ||
+                  previous.isCartLoading != current.isCartLoading ||
+                  previous.cartError != current.cartError,
               builder: (context, state) {
                 final items = state.cart?.items ?? [];
                 if (state.isCartLoading && items.isEmpty) {
@@ -429,9 +436,11 @@ class _CartItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CartCubit, CartState>(
-      builder: (context, state) {
-        final isPending = state.pendingServiceIds.contains(item.serviceId);
+    return BlocSelector<CartCubit, CartState, bool>(
+      // This card re-renders only when its own pending flag flips; all other
+      // cart emits leave it untouched.
+      selector: (state) => state.pendingServiceIds.contains(item.serviceId),
+      builder: (context, isPending) {
 
         return Container(
           margin: EdgeInsets.only(bottom: 12.h),
