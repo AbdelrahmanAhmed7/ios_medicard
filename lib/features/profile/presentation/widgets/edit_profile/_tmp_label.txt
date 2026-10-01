@@ -1,0 +1,19 @@
+class _FieldLabel extends StatelessWidget {
+  final String label;
+  const _FieldLabel(this.label);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 6.h, top: 4.h),
+      child: Text(
+        label,
+        style: AppTextStyles.of(
+          fontSize: 15.sp,
+          fontWeight: FontWeight.w600,
+          color: Colors.black87,
+        ),
+      ),
+    );
+  }
+}

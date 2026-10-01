@@ -1,6 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -11,6 +10,9 @@ import '../core/widgets/auth_shared_widgets.dart';
 import '../data/auth_response_model.dart';
 import 'logic/register_cubit.dart';
 import 'logic/register_state.dart';
+import 'widgets/register/register_account_section.dart';
+import 'widgets/register/register_identity_section.dart';
+import 'widgets/register/register_name_row.dart';
 
 import '../core/theming/app_text_styles.dart';
 
@@ -359,185 +361,86 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           SizedBox(height: 24.h),
 
-                          // First & Last Name row
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    AuthFieldLabel(
-                                      'auth.register.firstName'.tr(),
-                                      isRequired: true,
-                                    ),
-                                    SizedBox(height: 6.h),
-                                    _buildTextField(
-                                      controller: _firstNameController,
-                                      hintText: 'auth.register.firstNameHint'
-                                          .tr(),
-                                      focusKey: 'firstName',
-                                      inputFormatters: [
-                                        FilteringTextInputFormatter.allow(
-                                          RegExp(
-                                            r"[\p{L} .'\-]",
-                                            unicode: true,
-                                          ),
-                                        ),
-                                      ],
-                                      validator: (v) => _validateName(
-                                        v,
-                                        requiredKey:
-                                            'auth.register.firstNameRequired',
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(width: 12.w),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    AuthFieldLabel(
-                                      'auth.register.lastName'.tr(),
-                                      isRequired: true,
-                                    ),
-                                    SizedBox(height: 6.h),
-                                    _buildTextField(
-                                      controller: _lastNameController,
-                                      hintText: 'auth.register.lastNameHint'
-                                          .tr(),
-                                      focusKey: 'lastName',
-                                      inputFormatters: [
-                                        FilteringTextInputFormatter.allow(
-                                          RegExp(
-                                            r"[\p{L} .'\-]",
-                                            unicode: true,
-                                          ),
-                                        ),
-                                      ],
-                                      validator: (v) => _validateName(
-                                        v,
-                                        requiredKey:
-                                            'auth.register.lastNameRequired',
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                          RegisterNameRow(
+                            firstNameController: _firstNameController,
+                            lastNameController: _lastNameController,
+                            firstNameFocusNode: _focusNodes['firstName'],
+                            firstNameAutovalidate: _touchedFields.contains('firstName')
+                                ? AutovalidateMode.onUserInteraction
+                                : AutovalidateMode.disabled,
+                            lastNameFocusNode: _focusNodes['lastName'],
+                            lastNameAutovalidate: _touchedFields.contains('lastName')
+                                ? AutovalidateMode.onUserInteraction
+                                : AutovalidateMode.disabled,
+                            firstNameValidator: (v) => _validateName(
+                              v,
+                              requiredKey: 'auth.register.firstNameRequired',
+                            ),
+                            lastNameValidator: (v) => _validateName(
+                              v,
+                              requiredKey: 'auth.register.lastNameRequired',
+                            ),
                           ),
                           SizedBox(height: 16.h),
-
-                          // Phone Number
-                          AuthFieldLabel(
-                            'auth.register.phoneNumber'.tr(),
-                            isRequired: true,
-                          ),
-                          SizedBox(height: 6.h),
-                          _buildTextField(
-                            controller: _phoneNumberController,
-                            hintText: 'auth.register.phoneNumberHint'.tr(),
-                            keyboardType: TextInputType.phone,
-                            focusKey: 'phoneNumber',
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                              LengthLimitingTextInputFormatter(11),
-                            ],
-                            validator: _validatePhoneNumber,
-                          ),
                           SizedBox(height: 16.h),
-
-                          // Gender
-                          AuthFieldLabel(
-                            'auth.register.gender'.tr(),
-                            isRequired: true,
-                          ),
-                          SizedBox(height: 6.h),
-                          _buildGenderSelector(),
-                          SizedBox(height: 16.h),
-
-                          // Birth Date
-                          AuthFieldLabel(
-                            'auth.register.birthDate'.tr(),
-                            isRequired: true,
-                          ),
-                          SizedBox(height: 6.h),
-                          _buildBirthDateField(),
-                          SizedBox(height: 16.h),
-
-                          // Password
-                          AuthFieldLabel(
-                            'auth.register.password'.tr(),
-                            isRequired: true,
-                          ),
-                          SizedBox(height: 6.h),
-                          _buildPasswordField(
-                            controller: _passwordController,
-                            hintText: 'auth.register.passwordHint'.tr(),
-                            obscure: _obscurePassword,
-                            onToggle: () => setState(
+                          RegisterAccountSection(
+                            phoneNumberController: _phoneNumberController,
+                            phoneNumberFocusNode: _focusNodes['phoneNumber'],
+                            phoneNumberAutovalidate: _touchedFields.contains('phoneNumber')
+                                ? AutovalidateMode.onUserInteraction
+                                : AutovalidateMode.disabled,
+                            phoneNumberValidator: _validatePhoneNumber,
+                            isMale: _isMale,
+                            onMaleTap: () {
+                              _clearInputFocus();
+                              setState(() => _isMale = true);
+                            },
+                            onFemaleTap: () {
+                              _clearInputFocus();
+                              setState(() => _isMale = false);
+                            },
+                            birthDate: _birthDate,
+                            onSelectBirthDate: _selectBirthDate,
+                            passwordController: _passwordController,
+                            obscurePassword: _obscurePassword,
+                            onPasswordToggle: () => setState(
                               () => _obscurePassword = !_obscurePassword,
                             ),
-                            focusKey: 'password',
-                            validator: _validatePassword,
-                          ),
-                          SizedBox(height: 10.h),
-                          _buildPasswordRequirements(),
-                          SizedBox(height: 16.h),
-
-                          // Confirm Password
-                          AuthFieldLabel(
-                            'auth.register.confirmPassword'.tr(),
-                            isRequired: true,
-                          ),
-                          SizedBox(height: 6.h),
-                          _buildPasswordField(
-                            fieldKey: _confirmPasswordFieldKey,
-                            controller: _confirmPasswordController,
-                            hintText: 'auth.register.confirmPasswordHint'.tr(),
-                            obscure: _obscureConfirmPassword,
-                            onToggle: () => setState(
+                            passwordFocusNode: _focusNodes['password'],
+                            passwordAutovalidate: _touchedFields.contains('password')
+                                ? AutovalidateMode.onUserInteraction
+                                : AutovalidateMode.disabled,
+                            passwordValidator: _validatePassword,
+                            passwordMinLength: _passwordMinLength,
+                            confirmPasswordFieldKey: _confirmPasswordFieldKey,
+                            confirmPasswordController: _confirmPasswordController,
+                            obscureConfirmPassword: _obscureConfirmPassword,
+                            onConfirmPasswordToggle: () => setState(
                               () => _obscureConfirmPassword =
                                   !_obscureConfirmPassword,
                             ),
-                            focusKey: 'confirmPassword',
-                            validator: _validateConfirmPassword,
+                            confirmPasswordFocusNode: _focusNodes['confirmPassword'],
+                            confirmPasswordAutovalidate: _touchedFields.contains('confirmPassword')
+                                ? AutovalidateMode.onUserInteraction
+                                : AutovalidateMode.disabled,
+                            confirmPasswordValidator: _validateConfirmPassword,
                           ),
                           SizedBox(height: 16.h),
-
-                          // National ID
-                          _buildRequiredHint(
-                            'auth.register.nationalIdOrPassportRequired'.tr(),
-                          ),
-                          SizedBox(height: 10.h),
-                          AuthFieldLabel('auth.register.nationalId'.tr()),
-                          SizedBox(height: 6.h),
-                          _buildTextField(
-                            fieldKey: _nationalIdFieldKey,
-                            controller: _nationalIdController,
-                            hintText: 'auth.register.nationalIdHint'.tr(),
-                            keyboardType: TextInputType.number,
-                            focusKey: 'nationalId',
-                            required: false,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                              LengthLimitingTextInputFormatter(14),
-                            ],
-                            validator: _validateNationalId,
-                          ),
-                          SizedBox(height: 16.h),
-
-                          // Passport Number (optional)
-                          AuthFieldLabel('auth.register.passportNumber'.tr()),
-                          SizedBox(height: 6.h),
-                          _buildTextField(
-                            controller: _passportNumberController,
-                            hintText: 'auth.register.passportNumberHint'.tr(),
-                            required: false,
-                            focusKey: 'passportNumber',
-                            validator: _validatePassportNumber,
-                            onChanged: (_) =>
+                          RegisterIdentitySection(
+                            nationalIdFieldKey: _nationalIdFieldKey,
+                            nationalIdController: _nationalIdController,
+                            nationalIdFocusNode: _focusNodes['nationalId'],
+                            nationalIdAutovalidate: _touchedFields.contains('nationalId')
+                                ? AutovalidateMode.onUserInteraction
+                                : AutovalidateMode.disabled,
+                            nationalIdValidator: _validateNationalId,
+                            passportNumberController: _passportNumberController,
+                            passportNumberFocusNode: _focusNodes['passportNumber'],
+                            passportNumberAutovalidate: _touchedFields.contains('passportNumber')
+                                ? AutovalidateMode.onUserInteraction
+                                : AutovalidateMode.disabled,
+                            passportNumberValidator: _validatePassportNumber,
+                            onPassportChanged: (_) =>
                                 _nationalIdFieldKey.currentState?.validate(),
                           ),
                           SizedBox(height: 28.h),
@@ -585,246 +488,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         );
       },
-    );
-  }
-
-  // ── Text Field ──────────────────────────────────────────────────────────────
-
-  Widget _buildTextField({
-    Key? fieldKey,
-    required TextEditingController controller,
-    required String hintText,
-    TextInputType? keyboardType,
-    bool required = true,
-    String? Function(String?)? validator,
-    ValueChanged<String>? onChanged,
-    List<TextInputFormatter>? inputFormatters,
-    String? focusKey,
-  }) {
-    return TextFormField(
-      key: fieldKey,
-      controller: controller,
-      keyboardType: keyboardType,
-      focusNode: focusKey != null ? _focusNodes[focusKey] : null,
-      autovalidateMode: focusKey != null && _touchedFields.contains(focusKey)
-          ? AutovalidateMode.onUserInteraction
-          : AutovalidateMode.disabled,
-      onChanged: onChanged,
-      inputFormatters: inputFormatters,
-      style: AppTextStyles.of(fontSize: 15.sp, color: Colors.black),
-      decoration: authInputDecoration(hintText: hintText),
-      validator:
-          validator ??
-          (required
-              ? (v) =>
-                    (v == null || v.isEmpty) ? 'This field is required' : null
-              : null),
-    );
-  }
-
-  // ── Password Field ──────────────────────────────────────────────────────────
-
-  Widget _buildPasswordField({
-    Key? fieldKey,
-    required TextEditingController controller,
-    required String hintText,
-    required bool obscure,
-    required VoidCallback onToggle,
-    String? Function(String?)? validator,
-    String? focusKey,
-  }) {
-    return TextFormField(
-      key: fieldKey,
-      controller: controller,
-      obscureText: obscure,
-      focusNode: focusKey != null ? _focusNodes[focusKey] : null,
-      autovalidateMode: focusKey != null && _touchedFields.contains(focusKey)
-          ? AutovalidateMode.onUserInteraction
-          : AutovalidateMode.disabled,
-      style: AppTextStyles.of(fontSize: 15.sp, color: Colors.black),
-      decoration: authInputDecoration(
-        hintText: hintText,
-        suffixIcon: GestureDetector(
-          onTap: onToggle,
-          child: Icon(
-            obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-            color: kAuthGreyText,
-            size: 20.sp,
-          ),
-        ),
-      ),
-      validator: validator,
-    );
-  }
-
-  // ── Birth Date Field ────────────────────────────────────────────────────────
-
-  Widget _buildPasswordRequirements() {
-    final password = LanguageHelper.convertArabicToEnglishNumerals(
-      _passwordController.text.trim(),
-    );
-    final showInvalidRequirements = password.isNotEmpty;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'auth.register.passwordRequirementsTitle'.tr(),
-          style: AppTextStyles.of(
-            fontSize: 12.sp,
-            color: kAuthGreyText,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        SizedBox(height: 6.h),
-        _buildPasswordRequirement(
-          label: 'auth.register.passwordMinLength'.tr(
-            namedArgs: {'count': _passwordMinLength.toString()},
-          ),
-          isMet: _hasMinimumLength(password),
-          showInvalid: showInvalidRequirements,
-        ),
-        _buildPasswordRequirement(
-          label: 'auth.register.passwordLetter'.tr(),
-          isMet: _hasLetter(password),
-          showInvalid: showInvalidRequirements,
-        ),
-        _buildPasswordRequirement(
-          label: 'auth.register.passwordNumber'.tr(),
-          isMet: _hasNumber(password),
-          showInvalid: showInvalidRequirements,
-        ),
-        _buildPasswordRequirement(
-          label: 'auth.register.passwordSpecialCharacter'.tr(),
-          isMet: _hasSpecialCharacter(password),
-          showInvalid: showInvalidRequirements,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPasswordRequirement({
-    required String label,
-    required bool isMet,
-    required bool showInvalid,
-  }) {
-    final color = isMet
-        ? Colors.green
-        : showInvalid
-        ? Colors.red
-        : kAuthGreyText;
-
-    return Padding(
-      padding: EdgeInsets.only(bottom: 4.h),
-      child: Row(
-        children: [
-          Icon(
-            isMet ? Icons.check_circle : Icons.radio_button_unchecked,
-            size: 14.sp,
-            color: color,
-          ),
-          SizedBox(width: 6.w),
-          Expanded(
-            child: Text(
-              label,
-              style: AppTextStyles.of(
-                fontSize: 12.sp,
-                color: color,
-                fontWeight: isMet ? FontWeight.w600 : FontWeight.w400,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRequiredHint(String text) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '*',
-          style: AppTextStyles.of(
-            fontSize: 13.sp,
-            color: Colors.red,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        SizedBox(width: 4.w),
-        Expanded(
-          child: Text(
-            text,
-            style: AppTextStyles.of(
-              fontSize: 12.sp,
-              color: kAuthGreyText,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBirthDateField() {
-    return GestureDetector(
-      onTap: _selectBirthDate,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: kAuthBorderColor),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              _birthDate,
-              style: AppTextStyles.of(fontSize: 15.sp, color: Colors.black),
-            ),
-            Icon(
-              Icons.calendar_today_outlined,
-              color: kAuthGreyText,
-              size: 18.sp,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ── Gender Selector ─────────────────────────────────────────────────────────
-
-  Widget _buildGenderSelector() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: kAuthBorderColor),
-      ),
-      child: Row(
-        children: [
-          AuthGenderOption(
-            label: 'auth.register.male'.tr(),
-            selected: _isMale,
-            onTap: () {
-              _clearInputFocus();
-              setState(() => _isMale = true);
-            },
-          ),
-          SizedBox(width: 32.w),
-          AuthGenderOption(
-            label: 'auth.register.female'.tr(),
-            selected: !_isMale,
-            onTap: () {
-              _clearInputFocus();
-              setState(() => _isMale = false);
-            },
-          ),
-        ],
-      ),
     );
   }
 }

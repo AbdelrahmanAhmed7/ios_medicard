@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +11,9 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/utils/language_helper.dart';
 import '../../../../core/widgets/auth_shared_widgets.dart';
 import '../../data/models/profile_response_model.dart';
+import '../widgets/edit_profile/edit_profile_avatar.dart';
+import '../widgets/edit_profile/edit_identity_section.dart';
+import '../widgets/edit_profile/edit_name_row.dart';
 import '../cubit/profile_cubit.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
@@ -78,7 +80,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   bool get _hasCurrentPhoto =>
       _pickedImage != null ||
-      (!_removeImage && _hasValidImageUrl(widget.profileData.imageUrl));
+      (!_removeImage &&
+          hasValidProfileImageUrl(widget.profileData.imageUrl));
 
   Future<void> _showImageOptions() async {
     final showRemove = _hasCurrentPhoto;
@@ -208,69 +211,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  Widget _currentPhotoWidget({bool cover = true}) {
-    if (_pickedImage != null) {
-      return Image.file(
-        _pickedImage!,
-        fit: cover ? BoxFit.cover : BoxFit.contain,
-      );
-    }
-    if (_hasValidImageUrl(widget.profileData.imageUrl)) {
-      return CachedNetworkImage(
-        imageUrl: widget.profileData.imageUrl!,
-        fit: cover ? BoxFit.cover : BoxFit.contain,
-        placeholder: (context, url) => Container(color: Colors.grey[200]),
-        errorWidget: (context, url, error) =>
-            const Icon(Icons.person, size: 55),
-      );
-    }
-    return _buildPlaceholderAvatar();
-  }
-
-  void _showImagePreview() {
-    if (!_hasCurrentPhoto || _removeImage) return;
-    showDialog<void>(
-      context: context,
-      barrierColor: Colors.black.withValues(alpha: 0.9),
-      builder: (dialogContext) {
-        return GestureDetector(
-          onTap: () => Navigator.pop(dialogContext),
-          behavior: HitTestBehavior.opaque,
-          child: Dialog(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            insetPadding: EdgeInsets.all(16.w),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                ClipOval(
-                  child: SizedBox(
-                    width: 280.r,
-                    height: 280.r,
-                    child: _currentPhotoWidget(cover: true),
-                  ),
-                ),
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.5),
-                      shape: BoxShape.circle,
-                    ),
-                    child: IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white),
-                      onPressed: () => Navigator.pop(dialogContext),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 
   Future<void> _selectBirthDate() async {
     final initialDate = _birthDate.isNotEmpty
@@ -423,7 +363,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     SizedBox(width: double.infinity, height: 50.h),
                     Positioned(
                       bottom: 0,
-                      child: _buildOverlappingProfileImage(),
+                      child: EditProfileAvatar(
+                      imageFile: _pickedImage,
+                      isPickingImage: _isPickingImage,
+                      removeImage: _removeImage,
+                      imageUrl: widget.profileData.imageUrl,
+                      onPreviewTap: () => showProfileImagePreview(
+                        context,
+                        imageFile: _pickedImage,
+                        imageUrl: widget.profileData.imageUrl,
+                        removeImage: _removeImage,
+                      ),
+                      onEditTap: _showImageOptions,
+                    ),
                     ),
                   ],
                 ),
@@ -434,201 +386,53 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _FieldLabel('edit_profile.name'.tr()),
-                                _buildTextField(
-                                  controller: _firstNameController,
-                                  hintText: 'edit_profile.first_name'.tr(),
-                                  validator: _validateName,
-                                  focusKey: 'firstName',
-                                  inputFormatters: [_lettersOnly()],
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(width: 14.w),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _FieldLabel('edit_profile.last_name'.tr()),
-                                _buildTextField(
-                                  controller: _lastNameController,
-                                  hintText: 'edit_profile.last_name'.tr(),
-                                  validator: _validateName,
-                                  focusKey: 'lastName',
-                                  inputFormatters: [_lettersOnly()],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                      EditNameRow(
+                        firstNameController: _firstNameController,
+                        lastNameController: _lastNameController,
+                        firstNameFocusNode: _focusNodes['firstName'],
+                        firstNameAutovalidate: _touchedFields.contains('firstName')
+                            ? AutovalidateMode.onUserInteraction
+                            : AutovalidateMode.disabled,
+                        lastNameFocusNode: _focusNodes['lastName'],
+                        lastNameAutovalidate: _touchedFields.contains('lastName')
+                            ? AutovalidateMode.onUserInteraction
+                            : AutovalidateMode.disabled,
+                        nameValidator: _validateName,
+                        lettersFormatters: [_lettersOnly()],
                       ),
                       SizedBox(height: 14.h),
 
-                      // Card Number — read-only; shown only when returned by the backend
-                      if ((widget.profileData.cardNumber ?? '')
-                          .trim()
-                          .isNotEmpty) ...[
-                        _FieldLabel('edit_profile.card_number'.tr()),
-                        _buildTextField(
-                          controller: _cardNumberController,
-                          hintText: 'edit_profile.card_number'.tr(),
-                          required: false,
-                          readOnly: true,
-                        ),
-                        SizedBox(height: 14.h),
-                      ],
-
-                      _buildRequiredHint(
-                        'auth.register.nationalIdOrPassportRequired'.tr(),
+                      EditIdentitySection(
+                        cardNumber: widget.profileData.cardNumber,
+                        cardNumberController: _cardNumberController,
+                        nationalIdController: _nationalIdController,
+                        nationalIdFocusNode: _focusNodes['nationalId'],
+                        nationalIdAutovalidate: _touchedFields.contains('nationalId')
+                            ? AutovalidateMode.onUserInteraction
+                            : AutovalidateMode.disabled,
+                        digitsFormatters: [_digitsOnly(maxDigits: 14)],
+                        nationalIdValidator: _validateNationalId,
+                        passportNumberController: _passportNumberController,
+                        passportNumberFocusNode: _focusNodes['passportNumber'],
+                        passportNumberAutovalidate: _touchedFields.contains('passportNumber')
+                            ? AutovalidateMode.onUserInteraction
+                            : AutovalidateMode.disabled,
+                        phoneNumberController: _phoneNumberController,
+                        phoneNumberFocusNode: _focusNodes['phoneNumber'],
+                        phoneNumberAutovalidate: _touchedFields.contains('phoneNumber')
+                            ? AutovalidateMode.onUserInteraction
+                            : AutovalidateMode.disabled,
+                        phoneNumberValidator: _validatePhoneNumber,
+                        birthDateController: _birthDateController,
+                        birthDateIsEmpty: _birthDate.isEmpty,
+                        onSelectBirthDate: _selectBirthDate,
+                        isMale: _isMale,
+                        onGenderChanged: (val) {
+                          setState(() {
+                            _isMale = val;
+                          });
+                        },
                       ),
-                      SizedBox(height: 10.h),
-
-                      // الرقم القومي
-                      _FieldLabel('edit_profile.national_id'.tr()),
-                      _buildTextField(
-                        controller: _nationalIdController,
-                        hintText: 'edit_profile.national_id'.tr(),
-                        keyboardType: TextInputType.number,
-                        maxLength: 14,
-                        focusKey: 'nationalId',
-                        inputFormatters: [_digitsOnly(maxDigits: 14)],
-                        validator: _validateNationalId,
-                      ),
-                      SizedBox(height: 14.h),
-
-                      // Passport Number
-                      _FieldLabel('edit_profile.passport_number'.tr()),
-                      _buildTextField(
-                        controller: _passportNumberController,
-                        hintText: 'edit_profile.passport_number'.tr(),
-                        required: false,
-                        focusKey: 'passportNumber',
-                      ),
-                      SizedBox(height: 14.h),
-
-                      _FieldLabel('edit_profile.phone_number'.tr()),
-                      Row(
-                        children: [
-                          Container(
-                            width: 65.w,
-                            height: 50.h,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12.r),
-                              border: Border.all(color: Colors.grey.shade300),
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              '+20',
-                              style: AppTextStyles.of(
-                                fontSize: 15.sp,
-                                color: Colors.black54,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 10.w),
-                          Expanded(
-                            child: _buildTextField(
-                              controller: _phoneNumberController,
-                              hintText: 'edit_profile.phone_number'.tr(),
-                              keyboardType: TextInputType.phone,
-                              maxLength: 11,
-                              focusKey: 'phoneNumber',
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                                LengthLimitingTextInputFormatter(11),
-                              ],
-                              validator: _validatePhoneNumber,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 14.h),
-
-                      _FieldLabel('edit_profile.date_of_birth'.tr()),
-                      GestureDetector(
-                        onTap: _selectBirthDate,
-                        child: AbsorbPointer(
-                          child: TextFormField(
-                            controller: _birthDateController,
-                            readOnly: true,
-                            style: AppTextStyles.of(
-                              fontSize: 15.sp,
-                              color: _birthDate.isEmpty
-                                  ? Colors.grey.shade400
-                                  : Colors.black,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            decoration: InputDecoration(
-                              hintText: 'edit_profile.date_of_birth'.tr(),
-                              hintStyle: AppTextStyles.of(
-                                fontSize: 14.sp,
-                                color: Colors.grey.shade400,
-                                fontWeight: FontWeight.w400,
-                              ),
-                              filled: true,
-                              fillColor: Colors.white,
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 16.w,
-                                vertical: 14.h,
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12.r),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade300,
-                                  width: 1,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12.r),
-                                borderSide: const BorderSide(
-                                  color: kAuthBlue,
-                                  width: 1.2,
-                                ),
-                              ),
-                              errorBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12.r),
-                                borderSide: const BorderSide(
-                                  color: Colors.red,
-                                  width: 1,
-                                ),
-                              ),
-                              focusedErrorBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12.r),
-                                borderSide: const BorderSide(
-                                  color: Colors.red,
-                                  width: 1.2,
-                                ),
-                              ),
-                              suffixIcon: Icon(
-                                Icons.calendar_today_outlined,
-                                color: kAuthGreyText,
-                                size: 18.sp,
-                              ),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'common.required'.tr();
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 14.h),
-
-                      _FieldLabel('edit_profile.gender'.tr()),
-                      _buildGenderDropdown(),
-
-                      SizedBox(height: 32.h),
 
                       AuthPrimaryButton(
                         label: 'common.update'.tr(),
@@ -688,110 +492,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (didUpdate) context.pop();
   }
 
-  // Returns true only when the URL points to an actual resource, not just a bare domain.
-  bool _hasValidImageUrl(String? url) {
-    if (url == null || url.isEmpty) return false;
-    final uri = Uri.tryParse(url);
-    if (uri == null) return false;
-    // Reject bare-domain URLs like "https://domain.com/" (path is "/" or empty, no meaningful segments)
-    final pathSegments = uri.pathSegments.where((s) => s.isNotEmpty).toList();
-    return pathSegments.isNotEmpty;
-  }
-
-  Widget _buildPlaceholderAvatar() {
-    return CircleAvatar(
-      backgroundColor: Colors.grey[300],
-      child: const Icon(Icons.person, size: 55, color: Colors.white),
-    );
-  }
-
-  Widget _buildRemoteProfileImage() {
-    if (_hasValidImageUrl(widget.profileData.imageUrl)) {
-      return ClipOval(
-        child: CachedNetworkImage(
-          imageUrl: widget.profileData.imageUrl!,
-          fit: BoxFit.cover,
-          placeholder: (context, url) => Container(color: Colors.grey[200]),
-          errorWidget: (context, url, error) =>
-              const Icon(Icons.person, size: 55),
-        ),
-      );
-    }
-    return _buildPlaceholderAvatar();
-  }
-
-  // بناء الصورة الشخصية المتداخلة مع زر تعديل يطابق الصورة تماماً
-  Widget _buildOverlappingProfileImage() {
-    return Stack(
-      children: [
-        GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: _showImagePreview,
-          child: Container(
-            width: 110.r,
-            height: 110.r,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 3),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: _pickedImage != null
-                ? ClipOval(child: Image.file(_pickedImage!, fit: BoxFit.cover))
-                : _isPickingImage
-                ? Container(
-                    decoration: const BoxDecoration(shape: BoxShape.circle),
-                    child: ClipOval(
-                      child: ColoredBox(
-                        color: Colors.grey.shade200,
-                        child: const Center(
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.5,
-                            color: kAuthBlue,
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
-                : _removeImage
-                ? _buildPlaceholderAvatar()
-                : _buildRemoteProfileImage(),
-          ),
-        ),
-        PositionedDirectional(
-          bottom: 2.h,
-          end: 2.w,
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: _showImageOptions,
-            child: Container(
-              width: 40.r,
-              height: 40.r,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                border: Border.all(color: kAuthBlue, width: 1),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Icon(Icons.edit_outlined, size: 18.sp, color: kAuthBlue),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   TextInputFormatter _digitsOnly({required int maxDigits}) {
     return TextInputFormatter.withFunction((oldValue, newValue) {
       final normalized = LanguageHelper.convertArabicToEnglishNumerals(
@@ -811,161 +511,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String hintText,
-    TextInputType? keyboardType,
-    bool required = true,
-    bool readOnly = false,
-    int? maxLength,
-    List<TextInputFormatter>? inputFormatters,
-    String? Function(String?)? validator,
-    String? focusKey,
-  }) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      readOnly: readOnly,
-      maxLength: maxLength,
-      inputFormatters: inputFormatters,
-      focusNode: focusKey != null ? _focusNodes[focusKey] : null,
-      autovalidateMode: focusKey != null && _touchedFields.contains(focusKey)
-          ? AutovalidateMode.onUserInteraction
-          : AutovalidateMode.disabled,
-      style: AppTextStyles.of(
-        fontSize: 15.sp,
-        color: readOnly ? Colors.grey.shade500 : Colors.black,
-        fontWeight: FontWeight.w500,
-      ),
-      decoration: InputDecoration(
-        hintText: hintText,
-        hintStyle: AppTextStyles.of(
-          fontSize: 14.sp,
-          color: Colors.grey.shade400,
-          fontWeight: FontWeight.w400,
-        ),
-        counterText: '',
-        filled: true,
-        fillColor: readOnly ? Colors.grey.shade100 : Colors.white,
-        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(
-            color: readOnly ? Colors.grey.shade300 : kAuthBlue,
-            width: readOnly ? 1.0 : 1.2,
-          ),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: const BorderSide(color: Colors.red, width: 1),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: const BorderSide(color: Colors.red, width: 1.2),
-        ),
-      ),
-      validator:
-          validator ??
-          (required
-              ? (v) => (v == null || v.isEmpty) ? 'common.required'.tr() : null
-              : null),
-    );
-  }
 
-  Widget _buildGenderDropdown() {
-    return DropdownButtonFormField<bool>(
-      initialValue: _isMale,
-      hint: Text(
-        'edit_profile.select_an_option'.tr(),
-        style: AppTextStyles.of(
-          fontSize: 14.sp,
-          color: Colors.grey.shade400,
-          fontWeight: FontWeight.w400,
-        ),
-      ),
-      style: AppTextStyles.of(
-        fontSize: 15.sp,
-        color: Colors.black,
-        fontWeight: FontWeight.w500,
-      ),
-      icon: Icon(
-        Icons.keyboard_arrow_down_rounded,
-        color: Colors.grey.shade500,
-        size: 20.sp,
-      ),
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: Colors.white,
-        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: const BorderSide(color: kAuthBlue, width: 1.2),
-        ),
-      ),
-      items: [
-        DropdownMenuItem(value: true, child: Text('edit_profile.male'.tr())),
-        DropdownMenuItem(value: false, child: Text('edit_profile.female'.tr())),
-      ],
-      onChanged: (val) {
-        setState(() {
-          _isMale = val;
-        });
-      },
-    );
-  }
 
-  Widget _buildRequiredHint(String text) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '*',
-          style: AppTextStyles.of(
-            fontSize: 13.sp,
-            color: Colors.red,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        SizedBox(width: 4.w),
-        Expanded(
-          child: Text(
-            text,
-            style: AppTextStyles.of(
-              fontSize: 12.sp,
-              color: Colors.grey.shade600,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _FieldLabel extends StatelessWidget {
-  final String label;
-  const _FieldLabel(this.label);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 6.h, top: 4.h),
-      child: Text(
-        label,
-        style: AppTextStyles.of(
-          fontSize: 15.sp,
-          fontWeight: FontWeight.w600,
-          color: Colors.black87,
-        ),
-      ),
-    );
-  }
 }

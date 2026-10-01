@@ -1,22 +1,24 @@
-import 'dart:math' as math;
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:latlong2/latlong.dart';
 
 import '../../../../core/services/url_launcher_service.dart';
 import '../../../../core/widgets/app_blue_header.dart';
-import '../../../../features/family_members/data/models/family_member_model.dart';
 import '../../../../network/data/provider_page_response_model.dart';
 import '../cubit/cart_cubit.dart';
 import '../cubit/cart_state.dart';
+import '../widgets/checkout_branch_selector.dart';
+import '../widgets/checkout_error_view.dart';
+import '../widgets/checkout_patient_dropdown.dart';
+import '../widgets/checkout_pay_button.dart';
+import '../widgets/checkout_payment_dropdown.dart';
+import '../widgets/checkout_payment_summary.dart';
+import '../widgets/checkout_section_title.dart';
 
 import '../../../home/presentation/widgets/order_placed_dialog.dart';
-import '../../../../core/theming/app_text_styles.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final int? initialProviderId;
@@ -146,7 +148,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
     }
 
     if (state.checkoutError != null && state.checkoutProvider == null) {
-      return _ErrorView(
+      return CheckoutErrorView(
         message: state.checkoutError!,
         onRetry: () => context.read<CartCubit>().loadCheckout(
           initialProviderId: widget.initialProviderId,
@@ -169,512 +171,24 @@ class _CheckoutScreenState extends State<CheckoutScreen>
         24.h + bottomSafePadding + 8.h,
       ),
       children: [
-        _SectionTitle(text: 'cart.order_for'.tr()),
+        CheckoutSectionTitle(text: 'cart.order_for'.tr()),
         SizedBox(height: 8.h),
-        _PatientDropdown(state: state),
+        CheckoutPatientDropdown(state: state),
         SizedBox(height: 22.h),
-        _SectionTitle(text: 'cart.branch_location'.tr()),
+        CheckoutSectionTitle(text: 'cart.branch_location'.tr()),
         SizedBox(height: 8.h),
-        _BranchSelector(state: state),
+        CheckoutBranchSelector(state: state),
         SizedBox(height: 22.h),
-        _SectionTitle(text: 'cart.payment_method'.tr()),
+        CheckoutSectionTitle(text: 'cart.payment_method'.tr()),
         SizedBox(height: 8.h),
-        _PaymentDropdown(state: state),
+        CheckoutPaymentDropdown(state: state),
         SizedBox(height: 24.h),
-        _SectionTitle(text: 'cart.payment_summary'.tr()),
+        CheckoutSectionTitle(text: 'cart.payment_summary'.tr()),
         SizedBox(height: 12.h),
-        _PaymentSummary(state: state),
+        CheckoutPaymentSummary(state: state),
         SizedBox(height: 22.h),
-        _PayButton(state: state),
+        CheckoutPayButton(state: state),
       ],
     );
   }
-}
-
-class _PatientDropdown extends StatelessWidget {
-  final CartState state;
-
-  const _PatientDropdown({required this.state});
-
-  @override
-  Widget build(BuildContext context) {
-    final items = <DropdownMenuItem<int>>[
-      DropdownMenuItem(value: 0, child: Text('cart.card_owner'.tr())),
-      ...state.familyMembers.map(
-        (member) => DropdownMenuItem(
-          value: member.id ?? -1,
-          child: Text(_memberName(member)),
-        ),
-      ),
-    ];
-
-    return _DropdownFrame(
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<int>(
-          value: state.selectedFamilyMember?.id ?? 0,
-          isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down_rounded),
-          items: items,
-          hint: state.isFamilyMembersLoading
-              ? Text('cart.loading_patients'.tr())
-              : Text('cart.select_patient'.tr()),
-          onChanged: state.isFamilyMembersLoading
-              ? null
-              : (id) {
-                  if (id == null || id == 0) {
-                    context.read<CartCubit>().selectFamilyMember(null);
-                    return;
-                  }
-                  FamilyMemberModel? selected;
-                  for (final member in state.familyMembers) {
-                    if (member.id == id) {
-                      selected = member;
-                      break;
-                    }
-                  }
-                  context.read<CartCubit>().selectFamilyMember(selected);
-                },
-        ),
-      ),
-    );
-  }
-
-  String _memberName(FamilyMemberModel member) {
-    if (member.fullName?.isNotEmpty == true) return member.fullName!;
-    return '${member.firstName ?? ''} ${member.lastName ?? ''}'.trim();
-  }
-}
-
-class _BranchSelector extends StatelessWidget {
-  final CartState state;
-
-  const _BranchSelector({required this.state});
-
-  @override
-  Widget build(BuildContext context) {
-    final selected = state.selectedBranch;
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: const Color(0xFFD7E5F5)),
-      ),
-      child: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 14.w),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<int>(
-                value: selected?.branchId,
-                isExpanded: true,
-                icon: const Icon(Icons.keyboard_arrow_down_rounded),
-                hint: Text(
-                  state.isCheckoutLoading
-                      ? 'cart.loading_branches'.tr()
-                      : 'provider_page.select_branch'.tr(),
-                ),
-                items: state.checkoutBranches
-                    .map(
-                      (branch) => DropdownMenuItem(
-                        value: branch.branchId,
-                        child: Text(branch.fullAddress ?? branch.branchName),
-                      ),
-                    )
-                    .toList(),
-                onChanged: state.isCheckoutLoading
-                    ? null
-                    : (branchId) {
-                        if (branchId == null) return;
-                        final branch = state.checkoutBranches.firstWhere(
-                          (branch) => branch.branchId == branchId,
-                        );
-                        context.read<CartCubit>().selectCheckoutBranch(branch);
-                      },
-              ),
-            ),
-          ),
-          if (selected != null) _MapPreview(branch: selected),
-        ],
-      ),
-    );
-  }
-}
-
-class _MapPreview extends StatefulWidget {
-  final ProviderBranch branch;
-
-  const _MapPreview({required this.branch});
-
-  @override
-  State<_MapPreview> createState() => _MapPreviewState();
-}
-
-class _MapPreviewState extends State<_MapPreview> {
-  final _mapController = MapController();
-
-  LatLng? get _point {
-    final latitude = widget.branch.latitude;
-    final longitude = widget.branch.longitude;
-    if (latitude == null || longitude == null) return null;
-    return LatLng(latitude, longitude);
-  }
-
-  @override
-  void didUpdateWidget(covariant _MapPreview oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    final point = _point;
-    if (point == null) return;
-    if (oldWidget.branch.branchId != widget.branch.branchId ||
-        oldWidget.branch.latitude != widget.branch.latitude ||
-        oldWidget.branch.longitude != widget.branch.longitude) {
-      _mapController.move(point, 14);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final point = _point;
-    final hasLocation = point != null;
-
-    return GestureDetector(
-      onTap: () {
-        final url = widget.branch.mapUrl;
-        if (url != null && url.isNotEmpty) {
-          UrlLauncherService().launchURL(url);
-        }
-      },
-      child: ClipRRect(
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(12.r)),
-        child: Container(
-          width: double.infinity,
-          height: 146.h,
-          color: const Color(0xFFE5E7EB),
-          child: !hasLocation
-              ? const Center(child: Icon(Icons.map_outlined))
-              : FlutterMap(
-                  mapController: _mapController,
-                  options: MapOptions(
-                    initialCenter: point,
-                    initialZoom: 14,
-                    interactionOptions: const InteractionOptions(
-                      flags:
-                          InteractiveFlag.drag |
-                          InteractiveFlag.pinchZoom |
-                          InteractiveFlag.doubleTapZoom,
-                    ),
-                  ),
-                  children: [
-                    TileLayer(
-                      urlTemplate:
-                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      userAgentPackageName: 'com.example.medicard',
-                    ),
-                    MarkerLayer(
-                      markers: [
-                        Marker(
-                          point: point,
-                          width: 42.r,
-                          height: 42.r,
-                          child: Icon(
-                            Icons.location_on,
-                            color: const Color(0xFF3872B1),
-                            size: 38.sp,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-        ),
-      ),
-    );
-  }
-}
-
-class _PaymentDropdown extends StatelessWidget {
-  final CartState state;
-
-  const _PaymentDropdown({required this.state});
-
-  @override
-  Widget build(BuildContext context) {
-    return _DropdownFrame(
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<CartPaymentMethod>(
-          value: state.paymentMethod,
-          isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down_rounded),
-          items: [
-            DropdownMenuItem(
-              value: CartPaymentMethod.cash,
-              child: Text('cart.cash'.tr()),
-            ),
-            DropdownMenuItem(
-              value: CartPaymentMethod.visa,
-              child: Text('cart.visa'.tr()),
-            ),
-          ],
-          onChanged: (method) {
-            if (method != null) {
-              context.read<CartCubit>().selectPaymentMethod(method);
-            }
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class _PaymentSummary extends StatelessWidget {
-  final CartState state;
-
-  const _PaymentSummary({required this.state});
-
-  @override
-  Widget build(BuildContext context) {
-    final provider = state.checkoutProvider;
-    final isPackageCheckout = state.checkoutPackageId != null;
-    final subtotal = isPackageCheckout
-        ? state.checkoutPackagePriceBefore ??
-              state.checkoutPackagePriceAfter ??
-              0
-        : provider?.totalPriceBefore ?? 0.0;
-    final total = isPackageCheckout
-        ? state.checkoutPackagePriceAfter ??
-              state.checkoutPackagePriceBefore ??
-              0
-        : provider?.totalPriceAfter ?? 0.0;
-    final discount = math.max<double>(0.0, subtotal - total);
-
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 10.h),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: const Color(0xFFD7D7D7)),
-      ),
-      child: Column(
-        children: [
-          _SummaryRow(
-            label: 'cart.provider'.tr(),
-            value: provider?.providerName ?? '-',
-          ),
-          if (isPackageCheckout)
-            _SummaryRow(
-              label: 'cart.package'.tr(),
-              value: state.checkoutPackageName ?? '-',
-            ),
-          _SummaryRow(
-            label: 'cart.subtotal'.tr(),
-            value: 'cart.egp_amount'.tr(args: [_money(subtotal)]),
-          ),
-          _SummaryRow(
-            label: 'cart.discount'.tr(),
-            value: 'cart.negative_egp_amount'.tr(args: [_money(discount)]),
-            valueColor: const Color(0xFF10B981),
-          ),
-          Divider(height: 20.h, color: const Color(0xFFD7D7D7)),
-          _SummaryRow(
-            label: 'cart.total_amount'.tr(),
-            value: 'cart.egp_amount'.tr(args: [_money(total)]),
-            isBold: true,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PayButton extends StatelessWidget {
-  final CartState state;
-
-  const _PayButton({required this.state});
-
-  @override
-  Widget build(BuildContext context) {
-    final isBusy = state.isCreatingInvoice;
-    final paymentLink = state.createdInvoicePaymentLink;
-    final hasPaymentLink = paymentLink != null && paymentLink.isNotEmpty;
-    return SizedBox(
-      width: double.infinity,
-      height: 52.h,
-      child: ElevatedButton(
-        onPressed: isBusy
-            ? null
-            : hasPaymentLink
-            ? () async {
-                final opened = await UrlLauncherService().launchURL(
-                  paymentLink,
-                );
-                if (opened && context.mounted) {
-                  context.go('/medicard-home?tab=activity');
-                }
-              }
-            : () {
-                final cubit = context.read<CartCubit>();
-                if (state.checkoutPackageId != null) {
-                  cubit.createPackageInvoice();
-                } else {
-                  cubit.createCartInvoice();
-                }
-              },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF3872B1),
-          disabledBackgroundColor: const Color(0xFFCBD5E1),
-          foregroundColor: Colors.white,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.r),
-          ),
-        ),
-        child: isBusy
-            ? const SizedBox(
-                width: 22,
-                height: 22,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.4,
-                  color: Colors.white,
-                ),
-              )
-            : Text(
-                hasPaymentLink
-                    ? 'cart.continue_payment'.tr()
-                    : state.paymentMethod == CartPaymentMethod.visa
-                    ? 'cart.pay_with_visa'.tr()
-                    : 'cart.pay'.tr(),
-                style: AppTextStyles.of(fontSize: 18.sp, fontWeight: FontWeight.w600),
-              ),
-      ),
-    );
-  }
-}
-
-class _DropdownFrame extends StatelessWidget {
-  final Widget child;
-
-  const _DropdownFrame({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 48.h,
-      padding: EdgeInsets.symmetric(horizontal: 12.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: const Color(0xFFAAB2C1)),
-      ),
-      child: child,
-    );
-  }
-}
-
-class _SummaryRow extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color? valueColor;
-  final bool isBold;
-
-  const _SummaryRow({
-    required this.label,
-    required this.value,
-    this.valueColor,
-    this.isBold = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              label,
-              style: AppTextStyles.of(
-                fontSize: 15.sp,
-                fontWeight: isBold ? FontWeight.w600 : FontWeight.w400,
-                color: Colors.black,
-              ),
-            ),
-          ),
-          SizedBox(width: 12.w),
-          Flexible(
-            child: Text(
-              value,
-              textAlign: TextAlign.end,
-              style: AppTextStyles.of(
-                fontSize: 14.sp,
-                fontWeight: isBold ? FontWeight.w600 : FontWeight.w400,
-                color: valueColor ?? const Color(0xFF444D5D),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SectionTitle extends StatelessWidget {
-  final String text;
-
-  const _SectionTitle({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: AppTextStyles.of(
-        fontSize: 18.sp,
-        fontWeight: FontWeight.w700,
-        color: const Color(0xFF2E2E2E),
-      ),
-    );
-  }
-}
-
-class _ErrorView extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-
-  const _ErrorView({required this.message, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 28.w),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.error_outline_rounded,
-              size: 48.sp,
-              color: const Color(0xFF94A3B8),
-            ),
-            SizedBox(height: 12.h),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: AppTextStyles.of(fontSize: 14.sp, color: const Color(0xFF64748B)),
-            ),
-            SizedBox(height: 16.h),
-            ElevatedButton(
-              onPressed: onRetry,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF3872B1),
-                foregroundColor: Colors.white,
-              ),
-              child: Text('common.retry'.tr()),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-String _money(double value) {
-  return value % 1 == 0 ? value.toStringAsFixed(0) : value.toStringAsFixed(2);
 }
