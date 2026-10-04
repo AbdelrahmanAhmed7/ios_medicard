@@ -8,6 +8,7 @@ import '../../core/auth/jwt_helper.dart';
 import '../../core/helpers/shared_pref_helper.dart';
 import '../../core/network/dio_factory.dart';
 import '../../core/utils/api_error_parser.dart';
+import '../../core/utils/platform_type.dart';
 import '../../data/auth_login_request_model.dart';
 import '../../domain/usecases/login_card_usecase.dart';
 import 'medicard_login_state.dart';
@@ -30,6 +31,7 @@ class MedicardLoginCubit extends Cubit<MedicardLoginState> {
         cardNumber: cardNumber,
         phoneNumber: phoneNumber,
         password: password,
+        platformType: PlatformType.current.value,
       );
 
       final result = await _loginCardUseCase.call(request);

@@ -7,6 +7,10 @@ class AuthLoginRequestModel {
   final String? cardNumber;
   final String? phoneNumber;
   final String password;
+
+  /// Backend `platformType` enum (Android = 0, Ios = 1, Web = 2).
+  /// Prefer [PlatformType.current.value] at the call site; this default
+  /// (iOS) is only a fallback for legacy constructions.
   final int platformType;
 
   const AuthLoginRequestModel({
