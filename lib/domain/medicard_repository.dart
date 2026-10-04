@@ -12,6 +12,7 @@ import '../features/guest_home/data/models/guest_home_response_model.dart';
 import '../features/profile/data/models/change_password_response_model.dart';
 import '../features/profile/data/models/change_language_response_model.dart';
 import '../features/profile/data/models/profile_response_model.dart';
+import '../features/profile/data/models/profile_summary_response_model.dart';
 import '../features/profile/data/models/member_card_activation_response_model.dart';
 import '../features/auth/data/models/otp_response_model.dart';
 import '../features/ecard/data/models/card_data_response_model.dart';
@@ -61,6 +62,11 @@ abstract class MedicardRepository {
   });
 
   Future<ApiResult<ProfileResponseModel>> getProfile();
+
+  /// Profile summary (reward points, family count). Unlike [getProfile], a
+  /// `succeeded` response with null `data` is valid (user has no summary
+  /// yet) and arrives as success — the caller treats null data as empty.
+  Future<ApiResult<ProfileSummaryResponseModel>> getProfileSummary();
 
   Future<ApiResult<ProfileResponseModel>> deleteProfileImage();
 

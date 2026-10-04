@@ -8,6 +8,7 @@ import 'package:medicard/core/widgets/app_blue_header.dart';
 
 import '../../../../core/widgets/auth_shared_widgets.dart';
 import '../../data/models/profile_response_model.dart';
+import '../../data/models/profile_summary_response_model.dart';
 import '../cubit/profile_cubit.dart';
 import 'activate_card_banner.dart';
 import 'profile_card.dart';
@@ -22,7 +23,11 @@ import '../../../../core/theming/app_text_styles.dart';
 class ProfileContent extends StatelessWidget {
   final ProfileData data;
 
-  const ProfileContent({super.key, required this.data});
+  /// Null while the summary is loading or when the backend has none yet —
+  /// the rows fall back to zero instead of fake values.
+  final ProfileSummaryData? summary;
+
+  const ProfileContent({super.key, required this.data, this.summary});
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +61,9 @@ class ProfileContent extends StatelessWidget {
                 icon: Icons.point_of_sale,
                 label: 'profile.rewards'.tr(),
                 trailing: Text(
-                  'profile.points_count'.tr(args: ['100']),
+                  'profile.points_count'.tr(
+                    args: ['${summary?.rewardPoints ?? 0}'],
+                  ),
                   style: AppTextStyles.of(
                     color: kAuthGreyText,
                     fontSize: 14.sp,
@@ -69,10 +76,24 @@ class ProfileContent extends StatelessWidget {
                 icon: Icons.people_outline_rounded,
                 label: 'profile.family_members'.tr(),
                 route: '/family-members',
-                trailing: Icon(
-                  Icons.chevron_right_rounded,
-                  color: Colors.black54,
-                  size: 20.sp,
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '${summary?.familyMembersCount ?? 0}',
+                      style: AppTextStyles.of(
+                        color: kAuthGreyText,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    SizedBox(width: 4.w),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      color: Colors.black54,
+                      size: 20.sp,
+                    ),
+                  ],
                 ),
               ),
               const Divider(color: kAuthBorderColor, height: 1),

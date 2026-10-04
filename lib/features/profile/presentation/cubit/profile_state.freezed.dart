@@ -135,12 +135,12 @@ return failed(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( ProfileData data)?  success,TResult Function( ProfileData data)?  updating,TResult Function( ProfileData data)?  updated,TResult Function( String error)?  failed,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( ProfileData data,  ProfileSummaryData? summary)?  success,TResult Function( ProfileData data)?  updating,TResult Function( ProfileData data)?  updated,TResult Function( String error)?  failed,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Loading() when loading != null:
 return loading();case _Success() when success != null:
-return success(_that.data);case _Updating() when updating != null:
+return success(_that.data,_that.summary);case _Updating() when updating != null:
 return updating(_that.data);case _Updated() when updated != null:
 return updated(_that.data);case _Failed() when failed != null:
 return failed(_that.error);case _:
@@ -161,12 +161,12 @@ return failed(_that.error);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( ProfileData data)  success,required TResult Function( ProfileData data)  updating,required TResult Function( ProfileData data)  updated,required TResult Function( String error)  failed,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( ProfileData data,  ProfileSummaryData? summary)  success,required TResult Function( ProfileData data)  updating,required TResult Function( ProfileData data)  updated,required TResult Function( String error)  failed,}) {final _that = this;
 switch (_that) {
 case _Initial():
 return initial();case _Loading():
 return loading();case _Success():
-return success(_that.data);case _Updating():
+return success(_that.data,_that.summary);case _Updating():
 return updating(_that.data);case _Updated():
 return updated(_that.data);case _Failed():
 return failed(_that.error);case _:
@@ -186,12 +186,12 @@ return failed(_that.error);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( ProfileData data)?  success,TResult? Function( ProfileData data)?  updating,TResult? Function( ProfileData data)?  updated,TResult? Function( String error)?  failed,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( ProfileData data,  ProfileSummaryData? summary)?  success,TResult? Function( ProfileData data)?  updating,TResult? Function( ProfileData data)?  updated,TResult? Function( String error)?  failed,}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Loading() when loading != null:
 return loading();case _Success() when success != null:
-return success(_that.data);case _Updating() when updating != null:
+return success(_that.data,_that.summary);case _Updating() when updating != null:
 return updating(_that.data);case _Updated() when updated != null:
 return updated(_that.data);case _Failed() when failed != null:
 return failed(_that.error);case _:
@@ -270,10 +270,11 @@ String toString() {
 
 
 class _Success implements ProfileState {
-  const _Success(this.data);
+  const _Success(this.data, [this.summary]);
   
 
  final  ProfileData data;
+ final  ProfileSummaryData? summary;
 
 /// Create a copy of ProfileState
 /// with the given fields replaced by the non-null parameter values.
@@ -285,16 +286,16 @@ _$SuccessCopyWith<_Success> get copyWith => __$SuccessCopyWithImpl<_Success>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Success&&(identical(other.data, data) || other.data == data));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Success&&(identical(other.data, data) || other.data == data)&&(identical(other.summary, summary) || other.summary == summary));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,data);
+int get hashCode => Object.hash(runtimeType,data,summary);
 
 @override
 String toString() {
-  return 'ProfileState.success(data: $data)';
+  return 'ProfileState.success(data: $data, summary: $summary)';
 }
 
 
@@ -305,7 +306,7 @@ abstract mixin class _$SuccessCopyWith<$Res> implements $ProfileStateCopyWith<$R
   factory _$SuccessCopyWith(_Success value, $Res Function(_Success) _then) = __$SuccessCopyWithImpl;
 @useResult
 $Res call({
- ProfileData data
+ ProfileData data, ProfileSummaryData? summary
 });
 
 
@@ -322,10 +323,11 @@ class __$SuccessCopyWithImpl<$Res>
 
 /// Create a copy of ProfileState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? data = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? data = null,Object? summary = freezed,}) {
   return _then(_Success(
 null == data ? _self.data : data // ignore: cast_nullable_to_non_nullable
-as ProfileData,
+as ProfileData,freezed == summary ? _self.summary : summary // ignore: cast_nullable_to_non_nullable
+as ProfileSummaryData?,
   ));
 }
 

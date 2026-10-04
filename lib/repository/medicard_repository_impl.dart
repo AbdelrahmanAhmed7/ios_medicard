@@ -31,6 +31,7 @@ import '../features/profile/data/models/change_language_request_model.dart';
 import '../features/profile/data/models/change_language_response_model.dart';
 import '../features/guest_home/data/models/guest_home_response_model.dart';
 import '../features/profile/data/models/profile_response_model.dart';
+import '../features/profile/data/models/profile_summary_response_model.dart';
 import '../features/profile/data/models/member_card_activation_response_model.dart';
 import '../features/ecard/data/models/card_data_response_model.dart';
 import '../service/medicard_api_service.dart';
@@ -380,6 +381,32 @@ class MedicardRepositoryImpl implements MedicardRepository {
     } catch (error) {
       if (kDebugMode) {
         debugPrint('[ProfileRepository] profile request exception: $error');
+      }
+      return ApiResult.failure(parseApiError(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<ProfileSummaryResponseModel>> getProfileSummary() async {
+    try {
+      if (kDebugMode) {
+        debugPrint('[ProfileRepository] requesting profile summary');
+      }
+      final response = await _apiService.getProfileSummary();
+      // Like deleteProfileImage: succeeded=true with data=null is valid
+      // (user has no summary yet), not an error.
+      return (response.succeeded == true)
+          ? ApiResult.success(response)
+          : ApiResult.failure(
+              (response.errors != null && response.errors!.isNotEmpty)
+                  ? response.errors!.join('\n')
+                  : response.message?.isNotEmpty == true
+                  ? response.message!
+                  : 'Failed to get profile summary.',
+            );
+    } catch (error) {
+      if (kDebugMode) {
+        debugPrint('[ProfileRepository] summary request exception: $error');
       }
       return ApiResult.failure(parseApiError(error));
     }

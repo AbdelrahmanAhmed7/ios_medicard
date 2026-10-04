@@ -352,7 +352,8 @@ class _ProfileBody extends StatelessWidget {
         return state.when(
           initial: () => const SizedBox.shrink(),
           loading: () => const ProfileShimmer(),
-          success: (data) => ProfileContent(data: data),
+          success: (data, summary) =>
+              ProfileContent(data: data, summary: summary),
           updating: (data) => ProfileContent(data: data),
           updated: (data) => ProfileContent(data: data),
           failed: (error) => ProfileErrorView(error: error),

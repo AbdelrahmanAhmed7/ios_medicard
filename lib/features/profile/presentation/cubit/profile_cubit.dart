@@ -1,11 +1,13 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/foundation.dart';
+import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:medicard/core/constants/api_result.dart';
 import 'package:medicard/core/theming/app_toast.dart';
 import 'package:medicard/core/utils/api_error_parser.dart';
 import '../../data/models/profile_response_model.dart';
 import '../../domain/usecases/get_profile_usecase.dart';
+import '../../domain/usecases/get_profile_summary_usecase.dart';
 import '../../domain/usecases/update_profile_v2_usecase.dart';
 import '../../domain/usecases/delete_profile_image_usecase.dart';
 import '../../domain/usecases/change_language_usecase.dart';
@@ -15,6 +17,7 @@ import 'profile_state.dart';
 
 class ProfileCubit extends Cubit<ProfileState> {
   final GetProfileUseCase _getProfileUseCase;
+  final GetProfileSummaryUseCase _getProfileSummaryUseCase;
   final UpdateProfileV2UseCase _updateProfileUseCase;
   final DeleteProfileImageUseCase _deleteProfileImageUseCase;
   final ChangeLanguageUseCase _changeLanguageUseCase;
@@ -24,6 +27,7 @@ class ProfileCubit extends Cubit<ProfileState> {
 
   ProfileCubit(
     this._getProfileUseCase,
+    this._getProfileSummaryUseCase,
     this._updateProfileUseCase,
     this._deleteProfileImageUseCase,
     this._changeLanguageUseCase,
@@ -43,7 +47,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     }
 
     final hasProfile = state.maybeWhen(
-      success: (_) => true,
+      success: (_, _) => true,
       updating: (_) => true,
       updated: (_) => true,
       orElse: () => false,
@@ -96,6 +100,9 @@ class ProfileCubit extends Cubit<ProfileState> {
             debugPrint('[ProfileCubit] profile loaded successfully');
           }
           emit(ProfileState.success(profile));
+          // Secondary fetch: must never block or toast; failures stay silent
+          // (logged) and null data keeps the zero defaults on screen.
+          unawaited(_loadSummary(profile));
         },
         failure: (message) {
           if (isClosed) return;
@@ -251,6 +258,38 @@ class ProfileCubit extends Cubit<ProfileState> {
       if (!isClosed) emit(ProfileState.success(currentData));
       return false;
     }
+  }
+
+  /// Loads reward points + family count after the profile is shown.
+  /// Never throws, never toasts: the profile is already visible and this is
+  /// additive data. Null data (backend has no summary yet) keeps defaults.
+  Future<void> _loadSummary(ProfileData profile) async {
+    final result = await _getProfileSummaryUseCase.call();
+    if (isClosed) return;
+    result.when(
+      success: (response) {
+        if (isClosed) return;
+        final summary = response.data;
+        if (summary == null) {
+          if (kDebugMode) {
+            debugPrint('[ProfileCubit] summary empty; keeping defaults');
+          }
+          return;
+        }
+        // Re-emit only if the profile hasn't moved on meanwhile (e.g. an
+        // update started) so we never clobber fresher state.
+        final same = state.maybeWhen(
+          success: (data, _) => identical(data, profile),
+          orElse: () => false,
+        );
+        if (same) emit(ProfileState.success(profile, summary));
+      },
+      failure: (message) {
+        if (kDebugMode) {
+          debugPrint('[ProfileCubit] summary failed: $message');
+        }
+      },
+    );
   }
 
   /// Single teardown point for a user-initiated sign-out. Screens navigate,

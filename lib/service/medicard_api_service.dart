@@ -12,6 +12,7 @@ import '../features/profile/data/models/change_language_response_model.dart';
 import '../features/profile/data/models/change_password_response_model.dart';
 import '../features/profile/data/models/change_language_request_model.dart';
 import '../features/profile/data/models/profile_response_model.dart';
+import '../features/profile/data/models/profile_summary_response_model.dart';
 import '../features/profile/data/models/member_card_activation_response_model.dart';
 import '../features/auth/data/models/send_otp_request_model.dart';
 import '../features/auth/data/models/verify_otp_request_model.dart';
@@ -91,6 +92,9 @@ abstract class MedicardApiService {
 
   @GET('Profile')
   Future<ProfileResponseModel> getProfile();
+
+  @GET('Profile/summary')
+  Future<ProfileSummaryResponseModel> getProfileSummary();
 
   @GET('Profile/card-data')
   Future<CardDataResponseModel> getCardData();

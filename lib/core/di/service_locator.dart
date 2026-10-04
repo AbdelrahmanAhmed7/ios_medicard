@@ -42,6 +42,7 @@ import '../../features/search/domain/use_cases/search_providers_use_case.dart';
 import '../../features/search/presentation/cubit/filter_cubit.dart';
 import '../../features/search/presentation/cubit/search_cubit.dart';
 import '../../features/profile/domain/usecases/get_profile_usecase.dart';
+import '../../features/profile/domain/usecases/get_profile_summary_usecase.dart';
 import '../../features/ecard/domain/usecases/get_card_data_usecase.dart';
 import '../../features/ecard/presentation/cubit/ecard_cubit.dart';
 import '../../features/profile/domain/usecases/update_profile_v2_usecase.dart';
@@ -209,6 +210,9 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory<UpdateProfileUseCase>(() => UpdateProfileUseCase(sl()));
   sl.registerFactory<GetHomeDataUseCase>(() => GetHomeDataUseCase(sl()));
   sl.registerFactory<GetProfileUseCase>(() => GetProfileUseCase(sl()));
+  sl.registerFactory<GetProfileSummaryUseCase>(
+    () => GetProfileSummaryUseCase(sl()),
+  );
   sl.registerFactory<GetCardDataUseCase>(() => GetCardDataUseCase(sl()));
   sl.registerFactory<UpdateProfileV2UseCase>(
     () => UpdateProfileV2UseCase(sl()),
@@ -288,7 +292,7 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory<ActivityCubit>(() => ActivityCubit(sl()));
   sl.registerFactory<LocationCubit>(() => LocationCubit(sl(), sl()));
   sl.registerFactory<ProfileCubit>(
-    () => ProfileCubit(sl(), sl(), sl(), sl(), sl(), sl()),
+    () => ProfileCubit(sl(), sl(), sl(), sl(), sl(), sl(), sl()),
   );
   sl.registerFactory<ECardCubit>(() => ECardCubit(sl()));
   sl.registerFactory<ChangePasswordCubit>(() => ChangePasswordCubit(sl()));
