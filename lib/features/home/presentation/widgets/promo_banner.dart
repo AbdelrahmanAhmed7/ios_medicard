@@ -84,7 +84,7 @@ class _PromoBannerWidgetState extends State<PromoBannerWidget> {
                       imageUrl: banner.imageUrl,
                       width: double.infinity,
                       height: 201,
-                      fit: BoxFit.cover,
+                      fit: BoxFit.contain,
                       errorWidget: (context, url, error) =>
                           const SizedBox.shrink(),
                     ),

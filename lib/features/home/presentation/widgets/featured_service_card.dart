@@ -11,6 +11,8 @@ import '../../../../medicard_network/domain/usecases/get_package_details_usecase
 import '../../../../network/data/provider_page_response_model.dart';
 import '../../domain/models/featured_service_model.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
 class FeaturedServiceCard extends StatefulWidget {
   final FeaturedServiceModel service;
 
@@ -57,7 +59,7 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                       imageUrl: service.imageUrl,
                       height: 159,
                       width: double.infinity,
-                      fit: BoxFit.cover,
+                      fit: BoxFit.contain,
                       placeholder: (context, url) => Container(
                         color: const Color(0xFFEEF3FB),
                         height: 159,
@@ -118,7 +120,7 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                             const SizedBox(width: 3),
                             Text(
                               '${service.rating} (${service.reviewCount})',
-                              style: const TextStyle(
+                              style: AppTextStyles.of(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
                                 color: Color(0xFF1A1A2E),
@@ -140,7 +142,7 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                   children: [
                     Text(
                       service.serviceName,
-                      style: const TextStyle(
+                      style: AppTextStyles.of(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF1A1A2E),
@@ -151,7 +153,7 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                     const SizedBox(height: 2),
                     Text(
                       service.providerName,
-                      style: const TextStyle(
+                      style: AppTextStyles.of(
                         fontSize: 10,
                         fontWeight: FontWeight.w400,
                         color: Color(0xFF6B7280),
@@ -171,7 +173,7 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                         Expanded(
                           child: Text(
                             service.location,
-                            style: const TextStyle(
+                            style: AppTextStyles.of(
                               fontSize: 10,
                               fontWeight: FontWeight.w400,
                               color: Color(0xFF6B7280),
@@ -188,7 +190,7 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                       children: [
                         Text(
                           '${service.originalPrice.toInt()} EGP',
-                          style: const TextStyle(
+                          style: AppTextStyles.of(
                             fontSize: 10,
                             fontWeight: FontWeight.w400,
                             color: Color(0xFF9CA3AF),
@@ -198,7 +200,7 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                         const SizedBox(width: 5),
                         Text(
                           '${service.discountedPrice.toInt()} EGP',
-                          style: const TextStyle(
+                          style: AppTextStyles.of(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                             color: Color(0xFF3872B1),
@@ -228,7 +230,7 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                             ),
                             child: Text(
                               'activity.book'.tr(),
-                              style: const TextStyle(
+                              style: AppTextStyles.of(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w400,
                                 color: Color(0xFFFFFFFF),
@@ -419,7 +421,7 @@ class _PackageDetailsSheetContent extends StatelessWidget {
             children: [
               Text(
                 name,
-                style: const TextStyle(
+                style: AppTextStyles.of(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF0F172A),
@@ -428,7 +430,7 @@ class _PackageDetailsSheetContent extends StatelessWidget {
               const SizedBox(height: 10),
               Text(
                 description,
-                style: const TextStyle(
+                style: AppTextStyles.of(
                   fontSize: 14,
                   color: Color(0xFF475569),
                   height: 1.35,
@@ -438,7 +440,7 @@ class _PackageDetailsSheetContent extends StatelessWidget {
                 const SizedBox(height: 20),
                 Text(
                   'provider_page.tests_included'.tr(),
-                  style: const TextStyle(
+                  style: AppTextStyles.of(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                   ),
@@ -448,7 +450,7 @@ class _PackageDetailsSheetContent extends StatelessWidget {
                   serviceNames.length,
                   (index) => Text(
                     '${index + 1}-${serviceNames[index]}',
-                    style: const TextStyle(
+                    style: AppTextStyles.of(
                       fontSize: 14,
                       color: Color(0xFF475569),
                     ),
@@ -460,7 +462,7 @@ class _PackageDetailsSheetContent extends StatelessWidget {
                 children: [
                   Text(
                     'cart.total_amount'.tr(),
-                    style: const TextStyle(
+                    style: AppTextStyles.of(
                       fontSize: 17,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF64748B),
@@ -469,14 +471,14 @@ class _PackageDetailsSheetContent extends StatelessWidget {
                   const Spacer(),
                   Text(
                     'cart.egp_amount'.tr(args: ['${priceBefore.toInt()}']),
-                    style: const TextStyle(
+                    style: AppTextStyles.of(
                       decoration: TextDecoration.lineThrough,
                     ),
                   ),
                   const SizedBox(width: 10),
                   Text(
                     'cart.egp_amount'.tr(args: ['${priceAfter.toInt()}']),
-                    style: const TextStyle(
+                    style: AppTextStyles.of(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                       color: Color(0xFF3872B1),

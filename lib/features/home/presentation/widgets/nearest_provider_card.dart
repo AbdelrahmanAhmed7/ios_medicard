@@ -3,6 +3,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import '../../domain/models/provider_model.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
+
 class NearestProviderCard extends StatelessWidget {
   final ProviderModel provider;
 
@@ -38,7 +40,7 @@ class NearestProviderCard extends StatelessWidget {
                       imageUrl: provider.imageUrl,
                       height: 159,
                       width: double.infinity,
-                      fit: BoxFit.cover,
+                      fit: BoxFit.contain,
                       placeholder: (context, url) => Container(
                         color: const Color(0xFFEEF3FB),
                         height: 159,
@@ -79,7 +81,7 @@ class NearestProviderCard extends StatelessWidget {
                             const SizedBox(width: 3),
                             Text(
                               '${provider.rating} (${provider.reviewCount})',
-                              style: const TextStyle(
+                              style: AppTextStyles.of(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
                                 color: Color(0xFF1A1A2E),
@@ -120,7 +122,7 @@ class NearestProviderCard extends StatelessWidget {
                                 ),
                                 child: Text(
                                   badge,
-                                  style: const TextStyle(
+                                  style: AppTextStyles.of(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w500,
                                     color: Color(0xFF3872B1),
@@ -134,7 +136,7 @@ class NearestProviderCard extends StatelessWidget {
                     ],
                     Text(
                       provider.name,
-                      style: const TextStyle(
+                      style: AppTextStyles.of(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF1A1A2E),
@@ -146,7 +148,7 @@ class NearestProviderCard extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         provider.type,
-                        style: const TextStyle(
+                        style: AppTextStyles.of(
                           fontSize: 11,
                           fontWeight: FontWeight.w400,
                           color: Color(0xFF6B7280),
@@ -168,7 +170,7 @@ class NearestProviderCard extends StatelessWidget {
                           Expanded(
                             child: Text(
                               provider.location,
-                              style: const TextStyle(
+                              style: AppTextStyles.of(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w400,
                                 color: Color(0xFF6B7280),
