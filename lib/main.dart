@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:easy_localization/easy_localization.dart';
@@ -93,10 +92,11 @@ Future<void> _initializeNonBlockingServices() async {
 }
 
 bool get _shouldInitializeFirebase {
-  // Firebase iOS SwiftPM/GoogleDataTransport is crashing on the simulator in
-  // this Flutter/Xcode setup. Keep it enabled for release builds and non-iOS
-  // targets while allowing local iOS UI development to start normally.
-  if (!kReleaseMode && Platform.isIOS) return false;
+  // Previously disabled for iOS debug due to a Firebase iOS
+  // SwiftPM/GoogleDataTransport simulator crash in an older Flutter/Xcode
+  // setup. Re-enabled: the sibling app issues FCM tokens fine on the same
+  // simulator, so this needs re-verification, not a blanket ban.
+  // If the old crash reproduces, gate this behind a dart-define instead.
   return true;
 }
 
