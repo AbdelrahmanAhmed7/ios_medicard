@@ -400,6 +400,33 @@ class PushNotificationService {
   /// Setup FCM token handling
   Future<void> _setupTokenHandling() async {
     try {
+      // Refresh listener first: it must stay active even if the initial
+      // token fetch below bails out (e.g. APNs not ready yet on iOS).
+      _messaging.onTokenRefresh.listen((token) {
+        if (kDebugMode) {
+          debugPrint('Token refreshed: $token');
+        }
+        _currentToken = token;
+        _tokenController.add(token);
+        unawaited(registerDeviceToken());
+      });
+
+      // iOS delivers the APNs token asynchronously after permission is
+      // granted; FCM getToken() throws `apns-token-not-set` until then.
+      if (!kIsWeb && Platform.isIOS) {
+        final apnsToken = await _waitForApnsToken();
+        if (apnsToken == null) {
+          if (kDebugMode) {
+            debugPrint(
+              'APNs token unavailable — FCM token deferred. '
+              'Needs the Push capability (aps-environment) for this bundle ID; '
+              'the refresh listener above will pick the token up later.',
+            );
+          }
+          return;
+        }
+      }
+
       // Get initial token
       _currentToken = await _messaging.getToken();
       if (_currentToken != null) {
@@ -411,19 +438,24 @@ class PushNotificationService {
         // Fire-and-forget: must never block startup or throw.
         unawaited(registerDeviceToken());
       }
-
-      // Listen to token refresh
-      _messaging.onTokenRefresh.listen((token) {
-        if (kDebugMode) {
-          debugPrint('Token refreshed: $token');
-        }
-        _currentToken = token;
-        _tokenController.add(token);
-        unawaited(registerDeviceToken());
-      });
     } catch (e) {
       if (kDebugMode) debugPrint('Error setting up token handling: $e');
     }
+  }
+
+  /// Polls for the iOS APNs token (up to ~10s). Null means iOS never issued
+  /// one — almost always a missing Push capability/provisioning profile.
+  Future<String?> _waitForApnsToken() async {
+    for (var i = 0; i < 10; i++) {
+      try {
+        final apnsToken = await _messaging.getAPNSToken();
+        if (apnsToken != null && apnsToken.isNotEmpty) return apnsToken;
+      } catch (_) {
+        // Not ready yet — keep polling.
+      }
+      await Future.delayed(const Duration(seconds: 1));
+    }
+    return null;
   }
 
   /// Registers the current FCM token with the backend so pushes can reach
