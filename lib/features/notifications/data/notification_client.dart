@@ -32,4 +32,10 @@ abstract class NotificationClient {
   Future<ApiResponse<dynamic>> markAllAsRead(
     @Header("Authorization") String token,
   );
+
+  @POST("Notification/register-device-token")
+  Future<ApiResponse<dynamic>> registerDeviceToken(
+    @Header("Authorization") String token,
+    @Body() Map<String, dynamic> body,
+  );
 }

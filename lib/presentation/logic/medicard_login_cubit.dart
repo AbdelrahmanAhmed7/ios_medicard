@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:async';
 
 import '../../core/constants/api_result.dart';
 import '../../core/constants/constants.dart';
@@ -11,6 +12,7 @@ import '../../core/utils/api_error_parser.dart';
 import '../../core/utils/platform_type.dart';
 import '../../data/auth_login_request_model.dart';
 import '../../domain/usecases/login_card_usecase.dart';
+import '../../features/notifications/push_notification_service.dart';
 import 'medicard_login_state.dart';
 
 class MedicardLoginCubit extends Cubit<MedicardLoginState> {
@@ -56,6 +58,9 @@ class MedicardLoginCubit extends Cubit<MedicardLoginState> {
               ),
             );
             DioFactory.setTokenIntoHeaderAfterLogin(token);
+            // The FCM token may have arrived before login (or rotated); bind
+            // this device to the user now so pushes can reach it.
+            unawaited(PushNotificationService.instance.registerDeviceToken());
           }
           if (isClosed) return;
           emit(MedicardLoginState.success(response));

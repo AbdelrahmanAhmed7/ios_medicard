@@ -7,6 +7,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:medicard/firebase_options.dart';
+import 'package:medicard/core/di/service_locator.dart';
+import 'package:medicard/core/utils/platform_type.dart';
+import 'package:medicard/features/notifications/data/domain/notification_repo.dart';
 
 /// Background message handler - must be top-level function
 @pragma('vm:entry-point')
@@ -395,18 +398,56 @@ class PushNotificationService {
       // Get initial token
       _currentToken = await _messaging.getToken();
       if (_currentToken != null) {
-        if (kDebugMode) debugPrint('FCM token obtained successfully');
+        if (kDebugMode) {
+          debugPrint('FCM token obtained successfully');
+          debugPrint('FCM token: $_currentToken');
+        }
         _tokenController.add(_currentToken!);
+        // Fire-and-forget: must never block startup or throw.
+        unawaited(registerDeviceToken());
       }
 
       // Listen to token refresh
       _messaging.onTokenRefresh.listen((token) {
-        if (kDebugMode) debugPrint('Token refreshed: $token');
+        if (kDebugMode) {
+          debugPrint('Token refreshed: $token');
+        }
         _currentToken = token;
         _tokenController.add(token);
+        unawaited(registerDeviceToken());
       });
     } catch (e) {
       if (kDebugMode) debugPrint('Error setting up token handling: $e');
+    }
+  }
+
+  /// Registers the current FCM token with the backend so pushes can reach
+  /// this device. Safe to call anytime: no-ops when there is no token yet
+  /// or nobody is logged in, and never throws (secondary flow).
+  Future<bool> registerDeviceToken() async {
+    try {
+      final fcmToken = _currentToken;
+      if (fcmToken == null || fcmToken.isEmpty) {
+        if (kDebugMode) {
+          debugPrint('registerDeviceToken skipped: no FCM token yet');
+        }
+        return false;
+      }
+      final registered = await sl<NotificationRepository>().registerDeviceToken(
+        fcmToken: fcmToken,
+        platform: PlatformType.current.value,
+      );
+      if (kDebugMode) {
+        debugPrint(
+          registered
+              ? 'Device token registered (platform=${PlatformType.current.value})'
+              : 'registerDeviceToken skipped: not logged in',
+        );
+      }
+      return registered;
+    } catch (e) {
+      if (kDebugMode) debugPrint('registerDeviceToken failed: $e');
+      return false;
     }
   }
 

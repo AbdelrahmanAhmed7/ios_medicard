@@ -34,4 +34,23 @@ class NotificationRepository {
   Future<void> markAllAsRead() async {
     await _service.markAllAsRead(await _bearerToken);
   }
+
+  /// Registers the FCM device token so the backend can push to this device.
+  /// Returns false (and does nothing) when nobody is logged in — the login
+  /// flow re-registers right after sign-in.
+  Future<bool> registerDeviceToken({
+    required String fcmToken,
+    required int platform,
+  }) async {
+    final userToken = await SharedPrefHelper.getSecuredString(
+      SharedPrefKeys.userToken,
+    );
+    if (userToken.isEmpty) return false;
+    await _service.registerDeviceToken(
+      'Bearer $userToken',
+      fcmToken: fcmToken,
+      platform: platform,
+    );
+    return true;
+  }
 }

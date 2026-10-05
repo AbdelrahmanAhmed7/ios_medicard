@@ -35,4 +35,19 @@ class NotificationService {
       throw Exception(response.message);
     }
   }
+
+  Future<void> registerDeviceToken(
+    String token, {
+    required String fcmToken,
+    required int platform,
+  }) async {
+    final response = await _client.registerDeviceToken(token, {
+      'fcmToken': fcmToken,
+      'platform': platform,
+    });
+
+    if (!response.succeeded) {
+      throw Exception(response.message);
+    }
+  }
 }
