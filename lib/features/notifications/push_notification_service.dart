@@ -63,11 +63,16 @@ class PushNotificationService {
         _firebaseMessagingBackgroundHandler,
       );
 
-      // Request permissions
+      // Request permissions. A denial only affects *displaying*
+      // notifications — the FCM token (needed for backend registration and
+      // tap handling) does not require permission, so always continue.
       final permissionGranted = await _requestPermission();
       if (!permissionGranted) {
-        if (kDebugMode) debugPrint('Notification permission denied');
-        return false;
+        if (kDebugMode) {
+          debugPrint(
+            'Notification permission not granted; continuing with token setup only',
+          );
+        }
       }
 
       // Setup local notifications
