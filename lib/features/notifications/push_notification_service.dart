@@ -20,6 +20,20 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     );
   }
   if (kDebugMode) debugPrint('Background message: ${message.messageId}');
+
+  // Notification payloads are displayed automatically by Android/iOS while
+  // the app is in the background. Showing another local notification here
+  // would therefore create a duplicate. Data-only messages are not displayed
+  // by the OS, so they still need the local-notification path below.
+  if (message.notification != null) {
+    if (kDebugMode) {
+      debugPrint(
+        'Skipping local background notification; it is displayed by the OS.',
+      );
+    }
+    return;
+  }
+
   await PushNotificationService.instance.setupFlutterNotifications();
   await PushNotificationService.instance.showNotification(message);
 }
@@ -211,14 +225,19 @@ class PushNotificationService {
   Future<void> showNotification(RemoteMessage message) async {
     try {
       final notification = message.notification;
-      if (notification == null) {
-        if (kDebugMode) debugPrint('Message has no notification payload');
+      final data = message.data;
+      final title = notification?.title ?? data['title']?.toString();
+      final body = notification?.body ?? data['body']?.toString();
+
+      // A data-only message may be intended for silent background work. Only
+      // turn it into a visible notification when it contains display content.
+      if ((title == null || title.isEmpty) && (body == null || body.isEmpty)) {
+        if (kDebugMode) debugPrint('Message has no notification content');
         return;
       }
 
       // Check platform-specific notification data
-      final android = message.notification?.android;
-      final data = message.data;
+      final android = notification?.android;
 
       // Support multiple image field names
       final imageUrl =
@@ -268,23 +287,23 @@ class PushNotificationService {
           styleInfo = BigPictureStyleInformation(
             bigPicture,
             largeIcon: largeIconBitmap,
-            contentTitle: notification.title,
-            summaryText: notification.body,
+            contentTitle: title,
+            summaryText: body,
             hideExpandedLargeIcon: false,
           );
           if (kDebugMode) debugPrint('Big picture style loaded successfully');
         } catch (e) {
           if (kDebugMode) debugPrint('Failed to load big picture: $e');
           styleInfo = BigTextStyleInformation(
-            notification.body ?? '',
-            contentTitle: notification.title,
+            body ?? '',
+            contentTitle: title,
             summaryText: data['summary'],
           );
         }
       } else {
         styleInfo = BigTextStyleInformation(
-          notification.body ?? '',
-          contentTitle: notification.title,
+          body ?? '',
+          contentTitle: title,
           summaryText: data['summary'],
         );
       }
@@ -301,7 +320,7 @@ class PushNotificationService {
             enableVibration: true,
             styleInformation: styleInfo,
             showWhen: true,
-            ticker: notification.title,
+            ticker: title,
             largeIcon: largeIconBitmap,
             color: colorHex != null ? _parseColor(colorHex) : null,
             groupKey: groupKey,
@@ -335,17 +354,41 @@ class PushNotificationService {
 
       // Show notification
       await _localNotifications.show(
-        id: notification.hashCode,
-        title: notification.title,
-        body: notification.body,
+        id: _notificationId(message, title: title, body: body),
+        title: title,
+        body: body,
         notificationDetails: notificationDetails,
         payload: message.data.isNotEmpty ? jsonEncode(message.data) : null,
       );
 
-      if (kDebugMode) debugPrint('Notification shown: ${notification.title}');
+      if (kDebugMode) debugPrint('Notification shown: $title');
     } catch (e) {
       if (kDebugMode) debugPrint('Error showing notification: $e');
     }
+  }
+
+  int _notificationId(
+    RemoteMessage message, {
+    required String? title,
+    required String? body,
+  }) {
+    final rawId =
+        message.data['notificationId']?.toString() ??
+        message.data['notification_id']?.toString() ??
+        message.messageId ??
+        '${title ?? ''}|${body ?? ''}|${message.sentTime?.millisecondsSinceEpoch ?? ''}';
+
+    final numericId = int.tryParse(rawId);
+    if (numericId != null) return numericId & 0x7fffffff;
+
+    // Deterministic 31-bit FNV-1a hash. Re-delivery of the same FCM message
+    // replaces the existing local notification instead of adding another one.
+    var hash = 0x811c9dc5;
+    for (final codeUnit in rawId.codeUnits) {
+      hash ^= codeUnit;
+      hash = (hash * 0x01000193) & 0xffffffff;
+    }
+    return hash & 0x7fffffff;
   }
 
   Future<Uint8List> _downloadBytes(String url) async {
