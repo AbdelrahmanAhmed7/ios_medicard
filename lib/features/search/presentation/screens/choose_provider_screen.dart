@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/widgets/app_blue_header.dart';
 import '../../../cart/domain/models/provider_option.dart';
 import '../../../cart/presentation/cubit/cart_cubit.dart';
 import '../../../cart/presentation/cubit/cart_state.dart';
@@ -23,13 +22,61 @@ class ChooseProviderScreen extends StatelessWidget {
           backgroundColor: const Color(0xFFF8FAFC),
           body: Column(
             children: [
-              AppBlueHeader(
-                title: 'cart.choose_provider'.tr(),
-                subtitle: state.providers.isNotEmpty
-                    ? 'cart.providers_available'.tr(
-                        args: ['${state.providers.length}'],
-                      )
-                    : null,
+              SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(8.w, 10.h, 20.w, 6.h),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        visualDensity: VisualDensity.compact,
+                        icon: Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          color: const Color(0xFF111827),
+                          size: 22.sp,
+                        ),
+                        onPressed: () {
+                          if (Navigator.of(context).canPop()) {
+                            Navigator.of(context).pop();
+                          }
+                        },
+                      ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'cart.choose_provider'.tr(),
+                              style: AppTextStyles.of(
+                                fontSize: 22.sp,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF111827),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            if (state.providers.isNotEmpty) ...[
+                              SizedBox(height: 2.h),
+                              Text(
+                                'cart.providers_available'.tr(
+                                  args: ['${state.providers.length}'],
+                                ),
+                                style: AppTextStyles.of(
+                                  fontSize: 12.5.sp,
+                                  color: const Color(0xFF6B7280),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
               Expanded(child: _buildBody(context, state)),
               // Bottom bar — only when a provider is selected
@@ -78,6 +125,65 @@ class ChooseProviderScreen extends StatelessWidget {
 }
 
 
+/// Small coverage pill under the provider name.
+class _CoveragePill extends StatelessWidget {
+  final ProviderOption provider;
+
+  const _CoveragePill({required this.provider});
+
+  @override
+  Widget build(BuildContext context) {
+    final coversAll = provider.coversAll;
+    final background = coversAll
+        ? const Color(0xFFD1FAE5)
+        : const Color(0xFFFEF3C7);
+    final foreground = coversAll
+        ? const Color(0xFF047857)
+        : const Color(0xFFB45309);
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 4.h),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(20.r),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            coversAll ? Icons.check_circle_rounded : Icons.warning_amber_rounded,
+            size: 13.sp,
+            color: foreground,
+          ),
+          SizedBox(width: 4.w),
+          Flexible(
+            child: Text(
+              coversAll
+                  ? 'cart.covers_all_services'.tr(
+                      args: ['${provider.totalCount}'],
+                    )
+                  : 'cart.covers_partial_services'.tr(
+                      args: [
+                        '${provider.coveredCount}',
+                        '${provider.totalCount}',
+                      ],
+                    ),
+              style: AppTextStyles.of(
+                fontSize: 11.sp,
+                fontWeight: FontWeight.w600,
+                color: foreground,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
 class _ProviderCard extends StatelessWidget {
   final ProviderOption provider;
   final bool isSelected;
@@ -95,22 +201,22 @@ class _ProviderCard extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        margin: EdgeInsets.only(bottom: 12.h),
-        padding: EdgeInsets.all(16.w),
+        margin: EdgeInsets.only(bottom: 10.h),
+        padding: EdgeInsets.all(14.w),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16.r),
+          color: isSelected ? const Color(0xFFF5F9FF) : Colors.white,
+          borderRadius: BorderRadius.circular(18.r),
           border: Border.all(
             color: isSelected
                 ? const Color(0xFF3872B1)
-                : const Color(0xFFE2E8F0),
+                : const Color(0xFFE8EDF3),
             width: isSelected ? 2 : 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: isSelected ? 0.06 : 0.02),
-              blurRadius: isSelected ? 10 : 6,
-              offset: const Offset(0, 2),
+              color: const Color(0xFF0F172A).withValues(alpha: 0.05),
+              blurRadius: 14,
+              offset: const Offset(0, 5),
             ),
           ],
         ),
@@ -122,8 +228,8 @@ class _ProviderCard extends StatelessWidget {
               children: [
                 // Logo
                 Container(
-                  width: 52.r,
-                  height: 52.r,
+                  width: 46.r,
+                  height: 46.r,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
@@ -148,7 +254,7 @@ class _ProviderCard extends StatelessWidget {
                 ),
                 SizedBox(width: 12.w),
 
-                // Name + coverage line
+                // Name + coverage pill
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -156,11 +262,15 @@ class _ProviderCard extends StatelessWidget {
                       Text(
                         provider.providerName,
                         style: AppTextStyles.of(
-                          fontSize: 16.sp,
+                          fontSize: 15.sp,
                           fontWeight: FontWeight.w600,
                           color: const Color(0xFF0F172A),
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
+                      SizedBox(height: 5.h),
+                      _CoveragePill(provider: provider),
                     ],
                   ),
                 ),
@@ -168,8 +278,8 @@ class _ProviderCard extends StatelessWidget {
                 // Radio indicator
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  width: 24.r,
-                  height: 24.r,
+                  width: 22.r,
+                  height: 22.r,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
@@ -193,14 +303,125 @@ class _ProviderCard extends StatelessWidget {
               ],
             ),
 
-            SizedBox(height: 12.h),
+            SizedBox(height: 10.h),
 
-            // ── Price row ────────────────────────────────────────────────────
+            // ── Covered services ───────────────────────────────────────────
+            ...provider.coveredServices.map(
+              (service) => Padding(
+                padding: EdgeInsets.only(bottom: 5.h),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        service.serviceName,
+                        style: AppTextStyles.of(
+                          fontSize: 12.5.sp,
+                          color: const Color(0xFF334155),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if ((service.discountPercentage ?? 0) > 0) ...[
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 6.w,
+                          vertical: 2.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFD1FAE5),
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                        child: Text(
+                          '-${service.discountPercentage!.toStringAsFixed(0)}%',
+                          style: AppTextStyles.of(
+                            fontSize: 10.5.sp,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF047857),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 6.w),
+                    ],
+                    if (service.priceBefore != null)
+                      Text(
+                        'cart.egp_amount'.tr(
+                          args: [
+                            service.priceBefore!.toStringAsFixed(0),
+                          ],
+                        ),
+                        style: AppTextStyles.of(
+                          fontSize: 11.sp,
+                          color: const Color(0xFF94A3B8),
+                          decoration: TextDecoration.lineThrough,
+                        ),
+                      ),
+                    SizedBox(width: 5.w),
+                    Text(
+                      'cart.egp_amount'.tr(
+                        args: [
+                          (service.priceAfter ?? service.priceBefore ?? 0)
+                              .toStringAsFixed(0),
+                        ],
+                      ),
+                      style: AppTextStyles.of(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF0F172A),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            if (provider.uncoveredServices.isNotEmpty) ...[
+              SizedBox(height: 2.h),
+              Row(
+                children: [
+                  Icon(
+                    Icons.info_outline_rounded,
+                    size: 14.sp,
+                    color: const Color(0xFF9CA3AF),
+                  ),
+                  SizedBox(width: 6.w),
+                  Expanded(
+                    child: Text(
+                      'cart.unavailable_services'.tr(
+                        args: [
+                          provider.uncoveredServices
+                              .map((s) => s.serviceName)
+                              .where((n) => n.isNotEmpty)
+                              .join(', '),
+                        ],
+                      ),
+                      style: AppTextStyles.of(
+                        fontSize: 12.sp,
+                        color: const Color(0xFF9CA3AF),
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+
+            SizedBox(height: 10.h),
+            const Divider(color: Color(0xFFEEF1F5), height: 1),
+            SizedBox(height: 10.h),
+
+            // ── Total row ────────────────────────────────────────────────────
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
               children: [
+                Text(
+                  'cart.total_amount'.tr(),
+                  style: AppTextStyles.of(
+                    fontSize: 13.sp,
+                    color: const Color(0xFF64748B),
+                  ),
+                ),
+                const Spacer(),
                 Text(
                   'cart.egp_amount'.tr(
                     args: [
@@ -219,7 +440,7 @@ class _ProviderCard extends StatelessWidget {
                     args: [provider.totalPriceAfter.toStringAsFixed(0)],
                   ),
                   style: AppTextStyles.of(
-                    fontSize: 17.sp,
+                    fontSize: 16.sp,
                     fontWeight: FontWeight.bold,
                     color: const Color(0xFF3872B1),
                   ),
