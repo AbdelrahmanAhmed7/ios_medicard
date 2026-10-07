@@ -4,7 +4,7 @@ import 'package:medicard/features/notifications/data/domain/use_cases/get_notifi
 import 'package:medicard/features/notifications/data/domain/use_cases/mark_all_notifications_read_use_case.dart';
 import 'package:medicard/features/notifications/data/domain/use_cases/mark_notification_read_use_case.dart';
 import 'package:medicard/features/notifications/data/model/notification_model.dart';
-import 'package:medicard/features/notifications/presentation/cubit/notifivation_cubit.dart';
+import 'package:medicard/features/notifications/presentation/cubit/notification_cubit.dart';
 
 class _FakeNotificationRepository implements NotificationRepository {
   bool markAsReadShouldFail = false;

@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 import '../../../../core/widgets/app_blue_header.dart';
-import '../cubit/notifivation_cubit.dart';
+import '../cubit/notification_cubit.dart';
 import '../cubit/notification_state.dart';
 import '../widgets/notification_card.dart';
 

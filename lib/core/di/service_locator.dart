@@ -28,7 +28,7 @@ import '../../features/notifications/data/domain/use_cases/get_notifications_use
 import '../../features/notifications/data/domain/use_cases/mark_all_notifications_read_use_case.dart';
 import '../../features/notifications/data/domain/use_cases/mark_notification_read_use_case.dart';
 import '../../features/notifications/data/notification_client.dart';
-import '../../features/notifications/presentation/cubit/notifivation_cubit.dart';
+import '../../features/notifications/presentation/cubit/notification_cubit.dart';
 import '../../features/profile/domain/usecases/change_password_usecase.dart';
 import '../../features/search/data/data_sources/search_remote_data_source.dart';
 import '../../features/search/data/repositories/search_repository_impl.dart';

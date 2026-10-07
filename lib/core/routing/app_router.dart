@@ -13,7 +13,7 @@ import '../../features/activate_card/presentation/pages/activate_card_screen.dar
 import '../../features/home/presentation/pages/home_screen.dart';
 import '../../features/home/domain/models/appointment_model.dart';
 import '../../features/home/presentation/widgets/pending_appointment_details_screen.dart';
-import '../../features/notifications/presentation/cubit/notifivation_cubit.dart';
+import '../../features/notifications/presentation/cubit/notification_cubit.dart';
 import '../../features/notifications/presentation/pages/notifications_screen.dart';
 import '../../features/profile/data/models/profile_response_model.dart';
 import '../../features/profile/presentation/cubit/change_password_cubit.dart';
