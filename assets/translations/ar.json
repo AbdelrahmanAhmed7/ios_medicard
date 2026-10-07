@@ -285,7 +285,7 @@
     "completed": "المكتملة",
     "nav_home": "الرئيسية",
     "nav_ecard": "بطاقتي",
-    "nav_activity": "المواعيد",
+    "nav_invoices": "الفواتير",
     "nav_profile": "حسابي"
   },
   "guest_home": {
@@ -366,6 +366,9 @@
     "confirm_provider": "تأكيد مقدم الخدمة",
     "failed_to_update_provider": "تعذر تحديث مقدم الخدمة",
     "providers_available": "{} مقدم خدمة متاح",
+    "covers_all_services": "يغطي كل الخدمات ({})",
+    "covers_partial_services": "يغطي {} من {} خدمات",
+    "unavailable_services": "غير متوفر: {}",
     "no_providers_available": "لا يوجد مقدمو خدمة متاحون لعناصر السلة.",
     "checkout": "الدفع",
     "order_for": "الطلب لـ",
@@ -412,6 +415,7 @@
     "negative_discount_percent": "- {}%"
   },
   "activity": {
+    "invoices_subtitle": "تابع وأدر جميع فواتيرك",
     "pending": "في الانتظار",
     "paid": "مدفوعة",
     "used": "مستخدمة",

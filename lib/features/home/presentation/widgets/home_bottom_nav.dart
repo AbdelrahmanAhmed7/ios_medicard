@@ -23,7 +23,7 @@ class HomeBottomNav extends StatelessWidget {
     final items = <_NavItem>[
       _NavItem(icon: Icons.home_outlined, labelKey: 'home.nav_home'),
       _NavItem(icon: Icons.credit_card_outlined, labelKey: 'home.nav_ecard'),
-      _NavItem(icon: Icons.access_time_outlined, labelKey: 'home.nav_activity'),
+      _NavItem(icon: Icons.receipt_long_outlined, labelKey: 'home.nav_invoices'),
       _NavItem(
         icon: Icons.person_outline_rounded,
         labelKey: 'home.nav_profile',

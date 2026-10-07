@@ -285,7 +285,7 @@
     "completed": "Completed",
     "nav_home": "Home",
     "nav_ecard": "E-card",
-    "nav_activity": "Activity",
+    "nav_invoices": "Invoices",
     "nav_profile": "Profile"
   },
   "guest_home": {
@@ -366,6 +366,9 @@
     "confirm_provider": "Confirm Provider",
     "failed_to_update_provider": "Failed to update provider.",
     "providers_available": "{} providers available",
+    "covers_all_services": "Covers all {} services",
+    "covers_partial_services": "Covers {} of {} services",
+    "unavailable_services": "Not available: {}",
     "no_providers_available": "There are no providers available for your cart items.",
     "checkout": "Checkout",
     "order_for": "Order For",
@@ -412,6 +415,7 @@
     "negative_discount_percent": "- {}%"
   },
   "activity": {
+    "invoices_subtitle": "Track and manage all your invoices",
     "pending": "Pending",
     "paid": "Paid",
     "used": "Used",
