@@ -517,7 +517,9 @@ class _ChooseProviderBottomBar extends StatelessWidget {
                               .assignProvider(provider);
                           if (context.mounted) {
                             if (didAssign) {
-                              context.pushReplacement(
+                              // Plain push (not replacement) so Back from
+                              // checkout returns here to pick another provider.
+                              context.push(
                                 '/checkout',
                                 extra: {'providerId': provider.providerId},
                               );
