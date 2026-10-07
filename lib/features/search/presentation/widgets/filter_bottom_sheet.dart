@@ -95,13 +95,16 @@ class FilterBottomSheet extends StatelessWidget {
                 // Sort By Section
                 if (!hideProviderFilters) ...[
                   _SectionTitle(title: 'sort_filter.sort_by'.tr()),
-                  SizedBox(height: 8.h),
+                  SizedBox(height: 10.h),
                   ..._sortOptions.map(
-                    (option) => _SortOptionTile(
-                      label: option.labelKey.tr(),
-                      value: option.value,
-                      groupValue: state.selectedSortBy,
-                      onTap: () => filterCubit.selectSortBy(option.value),
+                    (option) => Padding(
+                      padding: EdgeInsets.only(bottom: 8.h),
+                      child: _SortOptionTile(
+                        label: option.labelKey.tr(),
+                        value: option.value,
+                        groupValue: state.selectedSortBy,
+                        onTap: () => filterCubit.selectSortBy(option.value),
+                      ),
                     ),
                   ),
                   SizedBox(height: 20.h),
@@ -163,12 +166,12 @@ class FilterBottomSheet extends StatelessWidget {
                 // Apply button المظبوط
                 SizedBox(
                   width: double.infinity,
-                  height: 48.h,
+                  height: 52.h,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF2D5FA6),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.r),
+                        borderRadius: BorderRadius.circular(14.r),
                       ),
                       elevation: 0,
                     ),
@@ -234,9 +237,21 @@ class _SortOptionTile extends StatelessWidget {
     final isSelected = groupValue == value;
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8.r),
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 8.h),
+      borderRadius: BorderRadius.circular(12.r),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? const Color(0xFFEFF6FF)
+              : const Color(0xFFF9FAFB),
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(
+            color: isSelected
+                ? const Color(0xFF2D5FA6)
+                : const Color(0xFFE5E7EB),
+            width: 1.2,
+          ),
+        ),
         child: Row(
           children: [
             Container(
@@ -259,16 +274,24 @@ class _SortOptionTile extends StatelessWidget {
                   : null,
             ),
             SizedBox(width: 10.w),
-            Text(
-              label,
-              style: AppTextStyles.of(
-                fontSize: 14.sp,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                color: isSelected
-                    ? const Color(0xFF2D5FA6)
-                    : const Color(0xFF374151),
+            Expanded(
+              child: Text(
+                label,
+                style: AppTextStyles.of(
+                  fontSize: 14.sp,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  color: isSelected
+                      ? const Color(0xFF1E3A5F)
+                      : const Color(0xFF374151),
+                ),
               ),
             ),
+            if (isSelected)
+              Icon(
+                Icons.check_circle_rounded,
+                size: 18.sp,
+                color: const Color(0xFF2D5FA6),
+              ),
           ],
         ),
       ),

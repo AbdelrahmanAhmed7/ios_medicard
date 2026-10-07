@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theming/app_toast.dart';
 import '../cubit/filter_cubit.dart';
+import '../cubit/filter_state.dart';
 import '../cubit/search_cubit.dart';
 import '../cubit/search_state.dart';
 import '../widgets/category_chip.dart';
@@ -161,10 +162,17 @@ class _SearchScreenState extends State<SearchScreen>
               builder: (context, _) {
                 final servicesTabIndex = _showServicesTab ? 1 : null;
                 final onServicesTab = _tabController.index == servicesTabIndex;
-                return _SearchAppBar(
-                  controller: _searchController,
-                  onChanged: _onSearchChanged,
-                  onFilterTap: onServicesTab ? null : _openFilterSheet,
+                return BlocSelector<FilterCubit, FilterState, bool>(
+                  selector: (state) =>
+                      state.selectedGovernorateId != null ||
+                      state.selectedCityId != null ||
+                      state.selectedSortBy != null,
+                  builder: (context, hasActiveFilters) => _SearchAppBar(
+                    controller: _searchController,
+                    onChanged: _onSearchChanged,
+                    onFilterTap: onServicesTab ? null : _openFilterSheet,
+                    hasActiveFilters: hasActiveFilters,
+                  ),
                 );
               },
             ),
@@ -211,11 +219,13 @@ class _SearchAppBar extends StatelessWidget {
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
   final VoidCallback? onFilterTap;
+  final bool hasActiveFilters;
 
   const _SearchAppBar({
     required this.controller,
     required this.onChanged,
     this.onFilterTap,
+    this.hasActiveFilters = false,
   });
 
   @override
@@ -281,15 +291,43 @@ class _SearchAppBar extends StatelessWidget {
                             onTap: onFilterTap,
                             child: Container(
                               margin: const EdgeInsets.only(right: 12),
-                              padding: const EdgeInsets.all(8),
-                              decoration: const BoxDecoration(
-                                color: Colors.transparent,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.tune,
-                                color: Color(0xFF9CA3AF),
-                                size: 18,
+                              child: Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: hasActiveFilters
+                                          ? const Color(0xFFEFF6FF)
+                                          : Colors.transparent,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      Icons.tune,
+                                      color: hasActiveFilters
+                                          ? const Color(0xFF2D5FA6)
+                                          : const Color(0xFF9CA3AF),
+                                      size: 18,
+                                    ),
+                                  ),
+                                  if (hasActiveFilters)
+                                    Positioned(
+                                      top: 6,
+                                      right: 6,
+                                      child: Container(
+                                        width: 9,
+                                        height: 9,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF2D5FA6),
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
                             ),
                           ),
