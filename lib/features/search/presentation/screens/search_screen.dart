@@ -230,7 +230,15 @@ class _SearchAppBar extends StatelessWidget {
             children: [
               // Back button
               GestureDetector(
-                onTap: () => Navigator.of(context).pop(),
+                onTap: () {
+                  // Search can be the last page on the stack (deep link or
+                  // restored state) — a bare pop() crashes go_router there.
+                  if (context.canPop()) {
+                    context.pop();
+                  } else {
+                    context.go('/medicard-home');
+                  }
+                },
                 child: Icon(
                   Icons.arrow_back_ios_new_rounded,
                   color: Colors.white,
