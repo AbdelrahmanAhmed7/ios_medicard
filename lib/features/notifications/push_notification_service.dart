@@ -1,17 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:medicard/firebase_options.dart';
 import 'package:medicard/core/di/service_locator.dart';
 import 'package:medicard/core/utils/platform_type.dart';
 import 'package:medicard/features/notifications/data/domain/notification_repo.dart';
+import 'package:medicard/firebase_options.dart';
 
-/// Background message handler - must be top-level function
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   if (Firebase.apps.isEmpty) {
@@ -21,10 +21,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   }
   if (kDebugMode) debugPrint('Background message: ${message.messageId}');
 
-  // Notification payloads are displayed automatically by Android/iOS while
-  // the app is in the background. Showing another local notification here
-  // would therefore create a duplicate. Data-only messages are not displayed
-  // by the OS, so they still need the local-notification path below.
   if (message.notification != null) {
     if (kDebugMode) {
       debugPrint(
@@ -449,6 +445,8 @@ class PushNotificationService {
         if (kDebugMode) {
           debugPrint('Token refreshed: $token');
         }
+        // TEMP-FCM-DEBUG: verify on 2nd device, then remove.
+        debugPrint('[FCM] token refresh: ${_short(token)}');
         _currentToken = token;
         _tokenController.add(token);
         unawaited(registerDeviceToken());
@@ -506,17 +504,39 @@ class PushNotificationService {
   /// or nobody is logged in, and never throws (secondary flow).
   Future<bool> registerDeviceToken() async {
     try {
-      final fcmToken = _currentToken;
+      var fcmToken = _currentToken;
+      if (fcmToken == null || fcmToken.isEmpty) {
+        // Startup may have run before the token existed (iOS APNs gate, a
+        // transient getToken() failure, or login beating initialization).
+        // Fetch it lazily now instead of dropping this registration.
+        // TEMP-FCM-DEBUG: verify on 2nd device, then remove.
+        debugPrint('[FCM] registerDeviceToken: no cached token, fetching…');
+        fcmToken = await _fetchTokenForRegistration();
+        if (fcmToken != null && fcmToken.isNotEmpty) {
+          _currentToken = fcmToken;
+          _tokenController.add(fcmToken);
+        }
+      }
       if (fcmToken == null || fcmToken.isEmpty) {
         if (kDebugMode) {
           debugPrint('registerDeviceToken skipped: no FCM token yet');
         }
+        // TEMP-FCM-DEBUG: verify on 2nd device, then remove.
+        debugPrint('[FCM] register skipped: no FCM token yet');
         return false;
       }
+      // TEMP-FCM-DEBUG: truncated token only — never log full tokens.
+      // Verify on 2nd device, then remove.
+      debugPrint(
+        '[FCM] token obtained: ${_short(fcmToken)} '
+        '(platform=${PlatformType.current.value})',
+      );
       final registered = await sl<NotificationRepository>().registerDeviceToken(
         fcmToken: fcmToken,
         platform: PlatformType.current.value,
       );
+      // TEMP-FCM-DEBUG: verify on 2nd device, then remove.
+      debugPrint('[FCM] request sent, registered=$registered');
       if (kDebugMode) {
         debugPrint(
           registered
@@ -527,9 +547,34 @@ class PushNotificationService {
       return registered;
     } catch (e) {
       if (kDebugMode) debugPrint('registerDeviceToken failed: $e');
+      // TEMP-FCM-DEBUG: verify on 2nd device, then remove.
+      debugPrint('[FCM] register failed: $e');
       return false;
     }
   }
+
+  /// Best-effort token fetch used when registration is requested but no
+  /// cached token exists yet. Returns null instead of throwing.
+  Future<String?> _fetchTokenForRegistration() async {
+    try {
+      if (!kIsWeb && Platform.isIOS) {
+        final apnsToken = await _waitForApnsToken();
+        if (apnsToken == null) {
+          // TEMP-FCM-DEBUG: verify on 2nd device, then remove.
+          debugPrint('[FCM] APNs token unavailable, cannot fetch FCM token');
+          return null;
+        }
+      }
+      return await _messaging.getToken();
+    } catch (e) {
+      if (kDebugMode) debugPrint('Lazy FCM token fetch failed: $e');
+      return null;
+    }
+  }
+
+  /// First characters only — full FCM tokens must never hit the logs.
+  String _short(String token) =>
+      token.length > 12 ? '${token.substring(0, 12)}…' : token;
 
   /// Handle notification tap
   @pragma('vm:entry-point')
