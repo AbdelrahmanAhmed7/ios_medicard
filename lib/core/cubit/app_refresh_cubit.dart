@@ -27,4 +27,15 @@ class AppRefreshCubit extends Cubit<AppRefreshState> {
     emit(const AppRefreshState.sessionExpired());
     emit(const AppRefreshState.initial());
   }
+
+  /// Counter bumped whenever the profile summary (family count + reward
+  /// points) must be re-fetched — e.g. after a family member is added or
+  /// deleted on another screen. Profile screens listen to
+  /// [profileSummaryRefresh] and silently reload the summary.
+  final ValueNotifier<int> profileSummaryRefresh = ValueNotifier(0);
+
+  void triggerProfileSummaryRefresh() {
+    if (isClosed) return;
+    profileSummaryRefresh.value++;
+  }
 }

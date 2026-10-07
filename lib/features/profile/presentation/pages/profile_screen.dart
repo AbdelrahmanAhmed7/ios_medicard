@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/cubit/app_refresh_cubit.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/theming/app_toast.dart';
 import '../cubit/profile_cubit.dart';
@@ -26,10 +27,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _profileCubit = sl<ProfileCubit>();
     if (kDebugMode) debugPrint('[ProfileFlow] ProfileCubit created for ProfileScreen');
     _profileCubit.loadProfile();
+    // Family count / reward points can change on other screens (family
+    // add/delete). Refresh the summary silently when asked — no user action.
+    sl<AppRefreshCubit>().profileSummaryRefresh.addListener(
+      _onProfileSummaryRefresh,
+    );
+  }
+
+  void _onProfileSummaryRefresh() {
+    // TEMP-PROFILE-REFRESH: remove after verifying on device.
+    debugPrint('[TEMP] profileSummaryRefresh received, refreshing summary');
+    _profileCubit.refreshSummary();
   }
 
   @override
   void dispose() {
+    sl<AppRefreshCubit>().profileSummaryRefresh.removeListener(
+      _onProfileSummaryRefresh,
+    );
     _profileCubit.close();
     super.dispose();
   }

@@ -335,8 +335,36 @@ class _HomeBody extends StatelessWidget {
   }
 }
 
-class _ProfileBody extends StatelessWidget {
+class _ProfileBody extends StatefulWidget {
   const _ProfileBody();
+
+  @override
+  State<_ProfileBody> createState() => _ProfileBodyState();
+}
+
+class _ProfileBodyState extends State<_ProfileBody> {
+  @override
+  void initState() {
+    super.initState();
+    // Family count / reward points can change on other screens (family
+    // add/delete). Refresh the summary silently when asked — no user action.
+    sl<AppRefreshCubit>().profileSummaryRefresh.addListener(
+      _onProfileSummaryRefresh,
+    );
+  }
+
+  void _onProfileSummaryRefresh() {
+    if (!mounted) return;
+    context.read<ProfileCubit>().refreshSummary();
+  }
+
+  @override
+  void dispose() {
+    sl<AppRefreshCubit>().profileSummaryRefresh.removeListener(
+      _onProfileSummaryRefresh,
+    );
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

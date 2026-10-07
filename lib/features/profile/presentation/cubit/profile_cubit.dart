@@ -260,6 +260,24 @@ class ProfileCubit extends Cubit<ProfileState> {
     }
   }
 
+  /// Silently re-fetches the summary (family count + reward points) and
+  /// re-emits it on the current profile — no shimmer, no toast, no action
+  /// required from the user. Used when another screen mutates data that the
+  /// summary reflects (e.g. family member added/deleted).
+  Future<void> refreshSummary() async {
+    if (isClosed) return;
+    final profile = state.maybeWhen(
+      success: (data, _) => data,
+      updating: (data) => data,
+      updated: (data) => data,
+      orElse: () => null,
+    );
+    // TEMP-PROFILE-REFRESH: remove after verifying on device.
+    debugPrint('[TEMP] refreshSummary called, hasProfile=${profile != null}');
+    if (profile == null) return;
+    await _loadSummary(profile);
+  }
+
   /// Loads reward points + family count after the profile is shown.
   /// Never throws, never toasts: the profile is already visible and this is
   /// additive data. Null data (backend has no summary yet) keeps defaults.
@@ -281,6 +299,11 @@ class ProfileCubit extends Cubit<ProfileState> {
         final same = state.maybeWhen(
           success: (data, _) => identical(data, profile),
           orElse: () => false,
+        );
+        // TEMP-PROFILE-REFRESH: remove after verifying on device.
+        debugPrint(
+          '[TEMP] summary arrived: count=${summary.familyMembersCount} '
+          'points=${summary.rewardPoints} same=$same',
         );
         if (same) emit(ProfileState.success(profile, summary));
       },

@@ -105,8 +105,7 @@ void main() {
       );
     });
 
-    test('summary failure never breaks the visible profile', () async {
-      repo.summaryResult = const ApiResult<ProfileSummaryResponseModel>.failure(
+    test('summary failure never breaks the visible profile', () async {      repo.summaryResult = const ApiResult<ProfileSummaryResponseModel>.failure(
         'Offline',
       );
 
@@ -117,6 +116,33 @@ void main() {
         success: (data, summary) {
           expect(data.firstName, 'Sara');
           expect(summary, isNull);
+        },
+        orElse: () => fail('expected success state, got ${cubit.state}'),
+      );
+    });
+
+    test('refreshSummary picks up new count and points without full reload',
+        () async {
+      await cubit.loadProfile();
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+
+      repo.summaryResult = ApiResult<ProfileSummaryResponseModel>.success(
+        ProfileSummaryResponseModel(
+          succeeded: true,
+          data: const ProfileSummaryData(
+            familyMembersCount: 5,
+            rewardPoints: 900,
+          ),
+        ),
+      );
+
+      await cubit.refreshSummary();
+
+      cubit.state.maybeWhen(
+        success: (data, summary) {
+          expect(data.firstName, 'Sara');
+          expect(summary?.familyMembersCount, 5);
+          expect(summary?.rewardPoints, 900);
         },
         orElse: () => fail('expected success state, got ${cubit.state}'),
       );

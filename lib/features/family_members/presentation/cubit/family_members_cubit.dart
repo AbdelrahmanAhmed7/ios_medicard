@@ -1,6 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:medicard/core/constants/constants.dart';
+import 'package:medicard/core/cubit/app_refresh_cubit.dart';
+import 'package:medicard/core/di/service_locator.dart';
 import 'package:medicard/core/theming/app_toast.dart';
 import 'package:medicard/core/utils/api_error_parser.dart';
 import '../../data/models/family_member_model.dart';
@@ -51,6 +54,11 @@ class FamilyMembersCubit extends Cubit<FamilyMembersState> {
       if (isClosed) return;
       showSuccessToast('family_members.member_added_successfully'.tr());
       emit(const FamilyMembersState.created());
+      // The profile screen shows the family count from the summary endpoint —
+      // tell it to re-fetch so the number updates with no user action.
+      // TEMP-PROFILE-REFRESH: remove after verifying on device.
+      debugPrint('[TEMP] profileSummaryRefresh triggered (after create)');
+      sl<AppRefreshCubit>().triggerProfileSummaryRefresh();
       loadFamilyMembers();
     } catch (e) {
       if (isClosed) return;
@@ -102,6 +110,10 @@ class FamilyMembersCubit extends Cubit<FamilyMembersState> {
       if (isClosed) return;
       showSuccessToast('family_members.member_deleted_successfully'.tr());
       emit(const FamilyMembersState.deleted());
+      // Keep the profile family count in sync without user action.
+      // TEMP-PROFILE-REFRESH: remove after verifying on device.
+      debugPrint('[TEMP] profileSummaryRefresh triggered (after delete)');
+      sl<AppRefreshCubit>().triggerProfileSummaryRefresh();
       loadFamilyMembers();
     } catch (e) {
       if (isClosed) return;
