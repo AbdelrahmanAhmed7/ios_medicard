@@ -160,24 +160,39 @@ class NotificationCubit extends Cubit<NotificationState> {
 
     if (isClosed) return;
 
+    String? failureMessage;
     result.when(
       success: (_) {},
       failure: (message) {
-        if (isClosed) return;
-        // Roll back: restore each item's read state from before the attempt.
-        final rolledBack = state.items.map((notif) {
-          return NotificationModel(
-            id: notif.id,
-            title: notif.title,
-            body: notif.body,
-            imageUrl: notif.imageUrl,
-            isRead: previousById[notif.id] ?? notif.isRead,
-            createdAt: notif.createdAt,
-            data: notif.data,
-          );
-        }).toList();
-        emit(state.copyWith(items: rolledBack, markReadError: message));
+        failureMessage = message;
       },
     );
+
+    if (isClosed) return;
+
+    if (failureMessage == null) {
+      // Success: re-sync with the server (source of truth). The optimistic
+      // update above only covers already-loaded pages; refetching page 1
+      // proves the backend actually persisted the read-all (an API can
+      // return 200 without persisting for this user/token) and pulls any
+      // not-yet-loaded pages in their new read state.
+      await getNotifications();
+      return;
+    }
+
+    // Failure: roll back to restore each item's read state from before
+    // the attempt.
+    final rolledBack = state.items.map((notif) {
+      return NotificationModel(
+        id: notif.id,
+        title: notif.title,
+        body: notif.body,
+        imageUrl: notif.imageUrl,
+        isRead: previousById[notif.id] ?? notif.isRead,
+        createdAt: notif.createdAt,
+        data: notif.data,
+      );
+    }).toList();
+    emit(state.copyWith(items: rolledBack, markReadError: failureMessage));
   }
 }
