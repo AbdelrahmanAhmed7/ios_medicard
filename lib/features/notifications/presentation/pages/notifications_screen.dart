@@ -126,13 +126,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       final notification = visibleItems[index];
                       return NotificationCard(
                         notification: notification,
-                        onTap: () {
-                          if (!notification.isRead) {
-                            context.read<NotificationCubit>().markAsRead(
-                              notification.id,
-                            );
-                          }
-                        },
+                        onMarkAsRead: notification.isRead
+                            ? null
+                            : () {
+                                context.read<NotificationCubit>().markAsRead(
+                                  notification.id,
+                                );
+                              },
                       );
                     },
                   ),

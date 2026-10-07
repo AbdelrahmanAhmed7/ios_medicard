@@ -10,12 +10,14 @@ import '../../../../core/theming/app_text_styles.dart';
 
 class NotificationCard extends StatelessWidget {
   final NotificationModel notification;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+  final VoidCallback? onMarkAsRead;
 
   const NotificationCard({
     super.key,
     required this.notification,
-    required this.onTap,
+    this.onTap,
+    this.onMarkAsRead,
   });
 
   @override
@@ -87,16 +89,45 @@ class NotificationCard extends StatelessWidget {
               ),
             ),
             SizedBox(width: 8.w),
-            Padding(
-              padding: EdgeInsets.only(top: 2.h),
-              child: Text(
-                _formatRelativeTime(notification.createdAt),
-                style: AppTextStyles.of(
-                  fontWeight: FontWeight.w400,
-                  fontSize: 11.sp,
-                  color: const Color(0xFF94A3B8),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(top: 2.h),
+                  child: Text(
+                    _formatRelativeTime(notification.createdAt),
+                    style: AppTextStyles.of(
+                      fontWeight: FontWeight.w400,
+                      fontSize: 11.sp,
+                      color: const Color(0xFF94A3B8),
+                    ),
+                  ),
                 ),
-              ),
+                if (!notification.isRead && onMarkAsRead != null) ...[
+                  SizedBox(height: 10.h),
+                  GestureDetector(
+                    onTap: onMarkAsRead,
+                    child: Container(
+                      width: 30.r,
+                      height: 30.r,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: const Color(0xFFEFF6FF),
+                        border: Border.all(
+                          color: const Color(0xFFBFDBFE),
+                          width: 1.w,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.check,
+                        color: const Color(0xFF2563EB),
+                        size: 17.sp,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ],
         ),
