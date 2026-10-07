@@ -22,7 +22,7 @@ abstract class NotificationClient {
     @Body() Map<String, dynamic> body,
   );
 
-  @POST("Notification/{id}/read")
+  @PUT("Notification/{id}/read")
   Future<ApiResponse<dynamic>> markAsRead(
     @Header("Authorization") String token,
     @Path("id") int id,

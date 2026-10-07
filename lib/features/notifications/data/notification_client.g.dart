@@ -102,7 +102,7 @@ class _NotificationClient implements NotificationClient {
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<ApiResponse<dynamic>>(
-      Options(method: 'POST', headers: _headers, extra: _extra)
+      Options(method: 'PUT', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
             'Notification/${id}/read',
