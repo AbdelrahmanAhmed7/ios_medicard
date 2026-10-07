@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'dart:async';
 
 import '../../../../core/widgets/app_blue_header.dart';
+import '../../push_notification_service.dart';
 import '../cubit/notification_cubit.dart';
 import '../cubit/notification_state.dart';
 import '../widgets/notification_card.dart';
@@ -20,16 +22,28 @@ class NotificationsScreen extends StatefulWidget {
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
   final ScrollController _scrollController = ScrollController();
+  StreamSubscription? _messageSubscription;
   int _selectedIndex = 1;
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    // Auto-refresh the list the moment a push arrives — no need to leave
+    // and re-enter the screen.
+    _messageSubscription = PushNotificationService
+        .instance
+        .onMessageReceived
+        .listen((_) {
+          if (!mounted) return;
+          final cubit = context.read<NotificationCubit>();
+          if (!cubit.state.isLoading) cubit.getNotifications();
+        });
   }
 
   @override
   void dispose() {
+    _messageSubscription?.cancel();
     _scrollController
       ..removeListener(_onScroll)
       ..dispose();

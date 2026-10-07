@@ -54,6 +54,11 @@ class PushNotificationService {
   final _tokenController = StreamController<String>.broadcast();
   Stream<String> get onTokenRefresh => _tokenController.stream;
 
+  /// Broadcasts every foreground FCM message so UI (e.g. the notifications
+  /// list) can refresh itself without manual navigation.
+  final _messageController = StreamController<RemoteMessage>.broadcast();
+  Stream<RemoteMessage> get onMessageReceived => _messageController.stream;
+
   String? _currentToken;
   String? get currentToken => _currentToken;
 
@@ -405,6 +410,7 @@ class PushNotificationService {
       // Foreground messages
       FirebaseMessaging.onMessage.listen((message) {
         if (kDebugMode) debugPrint('Foreground message: ${message.messageId}');
+        _messageController.add(message);
         showNotification(message);
       });
 
@@ -694,6 +700,7 @@ class PushNotificationService {
   void dispose() {
     _notificationActionController.close();
     _tokenController.close();
+    _messageController.close();
     if (kDebugMode) debugPrint('PushNotificationService disposed');
   }
 }
