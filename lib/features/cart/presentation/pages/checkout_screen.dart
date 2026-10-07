@@ -6,7 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/services/url_launcher_service.dart';
-import '../../../../core/widgets/app_blue_header.dart';
+import '../../../../core/theming/app_text_styles.dart';
 import '../../../../network/data/provider_page_response_model.dart';
 import '../cubit/cart_cubit.dart';
 import '../cubit/cart_state.dart';
@@ -127,10 +127,41 @@ class _CheckoutScreenState extends State<CheckoutScreen>
         builder: (context, state) {
           return Column(
             children: [
-              AppBlueHeader(
-                title: 'cart.checkout'.tr(),
-                bottomRadius: 18,
-                onBack: () => context.pop(),
+              SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(8.w, 10.h, 20.w, 6.h),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        visualDensity: VisualDensity.compact,
+                        icon: Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          color: const Color(0xFF111827),
+                          size: 22.sp,
+                        ),
+                        onPressed: () {
+                          if (Navigator.of(context).canPop()) {
+                            Navigator.of(context).pop();
+                          }
+                        },
+                      ),
+                      Expanded(
+                        child: Text(
+                          'cart.checkout'.tr(),
+                          style: AppTextStyles.of(
+                            fontSize: 22.sp,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF111827),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
               Expanded(child: _buildBody(context, state)),
             ],

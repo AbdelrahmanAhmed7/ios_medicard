@@ -32,8 +32,15 @@ class CheckoutPaymentSummary extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 10.h),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: const Color(0xFFD7D7D7)),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: const Color(0xFFE5E9F0)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.05),
+            blurRadius: 14,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -50,17 +57,23 @@ class CheckoutPaymentSummary extends StatelessWidget {
             label: 'cart.subtotal'.tr(),
             value: 'cart.egp_amount'.tr(args: [checkoutMoney(subtotal)]),
           ),
-          CheckoutSummaryRow(
-            label: 'cart.discount'.tr(),
-            value: 'cart.negative_egp_amount'.tr(args: [checkoutMoney(discount)]),
-            valueColor: const Color(0xFF10B981),
+          if (discount > 0)
+            CheckoutSummaryRow(
+              label: 'cart.discount'.tr(),
+              value:
+                  'cart.negative_egp_amount'.tr(args: [checkoutMoney(discount)]),
+              valueColor: const Color(0xFF059669),
+            ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: Divider(height: 18.h, color: const Color(0xFFEEF1F5)),
           ),
-          Divider(height: 20.h, color: const Color(0xFFD7D7D7)),
           CheckoutSummaryRow(
             label: 'cart.total_amount'.tr(),
             value: 'cart.egp_amount'.tr(args: [checkoutMoney(total)]),
             isBold: true,
           ),
+          SizedBox(height: 4.h),
         ],
       ),
     );
