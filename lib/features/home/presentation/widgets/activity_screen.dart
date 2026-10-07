@@ -2,8 +2,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:medicard/core/widgets/auth_shared_widgets.dart';
-import 'package:medicard/core/widgets/app_blue_header.dart';
 import '../../../activity/presentation/cubit/activity_cubit.dart';
 import '../../../activity/presentation/cubit/activity_state.dart';
 import 'activity/activity_error_view.dart';
@@ -55,30 +55,119 @@ class _ActivityScreenState extends State<ActivityScreen>
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppBlueHeader(
-            title: 'home.nav_activity'.tr(),
-            showBack: false,
-            contentHeight: kMainTabHeaderContentHeight,
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-          ),
-          TabBar(
-            controller: _tabController,
-            indicatorColor: kAuthBlue,
-            indicatorWeight: 2,
-            indicatorSize: TabBarIndicatorSize.tab,
-            labelColor: kAuthBlue,
-            unselectedLabelColor: const Color(0xFF4B5563),
-            labelStyle: AppTextStyles.of(fontSize: 14.sp, fontWeight: FontWeight.w500),
-            unselectedLabelStyle: AppTextStyles.of(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w400,
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 4.h),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'home.nav_invoices'.tr(),
+                          style: AppTextStyles.of(
+                            fontSize: 26.sp,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF111827),
+                          ),
+                        ),
+                        SizedBox(height: 4.h),
+                        Text(
+                          'activity.invoices_subtitle'.tr(),
+                          style: AppTextStyles.of(
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w400,
+                            color: const Color(0xFF6B7280),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 12.w),
+                  GestureDetector(
+                    onTap: () => context.push(
+                      '/search/services',
+                      extra: const {'enableCartFeatures': true},
+                    ),
+                    child: Container(
+                      width: 32.r,
+                      height: 32.r,
+                      decoration: const BoxDecoration(
+                        color: kAuthBlue,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.add_rounded,
+                        color: Colors.white,
+                        size: 18.sp,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            tabs: [
-              Tab(text: 'activity.pending'.tr()),
-              Tab(text: 'activity.paid'.tr()),
-              Tab(text: 'activity.used'.tr()),
-              Tab(text: 'activity.cancelled'.tr()),
-            ],
+          ),
+          AnimatedBuilder(
+            animation: _tabController,
+            builder: (context, _) {
+              const labels = [
+                'activity.pending',
+                'activity.paid',
+                'activity.used',
+                'activity.cancelled',
+              ];
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 4.h),
+                child: Row(
+                  children: List.generate(labels.length, (i) {
+                    final isSelected = _tabController.index == i;
+                    return Padding(
+                      padding: EdgeInsetsDirectional.only(
+                        end: i == labels.length - 1 ? 0 : 8.w,
+                      ),
+                      child: GestureDetector(
+                        onTap: () => _tabController.animateTo(i),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 18.w,
+                            vertical: 9.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? kAuthBlue
+                                : Colors.white,
+                            borderRadius: BorderRadius.circular(20.r),
+                            border: Border.all(
+                              color: isSelected
+                                  ? kAuthBlue
+                                  : const Color(0xFFE5E7EB),
+                              width: 1.2,
+                            ),
+                          ),
+                          child: Text(
+                            labels[i].tr(),
+                            style: AppTextStyles.of(
+                              fontSize: 13.sp,
+                              fontWeight: isSelected
+                                  ? FontWeight.w600
+                                  : FontWeight.w400,
+                              color: isSelected
+                                  ? Colors.white
+                                  : const Color(0xFF4B5563),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              );
+            },
           ),
           Expanded(
             child: BlocBuilder<ActivityCubit, ActivityState>(
