@@ -37,7 +37,14 @@ class InvoiceCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+          border: Border.all(color: const Color(0xFFE5E9F0), width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF0F172A).withValues(alpha: 0.05),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -105,15 +112,23 @@ class InvoiceCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    item.providerName,
-                    style: AppTextStyles.of(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFF111827),
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          item.providerName,
+                          style: AppTextStyles.of(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF111827),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      _StatusPill(item: item),
+                    ],
                   ),
                   SizedBox(height: 2.h),
                   Text(
@@ -164,8 +179,23 @@ class InvoiceCard extends StatelessWidget {
                           color: const Color(0xFF6B7280),
                         ),
                       ),
-                      InvoiceActionButton(item: item),
+                      if (_amount(item) != null)
+                        Text(
+                          'cart.egp_amount'.tr(
+                            args: ['${_amount(item)!.toInt()}'],
+                          ),
+                          style: AppTextStyles.of(
+                            fontSize: 15.sp,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF111827),
+                          ),
+                        ),
                     ],
+                  ),
+                  SizedBox(height: 8.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [InvoiceActionButton(item: item)],
                   ),
                 ],
               ),
@@ -180,6 +210,56 @@ class InvoiceCard extends StatelessWidget {
     return CircleAvatar(
       backgroundColor: Colors.grey[100],
       child: const Icon(Icons.local_hospital, color: kAuthBlue),
+    );
+  }
+}
+
+double? _amount(InvoiceItem item) => item.priceAfter ?? item.packagePrice;
+
+/// Small colored status chip (pending / paid / used / cancelled).
+class _StatusPill extends StatelessWidget {
+  final InvoiceItem item;
+
+  const _StatusPill({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    late final Color background;
+    late final Color foreground;
+    late final String labelKey;
+
+    if (item.isPending) {
+      background = const Color(0xFFFEF3C7);
+      foreground = const Color(0xFFB45309);
+      labelKey = 'activity.pending';
+    } else if (item.isPaid) {
+      background = const Color(0xFFDBEAFE);
+      foreground = const Color(0xFF1D4ED8);
+      labelKey = 'activity.paid';
+    } else if (item.isUsed) {
+      background = const Color(0xFFD1FAE5);
+      foreground = const Color(0xFF047857);
+      labelKey = 'activity.used';
+    } else {
+      background = const Color(0xFFFEE2E2);
+      foreground = const Color(0xFFB91C1C);
+      labelKey = 'activity.cancelled';
+    }
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(20.r),
+      ),
+      child: Text(
+        labelKey.tr(),
+        style: AppTextStyles.of(
+          fontSize: 11.sp,
+          fontWeight: FontWeight.w600,
+          color: foreground,
+        ),
+      ),
     );
   }
 }

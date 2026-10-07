@@ -111,7 +111,7 @@ class InvoiceListState extends State<InvoiceList> {
         physics: const AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
         itemCount: itemCount,
-        separatorBuilder: (_, _) => SizedBox(height: 12.h),
+        separatorBuilder: (_, _) => SizedBox(height: 8.h),
         itemBuilder: (context, index) {
           if (index >= widget.items.length) {
             return Padding(
