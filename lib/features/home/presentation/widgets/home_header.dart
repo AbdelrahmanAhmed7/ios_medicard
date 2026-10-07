@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -62,6 +63,22 @@ class _HeaderTopRow extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 16),
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: GestureDetector(
+            onTap: () => context.push('/cart'),
+            child: const Icon(
+              CupertinoIcons.cart,
+              color: Color(0xFF3872B1),
+              size: 22,
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
