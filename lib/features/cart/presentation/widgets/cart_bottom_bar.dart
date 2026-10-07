@@ -10,13 +10,11 @@ import '../cubit/cart_cubit.dart';
 
 class CartBottomBar extends StatelessWidget {
   final bool hasUnassigned;
-  final bool hasAssigned;
   final int? initialProviderId;
   final ProviderBranch? initialBranch;
 
   const CartBottomBar({super.key,
     required this.hasUnassigned,
-    required this.hasAssigned,
     this.initialProviderId,
     this.initialBranch,
   });
@@ -81,27 +79,24 @@ class CartBottomBar extends StatelessWidget {
             SizedBox(height: 10.h),
           ],
 
-          // Checkout button
-          SizedBox(
-            width: double.infinity,
-            height: 54.h,
-            child: ElevatedButton(
-              onPressed: () {
-                final cubit = context.read<CartCubit>();
-                if (!hasAssigned) {
-                  cubit.loadCartAndProviders();
-                  context.push('/choose-provider', extra: cubit);
-                  return;
-                }
-                context.push(
-                  '/checkout',
-                  extra: {
-                    'cubit': cubit,
-                    'providerId': initialProviderId,
-                    'selectedBranch': initialBranch,
-                  },
-                );
-              },
+          // Checkout button — hidden while the "needs provider" warning is
+          // shown; the warning banner itself leads to provider selection.
+          if (!hasUnassigned)
+            SizedBox(
+              width: double.infinity,
+              height: 54.h,
+              child: ElevatedButton(
+                onPressed: () {
+                  final cubit = context.read<CartCubit>();
+                  context.push(
+                    '/checkout',
+                    extra: {
+                      'cubit': cubit,
+                      'providerId': initialProviderId,
+                      'selectedBranch': initialBranch,
+                    },
+                  );
+                },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF3872B1),
                 disabledBackgroundColor: const Color(0xFFCBD5E1),
@@ -113,9 +108,7 @@ class CartBottomBar extends StatelessWidget {
                 elevation: 0,
               ),
               child: Text(
-                hasAssigned
-                    ? 'cart.checkout'.tr()
-                    : 'cart.choose_provider'.tr(),
+                'cart.checkout'.tr(),
                 style: AppTextStyles.of(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600, // خط عريض وواضح

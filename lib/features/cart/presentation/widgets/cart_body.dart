@@ -30,7 +30,6 @@ class CartBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasUnassigned = items.any((i) => i.providerId == null);
-    final hasAssigned = items.any((i) => i.providerId != null);
 
     return Column(
       children: [
@@ -58,7 +57,6 @@ class CartBody extends StatelessWidget {
 
         CartBottomBar(
           hasUnassigned: hasUnassigned,
-          hasAssigned: hasAssigned,
           initialProviderId: initialProviderId,
           initialBranch: initialBranch,
         ),
