@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:async';
 
 import '../../core/constants/api_result.dart';
 import '../../core/auth/auth_session.dart';
@@ -8,6 +9,7 @@ import '../../core/network/dio_factory.dart';
 import '../../core/utils/api_error_parser.dart';
 import '../../data/auth_register_request_model.dart';
 import '../../domain/usecases/register_usecase.dart';
+import '../../features/notifications/push_notification_service.dart';
 import 'register_state.dart';
 
 class RegisterCubit extends Cubit<RegisterState> {
@@ -67,6 +69,9 @@ class RegisterCubit extends Cubit<RegisterState> {
               ),
             );
             DioFactory.setTokenIntoHeaderAfterLogin(token);
+            // Mirror the login flow: a fresh account is already signed in, so
+            // bind this device's FCM token now or pushes never reach it.
+            unawaited(PushNotificationService.instance.registerDeviceToken());
           } else {
             await const AuthSessionStorage().clearSession();
             DioFactory.clearTokenFromHeader();
