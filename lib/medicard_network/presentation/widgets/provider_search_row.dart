@@ -39,6 +39,10 @@ class ProviderSearchRow extends StatelessWidget {
                     ),
                     child: TextField(
                       onChanged: (query) => cubit.updateSearchQuery(query),
+                      style: AppTextStyles.of(
+                        fontSize: 14.sp,
+                        color: const Color(0xFF1A1A2E),
+                      ),
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: Colors.white,
@@ -47,17 +51,22 @@ class ProviderSearchRow extends StatelessWidget {
                           color: const Color(0xFF9CA3AF),
                           fontSize: 14.sp,
                         ),
-                        prefixIcon: const Icon(
+                        prefixIcon: Icon(
                           Icons.search,
-                          color: Color(0xFF9CA3AF),
-                          size: 20,
+                          color: const Color(0xFF9CA3AF),
+                          size: 20.sp,
+                        ),
+                        prefixIconConstraints: const BoxConstraints(
+                          minWidth: 30,
+                          minHeight: 0,
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.r),
                           borderSide: BorderSide.none,
                         ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 12,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 4.w,
+                          vertical: 12.h,
                         ),
                       ),
                     ),
