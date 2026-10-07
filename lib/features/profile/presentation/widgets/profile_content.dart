@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:medicard/core/widgets/app_blue_header.dart';
+import 'package:medicard/core/widgets/app_simple_header.dart';
 
 import '../../../../core/widgets/auth_shared_widgets.dart';
 import '../../data/models/profile_response_model.dart';
@@ -37,10 +37,9 @@ class ProfileContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppBlueHeader(
+          AppSimpleHeader(
             title: 'profile.my_profile'.tr(),
             showBack: false,
-            contentHeight: kMainTabHeaderContentHeight,
           ),
 
           SizedBox(height: 20.h),

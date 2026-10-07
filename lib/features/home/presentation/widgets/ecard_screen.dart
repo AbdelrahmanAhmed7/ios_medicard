@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 
-import '../../../../core/widgets/app_blue_header.dart';
+import '../../../../core/widgets/app_simple_header.dart';
 import '../../../ecard/data/models/card_data_response_model.dart';
 import '../../../ecard/presentation/cubit/ecard_cubit.dart';
 import '../../../ecard/presentation/cubit/ecard_state.dart';
@@ -34,11 +34,9 @@ class _ECardScreenState extends State<ECardScreen> {
       backgroundColor: const Color(0xFFF7F7F8),
       body: Column(
         children: [
-          AppBlueHeader(
+          AppSimpleHeader(
             title: 'ecard.title'.tr(),
             showBack: false,
-            contentHeight: kMainTabHeaderContentHeight,
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
           Expanded(
             child: BlocBuilder<ECardCubit, ECardState>(
