@@ -76,6 +76,22 @@ class CategoryServiceCard extends StatelessWidget {
                     ),
                     SizedBox(height: 4.h),
                     _ServicePrice(service: service),
+                    if (((service as dynamic).instruction as String?)
+                            ?.trim()
+                            .isNotEmpty ==
+                        true) ...[
+                      SizedBox(height: 4.h),
+                      Text(
+                        (service as dynamic).instruction as String,
+                        style: AppTextStyles.of(
+                          fontSize: 12.sp,
+                          color: const Color(0xFF6B7280),
+                          height: 1.4,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                     if (isSpecialOffer) ...[
                       SizedBox(height: 6.h),
                       ServiceBadge(

@@ -76,6 +76,7 @@ ProviderService _$ProviderServiceFromJson(Map<String, dynamic> json) =>
     ProviderService(
       id: (json['id'] as num?)?.toInt(),
       serviceName: json['serviceName'] as String?,
+      instruction: json['instruction'] as String?,
       priceBefore: (json['priceBefore'] as num?)?.toDouble(),
       priceAfter: (json['priceAfter'] as num?)?.toDouble(),
       discountPercentage: (json['discountPercentage'] as num?)?.toDouble(),
@@ -88,6 +89,7 @@ Map<String, dynamic> _$ProviderServiceToJson(ProviderService instance) =>
     <String, dynamic>{
       'id': instance.id,
       'serviceName': instance.serviceName,
+      'instruction': instance.instruction,
       'priceBefore': instance.priceBefore,
       'priceAfter': instance.priceAfter,
       'discountPercentage': instance.discountPercentage,

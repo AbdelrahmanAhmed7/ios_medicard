@@ -118,6 +118,7 @@ class ProviderCategoryService {
   final String? serviceName;
   final String? serviceNameAr;
   final String? serviceNameEn;
+  final String? instruction;
   final double? priceBefore;
   final double? discountPercentage;
   final double? priceAfter;
@@ -128,6 +129,7 @@ class ProviderCategoryService {
     this.serviceName,
     this.serviceNameAr,
     this.serviceNameEn,
+    this.instruction,
     this.priceBefore,
     this.discountPercentage,
     this.priceAfter,
@@ -136,11 +138,13 @@ class ProviderCategoryService {
 
   factory ProviderCategoryService.fromJson(Map<String, dynamic> json) {
     double? asDouble(Object? value) => (value as num?)?.toDouble();
+    final instruction = json['instruction'] as String?;
     return ProviderCategoryService(
       id: (json['id'] as num?)?.toInt(),
       serviceName: json['serviceName'] as String?,
       serviceNameAr: json['serviceNameAr'] as String?,
       serviceNameEn: json['serviceNameEn'] as String?,
+      instruction: instruction?.trim().isEmpty == true ? null : instruction,
       priceBefore: asDouble(json['priceBefore']),
       discountPercentage: asDouble(json['discountPercentage']),
       priceAfter: asDouble(json['priceAfter']),
@@ -167,6 +171,7 @@ class ProviderCategoryService {
     return ProviderService(
       id: id,
       serviceName: displayName(isArabic),
+      instruction: instruction,
       priceBefore: priceBefore,
       priceAfter: priceAfter,
       discountPercentage: discountPercentage,

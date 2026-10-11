@@ -96,6 +96,7 @@ class ProviderServicesGroup {
 class ProviderService {
   final int? id;
   final String? serviceName;
+  final String? instruction;
   final double? priceBefore;
   final double? priceAfter;
   final double? discountPercentage;
@@ -106,6 +107,7 @@ class ProviderService {
   ProviderService({
     this.id,
     this.serviceName,
+    this.instruction,
     this.priceBefore,
     this.priceAfter,
     this.discountPercentage,
@@ -125,6 +127,7 @@ class ProviderService {
   ProviderService withCategoryId(int? nextCategoryId) => ProviderService(
     id: id,
     serviceName: serviceName,
+    instruction: instruction,
     priceBefore: priceBefore,
     priceAfter: priceAfter,
     discountPercentage: discountPercentage,
@@ -136,6 +139,7 @@ class ProviderService {
   ProviderService copyWith({bool? isSelected}) => ProviderService(
     id: id,
     serviceName: serviceName,
+    instruction: instruction,
     priceBefore: priceBefore,
     priceAfter: priceAfter,
     discountPercentage: discountPercentage,
