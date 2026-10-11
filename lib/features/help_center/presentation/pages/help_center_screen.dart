@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/services/url_launcher_service.dart';
-import '../../../../core/widgets/app_blue_header.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
@@ -24,58 +23,73 @@ class HelpCenterScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF4F6F9),
       body: Column(
         children: [
-          AppBlueHeader(title: 'profile.help_center'.tr()),
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(8.w, 10.h, 20.w, 6.h),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  IconButton(
+                    visualDensity: VisualDensity.compact,
+                    icon: Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: const Color(0xFF111827),
+                      size: 22.sp,
+                    ),
+                    onPressed: () {
+                      if (Navigator.of(context).canPop()) {
+                        Navigator.of(context).pop();
+                      }
+                    },
+                  ),
+                  Expanded(
+                    child: Text(
+                      'profile.help_center'.tr(),
+                      style: AppTextStyles.of(
+                        fontSize: 22.sp,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF111827),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           Expanded(
             child: ListView(
               padding: EdgeInsets.fromLTRB(20.w, 24.h, 20.w, 24.h + bottomPadding),
               children: [
-                // Intro card
-                _InfoCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: EdgeInsets.all(10.r),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFEFF6FF),
-                              borderRadius: BorderRadius.circular(12.r),
-                            ),
-                            child: Icon(
-                              Icons.support_agent_rounded,
-                              color: const Color(0xFF3872B1),
-                              size: 28.sp,
-                            ),
-                          ),
-                          SizedBox(width: 14.w),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'help_center.title'.tr(),
-                                  style: AppTextStyles.of(
-                                    fontSize: 17.sp,
-                                    fontWeight: FontWeight.w700,
-                                    color: const Color(0xFF111827),
-                                  ),
-                                ),
-                                SizedBox(height: 2.h),
-                                Text(
-                                  'help_center.subtitle'.tr(),
-                                  style: AppTextStyles.of(
-                                    fontSize: 13.sp,
-                                    color: const Color(0xFF6B7280),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                // Intro row (no card)
+                Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(10.r),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEFF6FF),
+                        borderRadius: BorderRadius.circular(12.r),
                       ),
-                    ],
-                  ),
+                      child: Icon(
+                        Icons.support_agent_rounded,
+                        color: const Color(0xFF3872B1),
+                        size: 28.sp,
+                      ),
+                    ),
+                    SizedBox(width: 14.w),
+                    Expanded(
+                      child: Text(
+                        'help_center.subtitle'.tr(),
+                        style: AppTextStyles.of(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFF374151),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
 
                 SizedBox(height: 20.h),
@@ -88,7 +102,7 @@ class HelpCenterScreen extends StatelessWidget {
                     color: const Color(0xFF374151),
                   ),
                 ),
-                SizedBox(height: 12.h),
+                SizedBox(height: 4.h),
 
                 // Phone
                 _ContactTile(
@@ -99,7 +113,6 @@ class HelpCenterScreen extends StatelessWidget {
                   value: _phone,
                   onTap: () => launcher.makePhoneCall(_phone),
                 ),
-                SizedBox(height: 10.h),
 
                 // WhatsApp
                 _ContactTile(
@@ -113,7 +126,6 @@ class HelpCenterScreen extends StatelessWidget {
                     message: 'help_center.whatsapp_message'.tr(),
                   ),
                 ),
-                SizedBox(height: 10.h),
 
                 // Email
                 _ContactTile(
@@ -127,7 +139,6 @@ class HelpCenterScreen extends StatelessWidget {
                     subject: 'help_center.email_subject'.tr(),
                   ),
                 ),
-                SizedBox(height: 10.h),
 
                 // Website
                 _ContactTile(
@@ -136,6 +147,7 @@ class HelpCenterScreen extends StatelessWidget {
                   bgColor: const Color(0xFFF5F3FF),
                   label: 'help_center.website'.tr(),
                   value: _website,
+                  showDivider: false,
                   onTap: () => launcher.launchURL(_website),
                 ),
               ],
@@ -148,32 +160,13 @@ class HelpCenterScreen extends StatelessWidget {
 }
 
 
-class _InfoCard extends StatelessWidget {
-  final Widget child;
-  const _InfoCard({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
-      ),
-      child: child,
-    );
-  }
-}
-
-
 class _ContactTile extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
   final Color bgColor;
   final String label;
   final String value;
+  final bool showDivider;
   final VoidCallback onTap;
 
   const _ContactTile({
@@ -182,66 +175,65 @@ class _ContactTile extends StatelessWidget {
     required this.bgColor,
     required this.label,
     required this.value,
+    this.showDivider = true,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(14.r),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(14.r),
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14.r),
-            border: Border.all(color: const Color(0xFFE5E7EB)),
-          ),
-          child: Row(
-            children: [
-              Container(
-                padding: EdgeInsets.all(10.r),
-                decoration: BoxDecoration(
-                  color: bgColor,
-                  borderRadius: BorderRadius.circular(12.r),
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 13.h),
+            child: Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(9.r),
+                  decoration: BoxDecoration(
+                    color: bgColor,
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                  child: Icon(icon, color: iconColor, size: 20.sp),
                 ),
-                child: Icon(icon, color: iconColor, size: 22.sp),
-              ),
-              SizedBox(width: 14.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      label,
-                      style: AppTextStyles.of(
-                        fontSize: 12.sp,
-                        color: const Color(0xFF6B7280),
-                        fontWeight: FontWeight.w500,
+                SizedBox(width: 14.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        label,
+                        style: AppTextStyles.of(
+                          fontSize: 12.sp,
+                          color: const Color(0xFF6B7280),
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 2.h),
-                    Text(
-                      value,
-                      style: AppTextStyles.of(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF111827),
+                      SizedBox(height: 2.h),
+                      Text(
+                        value,
+                        style: AppTextStyles.of(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF111827),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 14.sp,
-                color: const Color(0xFF9CA3AF),
-              ),
-            ],
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 14.sp,
+                  color: const Color(0xFF9CA3AF),
+                ),
+              ],
+            ),
           ),
-        ),
+          if (showDivider)
+            const Divider(height: 1, color: Color(0xFFE5E7EB)),
+        ],
       ),
     );
   }
