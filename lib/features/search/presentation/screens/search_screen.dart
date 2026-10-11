@@ -281,61 +281,78 @@ class _SearchAppBar extends StatelessWidget {
                       color: Color(0xFF9CA3AF),
                       size: 20,
                     ),
+                    prefixIconConstraints: const BoxConstraints(
+                      minWidth: 32,
+                      minHeight: 0,
+                    ),
                     // Same position/size as home bar's blue circle,
                     // but with a grey icon on transparent background.
                     // The filter only applies to providers, so it is hidden
                     // while browsing the services tab.
                     suffixIcon: onFilterTap == null
                         ? null
-                        : GestureDetector(
-                            onTap: onFilterTap,
-                            child: Container(
-                              margin: const EdgeInsets.only(right: 12),
-                              child: Stack(
-                                clipBehavior: Clip.none,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: hasActiveFilters
-                                          ? const Color(0xFFEFF6FF)
-                                          : Colors.transparent,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Icon(
-                                      Icons.tune,
-                                      color: hasActiveFilters
-                                          ? const Color(0xFF2D5FA6)
-                                          : const Color(0xFF9CA3AF),
-                                      size: 18,
-                                    ),
+                        : Builder(
+                            builder: (iconContext) {
+                              final isRtl =
+                                  Localizations.localeOf(
+                                    iconContext,
+                                  ).languageCode ==
+                                  'ar';
+                              return GestureDetector(
+                                onTap: onFilterTap,
+                                child: Container(
+                                  margin: const EdgeInsetsDirectional.only(
+                                    end: 8,
                                   ),
-                                  if (hasActiveFilters)
-                                    Positioned(
-                                      top: 6,
-                                      right: 6,
-                                      child: Container(
-                                        width: 9,
-                                        height: 9,
+                                  child: Stack(
+                                    clipBehavior: Clip.none,
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFF2D5FA6),
+                                          color: hasActiveFilters
+                                              ? const Color(0xFFEFF6FF)
+                                              : Colors.transparent,
                                           shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color: Colors.white,
-                                            width: 1.5,
-                                          ),
+                                        ),
+                                        child: Icon(
+                                          Icons.tune,
+                                          color: hasActiveFilters
+                                              ? const Color(0xFF2D5FA6)
+                                              : const Color(0xFF9CA3AF),
+                                          size: 18,
                                         ),
                                       ),
-                                    ),
-                                ],
-                              ),
-                            ),
+                                      if (hasActiveFilters)
+                                        Positioned(
+                                          top: 4,
+                                          right: isRtl ? null : 4,
+                                          left: isRtl ? 4 : null,
+                                          child: Container(
+                                            width: 9,
+                                            height: 9,
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFF2D5FA6),
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                color: Colors.white,
+                                                width: 1.5,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 4),
                   ),
                 ),
               ),

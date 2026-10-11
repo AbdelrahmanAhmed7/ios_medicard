@@ -35,11 +35,15 @@ class SearchBarWidget extends StatelessWidget {
               color: Color(0xFF9CA3AF),
               size: 20,
             ),
+            prefixIconConstraints: const BoxConstraints(
+              minWidth: 32,
+              minHeight: 0,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 4),
           ),
         ),
       ),

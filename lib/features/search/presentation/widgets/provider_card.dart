@@ -1,8 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/services/url_launcher_service.dart';
 import '../../data/models/search_provider_model.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
@@ -118,9 +120,9 @@ class _DiscountChipsRow extends StatelessWidget {
     final pct = maxDiscount!.toStringAsFixed(0);
     final chips = <String>[];
     if (categoryName != null && categoryName!.trim().isNotEmpty) {
-      chips.add('Scan $pct%');
+      chips.add(categoryName!.trim());
     }
-    chips.add('$pct% Off');
+    chips.add('cart.discount_percent'.tr(args: [pct]));
 
     return Wrap(
       spacing: 6.w,
@@ -158,35 +160,73 @@ class _RatingAndLocationRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasRating = (provider.averageRating ?? 0) > 0;
     final hasDistance = provider.distanceKm != null;
+    final hotline = provider.hotline?.trim() ?? '';
 
-    if (!hasRating && !hasDistance) {
+    if (!hasRating && !hasDistance && hotline.isEmpty) {
       return const SizedBox.shrink();
     }
 
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        if (hasRating) ...[
-          Icon(Icons.star_rounded, color: const Color(0xFFF5A623), size: 16.sp),
-          SizedBox(width: 4.w),
-          Text(
-            provider.averageRating!.toStringAsFixed(1),
-            style: AppTextStyles.of(fontSize: 12.sp),
-          ),
-        ],
-        if (hasRating && hasDistance) const Spacer(),
-        if (hasDistance) ...[
-          Icon(
-            Icons.location_on_outlined,
-            size: 14.sp,
-            color: const Color(0xFF475569),
-          ),
-          SizedBox(width: 2.w),
-          Flexible(
-            child: Text(
-              '${provider.distanceKm!.toStringAsFixed(1)} km',
-              style: AppTextStyles.of(fontSize: 12.sp),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+        Row(
+          children: [
+            if (hasRating) ...[
+              Icon(
+                Icons.star_rounded,
+                color: const Color(0xFFF5A623),
+                size: 16.sp,
+              ),
+              SizedBox(width: 4.w),
+              Text(
+                provider.totalReviews != null && provider.totalReviews! > 0
+                    ? '${provider.averageRating!.toStringAsFixed(1)} (${provider.totalReviews})'
+                    : provider.averageRating!.toStringAsFixed(1),
+                style: AppTextStyles.of(fontSize: 12.sp),
+              ),
+            ],
+            if (hasRating && hasDistance) const Spacer(),
+            if (hasDistance) ...[
+              Icon(
+                Icons.location_on_outlined,
+                size: 14.sp,
+                color: const Color(0xFF475569),
+              ),
+              SizedBox(width: 2.w),
+              Flexible(
+                child: Text(
+                  '${provider.distanceKm!.toStringAsFixed(1)} km',
+                  style: AppTextStyles.of(fontSize: 12.sp),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ],
+        ),
+        if (hotline.isNotEmpty) ...[
+          SizedBox(height: 5.h),
+          GestureDetector(
+            onTap: () => UrlLauncherService().makePhoneCall(hotline),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.phone_in_talk_outlined,
+                  size: 14.sp,
+                  color: const Color(0xFF16A34A),
+                ),
+                SizedBox(width: 4.w),
+                Text(
+                  hotline,
+                  style: AppTextStyles.of(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF16A34A),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
