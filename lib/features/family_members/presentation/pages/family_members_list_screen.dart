@@ -26,8 +26,6 @@ class FamilyMembersListScreen extends StatefulWidget {
 class _FamilyMembersListScreenState extends State<FamilyMembersListScreen> {
   @override
   Widget build(BuildContext context) {
-    final statusBarHeight = MediaQuery.of(context).padding.top;
-
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       body: BlocConsumer<FamilyMembersCubit, FamilyMembersState>(
@@ -46,43 +44,40 @@ class _FamilyMembersListScreenState extends State<FamilyMembersListScreen> {
             success: (members) {
               return Column(
                 children: [
-                  Container(
-                    width: double.infinity,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF2D5FA6),
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(20),
-                        bottomRight: Radius.circular(20),
-                      ),
-                    ),
-                    padding: EdgeInsetsDirectional.fromSTEB(
-                      16.w,
-                      statusBarHeight + 12.h,
-                      16.w,
-                      20.h,
-                    ),
-                    child: Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(
-                            Icons.arrow_back_ios_new_rounded,
-                            color: Colors.white,
-                          ),
-                          onPressed: () => context.pop(),
-                        ),
-                        Expanded(
-                          child: Text(
-                            'family_members.title'.tr(),
-                            style: AppTextStyles.of(
-                              fontSize: 20.sp,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                  SafeArea(
+                    bottom: false,
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(8.w, 10.h, 20.w, 6.h),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            visualDensity: VisualDensity.compact,
+                            icon: Icon(
+                              Icons.arrow_back_ios_new_rounded,
+                              color: const Color(0xFF111827),
+                              size: 22.sp,
                             ),
-                            textAlign: TextAlign.center,
+                            onPressed: () {
+                              if (Navigator.of(context).canPop()) {
+                                Navigator.of(context).pop();
+                              }
+                            },
                           ),
-                        ),
-                        SizedBox(width: 40.w),
-                      ],
+                          Expanded(
+                            child: Text(
+                              'family_members.title'.tr(),
+                              style: AppTextStyles.of(
+                                fontSize: 22.sp,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF111827),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   Expanded(

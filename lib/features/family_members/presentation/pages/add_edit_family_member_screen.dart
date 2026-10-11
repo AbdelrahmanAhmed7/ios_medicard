@@ -113,8 +113,6 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final statusBarHeight = MediaQuery.of(context).padding.top;
-
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       body: GestureDetector(
@@ -153,47 +151,52 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: double.infinity,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF2D5FA6),
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(20),
-                        bottomRight: Radius.circular(20),
-                      ),
-                    ),
-                    padding: EdgeInsetsDirectional.fromSTEB(
-                      16.w,
-                      statusBarHeight + 12.h,
-                      16.w,
-                      20.h,
-                    ),
-                    child: Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-                          onPressed: () => context.pop(),
-                        ),
-                        Expanded(
-                          child: Text(
-                            widget.member == null
-                                ? 'family_members.add_member'.tr()
-                                : 'family_members.edit_member'.tr(),
-                            style: AppTextStyles.of(
-                              fontSize: 20.sp,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                  SafeArea(
+                    bottom: false,
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(8.w, 10.h, 12.w, 6.h),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            visualDensity: VisualDensity.compact,
+                            icon: Icon(
+                              Icons.arrow_back_ios_new_rounded,
+                              color: const Color(0xFF111827),
+                              size: 22.sp,
                             ),
-                            textAlign: TextAlign.center,
+                            onPressed: () {
+                              if (Navigator.of(context).canPop()) {
+                                Navigator.of(context).pop();
+                              }
+                            },
                           ),
-                        ),
-                        widget.member != null
-                            ? IconButton(
-                                icon: const Icon(Icons.delete_outline, color: Colors.white),
-                                onPressed: _showDeleteDialog,
-                              )
-                            : SizedBox(width: 40.w),
-                      ],
+                          Expanded(
+                            child: Text(
+                              widget.member == null
+                                  ? 'family_members.add_member'.tr()
+                                  : 'family_members.edit_member'.tr(),
+                              style: AppTextStyles.of(
+                                fontSize: 22.sp,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF111827),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (widget.member != null)
+                            IconButton(
+                              visualDensity: VisualDensity.compact,
+                              icon: Icon(
+                                Icons.delete_outline_rounded,
+                                color: const Color(0xFFDC2626),
+                                size: 22.sp,
+                              ),
+                              onPressed: _showDeleteDialog,
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                   SizedBox(height: 24.h),
