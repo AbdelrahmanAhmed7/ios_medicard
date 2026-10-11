@@ -121,7 +121,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final statusBarHeight = MediaQuery.of(context).padding.top;
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return BlocListener<ChangePasswordCubit, ChangePasswordState>(
@@ -156,45 +155,44 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Header
-                  Container(
-                    width: double.infinity,
-                    decoration: const BoxDecoration(
-                      color: kAuthBlue,
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(24),
-                        bottomRight: Radius.circular(24),
+                  SafeArea(
+                    bottom: false,
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(8.w, 10.h, 20.w, 6.h),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            visualDensity: VisualDensity.compact,
+                            icon: Icon(
+                              Icons.arrow_back_ios_new_rounded,
+                              color: const Color(0xFF111827),
+                              size: 22.sp,
+                            ),
+                            onPressed: () {
+                              if (Navigator.of(context).canPop()) {
+                                Navigator.of(context).pop();
+                              }
+                            },
+                          ),
+                          Expanded(
+                            child: Text(
+                              'profile.change_password'.tr(),
+                              style: AppTextStyles.of(
+                                fontSize: 22.sp,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF111827),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    padding: EdgeInsets.fromLTRB(
-                      16.w,
-                      statusBarHeight + 12.h,
-                      16.w,
-                      24.h,
-                    ),
-                    child: Row(
-                      children: [
-                        IconButton(
-                          icon: Icon(
-                            Icons.arrow_back_ios_new_rounded,
-                            color: Colors.white,
-                            size: 22.sp,
-                          ),
-                          onPressed: () => context.pop(),
-                        ),
-                        SizedBox(width: 8.w),
-                        Text(
-                          'profile.change_password'.tr(),
-                          style: AppTextStyles.of(
-                            fontSize: 20.sp,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
                     ),
                   ),
 
-                  SizedBox(height: 32.h),
+                  SizedBox(height: 24.h),
 
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20.w),
