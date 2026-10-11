@@ -10,7 +10,7 @@ import '../../../../core/services/url_launcher_service.dart';
 import '../../../../core/theming/app_colors.dart';
 import '../../../../core/theming/app_snack_bar.dart';
 import '../../../../core/theming/app_text_styles.dart';
-import '../../../../core/widgets/app_blue_header.dart';
+import '../../../../core/widgets/app_simple_header.dart';
 import '../../domain/models/content_type.dart';
 import '../cubit/content_cubit.dart';
 import '../cubit/content_state.dart';
@@ -48,7 +48,7 @@ class _ContentScreenState extends State<ContentScreen> {
           backgroundColor: AppColors.lightGreyClr,
           body: Column(
             children: [
-              AppBlueHeader(title: widget.contentType.titleKey.tr()),
+              AppSimpleHeader(title: widget.contentType.titleKey.tr()),
               Expanded(
                 child: SafeArea(
                   top: false,
@@ -109,8 +109,45 @@ class _HtmlContentView extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 720),
           child: Html(
             data: html,
-            onLinkTap: (url, _, _) async {
-              final opened = await linkHandler.handle(context, url);
+            extensions: [
+              // Section headings (h2 like "Definitions") render as dark
+              // bold text with a short blue accent bar underneath.
+              TagExtension(
+                tagsToExtend: {'h2'},
+                builder: (ext) {
+                  final heading = ext.element?.text.trim() ?? '';
+                  return Column(
+                    crossAxisAlignment: isRtl
+                        ? CrossAxisAlignment.end
+                        : CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        heading,
+                        textAlign: textAlign,
+                        style: AppTextStyles.of(
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF111827),
+                          height: 1.4,
+                        ),
+                      ),
+                      SizedBox(height: 6.h),
+                      Container(
+                        width: 36.w,
+                        height: 3.h,
+                        decoration: BoxDecoration(
+                          color: AppColors.blueClr,
+                          borderRadius: BorderRadius.circular(3.r),
+                        ),
+                      ),
+                      SizedBox(height: 12.h),
+                    ],
+                  );
+                },
+              ),
+            ],
+            onLinkTap: (url, _, _) async {              final opened = await linkHandler.handle(context, url);
               if (!opened && context.mounted) {
                 showAppSnackBar(
                   context,
@@ -144,10 +181,11 @@ class _HtmlContentView extends StatelessWidget {
                 lineHeight: const LineHeight(1.3),
               ),
               'h2': Style(
-                margin: Margins.only(top: 20.h, bottom: 10.h),
-                fontSize: FontSize(19.sp),
+                // Rendered by customRenders above; kept minimal as fallback.
+                margin: Margins.only(top: 22.h, bottom: 10.h),
+                fontSize: FontSize(18.sp),
                 fontWeight: FontWeight.w700,
-                color: AppColors.blueClr,
+                color: const Color(0xFF111827),
                 lineHeight: const LineHeight(1.4),
               ),
               'p': Style(
