@@ -22,12 +22,19 @@ class CartItemCard extends StatelessWidget {
       builder: (context, isPending) {
 
         return Container(
-          margin: EdgeInsets.only(bottom: 12.h),
-          padding: EdgeInsets.all(16.w),
+          margin: EdgeInsets.only(bottom: 10.h),
+          padding: EdgeInsets.all(14.w),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(color: const Color(0xFFE5E9F0), width: 1),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF0F172A).withValues(alpha: 0.05),
+                blurRadius: 14,
+                offset: const Offset(0, 5),
+              ),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,21 +70,29 @@ class CartItemCard extends StatelessWidget {
                         serviceId: item.serviceId,
                         categoryId: item.categoryId,
                       ),
-                      child: Icon(
-                        Icons.remove_circle_outline, // أيقونة متطابقة مع الصورة
-                        color: const Color(0xFF3872B1),
-                        size: 24.sp,
+                      child: Container(
+                        width: 32.r,
+                        height: 32.r,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFFEE2E2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.delete_outline_rounded,
+                          color: const Color(0xFFDC2626),
+                          size: 17.sp,
+                        ),
                       ),
                     ),
                 ],
               ),
 
-              SizedBox(height: 16.h),
+              SizedBox(height: 12.h),
 
               // Bottom Row: Tags (Provider/Category/Discount) & Price
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   // Tags Row
                   Expanded(
@@ -89,12 +104,12 @@ class CartItemCard extends StatelessWidget {
                         // Yellowish Tag (Used for Provider Name or Category to match UI)
                         Container(
                           padding: EdgeInsets.symmetric(
-                            horizontal: 8.w,
-                            vertical: 4.h,
+                            horizontal: 9.w,
+                            vertical: 5.h,
                           ),
                           decoration: BoxDecoration(
                             color: const Color(0xFFFFFBEB), // لون أصفر فاتح
-                            borderRadius: BorderRadius.circular(12.r),
+                            borderRadius: BorderRadius.circular(20.r),
                             border: Border.all(
                               color: const Color(
                                 0xFFFBBF24,
@@ -129,12 +144,12 @@ class CartItemCard extends StatelessWidget {
                         if (item.discountPercentage != null)
                           Container(
                             padding: EdgeInsets.symmetric(
-                              horizontal: 8.w,
-                              vertical: 4.h,
+                              horizontal: 9.w,
+                              vertical: 5.h,
                             ),
                             decoration: BoxDecoration(
                               color: const Color(0xFFEFF6FF),
-                              borderRadius: BorderRadius.circular(12.r),
+                              borderRadius: BorderRadius.circular(20.r),
                               border: Border.all(
                                 color: const Color(
                                   0xFF3872B1,
@@ -186,7 +201,7 @@ class CartItemCard extends StatelessWidget {
                               args: [item.priceAfter!.toStringAsFixed(0)],
                             ),
                             style: AppTextStyles.of(
-                              fontSize: 14.sp,
+                              fontSize: 16.sp,
                               fontWeight: FontWeight.bold,
                               color: const Color(
                                 0xFF3872B1,

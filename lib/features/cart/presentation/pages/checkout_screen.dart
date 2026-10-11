@@ -6,6 +6,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/services/url_launcher_service.dart';
+import '../../../../core/cubit/app_refresh_cubit.dart';
+import '../../../../core/di/service_locator.dart';
 import '../../../../core/theming/app_text_styles.dart';
 import '../../../../network/data/provider_page_response_model.dart';
 import '../cubit/cart_cubit.dart';
@@ -74,6 +76,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
       _didLaunchPayment = false;
       // Payment status cannot be verified from the backend, so land on the
       // activity tab where the real invoice status is shown.
+      sl<AppRefreshCubit>().triggerInvoicesRefresh();
       context.go('/medicard-home?tab=activity');
     }
   }
@@ -95,6 +98,9 @@ class _CheckoutScreenState extends State<CheckoutScreen>
             ).showSnackBar(SnackBar(content: Text(state.createInvoiceError!)));
           }
           if (state.createdInvoiceId != null) {
+            // A new invoice exists — tell the invoices tab to reload so it
+            // appears without any manual refresh or tab switching.
+            sl<AppRefreshCubit>().triggerInvoicesRefresh();
             final paymentLink = state.createdInvoicePaymentLink;
             if (paymentLink != null && paymentLink.isNotEmpty) {
               final opened = await UrlLauncherService().launchURL(paymentLink);

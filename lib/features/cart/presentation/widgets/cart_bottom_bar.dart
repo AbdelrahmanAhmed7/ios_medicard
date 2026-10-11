@@ -101,9 +101,7 @@ class CartBottomBar extends StatelessWidget {
                 backgroundColor: const Color(0xFF3872B1),
                 disabledBackgroundColor: const Color(0xFFCBD5E1),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(
-                    8.r,
-                  ), // مطابق لحواف الزر بالصورة
+                  borderRadius: BorderRadius.circular(14.r),
                 ),
                 elevation: 0,
               ),
