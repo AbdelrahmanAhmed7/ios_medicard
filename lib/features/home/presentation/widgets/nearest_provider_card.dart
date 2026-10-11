@@ -40,7 +40,8 @@ class NearestProviderCard extends StatelessWidget {
                       imageUrl: provider.imageUrl,
                       height: 159,
                       width: double.infinity,
-                      fit: BoxFit.contain,
+                      fit: BoxFit.cover,
+                      alignment: Alignment.center,
                       placeholder: (context, url) => Container(
                         color: const Color(0xFFEEF3FB),
                         height: 159,
