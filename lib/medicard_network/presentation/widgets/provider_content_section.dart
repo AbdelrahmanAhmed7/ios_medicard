@@ -83,7 +83,7 @@ class CategoryTabsSection extends StatelessWidget {
           ),
         ),
 
-        SizedBox(height: 16.h),
+        SizedBox(height: 12.h),
 
         // ── Services for selected tab ────────────────────────────────────
         TabServicesBody(state: state),
@@ -180,7 +180,15 @@ class TabServicesBody extends StatelessWidget {
       );
     }
 
-    final items = tab.services?.items ?? [];
+    final rawItems = tab.services?.items ?? [];
+    // The category endpoint has no search: filter loaded items locally.
+    final query = state.searchQuery?.trim().toLowerCase() ?? '';
+    final items = query.isEmpty
+        ? rawItems
+        : rawItems.where((s) {
+            final name = (s.serviceName as String?)?.toLowerCase() ?? '';
+            return name.contains(query);
+          }).toList();
 
     if (items.isEmpty) {
       return Center(
@@ -197,14 +205,41 @@ class TabServicesBody extends StatelessWidget {
       );
     }
 
-    return ListView.separated(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: items.length,
-      separatorBuilder: (_, _) => SizedBox(height: 12.h),
-      itemBuilder: (context, index) {
-        return CategoryServiceCard(service: items[index]);
-      },
+    // Plain Column (not a nested shrink-wrap ListView) so the list takes
+    // exactly its children's height — no phantom gap above the cards.
+    return Column(
+      children: [
+        for (var i = 0; i < items.length; i++) ...[
+          CategoryServiceCard(
+            service: items[i],
+            categoryId: tab.categoryId,
+          ),
+          if (i < items.length - 1) SizedBox(height: 12.h),
+        ],
+        if (tab.hasMore && query.isEmpty) ...[
+          SizedBox(height: 12.h),
+          OutlinedButton(
+            onPressed: tab.isLoading
+                ? null
+                : () => cubit.loadMoreCategoryServices(),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: const Color(0xFF3872B1),
+              side: const BorderSide(color: Color(0xFF3872B1)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              minimumSize: Size(double.infinity, 46.h),
+            ),
+            child: tab.isLoading
+                ? SizedBox(
+                    width: 20.r,
+                    height: 20.r,
+                    child: const CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text('common.load_more'.tr()),
+          ),
+        ],
+      ],
     );
   }
 }

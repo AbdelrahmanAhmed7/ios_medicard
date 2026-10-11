@@ -4,6 +4,7 @@ import '../../core/constants/api_result.dart';
 import '../../core/utils/api_error_parser.dart';
 import '../../network/data/provider_page_response_model.dart';
 import '../../network/data/provider_services_response_model.dart';
+import '../../network/data/provider_categories_models.dart';
 import '../service/medicard_network_api_service.dart';
 
 class MedicardNetworkRepository {
@@ -61,6 +62,49 @@ class MedicardNetworkRepository {
     }
   }
 
+  Future<ApiResult<List<ProviderCategory>>> getProviderCategories({
+    required int providerId,
+  }) async {
+    try {
+      final response = await _apiService.getProviderCategories(providerId);
+      if (response.succeeded == true) {
+        return ApiResult.success(response.data ?? const <ProviderCategory>[]);
+      } else {
+        return ApiResult.failure(
+          response.message ?? 'Failed to load provider categories',
+        );
+      }
+    } catch (e) {
+      _logDebugError('getProviderCategories', e);
+      return ApiResult.failure(_cleanError(e));
+    }
+  }
+
+  Future<ApiResult<ServicesByCategoryResponse>> getServicesByCategory({
+    required int providerId,
+    required int categoryId,
+    int pageNumber = 1,
+    int pageSize = 20,
+  }) async {
+    try {
+      final response = await _apiService.getServicesByCategory(
+        categoryId,
+        providerId,
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+      );
+      if (response.succeeded == true) {
+        return ApiResult.success(response);
+      } else {
+        return ApiResult.failure(
+          response.message ?? 'Failed to load category services',
+        );
+      }
+    } catch (e) {
+      _logDebugError('getServicesByCategory', e);
+      return ApiResult.failure(_cleanError(e));
+    }
+  }
   Future<ApiResult<ProviderServicesResponse>> getProviderServices({
     required int providerId,
     String? search,

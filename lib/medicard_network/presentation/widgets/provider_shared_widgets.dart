@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../core/services/url_launcher_service.dart';
 import '../../../core/theming/app_text_styles.dart';
+import '../../../core/utils/image_url_resolver.dart';
 import '../../../network/data/provider_page_response_model.dart';
 import '../../logic/provider_page_state.dart';
 
@@ -363,6 +364,21 @@ class CategoryTabChip extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // Category image when the backend provides one.
+                if (tab.imageUrl != null && tab.imageUrl!.isNotEmpty) ...[
+                  ClipOval(
+                    child: SizedBox(
+                      width: 22.r,
+                      height: 22.r,
+                      child: CachedNetworkImage(
+                        imageUrl: resolveImageUrl(tab.imageUrl) ?? '',
+                        fit: BoxFit.cover,
+                        errorWidget: (_, _, _) => const SizedBox.shrink(),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                ],
                 // Loading spinner while services are being fetched.
                 if (tab.isLoading) ...[
                   SizedBox(

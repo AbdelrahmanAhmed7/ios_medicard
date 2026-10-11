@@ -5,6 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 
 import '../../../core/theming/app_text_styles.dart';
 import '../../../core/theming/app_toast.dart';
+import '../../../network/data/provider_services_response_model.dart';
 import '../../logic/provider_page_cubit.dart';
 import '../../logic/provider_page_state.dart';
 import 'provider_shared_widgets.dart';
@@ -17,11 +18,22 @@ import 'provider_shared_widgets.dart';
 class CategoryServiceCard extends StatelessWidget {
   final dynamic service;
 
-  const CategoryServiceCard({super.key, required this.service});
+  /// Category that owns [service]; forwarded to add-to-cart since the
+  /// services-by-category payload carries no category id itself.
+  final int? categoryId;
+
+  const CategoryServiceCard({super.key, required this.service, this.categoryId});
 
   @override
   Widget build(BuildContext context) {
-    final serviceId = (service as dynamic).serviceId as int;
+    // servicesByCategory items are ProviderService (uses `id`); legacy
+    // dynamic items use `serviceId`. A `??` fallback can't be used here
+    // because a missing getter on dynamic throws instead of yielding null.
+    final dynamic raw = service;
+    final int? serviceId = raw is ProviderService
+        ? raw.id
+        : (raw.serviceId as int? ?? raw.id as int?);
+    if (serviceId == null) return const SizedBox.shrink();
     return BlocSelector<ProviderPageCubit, ProviderPageState,
         ({bool pending, bool inCart})>(
       selector: (state) => (
@@ -62,6 +74,8 @@ class CategoryServiceCard extends StatelessWidget {
                         color: const Color(0xFF0F172A),
                       ),
                     ),
+                    SizedBox(height: 4.h),
+                    _ServicePrice(service: service),
                     if (isSpecialOffer) ...[
                       SizedBox(height: 6.h),
                       ServiceBadge(
@@ -130,7 +144,10 @@ class CategoryServiceCard extends StatelessWidget {
               else
                 GestureDetector(
                   onTap: () async {
-                    if (await cubit.addToCart(serviceId) &&
+                    if (await cubit.addToCart(
+                          serviceId,
+                          categoryId: categoryId,
+                        ) &&
                         context.mounted) {
                       showLoginRequiredMessage(context);
                     }
@@ -161,3 +178,41 @@ class CategoryServiceCard extends StatelessWidget {
     );
   }
 }
+
+/// Price row: before (struck) + after, hidden when the backend sent none.
+class _ServicePrice extends StatelessWidget {
+  final dynamic service;
+
+  const _ServicePrice({required this.service});
+
+  @override
+  Widget build(BuildContext context) {
+    final before = (service as dynamic).priceBefore as num?;
+    final after = (service as dynamic).priceAfter as num?;
+    if (before == null && after == null) return const SizedBox.shrink();
+    return Row(
+      children: [
+        if (before != null)
+          Text(
+            'cart.egp_amount'.tr(args: [formatPrice(before.toDouble())]),
+            style: AppTextStyles.of(
+              fontSize: 12.sp,
+              color: const Color(0xFF94A3B8),
+              decoration: after != null ? TextDecoration.lineThrough : null,
+            ),
+          ),
+        if (before != null && after != null) SizedBox(width: 6.w),
+        if (after != null)
+          Text(
+            'cart.egp_amount'.tr(args: [formatPrice(after.toDouble())]),
+            style: AppTextStyles.of(
+              fontSize: 15.sp,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF3872B1),
+            ),
+          ),
+      ],
+    );
+  }
+}
+

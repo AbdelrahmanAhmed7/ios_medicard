@@ -14,6 +14,8 @@ import 'package:medicard/medicard_network/presentation/widgets/provider_service_
 import 'package:medicard/medicard_network/repository/medicard_network_repository.dart';
 import 'package:medicard/network/data/provider_page_response_model.dart';
 import 'package:medicard/network/data/provider_services_response_model.dart';
+import 'package:medicard/network/data/provider_categories_models.dart';
+import 'package:medicard/features/cart/domain/models/cart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class _FakeMedicardNetworkRepository implements MedicardNetworkRepository {
@@ -61,6 +63,14 @@ class _FakeMedicardNetworkRepository implements MedicardNetworkRepository {
   }
 
   @override
+  Future<ApiResult<List<ProviderCategory>>> getProviderCategories({
+    required int providerId,
+  }) async {
+    // Empty categories keep the legacy flat services flow under test.
+    return const ApiResult.success(<ProviderCategory>[]);
+  }
+
+  @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
@@ -70,6 +80,10 @@ class _FakeInvoiceRepository implements InvoiceRepository {
 }
 
 class _FakeCartRepository implements CartRepository {
+  @override
+  Future<ApiResult<Cart>> getCart() async =>
+      const ApiResult.success(Cart.empty());
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

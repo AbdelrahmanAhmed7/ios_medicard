@@ -12,19 +12,41 @@ const Set<ProviderViewType> kProviderCatalogViews = {
 class CategoryTab {
   final int categoryId;
   final String categoryName;
+  final String? imageUrl;
   final dynamic services;
   final bool isLoading;
+  final bool hasMore;
   final String? error;
 
   const CategoryTab({
     required this.categoryId,
     required this.categoryName,
+    this.imageUrl,
     this.services,
     this.isLoading = false,
+    this.hasMore = true,
     this.error,
   });
 
   int get selectedCount => 0;
+
+  CategoryTab copyWith({
+    dynamic services,
+    bool? isLoading,
+    bool? hasMore,
+    String? error,
+    bool clearError = false,
+  }) {
+    return CategoryTab(
+      categoryId: categoryId,
+      categoryName: categoryName,
+      imageUrl: imageUrl,
+      services: services ?? this.services,
+      isLoading: isLoading ?? this.isLoading,
+      hasMore: hasMore ?? this.hasMore,
+      error: clearError ? null : (error ?? this.error),
+    );
+  }
 }
 
 class ProviderPageState {
@@ -100,7 +122,11 @@ class ProviderPageState {
     this.pendingPackageInvoiceIds = const {},
   });
 
-  dynamic get selectedTab => null;
+  CategoryTab? get selectedTab {
+    if (categoryTabs.isEmpty) return null;
+    final index = selectedCategoryIndex.clamp(0, categoryTabs.length - 1);
+    return categoryTabs[index];
+  }
 
   int get displayServicesCount => providerData?.servicesCount ?? 0;
 

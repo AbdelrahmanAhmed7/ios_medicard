@@ -77,22 +77,16 @@ class ProviderServiceCard extends StatelessWidget {
                         if (service.discountPercentage != null &&
                             service.discountPercentage! > 0)
                           ServiceBadge(
-                            label:
-                                '${service.discountPercentage!.toStringAsFixed(0)}%Off',
+                            label: 'cart.discount_percent'.tr(
+                              args: [
+                                service.discountPercentage!
+                                    .toStringAsFixed(0),
+                              ],
+                            ),
                             color: const Color(0xFF3872B1),
                             backgroundColor: const Color(0xFFEFF6FF),
                           ),
                       ],
-                    ),
-                    SizedBox(height: 9.h),
-                    Text(
-                      'Full haematology panel including WBC, RBC, platelets',
-                      style: AppTextStyles.of(
-                        fontSize: 12.sp,
-                        color: const Color(0xFF475569),
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
                     ),
                     SizedBox(height: 13.h),
                     Row(

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' show PlatformDispatcher;
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,10 +10,12 @@ import '../../core/di/service_locator.dart';
 import '../../core/theming/app_toast.dart';
 import '../../features/activity/domain/repositories/invoice_repository.dart';
 import '../../features/activity/domain/models/created_invoice.dart';
+import '../../features/cart/domain/models/cart.dart';
 import '../../features/cart/domain/repository/cart_repository.dart';
 import '../../features/cart/domain/services/cart_sync_service.dart';
 import '../../network/data/provider_page_response_model.dart';
 import '../../network/data/provider_services_response_model.dart';
+import '../../network/data/provider_categories_models.dart';
 import '../repository/medicard_network_repository.dart';
 import 'provider_page_state.dart';
 
@@ -31,6 +34,9 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
   int _reviewsCurrentPage = 1;
   int _servicesCurrentPage = 1;
   int _servicesRequestSeq = 0;
+  final Map<int, int> _categoryPages = {};
+  final Map<int, bool> _categoryHasMore = {};
+  final Set<int> _knownCartServiceIds = {};
   Timer? _debounceTimer;
   StreamSubscription<CartSyncEvent>? _cartSyncSubscription;
 
@@ -76,7 +82,7 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
             resetServicesError: true,
           ),
         );
-        loadServices(reset: true);
+        loadCategories();
       },
       failure: (error) {
         emit(state.copyWith(isProviderLoading: false, providerError: error));
@@ -294,8 +300,186 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
   }
 
   Future<void> loadMoreServices() async => loadServices();
-  Future<void> selectCategoryTab(int index) async {}
-  Future<void> retryTabLoad(int index) async {}
+
+  /// Loads the provider's service categories, then the first tab's services.
+  /// Falls back to the legacy flat services flow when there are none.
+  Future<void> loadCategories() async {
+    if (isClosed) return;
+    final results = await Future.wait([
+      _medicardRepository.getProviderCategories(providerId: providerId),
+      _cartRepository.getCart(),
+    ]);
+    if (isClosed) return;
+    final cartResult = results[1];
+    if (cartResult is ApiResult<Cart>) {
+      cartResult.when(
+        success: (cart) {
+          _knownCartServiceIds
+            ..clear()
+            ..addAll([for (final item in cart.items) item.serviceId]);
+        },
+        failure: (_) {},
+      );
+    }
+    final result = results[0];
+    if (result is! ApiResult<List<ProviderCategory>>) {
+      loadServices(reset: true);
+      return;
+    }
+    result.when(
+      success: (categories) {
+        if (isClosed) return;
+        final tabs = categories
+            .where((c) => c.id != null)
+            .map(
+              (c) => CategoryTab(
+                categoryId: c.id!,
+                categoryName: (c.name ?? '').trim(),
+                imageUrl: c.imageUrl,
+              ),
+            )
+            .toList();
+        emit(
+          state.copyWith(categoryTabs: tabs, selectedCategoryIndex: 0),
+        );
+        if (tabs.isEmpty) {
+          loadServices(reset: true);
+        } else {
+          loadCategoryServices(tabs.first.categoryId, reset: true);
+        }
+      },
+      failure: (_) {
+        if (isClosed) return;
+        // Categories are enhancement-only: keep the legacy services flow.
+        loadServices(reset: true);
+      },
+    );
+  }
+
+  void _updateTab(int categoryId, CategoryTab Function(CategoryTab) update) {
+    final tabs = state.categoryTabs
+        .map((t) => t.categoryId == categoryId ? update(t) : t)
+        .toList();
+    emit(state.copyWith(categoryTabs: tabs));
+  }
+
+  bool _isArabic() =>
+      PlatformDispatcher.instance.locale.languageCode.toLowerCase() == 'ar';
+
+  /// Merges freshly loaded category services into [_fullServices] so cart
+  /// membership, counts and add-to-cart category resolution keep working.
+  void _mergeCategoryServices(List<ProviderService> services) {
+    final byId = {for (final s in _fullServices) s.id: s};
+    for (final s in services) {
+      byId[s.id] = s;
+    }
+    _fullServices = byId.values.toList();
+    emit(
+      state.copyWith(
+        fullServices: List<ProviderService>.from(_fullServices),
+        services: List<ProviderService>.from(_fullServices),
+      ),
+    );
+  }
+
+  Future<void> loadCategoryServices(int categoryId, {bool reset = false}) async {
+    if (isClosed) return;
+    final page = reset ? 1 : (_categoryPages[categoryId] ?? 1);
+    if (!reset && !(_categoryHasMore[categoryId] ?? true)) return;
+
+    _updateTab(
+      categoryId,
+      (t) => t.copyWith(isLoading: true, clearError: true),
+    );
+
+    final result = await _medicardRepository.getServicesByCategory(
+      providerId: providerId,
+      categoryId: categoryId,
+      pageNumber: page,
+      pageSize: _pageSize,
+    );
+    if (isClosed) return;
+    result.when(
+      success: (response) {
+        if (isClosed) return;
+        final isArabic = _isArabic();
+        final mapped =
+            (response.data?.items ?? const <ProviderCategoryService>[])
+                .where((dto) => dto.id != null)
+                .map(
+                  (dto) => dto.toProviderService(
+                    categoryId: categoryId,
+                    isArabic: isArabic,
+                    isSelected: _knownCartServiceIds.contains(dto.id),
+                  ),
+                )
+                .toList();
+        final data = response.data;
+        final totalPages = data?.totalPages ?? page;
+        final hasMore = page < totalPages;
+        _categoryPages[categoryId] = hasMore ? page + 1 : page;
+        _categoryHasMore[categoryId] = hasMore;
+
+        _mergeCategoryServices(mapped);
+
+        final matching = state.categoryTabs.where(
+          (t) => t.categoryId == categoryId,
+        );
+        final previous = matching.isEmpty ? null : matching.first.services;
+        final previousItems = previous is ProviderServicesData
+            ? (previous.items ?? const <ProviderService>[])
+            : const <ProviderService>[];
+        final merged = reset ? mapped : [...previousItems, ...mapped];
+        _updateTab(
+          categoryId,
+          (t) => t.copyWith(
+            services: ProviderServicesData(items: merged),
+            isLoading: false,
+            hasMore: hasMore,
+            clearError: true,
+          ),
+        );
+      },
+      failure: (error) {
+        if (isClosed) return;
+        _updateTab(
+          categoryId,
+          (t) => t.copyWith(isLoading: false, error: error),
+        );
+      },
+    );
+  }
+
+  Future<void> selectCategoryTab(int index) async {
+    if (isClosed) return;
+    if (index < 0 || index >= state.categoryTabs.length) return;
+    emit(state.copyWith(selectedCategoryIndex: index));
+    final tab = state.categoryTabs[index];
+    if (tab.services == null && !tab.isLoading) {
+      await loadCategoryServices(tab.categoryId, reset: true);
+    }
+  }
+
+  Future<void> retryTabLoad(int index) async {
+    if (isClosed) return;
+    if (index < 0 || index >= state.categoryTabs.length) return;
+    await loadCategoryServices(
+      state.categoryTabs[index].categoryId,
+      reset: true,
+    );
+  }
+
+  Future<void> loadMoreCategoryServices() async {
+    if (isClosed) return;
+    if (state.categoryTabs.isEmpty) return;
+    final index = state.selectedCategoryIndex.clamp(
+      0,
+      state.categoryTabs.length - 1,
+    );
+    final tab = state.categoryTabs[index];
+    if (tab.isLoading) return;
+    await loadCategoryServices(tab.categoryId);
+  }
 
   /// Returns true when a stored auth token exists. Screens use this as the
   /// login gate instead of reaching into session storage themselves.
@@ -549,7 +733,11 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
           reviews: _filterReviews(_fullReviews, nextQuery),
         ),
       );
-      loadServices(reset: true);
+      // Category tabs have no backend search: the tab body filters the
+      // already-loaded services locally.
+      if (state.categoryTabs.isEmpty) {
+        loadServices(reset: true);
+      }
     });
   }
 
@@ -610,6 +798,7 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
   void _onCartSyncEvent(CartSyncEvent event) {
     if (isClosed) return;
     if (event.cartCleared) {
+      _knownCartServiceIds.clear();
       _fullServices = _fullServices
           .map((service) => service.copyWith(isSelected: false))
           .toList();
@@ -625,6 +814,11 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
     final serviceId = event.serviceId;
     final isSelected = event.isSelected;
     if (serviceId == null || isSelected == null) return;
+    if (isSelected) {
+      _knownCartServiceIds.add(serviceId);
+    } else {
+      _knownCartServiceIds.remove(serviceId);
+    }
     _setServiceSelected(
       serviceId: serviceId,
       isSelected: isSelected,
