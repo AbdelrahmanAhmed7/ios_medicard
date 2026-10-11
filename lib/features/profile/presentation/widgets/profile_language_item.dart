@@ -23,15 +23,7 @@ class ProfileLanguageItem extends StatelessWidget {
     final label = 'profile.language'.tr();
 
     return InkWell(
-      onTap: () async {
-        final newLanguage = currentLocale == 'ar' ? 'en' : 'ar';
-        if (context.mounted) {
-          await context.read<LocalizationCubit>().changeLanguage(
-            context,
-            newLanguage,
-          );
-        }
-      },
+      onTap: () => _showLanguageSheet(context, currentLocale),
       borderRadius: BorderRadius.circular(16.r),
       child: Container(
         height: 54.h,
@@ -69,5 +61,146 @@ class ProfileLanguageItem extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// Language picker bottom sheet — the change applies only after Apply.
+  Future<void> _showLanguageSheet(BuildContext context, String current) async {
+    var selected = current;
+    final picked = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (sheetContext, setSheetState) {
+            Widget option(String code, String name) {
+              final isSelected = selected == code;
+              return GestureDetector(
+                onTap: () => setSheetState(() => selected = code),
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 14.w,
+                    vertical: 13.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? const Color(0xFFEFF6FF)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(12.r),
+                    border: Border.all(
+                      color: isSelected
+                          ? const Color(0xFF2D5FA6)
+                          : const Color(0xFFE5E7EB),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          name,
+                          style: AppTextStyles.of(
+                            fontSize: 15.sp,
+                            fontWeight: isSelected
+                                ? FontWeight.w600
+                                : FontWeight.w400,
+                            color: const Color(0xFF111827),
+                          ),
+                        ),
+                      ),
+                      if (isSelected)
+                        Icon(
+                          Icons.check_circle_rounded,
+                          size: 20.sp,
+                          color: const Color(0xFF2D5FA6),
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            }
+
+            return SafeArea(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 42.w,
+                        height: 4.h,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE5E7EB),
+                          borderRadius: BorderRadius.circular(4.r),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 16.h),
+                    Text(
+                      'profile.language'.tr(),
+                      style: AppTextStyles.of(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF111827),
+                      ),
+                    ),
+                    SizedBox(height: 14.h),
+                    option('ar', 'profile.arabic'.tr()),
+                    SizedBox(height: 10.h),
+                    option('en', 'profile.english'.tr()),
+                    SizedBox(height: 18.h),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () =>
+                                Navigator.of(sheetContext).pop(),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: const Color(0xFF334155),
+                              side: const BorderSide(
+                                color: Color(0xFFD1D5DB),
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                              minimumSize: Size.fromHeight(48.h),
+                            ),
+                            child: Text('common.cancel'.tr()),
+                          ),
+                        ),
+                        SizedBox(width: 12.w),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () =>
+                                Navigator.of(sheetContext).pop(selected),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF2D5FA6),
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                              minimumSize: Size.fromHeight(48.h),
+                            ),
+                            child: Text('common.apply'.tr()),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    if (picked != null && picked != current && context.mounted) {
+      await context.read<LocalizationCubit>().changeLanguage(context, picked);
+    }
   }
 }
