@@ -38,4 +38,14 @@ class AppRefreshCubit extends Cubit<AppRefreshState> {
     if (isClosed) return;
     profileSummaryRefresh.value++;
   }
+
+  /// Counter bumped whenever the invoices list must be re-fetched — e.g.
+  /// right after an invoice is created on the checkout screen. The invoices
+  /// tab listens to [invoicesRefresh] and reloads its current tab.
+  final ValueNotifier<int> invoicesRefresh = ValueNotifier(0);
+
+  void triggerInvoicesRefresh() {
+    if (isClosed) return;
+    invoicesRefresh.value++;
+  }
 }

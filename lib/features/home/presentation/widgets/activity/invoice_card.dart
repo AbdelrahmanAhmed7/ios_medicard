@@ -46,159 +46,162 @@ class InvoiceCard extends StatelessWidget {
             ),
           ],
         ),
-        child: Row(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              width: 56.r,
-              height: 56.r,
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Container(
-                    width: 56.r,
-                    height: 56.r,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: const Color(0xFFE5E7EB),
-                        width: 1,
-                      ),
-                    ),
-                    child: ClipOval(
-                      child: imageUrl != null
-                          ? CachedNetworkImage(
-                              imageUrl: imageUrl,
-                              fit: BoxFit.cover,
-                              placeholder: (_, _) =>
-                                  Container(color: Colors.grey[100]),
-                              errorWidget: (_, _, _) => _providerInitial(),
-                            )
-                          : _providerInitial(),
-                    ),
-                  ),
-                  if (item.isUsed)
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        padding: EdgeInsets.all(2.r),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 52.r,
+                  height: 52.r,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        width: 52.r,
+                        height: 52.r,
+                        decoration: BoxDecoration(
                           shape: BoxShape.circle,
+                          border: Border.all(
+                            color: const Color(0xFFE5E7EB),
+                            width: 1,
+                          ),
                         ),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: const Color(0xFF10B981),
-                              width: 1.2,
+                        child: ClipOval(
+                          child: imageUrl != null
+                              ? CachedNetworkImage(
+                                  imageUrl: imageUrl,
+                                  fit: BoxFit.cover,
+                                  placeholder: (_, _) =>
+                                      Container(color: Colors.grey[100]),
+                                  errorWidget: (_, _, _) => _providerInitial(),
+                                )
+                              : _providerInitial(),
+                        ),
+                      ),
+                      if (item.isUsed)
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            padding: EdgeInsets.all(2.r),
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: const Color(0xFF10B981),
+                                  width: 1.2,
+                                ),
+                              ),
+                              child: Icon(
+                                Icons.check,
+                                size: 11.r,
+                                color: const Color(0xFF10B981),
+                              ),
                             ),
                           ),
-                          child: Icon(
-                            Icons.check,
-                            size: 11.r,
-                            color: const Color(0xFF10B981),
-                          ),
                         ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            SizedBox(width: 14.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          item.providerName,
-                          style: AppTextStyles.of(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFF111827),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      SizedBox(width: 8.w),
-                      _StatusPill(item: item),
                     ],
                   ),
-                  SizedBox(height: 2.h),
-                  Text(
-                    item.branchName,
-                    style: AppTextStyles.of(
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w400,
-                      color: const Color(0xFF6B7280),
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (item.beneficiaryName != null) ...[
-                    SizedBox(height: 2.h),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.person_outline,
-                          size: 14.r,
-                          color: const Color(0xFF6B7280),
-                        ),
-                        SizedBox(width: 3.w),
-                        Expanded(
-                          child: Text(
-                            item.beneficiaryName!,
-                            style: AppTextStyles.of(
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w400,
-                              color: const Color(0xFF6B7280),
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                  SizedBox(height: 6.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        formattedDate,
+                        item.providerName,
+                        style: AppTextStyles.of(
+                          fontSize: 16.5.sp,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF0F172A),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(height: 3.h),
+                      Text(
+                        item.branchName,
                         style: AppTextStyles.of(
                           fontSize: 13.sp,
                           fontWeight: FontWeight.w400,
                           color: const Color(0xFF6B7280),
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      if (_amount(item) != null)
-                        Text(
-                          'cart.egp_amount'.tr(
-                            args: ['${_amount(item)!.toInt()}'],
-                          ),
-                          style: AppTextStyles.of(
-                            fontSize: 15.sp,
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xFF111827),
-                          ),
+                      if (item.beneficiaryName != null) ...[
+                        SizedBox(height: 3.h),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.person_outline_rounded,
+                              size: 14.sp,
+                              color: const Color(0xFF4B5563),
+                            ),
+                            SizedBox(width: 4.w),
+                            Expanded(
+                              child: Text(
+                                item.beneficiaryName!,
+                                style: AppTextStyles.of(
+                                  fontSize: 12.5.sp,
+                                  fontWeight: FontWeight.w500,
+                                  color: const Color(0xFF4B5563),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
                         ),
+                      ],
                     ],
                   ),
-                  SizedBox(height: 8.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [InvoiceActionButton(item: item)],
+                ),
+                if (_amount(item) != null) ...[
+                  SizedBox(width: 10.w),
+                  Text(
+                    'cart.egp_amount'.tr(
+                      args: ['${_amount(item)!.toInt()}'],
+                    ),
+                    style: AppTextStyles.of(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF3872B1),
+                    ),
                   ),
                 ],
-              ),
+              ],
+            ),
+            SizedBox(height: 12.h),
+            const Divider(height: 1, color: Color(0xFFEEF1F5)),
+            SizedBox(height: 10.h),
+            Row(
+              children: [
+                Icon(
+                  Icons.calendar_today_outlined,
+                  size: 14.sp,
+                  color: const Color(0xFF9CA3AF),
+                ),
+                SizedBox(width: 6.w),
+                Expanded(
+                  child: Text(
+                    formattedDate,
+                    style: AppTextStyles.of(
+                      fontSize: 12.5.sp,
+                      fontWeight: FontWeight.w400,
+                      color: const Color(0xFF6B7280),
+                    ),
+                  ),
+                ),
+                InvoiceActionButton(item: item),
+              ],
             ),
           ],
         ),
@@ -215,51 +218,3 @@ class InvoiceCard extends StatelessWidget {
 }
 
 double? _amount(InvoiceItem item) => item.priceAfter ?? item.packagePrice;
-
-/// Small colored status chip (pending / paid / used / cancelled).
-class _StatusPill extends StatelessWidget {
-  final InvoiceItem item;
-
-  const _StatusPill({required this.item});
-
-  @override
-  Widget build(BuildContext context) {
-    late final Color background;
-    late final Color foreground;
-    late final String labelKey;
-
-    if (item.isPending) {
-      background = const Color(0xFFFEF3C7);
-      foreground = const Color(0xFFB45309);
-      labelKey = 'activity.pending';
-    } else if (item.isPaid) {
-      background = const Color(0xFFDBEAFE);
-      foreground = const Color(0xFF1D4ED8);
-      labelKey = 'activity.paid';
-    } else if (item.isUsed) {
-      background = const Color(0xFFD1FAE5);
-      foreground = const Color(0xFF047857);
-      labelKey = 'activity.used';
-    } else {
-      background = const Color(0xFFFEE2E2);
-      foreground = const Color(0xFFB91C1C);
-      labelKey = 'activity.cancelled';
-    }
-
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(20.r),
-      ),
-      child: Text(
-        labelKey.tr(),
-        style: AppTextStyles.of(
-          fontSize: 11.sp,
-          fontWeight: FontWeight.w600,
-          color: foreground,
-        ),
-      ),
-    );
-  }
-}

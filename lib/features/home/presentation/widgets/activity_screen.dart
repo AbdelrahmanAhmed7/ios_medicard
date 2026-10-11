@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicard/core/widgets/auth_shared_widgets.dart';
+import '../../../../core/cubit/app_refresh_cubit.dart';
+import '../../../../core/di/service_locator.dart';
 import '../../../activity/presentation/cubit/activity_cubit.dart';
 import '../../../activity/presentation/cubit/activity_state.dart';
 import 'activity/activity_error_view.dart';
@@ -28,6 +30,9 @@ class _ActivityScreenState extends State<ActivityScreen>
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
     _tabController.addListener(_onTabChanged);
+    // A new invoice created on the checkout screen asks for a reload so it
+    // shows up with no manual refresh or tab switching.
+    sl<AppRefreshCubit>().invoicesRefresh.addListener(_onInvoicesRefresh);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         context.read<ActivityCubit>().loadInvoices(tab: 1);
@@ -35,8 +40,17 @@ class _ActivityScreenState extends State<ActivityScreen>
     });
   }
 
+  void _onInvoicesRefresh() {
+    if (!mounted) return;
+    context.read<ActivityCubit>().loadInvoices(
+      tab: _tabController.index + 1,
+      forceRefresh: true,
+    );
+  }
+
   @override
   void dispose() {
+    sl<AppRefreshCubit>().invoicesRefresh.removeListener(_onInvoicesRefresh);
     _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
     super.dispose();
