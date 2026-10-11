@@ -241,7 +241,7 @@ class AppRouter {
           builder: (context, state) {
             final tab = state.uri.queryParameters['tab'];
             return HomeScreen(
-              initialIndex: tab == 'activity' ? 2 : 0,
+              initialIndex: tab == 'activity' ? 1 : 0,
             );
           },
         ),

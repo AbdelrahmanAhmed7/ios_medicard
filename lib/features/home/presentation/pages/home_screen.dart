@@ -23,7 +23,7 @@ import '../cubit/location_cubit.dart';
 import '../cubit/location_state.dart';
 import '../mappers/home_mappers.dart';
 import '../widgets/activity_screen.dart';
-import '../widgets/ecard_screen.dart';
+import '../widgets/ecard_preview_card.dart';
 import '../widgets/featured_services_section.dart';
 import '../widgets/home_bottom_nav.dart';
 import '../widgets/home_empty_view.dart';
@@ -93,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   context.read<HomeCubit>().getHomeData();
                   context.read<ECardCubit>().loadCardData(forceRefresh: true);
                   context.read<ActivityCubit>().loadInvoices();
-                  if (_currentIndex == 3) {
+                  if (_currentIndex == 2) {
                     context.read<ProfileCubit>().loadProfile(
                       forceRefresh: true,
                     );
@@ -150,7 +150,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     // Not const: the parent rebuilds on locale change (router
                     // refreshListenable) and const children would be skipped,
                     // leaving `.tr()` strings stale on these tabs.
-                    ECardScreen(),
                     ActivityScreen(),
                     _ProfileBody(),
                   ],
@@ -159,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   builder: (providerContext) => HomeBottomNav(
                     currentIndex: _currentIndex,
                     onTap: (i) {
-                      if (i == 3) {
+                      if (i == 2) {
                         if (kDebugMode) {
                           debugPrint('[ProfileFlow] Profile tab opened');
                         }
@@ -273,7 +272,7 @@ class _HomeBody extends StatelessWidget {
               SliverToBoxAdapter(
                 child: PendingAppointmentsSection(
                   appointments: appointments,
-                  onViewAll: () => onNavigateToTab(2),
+                  onViewAll: () => onNavigateToTab(1),
                 ),
               ),
               const SliverToBoxAdapter(child: SizedBox(height: 24)),
@@ -321,6 +320,8 @@ class _HomeBody extends StatelessWidget {
         SliverToBoxAdapter(
           child: QuickActionsRow(actions: HomeMockData.quickActions),
         ),
+        const SliverToBoxAdapter(child: SizedBox(height: 8)),
+        const SliverToBoxAdapter(child: ECardPreviewCard()),
         const SliverToBoxAdapter(child: SizedBox(height: 24)),
 
         if (banners.isNotEmpty) ...[
