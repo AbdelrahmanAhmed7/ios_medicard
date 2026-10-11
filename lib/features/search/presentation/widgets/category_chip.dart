@@ -23,9 +23,7 @@ class CategoryChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final label = category?.name ?? 'All';
-    final activeColor = const Color(0xFF2D5FA6);
-    final inactiveBgColor = const Color(0xFFF3F6F9);
-    final inactiveContentColor = const Color(0xFF1E3F66);
+    const activeColor = Color(0xFF2D5FA6);
 
     return GestureDetector(
       onTap: onTap,
@@ -34,54 +32,45 @@ class CategoryChip extends StatelessWidget {
         children: [
           AnimatedContainer(
             duration: const Duration(milliseconds: 180),
-            margin: EdgeInsets.only(right: 8.w),
-            width: 80.w,
-            height: 80.h,
-            padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 8.h),
-            decoration: BoxDecoration(
-              color: isSelected ? Colors.white : inactiveBgColor,
-              borderRadius: BorderRadius.circular(12.r),
-              border: isSelected
-                  ? Border.all(color: activeColor, width: 1.5.w)
-                  : Border.all(color: Colors.transparent, width: 1.5.w),
+            margin: EdgeInsetsDirectional.only(end: 8.w),
+            padding: EdgeInsetsDirectional.only(
+              start: 6.w,
+              end: 14.w,
+              top: 6.h,
+              bottom: 6.h,
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (category != null && category!.imageUrl != null) ...[
-                  CachedNetworkImage(
-                    imageUrl: category!.imageUrl!,
-                    width: 26.r,
-                    height: 26.r,
-                    fit: BoxFit.contain,
-                    placeholder: (context, url) => SizedBox(
-                      width: 26.r,
-                      height: 26.r,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 1.5,
-                        color: isSelected ? activeColor : inactiveContentColor,
+            decoration: BoxDecoration(
+              color: isSelected ? activeColor : Colors.white,
+              borderRadius: BorderRadius.circular(22.r),
+              border: Border.all(
+                color: isSelected
+                    ? activeColor
+                    : const Color(0xFFE5E9F0),
+                width: 1.2,
+              ),
+              boxShadow: isSelected
+                  ? [
+                      BoxShadow(
+                        color: activeColor.withValues(alpha: 0.25),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
                       ),
-                    ),
-                    errorWidget: (context, url, error) => Icon(
-                      Icons.image_not_supported_outlined,
-                      size: 24.r,
-                      color: isSelected ? activeColor : inactiveContentColor,
-                    ),
-                  ),
-                ] else ...[
-                  Icon(
-                    Icons.grid_view_rounded,
-                    size: 26.r,
-                    color: isSelected ? activeColor : inactiveContentColor,
-                  ),
-                ],
-                SizedBox(height: 6.h),
+                    ]
+                  : [],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _chipImage(isSelected: isSelected),
+                SizedBox(width: 8.w),
                 Text(
                   label,
                   style: AppTextStyles.of(
-                    fontSize: 12.sp,
+                    fontSize: 13.sp,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    color: isSelected ? activeColor : inactiveContentColor,
+                    color: isSelected
+                        ? Colors.white
+                        : const Color(0xFF1E3A5F),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -92,7 +81,12 @@ class CategoryChip extends StatelessWidget {
           if (badgeCount != null && badgeCount! > 0)
             Positioned(
               top: -4.h,
-              right: 2.w,
+              right: Directionality.of(context) == TextDirection.rtl
+                  ? null
+                  : 2.w,
+              left: Directionality.of(context) == TextDirection.rtl
+                  ? 2.w
+                  : null,
               child: Container(
                 padding: EdgeInsets.all(5.r),
                 decoration: const BoxDecoration(
@@ -110,6 +104,44 @@ class CategoryChip extends StatelessWidget {
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _chipImage({required bool isSelected}) {
+    const activeColor = Color(0xFF2D5FA6);
+    final imageUrl = category?.imageUrl;
+    Widget content;
+    if (imageUrl != null && imageUrl.isNotEmpty) {
+      content = CachedNetworkImage(
+        imageUrl: imageUrl,
+        width: 26.r,
+        height: 26.r,
+        fit: BoxFit.cover,
+        placeholder: (context, url) => Container(
+          width: 26.r,
+          height: 26.r,
+          color: const Color(0xFFEFF6FF),
+        ),
+        errorWidget: (context, url, error) => Icon(
+          Icons.image_not_supported_outlined,
+          size: 18.r,
+          color: isSelected ? Colors.white : activeColor,
+        ),
+      );
+    } else {
+      content = Icon(
+        Icons.grid_view_rounded,
+        size: 18.r,
+        color: isSelected ? Colors.white : activeColor,
+      );
+    }
+    return ClipOval(
+      child: Container(
+        width: 30.r,
+        height: 30.r,
+        color: isSelected ? Colors.white.withValues(alpha: 0.2) : const Color(0xFFEFF6FF),
+        child: Center(child: SizedBox(width: 26.r, height: 26.r, child: content)),
       ),
     );
   }
