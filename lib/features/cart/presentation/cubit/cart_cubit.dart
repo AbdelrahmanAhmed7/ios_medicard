@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/api_result.dart';
@@ -21,6 +23,8 @@ class CartCubit extends Cubit<CartState> {
   final MedicardNetworkRepository _networkRepository;
   final CartSyncService _cartSyncService;
   final int? providerId;
+  StreamSubscription<CartSyncEvent>? _cartSyncSubscription;
+  Future<void>? _cartRefresh;
 
   CartCubit(
     this._repository,
@@ -30,7 +34,52 @@ class CartCubit extends Cubit<CartState> {
     required CartSyncService cartSyncService,
     this.providerId,
   }) : _cartSyncService = cartSyncService,
-       super(const CartState());
+       super(const CartState()) {
+    // Every CartCubit instance (cart screen, provider page, search, …)
+    // re-syncs whenever any of them mutates the cart, so no screen keeps
+    // stale items.
+    _cartSyncSubscription = _cartSyncService.stream.listen(
+      (_) => refreshCart(),
+    );
+  }
+
+  @override
+  Future<void> close() {
+    _cartSyncSubscription?.cancel();
+    return super.close();
+  }
+
+  /// Silent cart re-fetch (no loading shimmer): converges every instance to
+  /// the server truth after any mutation, local or remote. Concurrent calls
+  /// join the in-flight request instead of stacking up.
+  Future<void> refreshCart() {
+    if (isClosed) return Future.value();
+    final ongoing = _cartRefresh;
+    if (ongoing != null) return ongoing;
+    final load = _performCartRefresh();
+    _cartRefresh = load;
+    return load.whenComplete(() {
+      if (identical(_cartRefresh, load)) _cartRefresh = null;
+    });
+  }
+
+  Future<void> _performCartRefresh() async {
+    final result = await _repository.getCart();
+    if (isClosed) return;
+    result.when(
+      success: (cart) {
+        if (isClosed) return;
+        emit(
+          state.copyWith(
+            cart: cart,
+            isCartLoading: false,
+            resetCartError: true,
+          ),
+        );
+      },
+      failure: (_) {},
+    );
+  }
 
   Future<void> loadCategoryServices(int categoryId) async {
     emit(
@@ -92,6 +141,8 @@ class CartCubit extends Cubit<CartState> {
           isSelected: true,
         );
         emit(state.copyWith(pendingServiceIds: newPendingIds));
+        // Pull the server truth so this instance's cart list updates too.
+        unawaited(refreshCart());
       },
       failure: (error) {
         emit(state.copyWith(pendingServiceIds: newPendingIds));
@@ -131,6 +182,8 @@ class CartCubit extends Cubit<CartState> {
           categoryId: categoryId,
           isSelected: false,
         );
+        // Confirm against the server truth on top of the optimistic update.
+        unawaited(refreshCart());
         loadCategoryServices(categoryId);
       },
       failure: (error) {
