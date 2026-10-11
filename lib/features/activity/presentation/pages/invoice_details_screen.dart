@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/theming/app_toast.dart';
-import '../../../../core/widgets/app_blue_header.dart';
 import '../../domain/models/invoice_details.dart';
 import '../../domain/models/invoice_item.dart';
 import '../cubit/invoice_details_cubit.dart';
@@ -31,10 +30,41 @@ class InvoiceDetailsScreen extends StatelessWidget {
         backgroundColor: const Color(0xFFF7F7F8),
         body: Column(
           children: [
-            AppBlueHeader(
-              title: 'activity.appointment_details'.tr(),
-              bottomRadius: 18,
-              onBack: () => context.pop(),
+            SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(8.w, 10.h, 20.w, 6.h),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      visualDensity: VisualDensity.compact,
+                      icon: Icon(
+                        Icons.arrow_back_ios_new_rounded,
+                        color: const Color(0xFF111827),
+                        size: 22.sp,
+                      ),
+                      onPressed: () {
+                        if (Navigator.of(context).canPop()) {
+                          Navigator.of(context).pop();
+                        }
+                      },
+                    ),
+                    Expanded(
+                      child: Text(
+                        'activity.appointment_details'.tr(),
+                        style: AppTextStyles.of(
+                          fontSize: 22.sp,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF111827),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
             Expanded(
               child: BlocBuilder<InvoiceDetailsCubit, InvoiceDetailsState>(
@@ -105,16 +135,16 @@ class _DetailsBody extends StatelessWidget {
         _InfoCard(
           children: [
             _ProviderHeader(invoice: invoice),
-            const Divider(height: 1, color: Color(0xFFD5D5D5)),
+            const Divider(height: 1, color: Color(0xFFEEF1F5)),
             if (details.beneficiaryName != null) ...[
               _InfoRow(
                 label: 'activity.beneficiary'.tr(),
                 value: details.beneficiaryName!,
               ),
-              const Divider(height: 1, color: Color(0xFFD5D5D5)),
+              const Divider(height: 1, color: Color(0xFFEEF1F5)),
             ],
             _InfoRow(label: 'activity.date'.tr(), value: formattedDate),
-            const Divider(height: 1, color: Color(0xFFD5D5D5)),
+            const Divider(height: 1, color: Color(0xFFEEF1F5)),
             _InfoRow(label: 'activity.service'.tr(), value: servicesText),
           ],
         ),
@@ -125,15 +155,15 @@ class _DetailsBody extends StatelessWidget {
               label: 'cart.subtotal'.tr(),
               value: 'cart.egp_amount'.tr(args: [_money(details.totalBefore)]),
             ),
-            const Divider(height: 1, color: Color(0xFFD5D5D5)),
+            const Divider(height: 1, color: Color(0xFFEEF1F5)),
             _InfoRow(
               label: 'cart.discount'.tr(),
               value: 'cart.negative_discount_percent'.tr(
-                args: [details.discountPercentage.toStringAsFixed(0)],
+                args: [_discountPercent(details).toStringAsFixed(0)],
               ),
               valueColor: const Color(0xFF10A75A),
             ),
-            const Divider(height: 1, color: Color(0xFFD5D5D5)),
+            const Divider(height: 1, color: Color(0xFFEEF1F5)),
             _InfoRow(
               label: 'cart.total_amount'.tr(),
               value: 'cart.egp_amount'.tr(args: [_money(details.totalAfter)]),
@@ -256,8 +286,15 @@ class _InfoCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: const Color(0xFFD5D5D5)),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: const Color(0xFFE5E9F0)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.05),
+            blurRadius: 14,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
       child: Column(children: children),
     );
@@ -280,15 +317,17 @@ class _InfoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 15.h),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: Text(
               label,
               style: AppTextStyles.of(
-                fontSize: 15.sp,
+                fontSize: 14.sp,
                 fontWeight: isBold ? FontWeight.w600 : FontWeight.w400,
+                color: const Color(0xFF6B7280),
               ),
             ),
           ),
@@ -300,9 +339,9 @@ class _InfoRow extends StatelessWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: AppTextStyles.of(
-                fontSize: 14.sp,
-                fontWeight: isBold ? FontWeight.w600 : FontWeight.w400,
-                color: valueColor ?? const Color(0xFF4B5563),
+                fontSize: isBold ? 16.sp : 14.sp,
+                fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
+                color: valueColor ?? const Color(0xFF111827),
               ),
             ),
           ),
@@ -647,6 +686,16 @@ class _ReviewDialogState extends State<_ReviewDialog> {
 
 String _money(double value) {
   return value % 1 == 0 ? value.toStringAsFixed(0) : value.toStringAsFixed(2);
+}
+
+/// Backend quirk: the invoice-level discount often comes back as 0 while the
+/// items carry the real one — derive it from the totals as a fallback.
+double _discountPercent(InvoiceDetails details) {
+  if (details.discountPercentage > 0) return details.discountPercentage;
+  if (details.totalBefore <= 0) return 0;
+  final derived =
+      (details.totalBefore - details.totalAfter) / details.totalBefore * 100;
+  return derived.clamp(0, 100).toDouble();
 }
 
 String _localizedStatus(String status) {
