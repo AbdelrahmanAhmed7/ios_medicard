@@ -1,14 +1,14 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicard/features/home/data/home_mock_data.dart';
 
 import '../../../../core/cubit/app_refresh_cubit.dart';
 import '../../../../core/di/service_locator.dart';
-import '../../../../core/theming/app_toast.dart';
 import '../../../../core/theming/app_snack_bar.dart';
+import '../../../../core/theming/app_toast.dart';
 import '../../../../features/activity/presentation/cubit/activity_cubit.dart';
 import '../../../../features/ecard/presentation/cubit/ecard_cubit.dart';
 import '../../../../features/profile/presentation/cubit/profile_cubit.dart';
@@ -39,10 +39,7 @@ import '../widgets/summer_promo_dialog.dart';
 class HomeScreen extends StatefulWidget {
   final int initialIndex;
 
-  const HomeScreen({
-    super.key,
-    this.initialIndex = 0,
-  });
+  const HomeScreen({super.key, this.initialIndex = 0});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -185,17 +182,7 @@ class _HomeBody extends StatelessWidget {
   const _HomeBody({required this.onNavigateToTab});
 
   void _openAllProviders(BuildContext context) {
-    context.push(
-      '/search/providers',
-      extra: {'enableCartFeatures': true},
-    );
-  }
-
-  void _openAllServices(BuildContext context) {
-    context.push(
-      '/search/services',
-      extra: {'enableCartFeatures': true},
-    );
+    context.push('/search/providers', extra: {'enableCartFeatures': true});
   }
 
   @override
@@ -288,10 +275,7 @@ class _HomeBody extends StatelessWidget {
             ],
             if (services.isNotEmpty)
               SliverToBoxAdapter(
-                child: FeaturedServicesSection(
-                  services: services,
-                  onViewAll: () => _openAllServices(context),
-                ),
+                child: FeaturedServicesSection(services: services),
               ),
           ],
         ],
@@ -316,13 +300,13 @@ class _HomeBody extends StatelessWidget {
           ),
 
         const SliverToBoxAdapter(child: SizedBox(height: 16)),
+        const SliverToBoxAdapter(child: ECardPreviewCard()),
+        const SliverToBoxAdapter(child: SizedBox(height: 8)),
 
         SliverToBoxAdapter(
           child: QuickActionsRow(actions: HomeMockData.quickActions),
         ),
-        const SliverToBoxAdapter(child: SizedBox(height: 8)),
-        const SliverToBoxAdapter(child: ECardPreviewCard()),
-        const SliverToBoxAdapter(child: SizedBox(height: 24)),
+        const SliverToBoxAdapter(child: SizedBox(height: 4)),
 
         if (banners.isNotEmpty) ...[
           SliverToBoxAdapter(child: PromoBannerWidget(banners: banners)),
@@ -347,8 +331,6 @@ class _ProfileBodyState extends State<_ProfileBody> {
   @override
   void initState() {
     super.initState();
-    // Family count / reward points can change on other screens (family
-    // add/delete). Refresh the summary silently when asked — no user action.
     sl<AppRefreshCubit>().profileSummaryRefresh.addListener(
       _onProfileSummaryRefresh,
     );

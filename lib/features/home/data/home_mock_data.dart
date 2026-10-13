@@ -23,10 +23,6 @@ class PromoBanner {
 
 class HomeMockData {
   static const List<QuickAction> quickActions = [
-    QuickAction(
-      labelKey: 'home.upload_prescription',
-      assetPath: 'assets/home/1.png',
-    ),
     QuickAction(labelKey: 'home.services', assetPath: 'assets/home/2.png'),
     QuickAction(labelKey: 'home.providers', assetPath: 'assets/home/3.png'),
   ];

@@ -3,14 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
 import '../../../ecard/data/models/card_data_response_model.dart';
 import '../../../ecard/presentation/cubit/ecard_cubit.dart';
 import '../../../ecard/presentation/cubit/ecard_state.dart';
 
-import '../../../../core/theming/app_text_styles.dart';
-
-/// Compact card preview shown on the home tab below the quick actions.
-/// Loads its own data; hides itself when there is no card or it fails.
 class ECardPreviewCard extends StatefulWidget {
   const ECardPreviewCard({super.key});
 

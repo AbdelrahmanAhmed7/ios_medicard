@@ -20,35 +20,35 @@ class QuickActionsRow extends StatelessWidget {
             .map(
               (action) => Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
                   child: SizedBox(
-                    height: 82,
+                    height: 96,
                     child: InkWell(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
                       onTap: () => _onActionTap(context, action),
                       child: Ink(
                         decoration: BoxDecoration(
                           color: const Color(0xFFEEF3FB),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(16),
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Image.asset(
                               action.assetPath,
-                              width: 28,
-                              height: 28,
+                              width: 34,
+                              height: 34,
                             ),
-                            const SizedBox(height: 6),
+                            const SizedBox(height: 8),
                             Text(
                               action.labelKey.tr(),
                               style: AppTextStyles.of(
-                                fontSize: 12,
+                                fontSize: 13,
                                 fontWeight: FontWeight.w600,
                                 color: Color(0xFF1A1A2E),
                               ),
                               textAlign: TextAlign.center,
-                              maxLines: 2,
+                              maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ],
