@@ -1,4 +1,3 @@
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicard/core/widgets/app_simple_header.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
 import '../../../../core/widgets/auth_shared_widgets.dart';
 import '../../data/models/profile_response_model.dart';
 import '../../data/models/profile_summary_response_model.dart';
@@ -17,14 +17,9 @@ import 'profile_language_item.dart';
 import 'profile_section_title.dart';
 import 'profile_user_info_card.dart';
 
-import '../../../../core/theming/app_text_styles.dart';
-
-
 class ProfileContent extends StatelessWidget {
   final ProfileData data;
 
-  /// Null while the summary is loading or when the backend has none yet —
-  /// the rows fall back to zero instead of fake values.
   final ProfileSummaryData? summary;
 
   const ProfileContent({super.key, required this.data, this.summary});
@@ -37,12 +32,9 @@ class ProfileContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppSimpleHeader(
-            title: 'profile.my_profile'.tr(),
-            showBack: false,
-          ),
+          AppSimpleHeader(title: 'profile.my_profile'.tr(), showBack: false),
 
-          SizedBox(height: 20.h),
+          SizedBox(height: 10.h),
 
           ProfileUserInfoCard(data: data),
 
