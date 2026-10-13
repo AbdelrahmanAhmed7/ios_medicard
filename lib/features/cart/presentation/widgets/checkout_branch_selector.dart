@@ -18,8 +18,8 @@ class CheckoutBranchSelector extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: const Color(0xFFD7E5F5)),
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: const Color(0xFFE5E9F0)),
       ),
       child: Column(
         children: [

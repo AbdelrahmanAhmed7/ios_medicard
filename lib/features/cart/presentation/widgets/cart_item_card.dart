@@ -7,11 +7,14 @@ import '../../../../core/theming/app_text_styles.dart';
 import '../../domain/models/cart_item.dart';
 import '../cubit/cart_cubit.dart';
 import '../cubit/cart_state.dart';
+import 'checkout_summary_row.dart';
 
+/// Borderless divider-separated row used inside provider group sections.
 class CartItemCard extends StatelessWidget {
   final CartItem item;
+  final bool showDivider;
 
-  const CartItemCard({super.key, required this.item});
+  const CartItemCard({super.key, required this.item, this.showDivider = true});
 
   @override
   Widget build(BuildContext context) {
@@ -20,45 +23,70 @@ class CartItemCard extends StatelessWidget {
       // cart emits leave it untouched.
       selector: (state) => state.pendingServiceIds.contains(item.serviceId),
       builder: (context, isPending) {
-
-        return Container(
-          margin: EdgeInsets.only(bottom: 10.h),
-          padding: EdgeInsets.all(14.w),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16.r),
-            border: Border.all(color: const Color(0xFFE5E9F0), width: 1),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF0F172A).withValues(alpha: 0.05),
-                blurRadius: 14,
-                offset: const Offset(0, 5),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header Row: Title & Remove Button
-              Row(
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: Text(
-                      item.serviceName,
-                      style: AppTextStyles.of(
-                        fontSize: 15.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87, // ليتناسب مع الصورة
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          item.serviceName,
+                          style: AppTextStyles.of(
+                            fontSize: 14.5.sp,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF111827),
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        SizedBox(height: 5.h),
+                        Wrap(
+                          spacing: 6.w,
+                          runSpacing: 5.h,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            if (item.categoryName.isNotEmpty)
+                              _Tag(
+                                label: item.categoryName,
+                                bg: const Color(0xFFF1F5F9),
+                                fg: const Color(0xFF475569),
+                              ),
+                            if (item.discountPercentage != null)
+                              _Tag(
+                                label: 'cart.discount_percent'.tr(
+                                  args: [
+                                    item.discountPercentage!
+                                        .toStringAsFixed(0),
+                                  ],
+                                ),
+                                bg: const Color(0xFFEFF6FF),
+                                fg: const Color(0xFF2563EB),
+                              ),
+                            if (item.providerName == null)
+                              _Tag(
+                                label: 'cart.no_provider_selected'.tr(),
+                                bg: const Color(0xFFFFFBEB),
+                                fg: const Color(0xFFD97706),
+                              ),
+                          ],
+                        ),
+                        SizedBox(height: 6.h),
+                        _PriceLine(item: item),
+                      ],
                     ),
                   ),
-                  SizedBox(width: 8.w),
+                  SizedBox(width: 10.w),
                   if (isPending)
                     SizedBox(
-                      width: 20.w,
-                      height: 20.h,
+                      width: 22.r,
+                      height: 22.r,
                       child: const CircularProgressIndicator(
                         strokeWidth: 2,
                         color: Color(0xFF3872B1),
@@ -71,8 +99,8 @@ class CartItemCard extends StatelessWidget {
                         categoryId: item.categoryId,
                       ),
                       child: Container(
-                        width: 32.r,
-                        height: 32.r,
+                        width: 30.r,
+                        height: 30.r,
                         decoration: const BoxDecoration(
                           color: Color(0xFFFEE2E2),
                           shape: BoxShape.circle,
@@ -80,151 +108,99 @@ class CartItemCard extends StatelessWidget {
                         child: Icon(
                           Icons.delete_outline_rounded,
                           color: const Color(0xFFDC2626),
-                          size: 17.sp,
+                          size: 16.sp,
                         ),
                       ),
                     ),
                 ],
               ),
-
-              SizedBox(height: 12.h),
-
-              // Bottom Row: Tags (Provider/Category/Discount) & Price
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  // Tags Row
-                  Expanded(
-                    child: Wrap(
-                      spacing: 8.w,
-                      runSpacing: 6.h,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        // Yellowish Tag (Used for Provider Name or Category to match UI)
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 9.w,
-                            vertical: 5.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFFBEB), // لون أصفر فاتح
-                            borderRadius: BorderRadius.circular(20.r),
-                            border: Border.all(
-                              color: const Color(
-                                0xFFFBBF24,
-                              ).withValues(alpha: 0.5),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                item.providerName != null
-                                    ? Icons.storefront_outlined
-                                    : Icons.warning_amber_rounded,
-                                size: 12.sp,
-                                color: const Color(0xFFD97706),
-                              ),
-                              SizedBox(width: 4.w),
-                              Text(
-                                item.providerName ??
-                                    'cart.no_provider_selected'.tr(),
-                                style: AppTextStyles.of(
-                                  fontSize: 11.sp,
-                                  color: const Color(0xFFD97706),
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Discount Tag (Blue)
-                        if (item.discountPercentage != null)
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 9.w,
-                              vertical: 5.h,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFEFF6FF),
-                              borderRadius: BorderRadius.circular(20.r),
-                              border: Border.all(
-                                color: const Color(
-                                  0xFF3872B1,
-                                ).withValues(alpha: 0.3),
-                              ),
-                            ),
-                            child: Text(
-                              'cart.discount_percent'.tr(
-                                args: [
-                                  item.discountPercentage!.toStringAsFixed(0),
-                                ],
-                              ),
-                              style: AppTextStyles.of(
-                                color: const Color(0xFF3872B1),
-                                fontSize: 11.sp,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-
-                  // Price Section
-                  if (item.priceBefore != null || item.priceAfter != null)
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (item.priceBefore != null)
-                          Text(
-                            'cart.egp_amount'.tr(
-                              args: [item.priceBefore!.toStringAsFixed(0)],
-                            ),
-                            style: AppTextStyles.of(
-                              fontSize: 11.sp,
-                              color: Colors.black, // نفس اللون في الصورة
-                              decoration: item.priceAfter != null
-                                  ? TextDecoration.lineThrough
-                                  : TextDecoration.none,
-                            ),
-                          ),
-                        if (item.priceBefore != null && item.priceAfter != null)
-                          SizedBox(width: 6.w),
-                        if (item.priceAfter != null)
-                          Text(
-                            'cart.egp_amount'.tr(
-                              args: [item.priceAfter!.toStringAsFixed(0)],
-                            ),
-                            style: AppTextStyles.of(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.bold,
-                              color: const Color(
-                                0xFF3872B1,
-                              ), // الأزرق في الصورة
-                            ),
-                          ),
-                      ],
-                    )
-                  else
-                    Text(
-                      'cart.price_unavailable'.tr(),
-                      style: AppTextStyles.of(
-                        fontSize: 12.sp,
-                        color: const Color(0xFF94A3B8),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                ],
+            ),
+            if (showDivider)
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 14.w),
+                child: const Divider(height: 1, color: Color(0xFFEEF1F5)),
               ),
-            ],
-          ),
+          ],
         );
       },
+    );
+  }
+}
+
+class _Tag extends StatelessWidget {
+  final String label;
+  final Color bg;
+  final Color fg;
+
+  const _Tag({required this.label, required this.bg, required this.fg});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+      child: Text(
+        label,
+        style: AppTextStyles.of(
+          fontSize: 11.sp,
+          color: fg,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+  }
+}
+
+class _PriceLine extends StatelessWidget {
+  final CartItem item;
+
+  const _PriceLine({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    if (item.priceBefore == null && item.priceAfter == null) {
+      return Text(
+        'cart.price_unavailable'.tr(),
+        style: AppTextStyles.of(
+          fontSize: 12.sp,
+          color: const Color(0xFF94A3B8),
+          fontWeight: FontWeight.w500,
+        ),
+      );
+    }
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (item.priceBefore != null)
+          Text(
+            'cart.egp_amount'.tr(
+              args: [checkoutMoney(item.priceBefore!)],
+            ),
+            style: AppTextStyles.of(
+              fontSize: 12.sp,
+              color: const Color(0xFF94A3B8),
+              decoration: item.priceAfter != null
+                  ? TextDecoration.lineThrough
+                  : TextDecoration.none,
+            ),
+          ),
+        if (item.priceBefore != null && item.priceAfter != null)
+          SizedBox(width: 6.w),
+        if (item.priceAfter != null)
+          Text(
+            'cart.egp_amount'.tr(
+              args: [checkoutMoney(item.priceAfter!)],
+            ),
+            style: AppTextStyles.of(
+              fontSize: 15.sp,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF3872B1),
+            ),
+          ),
+      ],
     );
   }
 }

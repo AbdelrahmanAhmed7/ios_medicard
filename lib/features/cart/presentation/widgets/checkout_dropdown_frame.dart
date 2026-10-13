@@ -14,8 +14,8 @@ class CheckoutDropdownFrame extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 12.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: const Color(0xFFAAB2C1)),
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: const Color(0xFFE5E9F0)),
       ),
       child: child,
     );
