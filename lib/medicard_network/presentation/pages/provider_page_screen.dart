@@ -6,7 +6,6 @@ import '../../../../core/di/service_locator.dart';
 import '../../../../network/data/provider_page_response_model.dart';
 import '../../logic/provider_page_cubit.dart';
 import '../../logic/provider_page_state.dart';
-import '../widgets/provider_cart_bar.dart';
 import '../widgets/provider_content_section.dart';
 import '../widgets/provider_search_row.dart';
 import '../widgets/provider_top_header.dart';
@@ -93,16 +92,12 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                       ),
                     ),
                   ),
-                  ProviderCartBar(
-                    providerId: widget.providerId,
-                    selectedBranch: _selectedBranch,
-                  ),
                 ],
               ),
-            );
-          },
+              );
+            },
+          ),
         ),
-      ),
     );
   }
 
