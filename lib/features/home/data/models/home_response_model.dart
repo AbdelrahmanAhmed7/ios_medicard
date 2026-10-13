@@ -100,6 +100,7 @@ class HomeSlider {
 
 @JsonSerializable()
 class HomePendingAppointment {
+  final int? invoiceId;
   final int? providerId;
   final int? providerBranchId;
   final String? providerName;
@@ -110,6 +111,7 @@ class HomePendingAppointment {
   final String? date;
 
   const HomePendingAppointment({
+    this.invoiceId,
     this.providerId,
     this.providerBranchId,
     this.providerName,
@@ -122,6 +124,7 @@ class HomePendingAppointment {
 
   factory HomePendingAppointment.fromJson(Map<String, dynamic> json) =>
       HomePendingAppointment(
+        invoiceId: _intValue(json['invoiceId']),
         providerId: _intValue(json['providerId']),
         providerBranchId: _intValue(json['providerBranchId']),
         providerName: _stringValue(json['providerName']),

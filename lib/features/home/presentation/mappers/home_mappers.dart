@@ -37,6 +37,7 @@ List<AppointmentModel> mapAppointments(List<HomePendingAppointment> raw) {
       )
       .map((a) {
         return AppointmentModel(
+          invoiceId: a.invoiceId,
           providerId: a.providerId,
           providerLogoUrl: _textOrEmpty(a.providerImageUrl),
           providerName: _textOrEmpty(a.providerName),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/utils/app_date_formatter.dart';
+import '../../../activity/domain/models/invoice_item.dart';
 import '../../domain/models/appointment_model.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
@@ -16,6 +17,28 @@ class PendingAppointmentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        // Full invoice details by id when available; otherwise the static
+        // appointment page.
+        final invoiceId = appointment.invoiceId;
+        if (invoiceId != null) {
+          context.push(
+            '/invoice-details',
+            extra: {
+              'invoice': InvoiceItem(
+                invoiceId: invoiceId,
+                providerName: appointment.providerName,
+                branchName: appointment.branch,
+                status: appointment.status,
+                date: DateTime.tryParse(appointment.date) ?? DateTime.now(),
+                providerImageUrl: appointment.providerLogoUrl.isEmpty
+                    ? null
+                    : appointment.providerLogoUrl,
+              ),
+              'tab': 1,
+            },
+          );
+          return;
+        }
         context.push(
           '/pending-appointment-details',
           extra: appointment,
