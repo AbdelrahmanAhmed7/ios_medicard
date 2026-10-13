@@ -1,0 +1,762 @@
+import 'dart:async';
+import 'dart:collection';
+
+import 'package:flutter_test/flutter_test.dart';
+import 'package:medicard/core/constants/api_result.dart';
+import 'package:medicard/features/activity/domain/models/created_invoice.dart';
+import 'package:medicard/features/activity/domain/models/invoice_item.dart';
+import 'package:medicard/features/activity/domain/models/invoices_page.dart';
+import 'package:medicard/features/activity/domain/repositories/invoice_repository.dart';
+import 'package:medicard/features/cart/domain/models/cart.dart';
+import 'package:medicard/features/cart/domain/models/cart_item.dart';
+import 'package:medicard/features/cart/domain/models/category_counter.dart';
+import 'package:medicard/features/cart/domain/models/provider_covered_service.dart';
+import 'package:medicard/features/cart/domain/models/provider_option.dart';
+import 'package:medicard/features/cart/domain/repository/cart_repository.dart';
+import 'package:medicard/features/cart/domain/services/cart_sync_service.dart';
+import 'package:medicard/features/cart/presentation/cubit/cart_cubit.dart';
+import 'package:medicard/features/cart/presentation/cubit/cart_state.dart';
+import 'package:medicard/features/family_members/data/models/family_member_model.dart';
+import 'package:medicard/features/family_members/domain/repository/family_members_repository.dart';
+import 'package:medicard/medicard_network/repository/medicard_network_repository.dart';
+import 'package:medicard/medicard_network/service/medicard_network_api_service.dart';
+import 'package:medicard/network/data/provider_page_response_model.dart';
+
+void main() {
+  group('CartCubit checkout reliability', () {
+    test('simultaneous invoice calls issue one POST', () async {
+      final pending = Completer<ApiResult<CreatedInvoice>>();
+      final fixture = _Fixture();
+      fixture.invoice.createCartResults.add(pending.future);
+      await fixture.prepareCheckout();
+
+      final first = fixture.cubit.createCartInvoice();
+      final second = fixture.cubit.createCartInvoice();
+      await Future<void>.delayed(Duration.zero);
+
+      expect(fixture.invoice.createCartCalls, 1);
+      expect(await second, isFalse);
+      pending.complete(_created());
+      expect(await first, isTrue);
+      await fixture.close();
+    });
+
+    test(
+      'a successful invoice blocks a second POST for the same session',
+      () async {
+        final fixture = _Fixture();
+        await fixture.prepareCheckout();
+
+        expect(await fixture.cubit.createCartInvoice(), isTrue);
+        expect(await fixture.cubit.createCartInvoice(), isFalse);
+        expect(fixture.invoice.createCartCalls, 1);
+        await fixture.close();
+      },
+    );
+
+    test('ordinary failure and exception release invoice guard', () async {      final fixture = _Fixture();
+      fixture.invoice.createCartResults
+        ..add(Future.value(const ApiResult.failure('rejected')))
+        ..add(Future.value(_created()));
+      fixture.invoice.throwOnCalls.add(2);
+      await fixture.prepareCheckout();
+
+      expect(await fixture.cubit.createCartInvoice(), isFalse);
+      expect(await fixture.cubit.createCartInvoice(), isFalse);
+      expect(await fixture.cubit.createCartInvoice(), isTrue);
+      expect(fixture.invoice.createCartCalls, 3);
+      await fixture.close();
+    });
+
+    test(
+      'ambiguous outcome blocks unsafe retry and is never auto-retried',
+      () async {
+        final fixture = _Fixture();
+        fixture.invoice.createCartResults.add(
+          Future.value(const ApiResult.failure(invoiceOutcomeUnknownFailure)),
+        );
+        await fixture.prepareCheckout();
+
+        expect(await fixture.cubit.createCartInvoice(), isFalse);
+        expect(fixture.cubit.state.isInvoiceOutcomeUnknown, isTrue);
+        expect(await fixture.cubit.createCartInvoice(), isFalse);
+        expect(fixture.invoice.createCartCalls, 1);
+        await fixture.close();
+      },
+    );
+
+    test(
+      'reconcile reports created when a matching invoice corroborates',
+      () async {
+        final fixture = _Fixture();
+        fixture.invoice.createCartResults.add(
+          Future.value(const ApiResult.failure(invoiceOutcomeUnknownFailure)),
+        );
+        await fixture.prepareCheckout();
+        expect(await fixture.cubit.createCartInvoice(), isFalse);
+        expect(fixture.cubit.state.isInvoiceOutcomeUnknown, isTrue);
+
+        // Server consumed the items AND lists a matching invoice.
+        fixture.cart.cart = const Cart.empty();
+        fixture.invoice.myInvoicesResult = ApiResult.success(
+          InvoicesPage(
+            items: [
+              InvoiceItem(
+                invoiceId: 314,
+                providerName: 'Provider A',
+                branchName: 'B',
+                status: 'paid',
+                date: DateTime.now().toUtc(),
+              ),
+            ],
+            pageNumber: 1,
+            pageSize: 10,
+            totalCount: 1,
+            totalPages: 1,
+          ),
+        );
+
+        final resolution = await fixture.cubit
+            .reconcileUnknownInvoiceOutcome();
+        expect(resolution, UnknownInvoiceResolution.created);
+        expect(fixture.cubit.state.isInvoiceOutcomeUnknown, isFalse);
+        expect(fixture.invoice.createCartCalls, 1);
+        await fixture.close();
+      },
+    );
+
+    test(
+      'reconcile stays unknown when items are gone with no matching invoice',
+      () async {
+        final fixture = _Fixture();
+        fixture.invoice.createCartResults.add(
+          Future.value(const ApiResult.failure(invoiceOutcomeUnknownFailure)),
+        );
+        await fixture.prepareCheckout();
+        expect(await fixture.cubit.createCartInvoice(), isFalse);
+
+        // Items gone but no corroborating invoice: do not assume creation.
+        fixture.cart.cart = const Cart.empty();
+
+        final resolution = await fixture.cubit
+            .reconcileUnknownInvoiceOutcome();
+        expect(resolution, UnknownInvoiceResolution.stillUnknown);
+        expect(fixture.cubit.state.isInvoiceOutcomeUnknown, isTrue);
+        expect(await fixture.cubit.createCartInvoice(), isFalse);
+        expect(fixture.invoice.createCartCalls, 1);
+        await fixture.close();
+      },
+    );
+
+    test(
+      'reconcile catches async consumption via matching invoice',
+      () async {
+        final fixture = _Fixture();
+        fixture.invoice.createCartResults.add(
+          Future.value(const ApiResult.failure(invoiceOutcomeUnknownFailure)),
+        );
+        await fixture.prepareCheckout();
+        expect(await fixture.cubit.createCartInvoice(), isFalse);
+
+        // Items still present, but an invoice for this provider appeared:
+        // the POST landed after all. Must not allow a retry.
+        fixture.invoice.myInvoicesResult = ApiResult.success(
+          InvoicesPage(
+            items: [
+              InvoiceItem(
+                invoiceId: 315,
+                providerName: 'Provider A',
+                branchName: 'B',
+                status: 'pending',
+                date: DateTime.now().toUtc(),
+              ),
+            ],
+            pageNumber: 1,
+            pageSize: 10,
+            totalCount: 1,
+            totalPages: 1,
+          ),
+        );
+
+        final resolution = await fixture.cubit
+            .reconcileUnknownInvoiceOutcome();
+        expect(resolution, UnknownInvoiceResolution.created);
+        expect(fixture.cubit.state.isInvoiceOutcomeUnknown, isFalse);
+        // The reconciled invoice ID guards the session: no second POST.
+        expect(fixture.cubit.state.createdInvoiceId, '315');
+        expect(await fixture.cubit.createCartInvoice(), isFalse);
+        expect(fixture.invoice.createCartCalls, 1);
+        await fixture.close();
+      },
+    );
+
+    test(
+      'reconcile reports not created and unblocks retry when items remain',
+      () async {
+        final fixture = _Fixture();
+        fixture.invoice.createCartResults
+          ..add(
+            Future.value(
+              const ApiResult.failure(invoiceOutcomeUnknownFailure),
+            ),
+          )
+          ..add(Future.value(_created()));
+        await fixture.prepareCheckout();
+        expect(await fixture.cubit.createCartInvoice(), isFalse);
+
+        // Server cart still holds every snapshot item: nothing was charged.
+        final resolution = await fixture.cubit
+            .reconcileUnknownInvoiceOutcome();
+        expect(resolution, UnknownInvoiceResolution.notCreated);
+        expect(fixture.cubit.state.isInvoiceOutcomeUnknown, isFalse);
+
+        expect(await fixture.cubit.createCartInvoice(), isTrue);
+        expect(fixture.invoice.createCartCalls, 2);
+        await fixture.close();
+      },
+    );
+
+    test(
+      'reconcile keeps the latch when the authoritative read fails',
+      () async {
+        final fixture = _Fixture();
+        fixture.invoice.createCartResults.add(
+          Future.value(const ApiResult.failure(invoiceOutcomeUnknownFailure)),
+        );
+        await fixture.prepareCheckout();
+        expect(await fixture.cubit.createCartInvoice(), isFalse);
+
+        fixture.cart.getCartResults.add(const ApiResult.failure('offline'));
+
+        final resolution = await fixture.cubit
+            .reconcileUnknownInvoiceOutcome();
+        expect(resolution, UnknownInvoiceResolution.stillUnknown);
+        expect(fixture.cubit.state.isInvoiceOutcomeUnknown, isTrue);
+        expect(await fixture.cubit.createCartInvoice(), isFalse);
+        expect(fixture.invoice.createCartCalls, 1);
+        await fixture.close();
+      },
+    );
+
+    test(
+      'successful provider checkout preserves other groups when refresh fails',
+      () async {
+        final fixture = _Fixture(cart: _twoProviderCart());
+        await fixture.prepareCheckout();
+        fixture.cart.getCartResults.add(const ApiResult.failure('sync failed'));
+
+        expect(await fixture.cubit.createCartInvoice(), isTrue);
+        await fixture.waitForAsyncWork();
+
+        expect(fixture.cubit.state.cart!.items, hasLength(1));
+        expect(fixture.cubit.state.cart!.items.single.providerId, 8);
+        expect(fixture.cubit.state.cartError, 'sync failed');
+        await fixture.close();
+      },
+    );
+
+    test(
+      'successful post-checkout refresh applies authoritative remaining cart',
+      () async {
+        final pending = Completer<ApiResult<CreatedInvoice>>();
+        final fixture = _Fixture(cart: _twoProviderCart());
+        fixture.invoice.createCartResults.add(pending.future);
+        await fixture.prepareCheckout();
+
+        final create = fixture.cubit.createCartInvoice();
+        fixture.cart.cart = _providerBCart();
+        pending.complete(_created());
+        expect(await create, isTrue);
+        await fixture.waitForAsyncWork();
+
+        expect(fixture.cubit.state.cart!.items.single.providerId, 8);
+        expect(fixture.cubit.state.cartError, isNull);
+        await fixture.close();
+      },
+    );
+
+    test('cash/Visa and family member values reach repository', () async {
+      final fixture = _Fixture();
+      await fixture.prepareCheckout();
+      fixture.cubit
+        ..selectPaymentMethod(CartPaymentMethod.visa)
+        ..selectFamilyMember(const FamilyMemberModel(id: 44));
+
+      expect(await fixture.cubit.createCartInvoice(), isTrue);
+      expect(fixture.invoice.lastIsCash, isFalse);
+      expect(fixture.invoice.lastFamilyId, 44);
+      expect(fixture.invoice.lastProviderId, 7);
+      expect(fixture.invoice.lastBranchId, 70);
+      await fixture.close();
+    });
+  });
+
+  group('CartCubit provider assignment reliability', () {
+    test('all assignments succeed and refresh authoritative state', () async {
+      final fixture = _Fixture(cart: _unassignedCart());
+      await fixture.cubit.loadCart();
+
+      expect(
+        await fixture.cubit.assignProvider(_providerA(allItems: true)),
+        isTrue,
+      );
+      expect(fixture.cart.updateCalls, {1: 1, 2: 1});
+      expect(
+        fixture.cubit.state.cart!.items.map((item) => item.providerId),
+        everyElement(7),
+      );
+      await fixture.close();
+    });
+
+    test('later failure reconciles an earlier successful update', () async {
+      final fixture = _Fixture(cart: _unassignedCart());
+      fixture.cart.updateResults[2] = const ApiResult.failure('second failed');
+      await fixture.cubit.loadCart();
+
+      expect(
+        await fixture.cubit.assignProvider(_providerA(allItems: true)),
+        isFalse,
+      );
+      expect(fixture.cubit.state.cart!.items[0].providerId, 7);
+      expect(fixture.cubit.state.cart!.items[1].providerId, isNull);
+      expect(fixture.cubit.state.assignProviderError, 'second failed');
+      await fixture.close();
+    });
+
+    test(
+      'partial failure preserves known successes when reconciliation fails',
+      () async {
+        final fixture = _Fixture(cart: _unassignedCart());
+        fixture.cart.updateResults[2] = const ApiResult.failure(
+          'second failed',
+        );
+        await fixture.cubit.loadCart();
+        fixture.cart.getCartResults.add(
+          const ApiResult.failure('refresh failed'),
+        );
+
+        expect(
+          await fixture.cubit.assignProvider(_providerA(allItems: true)),
+          isFalse,
+        );
+        expect(fixture.cubit.state.cart!.items[0].providerId, 7);
+        expect(fixture.cubit.state.cart!.items[1].providerId, isNull);
+        await fixture.close();
+      },
+    );
+
+    test('concurrent assignment calls do not duplicate PUTs', () async {
+      final pending = Completer<ApiResult<void>>();
+      final fixture = _Fixture(cart: _unassignedCart());
+      fixture.cart.updateFutures[1] = pending.future;
+      await fixture.cubit.loadCart();
+
+      final first = fixture.cubit.assignProvider(_providerA(allItems: true));
+      final second = fixture.cubit.assignProvider(_providerA(allItems: true));
+      await Future<void>.delayed(Duration.zero);
+
+      expect(await second, isFalse);
+      expect(fixture.cart.updateCalls[1], 1);
+      pending.complete(const ApiResult.failure('stop'));
+      expect(await first, isFalse);
+      await fixture.close();
+    });
+
+    test(
+      'retry after partial assignment only updates remaining item',
+      () async {
+        final fixture = _Fixture(cart: _unassignedCart());
+        fixture.cart.updateResults[2] = const ApiResult.failure(
+          'second failed',
+        );
+        await fixture.cubit.loadCart();
+        expect(
+          await fixture.cubit.assignProvider(_providerA(allItems: true)),
+          isFalse,
+        );
+
+        fixture.cart.updateResults.remove(2);
+        expect(
+          await fixture.cubit.assignProvider(_providerA(allItems: true)),
+          isTrue,
+        );
+        expect(fixture.cart.updateCalls[1], 1);
+        expect(fixture.cart.updateCalls[2], 2);
+        await fixture.close();
+      },
+    );
+  });
+
+  group('CartCubit branch and cart request ordering', () {
+    test('empty fresh branch response rejects initial stale branch', () async {
+      final fixture = _Fixture(branches: const []);
+      await fixture.cubit.loadCart();
+      await fixture.cubit.loadCheckout(
+        initialProviderId: 7,
+        initialBranch: _branch(99),
+      );
+
+      expect(fixture.cubit.state.checkoutBranches, isEmpty);
+      expect(fixture.cubit.state.selectedBranch, isNull);
+      expect(await fixture.cubit.createCartInvoice(), isFalse);
+      expect(fixture.invoice.createCartCalls, 0);
+      await fixture.close();
+    });
+
+    test('valid initial branch remains selected', () async {
+      final fixture = _Fixture(branches: [_branch(70), _branch(71)]);
+      await fixture.cubit.loadCart();
+      await fixture.cubit.loadCheckout(
+        initialProviderId: 7,
+        initialBranch: _branch(71),
+      );
+
+      expect(fixture.cubit.state.selectedBranch?.branchId, 71);
+      await fixture.close();
+    });
+
+    test('late branch response for old provider is ignored', () async {
+      final fixture = _Fixture();
+      final old = Completer<ApiResult<List<ProviderBranch>>>();
+      final fresh = Completer<ApiResult<List<ProviderBranch>>>();
+      fixture.network.branchResults[7] = old.future;
+      fixture.network.branchResults[8] = fresh.future;
+
+      final oldLoad = fixture.cubit.loadProviderBranches(7);
+      final freshLoad = fixture.cubit.loadProviderBranches(8);
+      fresh.complete(ApiResult.success([_branch(80)]));
+      await freshLoad;
+      old.complete(ApiResult.success([_branch(70)]));
+      await oldLoad;
+
+      expect(fixture.cubit.state.checkoutBranches.single.branchId, 80);
+      expect(fixture.cubit.state.selectedBranch?.branchId, 80);
+      await fixture.close();
+    });
+
+    test('older cart load cannot overwrite newer synchronization', () async {
+      final fixture = _Fixture();
+      final old = Completer<ApiResult<Cart>>();
+      final fresh = Completer<ApiResult<Cart>>();
+      fixture.cart.getCartFutures
+        ..add(old.future)
+        ..add(fresh.future);
+
+      final oldLoad = fixture.cubit.loadCart();
+      await Future<void>.delayed(Duration.zero);
+      fixture.sync.serviceSelectionChanged(
+        serviceId: 1,
+        categoryId: 1,
+        isSelected: true,
+      );
+      await Future<void>.delayed(Duration.zero);
+      fresh.complete(ApiResult.success(_markerCart(200)));
+      await fixture.waitForAsyncWork();
+      old.complete(ApiResult.success(_markerCart(100)));
+      await oldLoad;
+
+      expect(fixture.cubit.state.cart!.items.single.serviceId, 200);
+      await fixture.close();
+    });
+  });
+}
+
+class _Fixture {
+  _Fixture({Cart? cart, List<ProviderBranch>? branches})
+    : cart = _FakeCartRepository(cart ?? _providerACart()),
+      invoice = _FakeInvoiceRepository(),
+      sync = CartSyncService(),
+      network = _FakeNetworkRepository(branches ?? [_branch(70)]) {
+    cubit = CartCubit(
+      this.cart,
+      invoice,
+      _FakeFamilyRepository(),
+      network,
+      cartSyncService: sync,
+    );
+  }
+
+  final _FakeCartRepository cart;
+  final _FakeInvoiceRepository invoice;
+  final CartSyncService sync;
+  final _FakeNetworkRepository network;
+  late final CartCubit cubit;
+
+  Future<void> prepareCheckout() async {
+    await cubit.loadCart();
+    await cubit.loadCheckout(initialProviderId: 7);
+  }
+
+  Future<void> waitForAsyncWork() async {
+    await Future<void>.delayed(Duration.zero);
+    await Future<void>.delayed(Duration.zero);
+  }
+
+  Future<void> close() async {
+    await waitForAsyncWork();
+    await cubit.close();
+    sync.dispose();
+  }
+}
+
+class _FakeCartRepository implements CartRepository {
+  _FakeCartRepository(this.cart);
+
+  Cart cart;
+  final Queue<ApiResult<Cart>> getCartResults = Queue<ApiResult<Cart>>();
+  final Queue<Future<ApiResult<Cart>>> getCartFutures =
+      Queue<Future<ApiResult<Cart>>>();
+  final Map<int, ApiResult<void>> updateResults = {};
+  final Map<int, Future<ApiResult<void>>> updateFutures = {};
+  final Map<int, int> updateCalls = {};
+
+  @override
+  Future<ApiResult<Cart>> getCart() {
+    if (getCartFutures.isNotEmpty) return getCartFutures.removeFirst();
+    if (getCartResults.isNotEmpty) {
+      return Future.value(getCartResults.removeFirst());
+    }
+    return Future.value(ApiResult.success(cart));
+  }
+
+  @override
+  Future<ApiResult<List<ProviderOption>>> getChooseProviders() async =>
+      ApiResult.success([_providerA(allItems: true)]);
+
+  @override
+  Future<ApiResult<void>> updateCartProvider({
+    required int cartId,
+    required int providerId,
+  }) async {
+    updateCalls[cartId] = (updateCalls[cartId] ?? 0) + 1;
+    final result =
+        await (updateFutures[cartId] ??
+            Future.value(
+              updateResults[cartId] ?? const ApiResult.success(null),
+            ));
+    result.when(
+      success: (_) {
+        cart = Cart(
+          items: cart.items
+              .map(
+                (item) => item.cartItemId == cartId
+                    ? CartItem(
+                        cartItemId: item.cartItemId,
+                        serviceId: item.serviceId,
+                        serviceName: item.serviceName,
+                        categoryId: item.categoryId,
+                        categoryName: item.categoryName,
+                        providerId: providerId,
+                        providerName: 'Provider A',
+                      )
+                    : item,
+              )
+              .toList(),
+          totalCount: cart.totalCount,
+          categoryCounters: cart.categoryCounters,
+        );
+      },
+      failure: (_) {},
+    );
+    return result;
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _FakeInvoiceRepository implements InvoiceRepository {
+  final Queue<Future<ApiResult<CreatedInvoice>>> createCartResults =
+      Queue<Future<ApiResult<CreatedInvoice>>>();
+  final Set<int> throwOnCalls = {};
+  int createCartCalls = 0;
+  int? lastProviderId;
+  int? lastBranchId;
+  int? lastFamilyId;
+  bool? lastIsCash;
+  ApiResult<InvoicesPage>? myInvoicesResult;
+
+  @override
+  Future<ApiResult<CreatedInvoice>> createFromCart({
+    required int providerId,
+    required int providerBranchId,
+    required bool isCash,
+    int? familyId,
+    String? cardNumber,
+  }) {
+    createCartCalls++;
+    if (throwOnCalls.contains(createCartCalls)) {
+      throw StateError('broken');
+    }
+    lastProviderId = providerId;
+    lastBranchId = providerBranchId;
+    lastFamilyId = familyId;
+    lastIsCash = isCash;
+    if (createCartResults.isNotEmpty) return createCartResults.removeFirst();
+    return Future.value(_created());
+  }
+
+  @override
+  Future<ApiResult<InvoicesPage>> getMyInvoices({
+    int pageNumber = 1,
+    int pageSize = 10,
+    int? tab,
+  }) async {
+    return myInvoicesResult ??
+        const ApiResult.success(
+          InvoicesPage(
+            items: [],
+            pageNumber: 1,
+            pageSize: 10,
+            totalCount: 0,
+            totalPages: 1,
+          ),
+        );
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _FakeFamilyRepository implements FamilyMembersRepository {
+  @override
+  Future<List<FamilyMemberModel>> getFamilyMembers() async => const [];
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _FakeNetworkRepository extends MedicardNetworkRepository {
+  _FakeNetworkRepository(this.branches) : super(_UnusedNetworkApi());
+
+  final List<ProviderBranch> branches;
+  final Map<int, Future<ApiResult<List<ProviderBranch>>>> branchResults = {};
+
+  @override
+  Future<ApiResult<List<ProviderBranch>>> getProviderBranchLocations({
+    required int providerId,
+  }) {
+    return branchResults[providerId] ??
+        Future.value(ApiResult.success(branches));
+  }
+}
+
+class _UnusedNetworkApi implements MedicardNetworkApiService {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+ApiResult<CreatedInvoice> _created() =>
+    const ApiResult.success(CreatedInvoice(invoiceId: 'inv-1'));
+
+ProviderBranch _branch(int id) =>
+    ProviderBranch(branchId: id, branchName: 'Branch $id');
+
+ProviderOption _providerA({required bool allItems}) => ProviderOption(
+  providerId: 7,
+  providerName: 'Provider A',
+  coveredCount: allItems ? 2 : 1,
+  uncoveredCount: 0,
+  totalCount: allItems ? 2 : 1,
+  totalPriceBefore: 200,
+  totalPriceAfter: 160,
+  coveredServices: [
+    const ProviderCoveredService(
+      cartItemId: 1,
+      serviceId: 10,
+      serviceName: 'A',
+    ),
+    if (allItems)
+      const ProviderCoveredService(
+        cartItemId: 2,
+        serviceId: 20,
+        serviceName: 'B',
+      ),
+  ],
+  uncoveredServices: const [],
+);
+
+Cart _providerACart() => const Cart(
+  items: [
+    CartItem(
+      cartItemId: 1,
+      serviceId: 10,
+      serviceName: 'A',
+      categoryId: 1,
+      providerId: 7,
+      providerName: 'Provider A',
+    ),
+  ],
+  totalCount: 1,
+  categoryCounters: [
+    CategoryCounter(categoryId: 1, categoryName: 'C', count: 1),
+  ],
+);
+
+Cart _twoProviderCart() => const Cart(
+  items: [
+    CartItem(
+      cartItemId: 1,
+      serviceId: 10,
+      serviceName: 'A',
+      categoryId: 1,
+      providerId: 7,
+      providerName: 'Provider A',
+    ),
+    CartItem(
+      cartItemId: 2,
+      serviceId: 20,
+      serviceName: 'B',
+      categoryId: 2,
+      providerId: 8,
+      providerName: 'Provider B',
+    ),
+  ],
+  totalCount: 2,
+  categoryCounters: [
+    CategoryCounter(categoryId: 1, categoryName: 'C1', count: 1),
+    CategoryCounter(categoryId: 2, categoryName: 'C2', count: 1),
+  ],
+);
+
+Cart _providerBCart() => const Cart(
+  items: [
+    CartItem(
+      cartItemId: 2,
+      serviceId: 20,
+      serviceName: 'B',
+      categoryId: 2,
+      providerId: 8,
+      providerName: 'Provider B',
+    ),
+  ],
+  totalCount: 1,
+  categoryCounters: [
+    CategoryCounter(categoryId: 2, categoryName: 'C2', count: 1),
+  ],
+);
+
+Cart _unassignedCart() => const Cart(
+  items: [
+    CartItem(cartItemId: 1, serviceId: 10, serviceName: 'A', categoryId: 1),
+    CartItem(cartItemId: 2, serviceId: 20, serviceName: 'B', categoryId: 2),
+  ],
+  totalCount: 2,
+  categoryCounters: [
+    CategoryCounter(categoryId: 1, categoryName: 'C1', count: 1),
+    CategoryCounter(categoryId: 2, categoryName: 'C2', count: 1),
+  ],
+);
+
+Cart _markerCart(int marker) => Cart(
+  items: [
+    CartItem(
+      cartItemId: marker,
+      serviceId: marker,
+      serviceName: '$marker',
+      categoryId: 1,
+    ),
+  ],
+  totalCount: 1,
+  categoryCounters: const [],
+);

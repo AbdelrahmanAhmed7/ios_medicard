@@ -5,12 +5,18 @@ class CartSyncEvent {
   final int? categoryId;
   final bool? isSelected;
   final bool cartCleared;
+  final Set<int>? selectedServiceIds;
+  final Map<int, int>? categorySelectedCounts;
+  final bool refreshCart;
 
   const CartSyncEvent({
     this.serviceId,
     this.categoryId,
     this.isSelected,
     this.cartCleared = false,
+    this.selectedServiceIds,
+    this.categorySelectedCounts,
+    this.refreshCart = true,
   });
 }
 
@@ -35,6 +41,22 @@ class CartSyncService {
 
   void cartCleared() {
     _controller.add(const CartSyncEvent(cartCleared: true));
+  }
+
+  void selectionSnapshotChanged({
+    required Iterable<int> selectedServiceIds,
+    Map<int, int>? categorySelectedCounts,
+    bool refreshCart = true,
+  }) {
+    _controller.add(
+      CartSyncEvent(
+        selectedServiceIds: Set<int>.unmodifiable(selectedServiceIds),
+        categorySelectedCounts: categorySelectedCounts == null
+            ? null
+            : Map<int, int>.unmodifiable(categorySelectedCounts),
+        refreshCart: refreshCart,
+      ),
+    );
   }
 
   void dispose() {

@@ -35,6 +35,7 @@ class CartState {
   final FamilyMemberModel? selectedFamilyMember;
   final CartPaymentMethod paymentMethod;
   final bool isCreatingInvoice;
+  final bool isInvoiceOutcomeUnknown;
   final String? createInvoiceError;
   final String? createdInvoiceId;
   final String? createdInvoicePaymentLink;
@@ -68,6 +69,7 @@ class CartState {
     this.selectedFamilyMember,
     this.paymentMethod = CartPaymentMethod.cash,
     this.isCreatingInvoice = false,
+    this.isInvoiceOutcomeUnknown = false,
     this.createInvoiceError,
     this.createdInvoiceId,
     this.createdInvoicePaymentLink,
@@ -112,6 +114,7 @@ class CartState {
     bool resetSelectedFamilyMember = false,
     CartPaymentMethod? paymentMethod,
     bool? isCreatingInvoice,
+    bool? isInvoiceOutcomeUnknown,
     String? createInvoiceError,
     bool resetCreateInvoiceError = false,
     String? createdInvoiceId,
@@ -172,6 +175,8 @@ class CartState {
           : (selectedFamilyMember ?? this.selectedFamilyMember),
       paymentMethod: paymentMethod ?? this.paymentMethod,
       isCreatingInvoice: isCreatingInvoice ?? this.isCreatingInvoice,
+      isInvoiceOutcomeUnknown:
+          isInvoiceOutcomeUnknown ?? this.isInvoiceOutcomeUnknown,
       createInvoiceError: resetCreateInvoiceError
           ? null
           : (createInvoiceError ?? this.createInvoiceError),

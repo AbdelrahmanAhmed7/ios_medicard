@@ -339,9 +339,7 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
               ),
             )
             .toList();
-        emit(
-          state.copyWith(categoryTabs: tabs, selectedCategoryIndex: 0),
-        );
+        emit(state.copyWith(categoryTabs: tabs, selectedCategoryIndex: 0));
         if (tabs.isEmpty) {
           loadServices(reset: true);
         } else {
@@ -382,7 +380,10 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
     );
   }
 
-  Future<void> loadCategoryServices(int categoryId, {bool reset = false}) async {
+  Future<void> loadCategoryServices(
+    int categoryId, {
+    bool reset = false,
+  }) async {
     if (isClosed) return;
     final page = reset ? 1 : (_categoryPages[categoryId] ?? 1);
     if (!reset && !(_categoryHasMore[categoryId] ?? true)) return;
@@ -797,6 +798,26 @@ class ProviderPageCubit extends Cubit<ProviderPageState> {
 
   void _onCartSyncEvent(CartSyncEvent event) {
     if (isClosed) return;
+    final selectedServiceIds = event.selectedServiceIds;
+    if (selectedServiceIds != null) {
+      _knownCartServiceIds
+        ..clear()
+        ..addAll(selectedServiceIds);
+      _fullServices = _fullServices
+          .map(
+            (service) => service.copyWith(
+              isSelected: selectedServiceIds.contains(service.id),
+            ),
+          )
+          .toList();
+      emit(
+        state.copyWith(
+          fullServices: _fullServices,
+          services: _filterServices(_fullServices, state.searchQuery),
+        ),
+      );
+      return;
+    }
     if (event.cartCleared) {
       _knownCartServiceIds.clear();
       _fullServices = _fullServices

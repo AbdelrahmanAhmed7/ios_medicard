@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/api_result.dart';
 import '../../../../core/utils/api_error_parser.dart';
+import '../../../../features/activity/domain/models/invoice_item.dart';
 import '../../../../features/activity/domain/repositories/invoice_repository.dart';
 import '../../../../features/family_members/data/models/family_member_model.dart';
 import '../../../../features/family_members/domain/repository/family_members_repository.dart';
@@ -12,10 +14,23 @@ import '../../../../medicard_network/repository/medicard_network_repository.dart
 import '../../../../network/data/provider_page_response_model.dart';
 import '../../domain/models/cart.dart';
 import '../../domain/models/cart_item.dart';
+import '../../domain/models/provider_covered_service.dart';
 import '../../domain/models/provider_option.dart';
 import '../../domain/repository/cart_repository.dart';
 import '../../domain/services/cart_sync_service.dart';
 import 'cart_state.dart';
+
+/// Outcome of [CartCubit.reconcileUnknownInvoiceOutcome].
+enum UnknownInvoiceResolution {
+  /// Snapshot items are gone from the server cart: the invoice exists.
+  created,
+
+  /// Snapshot items are all still present: nothing was charged, retry safe.
+  notCreated,
+
+  /// Could not determine (read failed or nothing comparable): latch stays.
+  stillUnknown,
+}
 
 class CartCubit extends Cubit<CartState> {
   final CartRepository _repository;
@@ -26,6 +41,19 @@ class CartCubit extends Cubit<CartState> {
   final int? providerId;
   StreamSubscription<CartSyncEvent>? _cartSyncSubscription;
   Future<void>? _cartRefresh;
+  var _cartRequestGeneration = 0;
+  var _cartMutationGeneration = 0;
+  var _branchRequestGeneration = 0;
+  var _invoiceSubmissionInFlight = false;
+  var _providerAssignmentInFlight = false;
+
+  /// Snapshot taken when an invoice POST outcome turns ambiguous, used by
+  /// [reconcileUnknownInvoiceOutcome] to decide whether the server consumed
+  /// the items. Empty for package checkouts (packages are not cart items,
+  /// so they cannot be reconciled this way and stay latched).
+  Set<int> _unknownOutcomeItemIds = {};
+  String _unknownOutcomeProviderName = '';
+  DateTime? _unknownOutcomeSubmittedAt;
 
   CartCubit(
     this._repository,
@@ -36,9 +64,14 @@ class CartCubit extends Cubit<CartState> {
     this.providerId,
   }) : _cartSyncService = cartSyncService,
        super(const CartState()) {
-    _cartSyncSubscription = _cartSyncService.stream.listen(
-      (_) => refreshCart(),
-    );
+    _cartSyncSubscription = _cartSyncService.stream.listen((event) {
+      if (!event.refreshCart) return;
+      if (event.selectedServiceIds != null) {
+        unawaited(_refreshAfterCurrent());
+      } else {
+        unawaited(refreshCart());
+      }
+    });
   }
 
   @override
@@ -58,9 +91,21 @@ class CartCubit extends Cubit<CartState> {
     });
   }
 
+  Future<void> _refreshAfterCurrent() async {
+    final ongoing = _cartRefresh;
+    if (ongoing != null) await ongoing;
+    if (!isClosed) await refreshCart();
+  }
+
   Future<void> _performCartRefresh() async {
+    final requestGeneration = ++_cartRequestGeneration;
+    final mutationGeneration = _cartMutationGeneration;
     final result = await _repository.getCart();
-    if (isClosed) return;
+    if (isClosed ||
+        requestGeneration != _cartRequestGeneration ||
+        mutationGeneration != _cartMutationGeneration) {
+      return;
+    }
     result.when(
       success: (cart) {
         if (isClosed) return;
@@ -71,8 +116,22 @@ class CartCubit extends Cubit<CartState> {
             resetCartError: true,
           ),
         );
+        _broadcastCartSnapshot(cart);
       },
-      failure: (_) {},
+      failure: (error) {
+        emit(state.copyWith(cartError: error, isCartLoading: false));
+      },
+    );
+  }
+
+  void _broadcastCartSnapshot(Cart cart, {bool refreshCart = false}) {
+    _cartSyncService.selectionSnapshotChanged(
+      selectedServiceIds: cart.items.map((item) => item.serviceId),
+      categorySelectedCounts: {
+        for (final counter in cart.categoryCounters)
+          counter.categoryId: counter.count,
+      },
+      refreshCart: refreshCart,
     );
   }
 
@@ -189,9 +248,15 @@ class CartCubit extends Cubit<CartState> {
 
   Future<void> loadCart() async {
     if (isClosed) return;
+    final requestGeneration = ++_cartRequestGeneration;
+    final mutationGeneration = _cartMutationGeneration;
     emit(state.copyWith(isCartLoading: true, resetCartError: true));
     final result = await _getCartWithRetry();
-    if (isClosed) return;
+    if (isClosed ||
+        requestGeneration != _cartRequestGeneration ||
+        mutationGeneration != _cartMutationGeneration) {
+      return;
+    }
     result.when(
       success: (cart) {
         emit(
@@ -201,6 +266,7 @@ class CartCubit extends Cubit<CartState> {
             resetCartError: true,
           ),
         );
+        _broadcastCartSnapshot(cart);
       },
       failure: (error) {
         emit(state.copyWith(cartError: error, isCartLoading: false));
@@ -229,16 +295,24 @@ class CartCubit extends Cubit<CartState> {
       ),
     );
 
+    final requestGeneration = ++_cartRequestGeneration;
+    final mutationGeneration = _cartMutationGeneration;
     final cartResult = await _repository.getCart();
     if (isClosed) return;
-    cartResult.when(
-      success: (cart) {
-        emit(state.copyWith(cart: cart, isCartLoading: false));
-      },
-      failure: (error) {
-        emit(state.copyWith(cartError: error, isCartLoading: false));
-      },
-    );
+    final cartRequestIsCurrent =
+        requestGeneration == _cartRequestGeneration &&
+        mutationGeneration == _cartMutationGeneration;
+    if (cartRequestIsCurrent) {
+      cartResult.when(
+        success: (cart) {
+          emit(state.copyWith(cart: cart, isCartLoading: false));
+          _broadcastCartSnapshot(cart);
+        },
+        failure: (error) {
+          emit(state.copyWith(cartError: error, isCartLoading: false));
+        },
+      );
+    }
 
     final providersResult = await _repository.getChooseProviders();
     if (isClosed) return;
@@ -272,6 +346,7 @@ class CartCubit extends Cubit<CartState> {
     }
     result.when(
       success: (_) {
+        _cartMutationGeneration++;
         emit(
           state.copyWith(
             cart: const Cart.empty(),
@@ -280,7 +355,6 @@ class CartCubit extends Cubit<CartState> {
           ),
         );
         _cartSyncService.cartCleared();
-        loadCart();
       },
       failure: (error) {
         emit(state.copyWith(cartError: error, isCartLoading: false));
@@ -363,12 +437,19 @@ class CartCubit extends Cubit<CartState> {
 
     Cart? cart = state.cart;
     if (cart == null && packageId == null) {
+      final requestGeneration = ++_cartRequestGeneration;
+      final mutationGeneration = _cartMutationGeneration;
       final cartResult = await _repository.getCart();
-      if (isClosed) return;
+      if (isClosed ||
+          requestGeneration != _cartRequestGeneration ||
+          mutationGeneration != _cartMutationGeneration) {
+        return;
+      }
       final failed = cartResult.when(
         success: (loadedCart) {
           cart = loadedCart;
           emit(state.copyWith(cart: loadedCart, isCartLoading: false));
+          _broadcastCartSnapshot(loadedCart);
           return null;
         },
         failure: (error) => error,
@@ -460,6 +541,7 @@ class CartCubit extends Cubit<CartState> {
     ProviderBranch? initialBranch,
   }) async {
     if (isClosed) return;
+    final requestGeneration = ++_branchRequestGeneration;
     emit(
       state.copyWith(
         isCheckoutLoading: true,
@@ -471,7 +553,7 @@ class CartCubit extends Cubit<CartState> {
     final result = await _networkRepository.getProviderBranchLocations(
       providerId: providerId,
     );
-    if (isClosed) return;
+    if (isClosed || requestGeneration != _branchRequestGeneration) return;
     result.when(
       success: (branches) {
         ProviderBranch? selected;
@@ -485,8 +567,6 @@ class CartCubit extends Cubit<CartState> {
               }
             }
           }
-        } else {
-          selected = initialBranch;
         }
 
         emit(
@@ -498,7 +578,14 @@ class CartCubit extends Cubit<CartState> {
         );
       },
       failure: (error) {
-        emit(state.copyWith(checkoutError: error, isCheckoutLoading: false));
+        emit(
+          state.copyWith(
+            checkoutBranches: const [],
+            resetSelectedBranch: true,
+            checkoutError: error,
+            isCheckoutLoading: false,
+          ),
+        );
       },
     );
   }
@@ -529,7 +616,17 @@ class CartCubit extends Cubit<CartState> {
   }
 
   Future<bool> createCartInvoice() async {
-    if (isClosed) return false;
+    if (isClosed || _invoiceSubmissionInFlight) return false;
+    // An invoice already exists for this checkout session (fresh success
+    // or reconciled timeout): never POST twice for it. A new checkout
+    // session (loadCheckout) resets this.
+    if (state.createdInvoiceId != null) return false;
+    if (state.isInvoiceOutcomeUnknown) {
+      emit(
+        state.copyWith(createInvoiceError: 'cart.invoice_outcome_unknown'.tr()),
+      );
+      return false;
+    }
     final provider = state.checkoutProvider;
     final branch = state.selectedBranch;
     if (provider == null) {
@@ -540,47 +637,202 @@ class CartCubit extends Cubit<CartState> {
       emit(state.copyWith(createInvoiceError: 'Please choose a branch.'));
       return false;
     }
-    emit(
-      state.copyWith(
-        isCreatingInvoice: true,
-        resetCreateInvoiceError: true,
-        resetCreatedInvoiceId: true,
-        resetCreatedInvoicePaymentLink: true,
-      ),
+    final branchIsCurrent = state.checkoutBranches.any(
+      (candidate) => candidate.branchId == branch.branchId,
     );
-    final result = await _invoiceRepository.createFromCart(
-      providerId: provider.providerId,
-      providerBranchId: branch.branchId,
-      isCash: state.paymentMethod == CartPaymentMethod.cash,
-      familyId: state.selectedFamilyMember?.id,
-    );
-    if (isClosed) return false;
-    final success = result.when(
-      success: (invoice) {
+    if (!branchIsCurrent) {
+      emit(
+        state.copyWith(
+          createInvoiceError: 'cart.selected_branch_unavailable'.tr(),
+          resetSelectedBranch: true,
+        ),
+      );
+      return false;
+    }
+
+    _invoiceSubmissionInFlight = true;
+    try {
+      emit(
+        state.copyWith(
+          isCreatingInvoice: true,
+          resetCreateInvoiceError: true,
+          resetCreatedInvoiceId: true,
+          resetCreatedInvoicePaymentLink: true,
+        ),
+      );
+      final result = await _invoiceRepository.createFromCart(
+        providerId: provider.providerId,
+        providerBranchId: branch.branchId,
+        isCash: state.paymentMethod == CartPaymentMethod.cash,
+        familyId: state.selectedFamilyMember?.id,
+      );
+      if (isClosed) return false;
+      return result.when(
+        success: (invoice) {
+          _cartMutationGeneration++;
+          final remainingCart =
+              state.cart?.removeProvider(provider.providerId) ??
+              const Cart.empty();
+          emit(
+            state.copyWith(
+              cart: remainingCart,
+              isCreatingInvoice: false,
+              createdInvoiceId: invoice.invoiceId,
+              createdInvoicePaymentLink: invoice.paymentLink,
+            ),
+          );
+          _broadcastCartSnapshot(remainingCart, refreshCart: true);
+          return true;
+        },
+        failure: (error) {
+          final outcomeUnknown = error == invoiceOutcomeUnknownFailure;
+          if (outcomeUnknown) {
+            _unknownOutcomeItemIds = {
+              for (final item in state.cart?.items ?? const <CartItem>[])
+                if (item.providerId == provider.providerId) item.cartItemId,
+            };
+            _unknownOutcomeProviderName = provider.providerName;
+            _unknownOutcomeSubmittedAt = DateTime.now().toUtc();
+          }
+          emit(
+            state.copyWith(
+              isCreatingInvoice: false,
+              isInvoiceOutcomeUnknown: outcomeUnknown,
+              createInvoiceError: outcomeUnknown
+                  ? 'cart.invoice_outcome_unknown'.tr()
+                  : error,
+            ),
+          );
+          return false;
+        },
+      );
+    } catch (error) {
+      if (!isClosed) {
         emit(
           state.copyWith(
-            cart: const Cart.empty(),
             isCreatingInvoice: false,
-            createdInvoiceId: invoice.invoiceId,
-            createdInvoicePaymentLink: invoice.paymentLink,
+            createInvoiceError: parseApiError(error),
           ),
         );
-        _cartSyncService.cartCleared();
-        _syncCartAfterInvoiceCreation();
-        return true;
-      },
-      failure: (error) {
-        emit(
-          state.copyWith(isCreatingInvoice: false, createInvoiceError: error),
-        );
-        return false;
-      },
+      }
+      return false;
+    } finally {
+      _invoiceSubmissionInFlight = false;
+    }
+  }
+
+  /// Reconciles an ambiguous invoice outcome. Never posts anything, so it
+  /// cannot duplicate an invoice by itself.
+  ///
+  /// Cart membership alone is NOT conclusive (consumption could lag the
+  /// timed-out POST), so a matching invoice in `my-invoices` corroborates:
+  /// - [UnknownInvoiceResolution.created]: an invoice for this provider
+  ///   dated at/after submission exists. Latch cleared; go to activity.
+  /// - [UnknownInvoiceResolution.notCreated]: snapshot items are all still
+  ///   present AND no matching invoice exists. Latch cleared; retry is safe
+  ///   (modulo the residual race documented on [InvoiceRepository]).
+  /// - [UnknownInvoiceResolution.stillUnknown]: anything else (failed
+  ///   reads, partial consumption without corroboration, items gone with
+  ///   no matching invoice, package flow). Latch stays; do not retry.
+  Future<UnknownInvoiceResolution> reconcileUnknownInvoiceOutcome() async {
+    if (isClosed || !state.isInvoiceOutcomeUnknown) {
+      return UnknownInvoiceResolution.stillUnknown;
+    }
+    if (_unknownOutcomeItemIds.isEmpty ||
+        _unknownOutcomeSubmittedAt == null) {
+      return UnknownInvoiceResolution.stillUnknown;
+    }
+    final requestGeneration = ++_cartRequestGeneration;
+    final invoicesResult = await _invoiceRepository.getMyInvoices(
+      pageNumber: 1,
+      pageSize: 10,
     );
-    return success;
+    if (isClosed || requestGeneration != _cartRequestGeneration) {
+      return UnknownInvoiceResolution.stillUnknown;
+    }
+    final cartResult = await _repository.getCart();
+    if (isClosed || requestGeneration != _cartRequestGeneration) {
+      return UnknownInvoiceResolution.stillUnknown;
+    }
+    final invoices = invoicesResult.when(
+      success: (page) => page.items,
+      failure: (_) => null,
+    );
+    final cart = cartResult.when(
+      success: (c) => c,
+      failure: (_) => null,
+    );
+    if (invoices == null || cart == null) {
+      return UnknownInvoiceResolution.stillUnknown;
+    }
+    if (isClosed) return UnknownInvoiceResolution.stillUnknown;
+
+    final earliest = _unknownOutcomeSubmittedAt!.subtract(
+      const Duration(minutes: 5),
+    );
+    final wantedProvider = _unknownOutcomeProviderName.trim();
+    InvoiceItem? matchingInvoice;
+    for (final invoice in invoices) {
+      if (invoice.providerName.trim() == wantedProvider &&
+          !invoice.date.isBefore(earliest)) {
+        matchingInvoice = invoice;
+        break;
+      }
+    }
+    final remainingIds = {for (final item in cart.items) item.cartItemId};
+    final anyConsumed = _unknownOutcomeItemIds.any(
+      (id) => !remainingIds.contains(id),
+    );
+
+    // Always converge the display to the fresh cart; the latch below
+    // decides whether retry is allowed.
+    emit(
+      state.copyWith(
+        cart: cart,
+        isCartLoading: false,
+        resetCartError: true,
+      ),
+    );
+    _broadcastCartSnapshot(cart);
+
+    if (matchingInvoice != null) {
+      _clearUnknownOutcome();
+      emit(
+        state.copyWith(
+          isInvoiceOutcomeUnknown: false,
+          createdInvoiceId: '${matchingInvoice.invoiceId}',
+        ),
+      );
+      return UnknownInvoiceResolution.created;
+    }
+    if (!anyConsumed) {
+      _clearUnknownOutcome();
+      emit(
+        state.copyWith(
+          isInvoiceOutcomeUnknown: false,
+          resetCreateInvoiceError: true,
+        ),
+      );
+      return UnknownInvoiceResolution.notCreated;
+    }
+    return UnknownInvoiceResolution.stillUnknown;
+  }
+
+  void _clearUnknownOutcome() {
+    _unknownOutcomeItemIds = {};
+    _unknownOutcomeProviderName = '';
+    _unknownOutcomeSubmittedAt = null;
   }
 
   Future<bool> createPackageInvoice() async {
-    if (isClosed) return false;
+    if (isClosed || _invoiceSubmissionInFlight) return false;
+    if (state.createdInvoiceId != null) return false;
+    if (state.isInvoiceOutcomeUnknown) {
+      emit(
+        state.copyWith(createInvoiceError: 'cart.invoice_outcome_unknown'.tr()),
+      );
+      return false;
+    }
     final packageId = state.checkoutPackageId;
     final branch = state.selectedBranch;
     if (packageId == null) {
@@ -591,116 +843,208 @@ class CartCubit extends Cubit<CartState> {
       emit(state.copyWith(createInvoiceError: 'Please choose a branch.'));
       return false;
     }
-    emit(
-      state.copyWith(
-        isCreatingInvoice: true,
-        resetCreateInvoiceError: true,
-        resetCreatedInvoiceId: true,
-        resetCreatedInvoicePaymentLink: true,
-      ),
+    final branchIsCurrent = state.checkoutBranches.any(
+      (candidate) => candidate.branchId == branch.branchId,
     );
-    final result = await _invoiceRepository.createFromPackage(
-      packageId: packageId,
-      providerBranchId: branch.branchId,
-      isCash: state.paymentMethod == CartPaymentMethod.cash,
-    );
-    if (isClosed) return false;
-    return result.when(
-      success: (invoice) {
+    if (!branchIsCurrent) {
+      emit(
+        state.copyWith(
+          createInvoiceError: 'cart.selected_branch_unavailable'.tr(),
+          resetSelectedBranch: true,
+        ),
+      );
+      return false;
+    }
+
+    _invoiceSubmissionInFlight = true;
+    try {
+      emit(
+        state.copyWith(
+          isCreatingInvoice: true,
+          resetCreateInvoiceError: true,
+          resetCreatedInvoiceId: true,
+          resetCreatedInvoicePaymentLink: true,
+        ),
+      );
+      final result = await _invoiceRepository.createFromPackage(
+        packageId: packageId,
+        providerBranchId: branch.branchId,
+        isCash: state.paymentMethod == CartPaymentMethod.cash,
+      );
+      if (isClosed) return false;
+      return result.when(
+        success: (invoice) {
+          emit(
+            state.copyWith(
+              isCreatingInvoice: false,
+              createdInvoiceId: invoice.invoiceId,
+              createdInvoicePaymentLink: invoice.paymentLink,
+            ),
+          );
+          return true;
+        },
+        failure: (error) {
+          final outcomeUnknown = error == invoiceOutcomeUnknownFailure;
+          emit(
+            state.copyWith(
+              isCreatingInvoice: false,
+              isInvoiceOutcomeUnknown: outcomeUnknown,
+              createInvoiceError: outcomeUnknown
+                  ? 'cart.invoice_outcome_unknown'.tr()
+                  : error,
+            ),
+          );
+          return false;
+        },
+      );
+    } catch (error) {
+      if (!isClosed) {
         emit(
           state.copyWith(
             isCreatingInvoice: false,
-            createdInvoiceId: invoice.invoiceId,
-            createdInvoicePaymentLink: invoice.paymentLink,
+            createInvoiceError: parseApiError(error),
           ),
         );
-        return true;
-      },
-      failure: (error) {
-        emit(
-          state.copyWith(isCreatingInvoice: false, createInvoiceError: error),
-        );
-        return false;
-      },
-    );
-  }
-
-  Future<void> _syncCartAfterInvoiceCreation() async {
-    final result = await _repository.getCart();
-    if (isClosed) return;
-    result.when(
-      success: (cart) => emit(state.copyWith(cart: cart)),
-      // Post-invoice background refresh: logged, never toasted — the invoice
-      // already succeeded and nagging here would be noise.
-      failure: (message) {
-        if (kDebugMode) {
-          debugPrint('[CartCubit] post-invoice cart sync: $message');
-        }
-      },
-    );
+      }
+      return false;
+    } finally {
+      _invoiceSubmissionInFlight = false;
+    }
   }
 
   /// Assigns [provider] to all uncovered services in the cart by calling
   /// addToCart for each service that still has no provider.
   Future<bool> assignProvider(ProviderOption provider) async {
-    emit(
-      state.copyWith(
-        selectedProvider: provider,
-        isAssigningProvider: true,
-        resetAssignProviderError: true,
-      ),
-    );
-
-    final unassignedCartItemIds = state.cart?.items
-        .where((item) => item.providerId == null)
-        .map((item) => item.cartItemId)
-        .toSet();
-    final servicesToUpdate = provider.coveredServices.where(
-      (service) =>
-          service.cartItemId != 0 &&
-          (unassignedCartItemIds == null ||
-              unassignedCartItemIds.contains(service.cartItemId)),
-    );
-
-    for (final service in servicesToUpdate) {
-      if (service.cartItemId == 0) continue;
-
-      final result = await _repository.updateCartProvider(
-        cartId: service.cartItemId,
-        providerId: provider.providerId,
+    if (isClosed || _providerAssignmentInFlight) return false;
+    _providerAssignmentInFlight = true;
+    _cartMutationGeneration++;
+    try {
+      emit(
+        state.copyWith(
+          selectedProvider: provider,
+          isAssigningProvider: true,
+          isCartLoading: false,
+          resetAssignProviderError: true,
+        ),
       );
-      if (isClosed) return false;
 
-      final failed = result.when(
-        success: (_) => null,
-        failure: (error) => error,
-      );
-      if (failed != null) {
+      final unassignedCartItemIds = state.cart?.items
+          .where((item) => item.providerId == null)
+          .map((item) => item.cartItemId)
+          .toSet();
+      final servicesToUpdate = provider.coveredServices
+          .where(
+            (service) =>
+                service.cartItemId != 0 &&
+                (unassignedCartItemIds == null ||
+                    unassignedCartItemIds.contains(service.cartItemId)),
+          )
+          .toList(growable: false);
+      if (servicesToUpdate.isEmpty) {
         emit(
           state.copyWith(
             isAssigningProvider: false,
-            assignProviderError: failed,
+            assignProviderError: 'cart.no_eligible_unassigned_items'.tr(),
           ),
         );
         return false;
       }
+
+      final confirmedServices = <ProviderCoveredService>[];
+      for (final service in servicesToUpdate) {
+        final result = await _repository.updateCartProvider(
+          cartId: service.cartItemId,
+          providerId: provider.providerId,
+        );
+        if (isClosed) return false;
+
+        final failed = result.when(
+          success: (_) {
+            confirmedServices.add(service);
+            _cartMutationGeneration++;
+            return null;
+          },
+          failure: (error) => error,
+        );
+        if (failed != null) {
+          final reconciled = await _reconcileAssignedServices(
+            provider,
+            confirmedServices,
+          );
+          if (isClosed) return false;
+          emit(
+            state.copyWith(
+              cart: reconciled,
+              isAssigningProvider: false,
+              assignProviderError: failed,
+            ),
+          );
+          if (reconciled != null) _broadcastCartSnapshot(reconciled);
+          return false;
+        }
+      }
+
+      final nextCart = await _reconcileAssignedServices(
+        provider,
+        confirmedServices,
+      );
+      if (isClosed) return false;
+      emit(
+        state.copyWith(
+          cart: nextCart,
+          isAssigningProvider: false,
+          checkoutProvider: provider,
+          resetAssignProviderError: true,
+        ),
+      );
+      if (nextCart != null) _broadcastCartSnapshot(nextCart);
+      return true;
+    } catch (error) {
+      if (!isClosed) {
+        emit(
+          state.copyWith(
+            isAssigningProvider: false,
+            assignProviderError: parseApiError(error),
+          ),
+        );
+      }
+      return false;
+    } finally {
+      _providerAssignmentInFlight = false;
     }
+  }
 
+  Future<Cart?> _reconcileAssignedServices(
+    ProviderOption provider,
+    List<ProviderCoveredService> confirmedServices,
+  ) async {
+    final requestGeneration = ++_cartRequestGeneration;
+    final mutationGeneration = _cartMutationGeneration;
     final refreshedCart = await _repository.getCart();
-    if (isClosed) return false;
-    final nextCart = refreshedCart.when(
+    if (isClosed ||
+        requestGeneration != _cartRequestGeneration ||
+        mutationGeneration != _cartMutationGeneration) {
+      return state.cart;
+    }
+    return refreshedCart.when(
       success: (cart) => cart,
-      failure: (_) => state.cart?.assignProvider(provider),
+      failure: (_) {
+        if (confirmedServices.isEmpty) return state.cart;
+        return state.cart?.assignProvider(
+          ProviderOption(
+            providerId: provider.providerId,
+            providerName: provider.providerName,
+            providerImageUrl: provider.providerImageUrl,
+            coveredCount: confirmedServices.length,
+            uncoveredCount: provider.uncoveredCount,
+            totalCount: provider.totalCount,
+            totalPriceBefore: provider.totalPriceBefore,
+            totalPriceAfter: provider.totalPriceAfter,
+            coveredServices: confirmedServices,
+            uncoveredServices: provider.uncoveredServices,
+          ),
+        );
+      },
     );
-
-    emit(
-      state.copyWith(
-        cart: nextCart,
-        isAssigningProvider: false,
-        checkoutProvider: provider,
-        resetAssignProviderError: true,
-      ),
-    );
-    return true;
   }
 }

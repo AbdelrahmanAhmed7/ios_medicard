@@ -28,6 +28,7 @@ void main() {
     late _FakeCartRepository cartRepository;
     late _FakeLocationService locationService;
     late LocationRepository locationRepository;
+    late CartSyncService cartSyncService;
     late SearchCubit cubit;
 
     setUp(() {
@@ -37,19 +38,23 @@ void main() {
         const LocationResult(status: LocationAccessStatus.denied),
       );
       locationRepository = LocationRepository();
+      cartSyncService = CartSyncService();
       cubit = SearchCubit(
         SearchProvidersUseCase(searchRepository),
         GetCategoriesUseCase(searchRepository),
         GetCategoryServicesUseCase(searchRepository),
         GetServiceCategoriesUseCase(searchRepository),
         cartRepository,
-        CartSyncService(),
+        cartSyncService,
         locationService: locationService,
         locationRepository: locationRepository,
       );
     });
 
-    tearDown(() => cubit.close());
+    tearDown(() async {
+      await cubit.close();
+      cartSyncService.dispose();
+    });
 
     test('loads category services and reuses cached category', () async {
       searchRepository.categoryServices[1] = _categoryData(1);
@@ -78,6 +83,56 @@ void main() {
       expect(cubit.state.services.length, 2);
       expect(cubit.state.loadingServiceCategoryIds, isEmpty);
     });
+
+    test(
+      'late older category response does not replace latest category',
+      () async {
+        final first = Completer<ApiResult<CategoryServicesDataModel>>();
+        final second = Completer<ApiResult<CategoryServicesDataModel>>();
+        searchRepository.categoryServiceCompleters[1] = first;
+        searchRepository.categoryServiceCompleters[2] = second;
+
+        final firstLoad = cubit.loadCategoryServices(1);
+        final secondLoad = cubit.loadCategoryServices(2);
+        second.complete(ApiResult.success(_singleServiceCategory(2, 200)));
+        await secondLoad;
+        first.complete(ApiResult.success(_singleServiceCategory(1, 100)));
+        await firstLoad;
+
+        expect(cubit.state.servicesData?.categoryId, 2);
+        expect(cubit.state.services.single.serviceId, 200);
+        expect(
+          cubit
+              .state
+              .servicesByCategoryId[1]
+              ?.services
+              ?.items
+              ?.single
+              .serviceId,
+          100,
+        );
+      },
+    );
+
+    test(
+      'latest category failure is shown and older success stays cached only',
+      () async {
+        final first = Completer<ApiResult<CategoryServicesDataModel>>();
+        final second = Completer<ApiResult<CategoryServicesDataModel>>();
+        searchRepository.categoryServiceCompleters[1] = first;
+        searchRepository.categoryServiceCompleters[2] = second;
+
+        final firstLoad = cubit.loadCategoryServices(1);
+        final secondLoad = cubit.loadCategoryServices(2);
+        second.complete(const ApiResult.failure('latest failed'));
+        await secondLoad;
+        first.complete(ApiResult.success(_singleServiceCategory(1, 100)));
+        await firstLoad;
+
+        expect(cubit.state.servicesError, 'latest failed');
+        expect(cubit.state.servicesByCategoryId[1], isNotNull);
+      },
+    );
 
     test('add service success updates only loaded item locally', () async {
       searchRepository.categoryServices[1] = _categoryData(1);
@@ -179,6 +234,41 @@ void main() {
       expect(cubit.state.cartActionError, isNull);
     });
 
+    test(
+      'authoritative selection snapshot preserves unrelated selected services',
+      () async {
+        searchRepository.categoryServices[1] = _categoryData(1);
+        searchRepository.categoryServices[2] = _singleServiceCategory(2, 20);
+        await cubit.loadCategoryServices(1);
+        await cubit.loadCategoryServices(2);
+
+        cartSyncService.selectionSnapshotChanged(
+          selectedServiceIds: const [20],
+          categorySelectedCounts: const {1: 0, 2: 1},
+          refreshCart: false,
+        );
+        await Future<void>.delayed(Duration.zero);
+
+        expect(
+          cubit.state.servicesByCategoryId[1]!.services!.items!.every(
+            (service) => service.isSelected == false,
+          ),
+          isTrue,
+        );
+        expect(
+          cubit
+              .state
+              .servicesByCategoryId[2]!
+              .services!
+              .items!
+              .single
+              .isSelected,
+          isTrue,
+        );
+        expect(cubit.state.categorySelectedCounts, {1: 0, 2: 1});
+      },
+    );
+
     test('provider search appends pages and stops at last page', () async {
       final provider1 = const SearchProviderModel(providerId: 1);
       final provider2 = const SearchProviderModel(providerId: 2);
@@ -215,9 +305,7 @@ void main() {
     test(
       'applyFilters nearest sort reuses cached location coordinates',
       () async {
-        locationRepository.cache(
-          LocationResult.granted(30.0444, 31.2357),
-        );
+        locationRepository.cache(LocationResult.granted(30.0444, 31.2357));
         searchRepository.providerPages[1] = SearchResponseData(
           items: [const SearchProviderModel(providerId: 1)],
           pageNumber: 1,
@@ -238,27 +326,29 @@ void main() {
       },
     );
 
-    test('applyFilters nearest sort resolves location when coordinates missing',
-        () async {
-      locationService.result = LocationResult.granted(29.987, 31.2143);
-      searchRepository.providerPages[1] = const SearchResponseData(
-        items: <SearchProviderModel>[SearchProviderModel(providerId: 1)],
-        pageNumber: 1,
-        pageSize: 15,
-        totalCount: 1,
-        totalPages: 1,
-      );
+    test(
+      'applyFilters nearest sort resolves location when coordinates missing',
+      () async {
+        locationService.result = LocationResult.granted(29.987, 31.2143);
+        searchRepository.providerPages[1] = const SearchResponseData(
+          items: <SearchProviderModel>[SearchProviderModel(providerId: 1)],
+          pageNumber: 1,
+          pageSize: 15,
+          totalCount: 1,
+          totalPages: 1,
+        );
 
-      await cubit.applyFilters(sortBy: 1);
+        await cubit.applyFilters(sortBy: 1);
 
-      expect(locationService.resolveCalls, 1);
-      expect(cubit.state.userLatitude, 29.987);
-      expect(cubit.state.userLongitude, 31.2143);
-      expect(cubit.state.filterError, isNull);
-      expect(searchRepository.lastSortBy, 1);
-      expect(searchRepository.lastUserLatitude, 29.987);
-      expect(searchRepository.lastUserLongitude, 31.2143);
-    });
+        expect(locationService.resolveCalls, 1);
+        expect(cubit.state.userLatitude, 29.987);
+        expect(cubit.state.userLongitude, 31.2143);
+        expect(cubit.state.filterError, isNull);
+        expect(searchRepository.lastSortBy, 1);
+        expect(searchRepository.lastUserLatitude, 29.987);
+        expect(searchRepository.lastUserLongitude, 31.2143);
+      },
+    );
 
     test(
       'applyFilters nearest sort without location falls back to default order',
@@ -293,62 +383,64 @@ void main() {
       expect(searchRepository.lastSortBy, 2);
     });
 
-    test('applyFilters does not touch category services (providers-only sort)',
-        () async {
-      searchRepository.categoryServices[1] = _categoryData(1);
-      await cubit.loadCategoryServices(1);
-      final callsBeforeFilter = searchRepository.categoryServiceCalls[1]!;
+    test(
+      'applyFilters does not touch category services (providers-only sort)',
+      () async {
+        searchRepository.categoryServices[1] = _categoryData(1);
+        await cubit.loadCategoryServices(1);
+        final callsBeforeFilter = searchRepository.categoryServiceCalls[1]!;
 
-      await cubit.applyFilters(sortBy: 2);
+        await cubit.applyFilters(sortBy: 2);
 
-      // The sort applies to the providers tab only: the services endpoints do
-      // not support sorting and carry no discount data, so they must not be
-      // refetched (or presented as re-ordered) when a filter is applied.
-      expect(cubit.state.filterError, isNull);
-      expect(searchRepository.lastSortBy, 2);
-      expect(searchRepository.categoryServiceCalls[1], callsBeforeFilter);
+        // The sort applies to the providers tab only: the services endpoints do
+        // not support sorting and carry no discount data, so they must not be
+        // refetched (or presented as re-ordered) when a filter is applied.
+        expect(cubit.state.filterError, isNull);
+        expect(searchRepository.lastSortBy, 2);
+        expect(searchRepository.categoryServiceCalls[1], callsBeforeFilter);
+      },
+    );
+
+    group('category loading failures surface an error instead of silence', () {
+      test('categories failure sets categoriesError', () async {
+        searchRepository.categoriesResult = const ApiResult.failure(
+          'No network',
+        );
+
+        await cubit.init(enableCartFeatures: false);
+
+        expect(cubit.state.categories, isEmpty);
+        expect(cubit.state.categoriesError, 'No network');
+      });
+
+      test('service categories failure sets serviceCategoriesError', () async {
+        searchRepository.serviceCategoriesResult = const ApiResult.failure(
+          'Server down',
+        );
+
+        await cubit.init(enableCartFeatures: false);
+
+        expect(cubit.state.serviceCategories, isEmpty);
+        expect(cubit.state.serviceCategoriesError, 'Server down');
+        expect(cubit.state.isLoadingServiceCategories, isFalse);
+      });
+
+      test('a successful retry clears the categories error', () async {
+        searchRepository.categoriesResult = const ApiResult.failure(
+          'No network',
+        );
+        await cubit.init(enableCartFeatures: false);
+        expect(cubit.state.categoriesError, 'No network');
+
+        searchRepository.categoriesResult = const ApiResult.success([
+          CategoryModel(id: 9, name: 'Radiology'),
+        ]);
+        await cubit.init(enableCartFeatures: false);
+
+        expect(cubit.state.categoriesError, isNull);
+        expect(cubit.state.categories.map((c) => c.id), [9]);
+      });
     });
-
-  group('category loading failures surface an error instead of silence', () {
-    test('categories failure sets categoriesError', () async {
-      searchRepository.categoriesResult = const ApiResult.failure(
-        'No network',
-      );
-
-      await cubit.init(enableCartFeatures: false);
-
-      expect(cubit.state.categories, isEmpty);
-      expect(cubit.state.categoriesError, 'No network');
-    });
-
-    test('service categories failure sets serviceCategoriesError', () async {
-      searchRepository.serviceCategoriesResult = const ApiResult.failure(
-        'Server down',
-      );
-
-      await cubit.init(enableCartFeatures: false);
-
-      expect(cubit.state.serviceCategories, isEmpty);
-      expect(cubit.state.serviceCategoriesError, 'Server down');
-      expect(cubit.state.isLoadingServiceCategories, isFalse);
-    });
-
-    test('a successful retry clears the categories error', () async {
-      searchRepository.categoriesResult = const ApiResult.failure(
-        'No network',
-      );
-      await cubit.init(enableCartFeatures: false);
-      expect(cubit.state.categoriesError, 'No network');
-
-      searchRepository.categoriesResult = const ApiResult.success([
-        CategoryModel(id: 9, name: 'Radiology'),
-      ]);
-      await cubit.init(enableCartFeatures: false);
-
-      expect(cubit.state.categoriesError, isNull);
-      expect(cubit.state.categories.map((c) => c.id), [9]);
-    });
-  });
   });
 }
 
@@ -381,6 +473,29 @@ CategoryServicesDataModel _categoryData(int categoryId) {
   );
 }
 
+CategoryServicesDataModel _singleServiceCategory(
+  int categoryId,
+  int serviceId,
+) {
+  return CategoryServicesDataModel(
+    categoryId: categoryId,
+    categoryName: 'Category $categoryId',
+    totalSelectedCount: 0,
+    services: PagedServicesModel(
+      items: [
+        ServiceItemModel(
+          serviceId: serviceId,
+          serviceNameEn: 'Service $serviceId',
+        ),
+      ],
+      pageNumber: 1,
+      pageSize: 20,
+      totalCount: 1,
+      totalPages: 1,
+    ),
+  );
+}
+
 class _FakeSearchRepository implements SearchRepository {
   final Map<int, CategoryServicesDataModel> categoryServices = {};
   final Map<int, Completer<ApiResult<CategoryServicesDataModel>>>
@@ -388,8 +503,7 @@ class _FakeSearchRepository implements SearchRepository {
   final Map<int, int> categoryServiceCalls = {};
   final Map<int, SearchResponseData> providerPages = {};
 
-  ApiResult<List<CategoryModel>> categoriesResult =
-      const ApiResult.success([]);
+  ApiResult<List<CategoryModel>> categoriesResult = const ApiResult.success([]);
   ApiResult<List<CategoryModel>> serviceCategoriesResult =
       const ApiResult.success([
         CategoryModel(id: 1, name: 'Labs'),
@@ -464,9 +578,7 @@ class _FakeSearchRepository implements SearchRepository {
             categoryName: data.categoryName,
             totalSelectedCount: data.totalSelectedCount,
             services: const PagedServicesModel(
-              items: [
-                ServiceItemModel(serviceId: 3, serviceNameEn: 'CT-Scan'),
-              ],
+              items: [ServiceItemModel(serviceId: 3, serviceNameEn: 'CT-Scan')],
               pageNumber: 2,
               pageSize: 20,
               totalCount: 3,

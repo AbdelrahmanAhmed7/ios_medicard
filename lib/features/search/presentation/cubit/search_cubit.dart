@@ -48,6 +48,7 @@ class SearchCubit extends Cubit<SearchState> {
   /// Guards against a logged-in session showing stale guest (or vice-versa)
   /// cached services, since [SearchCubit] is a shared singleton.
   bool? _servicesCacheMode = true;
+  var _serviceCategoryRequestGeneration = 0;
 
   SearchCubit(
     this._searchProvidersUseCase,
@@ -166,6 +167,7 @@ class SearchCubit extends Cubit<SearchState> {
     if (cached != null &&
         _servicesCacheMode == _enableCartFeatures &&
         cachedKeyword == search) {
+      _serviceCategoryRequestGeneration++;
       if (kDebugMode) {
         debugPrint(
           '[SearchCubit] reused cached services category=$categoryId '
@@ -191,6 +193,8 @@ class SearchCubit extends Cubit<SearchState> {
       }
       return false;
     }
+
+    final requestGeneration = ++_serviceCategoryRequestGeneration;
 
     if (kDebugMode) {
       debugPrint('[SearchCubit] loading services category=$categoryId');
@@ -232,25 +236,29 @@ class SearchCubit extends Cubit<SearchState> {
           state.servicesByCategoryId,
         )..[categoryId] = data;
 
+        final isLatest = requestGeneration == _serviceCategoryRequestGeneration;
         emit(
           state.copyWith(
-            isLoadingServices: false,
+            isLoadingServices: loadingIds.isNotEmpty,
             loadingServiceCategoryIds: loadingIds,
             servicesByCategoryId: cachedCategories,
-            servicesData: data,
-            services: data.services?.items ?? const [],
-            clearServicesError: true,
+            servicesData: isLatest ? data : state.servicesData,
+            services: isLatest
+                ? data.services?.items ?? const []
+                : state.services,
+            clearServicesError: isLatest,
             categorySelectedCounts: counts,
           ),
         );
         return (data.services?.items ?? const []).isNotEmpty;
       },
       failure: (message) {
+        final isLatest = requestGeneration == _serviceCategoryRequestGeneration;
         emit(
           state.copyWith(
-            isLoadingServices: false,
+            isLoadingServices: loadingIds.isNotEmpty,
             loadingServiceCategoryIds: loadingIds,
-            servicesError: message,
+            servicesError: isLatest ? message : state.servicesError,
           ),
         );
         return false;
@@ -313,11 +321,10 @@ class SearchCubit extends Cubit<SearchState> {
 
     return result.when(
       success: (data) {
-        final currentItems = cached.services?.items ?? const <ServiceItemModel>[];
+        final currentItems =
+            cached.services?.items ?? const <ServiceItemModel>[];
         final paged = data.services;
-        final existingIds = {
-          for (final item in currentItems) item.serviceId,
-        };
+        final existingIds = {for (final item in currentItems) item.serviceId};
         final visibleItems = [
           ...currentItems,
           ...?paged?.items?.where(
@@ -349,9 +356,7 @@ class SearchCubit extends Cubit<SearchState> {
             }..remove(categoryId),
             servicesByCategoryId: cachedCategories,
             servicesData: isVisible ? merged : state.servicesData,
-            services: isVisible
-                ? visibleItems
-                : state.services,
+            services: isVisible ? visibleItems : state.services,
             clearServicesError: true,
           ),
         );
@@ -376,11 +381,7 @@ class SearchCubit extends Cubit<SearchState> {
   }) async {
     if (isClosed) return;
     if (!_enableCartFeatures) {
-      emit(
-        state.copyWith(
-          cartActionError: 'auth.please_login_first'.tr(),
-        ),
-      );
+      emit(state.copyWith(cartActionError: 'auth.please_login_first'.tr()));
       return;
     }
     if (serviceId <= 0 || categoryId <= 0) {
@@ -471,9 +472,7 @@ class SearchCubit extends Cubit<SearchState> {
   }) async {
     if (isClosed) return;
     if (!_enableCartFeatures) {
-      emit(
-        state.copyWith(cartActionError: 'auth.please_login_first'.tr()),
-      );
+      emit(state.copyWith(cartActionError: 'auth.please_login_first'.tr()));
       return;
     }
     if (serviceId <= 0 || categoryId <= 0) {
@@ -666,8 +665,8 @@ class SearchCubit extends Cubit<SearchState> {
         'sort_filter.location_service_disabled'.tr(),
       LocationAccessStatus.unavailable =>
         'sort_filter.location_unavailable'.tr(),
-      LocationAccessStatus.granted || LocationAccessStatus.denied =>
-        'sort_filter.location_required'.tr(),
+      LocationAccessStatus.granted ||
+      LocationAccessStatus.denied => 'sort_filter.location_required'.tr(),
     };
   }
 
@@ -828,6 +827,14 @@ class SearchCubit extends Cubit<SearchState> {
 
   void _onCartSyncEvent(CartSyncEvent event) {
     if (isClosed) return;
+    final selectedServiceIds = event.selectedServiceIds;
+    if (selectedServiceIds != null) {
+      _emitSelectionSnapshot(
+        selectedServiceIds,
+        categorySelectedCounts: event.categorySelectedCounts,
+      );
+      return;
+    }
     if (event.cartCleared) {
       _emitAllServicesUnselected();
       _loadCartCounters();
@@ -853,6 +860,57 @@ class SearchCubit extends Cubit<SearchState> {
       );
     }
     _loadCartCounters();
+  }
+
+  void _emitSelectionSnapshot(
+    Set<int> selectedServiceIds, {
+    Map<int, int>? categorySelectedCounts,
+  }) {
+    final cachedCategories = <int, CategoryServicesDataModel>{};
+    for (final entry in state.servicesByCategoryId.entries) {
+      final services = entry.value.services;
+      final updatedItems = (services?.items ?? const <ServiceItemModel>[])
+          .map(
+            (service) => ServiceItemModel(
+              serviceId: service.serviceId,
+              serviceNameEn: service.serviceNameEn,
+              serviceNameAr: service.serviceNameAr,
+              isSelected: selectedServiceIds.contains(service.serviceId),
+            ),
+          )
+          .toList(growable: false);
+      final selectedCount =
+          categorySelectedCounts?[entry.key] ??
+          updatedItems.where((service) => service.isSelected == true).length;
+      cachedCategories[entry.key] = CategoryServicesDataModel(
+        categoryId: entry.value.categoryId,
+        categoryName: entry.value.categoryName,
+        totalSelectedCount: selectedCount,
+        services: services == null
+            ? null
+            : PagedServicesModel(
+                items: updatedItems,
+                pageNumber: services.pageNumber,
+                pageSize: services.pageSize,
+                totalCount: services.totalCount,
+                totalPages: services.totalPages,
+              ),
+      );
+    }
+
+    final visibleCategoryId = state.servicesData?.categoryId;
+    final visibleData = visibleCategoryId == null
+        ? state.servicesData
+        : cachedCategories[visibleCategoryId] ?? state.servicesData;
+    emit(
+      state.copyWith(
+        servicesByCategoryId: cachedCategories,
+        servicesData: visibleData,
+        services: visibleData?.services?.items ?? const [],
+        categorySelectedCounts:
+            categorySelectedCounts ?? state.categorySelectedCounts,
+      ),
+    );
   }
 
   void _emitServiceSelectionInLoadedCategories({

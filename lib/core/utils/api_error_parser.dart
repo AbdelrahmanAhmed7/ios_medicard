@@ -187,6 +187,10 @@ String friendlyApiMessage(String message) {
     return 'cart.service_not_available'.tr();
   }
 
+  if (lower.contains('invalid invoice response')) {
+    return 'cart.invalid_invoice_response'.tr();
+  }
+
   if (lower.contains('invoicealreadyused') ||
       lower.contains('invoice already used')) {
     return 'activity.invoice_already_used'.tr();

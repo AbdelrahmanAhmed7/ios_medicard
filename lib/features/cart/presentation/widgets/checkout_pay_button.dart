@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/services/url_launcher_service.dart';
 import '../../../../core/theming/app_text_styles.dart';
+import '../../../../core/theming/app_toast.dart';
 import '../cubit/cart_cubit.dart';
 import '../cubit/cart_state.dart';
 
@@ -17,6 +18,29 @@ class CheckoutPayButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isBusy = state.isCreatingInvoice;
+    if (state.isInvoiceOutcomeUnknown && !isBusy) {
+      return SizedBox(
+        width: double.infinity,
+        height: 52.h,
+        child: OutlinedButton(
+          onPressed: () => _reconcile(context),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: const Color(0xFF3872B1),
+            side: const BorderSide(color: Color(0xFF3872B1)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14.r),
+            ),
+          ),
+          child: Text(
+            'cart.verify_invoice_status'.tr(),
+            style: AppTextStyles.of(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      );
+    }
     final paymentLink = state.createdInvoicePaymentLink;
     final hasPaymentLink = paymentLink != null && paymentLink.isNotEmpty;
     return SizedBox(
@@ -66,9 +90,30 @@ class CheckoutPayButton extends StatelessWidget {
                     : state.paymentMethod == CartPaymentMethod.visa
                     ? 'cart.pay_with_visa'.tr()
                     : 'cart.pay'.tr(),
-                style: AppTextStyles.of(fontSize: 18.sp, fontWeight: FontWeight.w600),
+                style: AppTextStyles.of(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
       ),
     );
+  }
+
+  /// Reconciles an ambiguous invoice outcome, then routes:
+  /// created → activity (the charge exists), notCreated → safe to retry,
+  /// stillUnknown → latch stays and the error message remains.
+  Future<void> _reconcile(BuildContext context) async {
+    final resolution = await context
+        .read<CartCubit>()
+        .reconcileUnknownInvoiceOutcome();
+    if (!context.mounted) return;
+    switch (resolution) {
+      case UnknownInvoiceResolution.created:
+        context.go('/medicard-home?tab=activity');
+      case UnknownInvoiceResolution.notCreated:
+        showSuccessToast('cart.invoice_not_created'.tr());
+      case UnknownInvoiceResolution.stillUnknown:
+        break;
+    }
   }
 }

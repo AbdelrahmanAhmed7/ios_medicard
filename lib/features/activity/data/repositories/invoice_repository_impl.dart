@@ -1,6 +1,8 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../../../core/constants/api_result.dart';
+import '../../../../core/network/app_failure.dart';
 import '../../../../core/services/app_language_manager.dart';
 import '../../../../core/utils/api_error_parser.dart';
 import '../../domain/models/created_invoice.dart';
@@ -17,6 +19,23 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
   final InvoiceRemoteDataSource _dataSource;
 
   InvoiceRepositoryImpl(this._dataSource);
+
+  bool _isAmbiguousCreationError(Object error) {
+    if (error is AppFailure) {
+      return error.type == AppFailureType.network ||
+          error.type == AppFailureType.timeout ||
+          error.type == AppFailureType.connectionTimeout ||
+          error.type == AppFailureType.transferTimeout;
+    }
+    if (error is! DioException || error.response != null) return false;
+    final mapped = error.error;
+    if (mapped is AppFailure && _isAmbiguousCreationError(mapped)) return true;
+    return error.type == DioExceptionType.connectionTimeout ||
+        error.type == DioExceptionType.sendTimeout ||
+        error.type == DioExceptionType.receiveTimeout ||
+        error.type == DioExceptionType.connectionError ||
+        error.type == DioExceptionType.unknown;
+  }
 
   String _failureMessage({
     dynamic errors,
@@ -144,7 +163,9 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
       );
 
       if (response.succeeded == true && response.data != null) {
-        return ApiResult.success(_createdInvoiceFromData(response.data));
+        final invoice = _createdInvoiceFromData(response.data);
+        if (invoice != null) return ApiResult.success(invoice);
+        return ApiResult.failure(parseApiError('Invalid invoice response.'));
       }
 
       return ApiResult.failure(
@@ -155,6 +176,9 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
         ),
       );
     } catch (error) {
+      if (_isAmbiguousCreationError(error)) {
+        return const ApiResult.failure(invoiceOutcomeUnknownFailure);
+      }
       return ApiResult.failure(parseApiError(error));
     }
   }
@@ -179,7 +203,9 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
       );
 
       if (response.succeeded == true && response.data != null) {
-        return ApiResult.success(_createdInvoiceFromData(response.data));
+        final invoice = _createdInvoiceFromData(response.data);
+        if (invoice != null) return ApiResult.success(invoice);
+        return ApiResult.failure(parseApiError('Invalid invoice response.'));
       }
 
       return ApiResult.failure(
@@ -190,6 +216,9 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
         ),
       );
     } catch (error) {
+      if (_isAmbiguousCreationError(error)) {
+        return const ApiResult.failure(invoiceOutcomeUnknownFailure);
+      }
       return ApiResult.failure(parseApiError(error));
     }
   }
@@ -201,7 +230,7 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
     return '$first $last'.trim();
   }
 
-  CreatedInvoice _createdInvoiceFromData(dynamic data) {
+  CreatedInvoice? _createdInvoiceFromData(dynamic data) {
     if (data is Map) {
       final invoiceId =
           data['invoiceId'] ??
@@ -214,13 +243,27 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
           data['paymentUrl'] ??
           data['url'] ??
           data['redirectUrl'];
+      final normalizedInvoiceId = _validInvoiceId(invoiceId);
+      if (normalizedInvoiceId == null) return null;
       return CreatedInvoice(
-        invoiceId: invoiceId?.toString() ?? data.toString(),
+        invoiceId: normalizedInvoiceId,
         paymentLink: paymentLink?.toString(),
       );
     }
 
-    return CreatedInvoice(invoiceId: data.toString());
+    final normalizedInvoiceId = _validInvoiceId(data);
+    if (normalizedInvoiceId == null) return null;
+    return CreatedInvoice(invoiceId: normalizedInvoiceId);
+  }
+
+  String? _validInvoiceId(dynamic value) {
+    if (value is num) {
+      if (!value.isFinite || value <= 0) return null;
+      return value.toString();
+    }
+    if (value is! String) return null;
+    final normalized = value.trim();
+    return normalized.isEmpty ? null : normalized;
   }
 
   @override
