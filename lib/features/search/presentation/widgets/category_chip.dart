@@ -23,7 +23,7 @@ class CategoryChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final label = category?.name ?? 'All';
-    const activeColor = Color(0xFF2D5FA6);
+    const activeColor = Color(0xFF3872B1);
 
     return GestureDetector(
       onTap: onTap,
@@ -48,15 +48,6 @@ class CategoryChip extends StatelessWidget {
                     : const Color(0xFFE5E9F0),
                 width: 1.2,
               ),
-              boxShadow: isSelected
-                  ? [
-                      BoxShadow(
-                        color: activeColor.withValues(alpha: 0.25),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
-                      ),
-                    ]
-                  : [],
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -90,7 +81,7 @@ class CategoryChip extends StatelessWidget {
               child: Container(
                 padding: EdgeInsets.all(5.r),
                 decoration: const BoxDecoration(
-                  color: Color(0xFF2D5FA6),
+                  color: Color(0xFF3872B1),
                   shape: BoxShape.circle,
                 ),
                 child: Text(
@@ -109,7 +100,7 @@ class CategoryChip extends StatelessWidget {
   }
 
   Widget _chipImage({required bool isSelected}) {
-    const activeColor = Color(0xFF2D5FA6);
+    const activeColor = Color(0xFF3872B1);
     final imageUrl = category?.imageUrl;
     Widget content;
     if (imageUrl != null && imageUrl.isNotEmpty) {

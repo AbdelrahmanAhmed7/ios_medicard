@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
 import '../../../../core/theming/app_toast.dart';
 import '../cubit/filter_cubit.dart';
 import '../cubit/filter_state.dart';
@@ -15,8 +16,6 @@ import '../widgets/category_chip.dart';
 import '../widgets/filter_bottom_sheet.dart';
 import '../widgets/provider_card.dart';
 import '../widgets/search_shimmer.dart';
-
-import '../../../../core/theming/app_text_styles.dart';
 
 class SearchScreen extends StatefulWidget {
   final double? userLatitude;
@@ -154,7 +153,7 @@ class _SearchScreenState extends State<SearchScreen>
         ),
       ],
       child: Scaffold(
-        backgroundColor: const Color(0xFFF9FAFB),
+        backgroundColor: Colors.white,
         body: Column(
           children: [
             AnimatedBuilder(
@@ -177,25 +176,65 @@ class _SearchScreenState extends State<SearchScreen>
               },
             ),
             Container(
-              color: Colors.white,
-              child: TabBar(
-                controller: _tabController,
-                labelStyle: AppTextStyles.of(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14.sp,
+              padding: EdgeInsets.symmetric(horizontal: 8.w),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(
+                  bottom: BorderSide(color: Color(0xFFEEF1F5), width: 1),
                 ),
-                unselectedLabelStyle: AppTextStyles.of(
-                  fontWeight: FontWeight.w400,
-                  fontSize: 14.sp,
-                ),
-                labelColor: const Color(0xFF2D5FA6),
-                unselectedLabelColor: const Color(0xFF6B7280),
-                indicatorColor: const Color(0xFF2D5FA6),
-                indicatorWeight: 2.5.h,
-                tabs: [
-                  Tab(text: 'home.providers'.tr()),
-                  if (_showServicesTab) Tab(text: 'home.services'.tr()),
-                ],
+              ),
+              child: AnimatedBuilder(
+                animation: _tabController,
+                builder: (context, _) {
+                  final tabs = [
+                    'home.providers'.tr(),
+                    if (_showServicesTab) 'home.services'.tr(),
+                  ];
+                  return Row(
+                    children: List.generate(tabs.length, (i) {
+                      final isSelected = _tabController.index == i;
+                      return Expanded(
+                        child: GestureDetector(
+                          onTap: () => _tabController.animateTo(i),
+                          behavior: HitTestBehavior.opaque,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 12.h),
+                                child: Text(
+                                  tabs[i],
+                                  textAlign: TextAlign.center,
+                                  style: AppTextStyles.of(
+                                    fontSize: 15.sp,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w700
+                                        : FontWeight.w400,
+                                    color: isSelected
+                                        ? const Color(0xFF3872B1)
+                                        : const Color(0xFF6B7280),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                height: 3.h,
+                                margin: EdgeInsets.symmetric(horizontal: 32.w),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? const Color(0xFF3872B1)
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(3.r),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }),
+                  );
+                },
               ),
             ),
             Expanded(
@@ -262,7 +301,7 @@ class _SearchAppBar extends StatelessWidget {
               Expanded(
                 child: TextField(
                   controller: controller,
-                  autofocus: true,
+                  autofocus: false,
                   onChanged: onChanged,
                   style: AppTextStyles.of(
                     fontSize: 14.sp,
@@ -319,7 +358,7 @@ class _SearchAppBar extends StatelessWidget {
                                         child: Icon(
                                           Icons.tune,
                                           color: hasActiveFilters
-                                              ? const Color(0xFF2D5FA6)
+                                              ? const Color(0xFF3872B1)
                                               : const Color(0xFF9CA3AF),
                                           size: 18,
                                         ),
@@ -333,7 +372,7 @@ class _SearchAppBar extends StatelessWidget {
                                             width: 9,
                                             height: 9,
                                             decoration: BoxDecoration(
-                                              color: const Color(0xFF2D5FA6),
+                                              color: const Color(0xFF3872B1),
                                               shape: BoxShape.circle,
                                               border: Border.all(
                                                 color: Colors.white,
@@ -455,7 +494,7 @@ class _ResultsBody extends StatelessWidget {
                     width: 24.r,
                     height: 24.r,
                     child: const CircularProgressIndicator(
-                      color: Color(0xFF2D5FA6),
+                      color: Color(0xFF3872B1),
                       strokeWidth: 2.5,
                     ),
                   ),
@@ -520,7 +559,7 @@ class _ServicesTabState extends State<_ServicesTab> {
                     height: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Color(0xFF2D5FA6),
+                      color: Color(0xFF3872B1),
                     ),
                   ),
                 ),
@@ -651,7 +690,7 @@ class _ServicesTabState extends State<_ServicesTab> {
 
     if (state.isLoadingServices) {
       return const Center(
-        child: CircularProgressIndicator(color: Color(0xFF2D5FA6)),
+        child: CircularProgressIndicator(color: Color(0xFF3872B1)),
       );
     }
 
@@ -678,14 +717,13 @@ class _ServicesTabState extends State<_ServicesTab> {
               ),
               SizedBox(height: 16.h),
               ElevatedButton(
-                onPressed: () => context
-                    .read<SearchCubit>()
-                    .loadCategoryServices(
+                onPressed: () =>
+                    context.read<SearchCubit>().loadCategoryServices(
                       _selectedCategoryId!,
                       search: _currentServiceSearch(context),
                     ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2D5FA6),
+                  backgroundColor: const Color(0xFF3872B1),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.r),
                   ),
@@ -732,7 +770,8 @@ class _ServicesTabState extends State<_ServicesTab> {
     }
 
     final categoryId = state.servicesData?.categoryId ?? 0;
-    final hasMore = state.loadingMoreServiceCategoryIds.isNotEmpty ||
+    final hasMore =
+        state.loadingMoreServiceCategoryIds.isNotEmpty ||
         context.read<SearchCubit>().hasMoreCategoryServices(categoryId);
 
     return ListView.builder(
@@ -748,7 +787,9 @@ class _ServicesTabState extends State<_ServicesTab> {
           final categoryIdHere = state.servicesData?.categoryId;
           if (categoryIdHere != null &&
               !state.loadingMoreServiceCategoryIds.contains(categoryIdHere)) {
-            context.read<SearchCubit>().loadMoreCategoryServices(categoryIdHere);
+            context.read<SearchCubit>().loadMoreCategoryServices(
+              categoryIdHere,
+            );
           }
           return Padding(
             padding: EdgeInsets.symmetric(vertical: 16.h),
@@ -757,7 +798,7 @@ class _ServicesTabState extends State<_ServicesTab> {
                 width: 24.r,
                 height: 24.r,
                 child: const CircularProgressIndicator(
-                  color: Color(0xFF2D5FA6),
+                  color: Color(0xFF3872B1),
                   strokeWidth: 2.5,
                 ),
               ),
@@ -846,16 +887,9 @@ class _ServiceCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(14.r),
         border: Border.all(
           color: isSelected
-              ? const Color(0xFF2D5FA6).withValues(alpha: 0.3)
+              ? const Color(0xFF3872B1).withValues(alpha: 0.3)
               : const Color(0xFFE5E7EB),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Row(
         children: [
@@ -913,9 +947,9 @@ class _ServiceCard extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: isSelected && !isPending
-                    ? const Color(0xFF2D5FA6)
+                    ? const Color(0xFF3872B1)
                     : Colors.transparent,
-                border: Border.all(color: const Color(0xFF2D5FA6), width: 1.8),
+                border: Border.all(color: const Color(0xFF3872B1), width: 1.8),
               ),
               child: Center(
                 child: isPending
@@ -924,14 +958,14 @@ class _ServiceCard extends StatelessWidget {
                         height: 16.r,
                         child: const CircularProgressIndicator(
                           strokeWidth: 1.8,
-                          color: Color(0xFF2D5FA6),
+                          color: Color(0xFF3872B1),
                         ),
                       )
                     : Icon(
                         isSelected ? Icons.check : Icons.add,
                         color: isSelected
                             ? Colors.white
-                            : const Color(0xFF2D5FA6),
+                            : const Color(0xFF3872B1),
                         size: 18.sp,
                       ),
               ),
@@ -961,11 +995,11 @@ class _ChooseProviderBar extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 12.h),
           decoration: BoxDecoration(
-            color: const Color(0xFF2D5FA6),
+            color: const Color(0xFF3872B1),
             borderRadius: BorderRadius.circular(16.r),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF2D5FA6).withValues(alpha: 0.30),
+                color: const Color(0xFF3872B1).withValues(alpha: 0.30),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -1078,7 +1112,7 @@ class _ErrorView extends StatelessWidget {
             ElevatedButton(
               onPressed: onRetry,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2D5FA6),
+                backgroundColor: const Color(0xFF3872B1),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.r),
                 ),

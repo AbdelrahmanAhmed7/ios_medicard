@@ -27,7 +27,7 @@ class ContentErrorView extends StatelessWidget {
             Icon(
               Icons.cloud_off_rounded,
               size: 64.sp,
-              color: const Color(0xFF2D5FA6),
+              color: const Color(0xFF3872B1),
             ),
             SizedBox(height: 20.h),
             Text(

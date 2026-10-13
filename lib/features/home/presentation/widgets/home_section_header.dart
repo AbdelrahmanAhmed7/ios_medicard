@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
@@ -22,9 +23,9 @@ class HomeSectionHeader extends StatelessWidget {
             child: Text(
               title,
               style: AppTextStyles.of(
-                fontSize: 16,
+                fontSize: 17.sp,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF1A1A2E),
+                color: Color(0xFF111827),
               ),
             ),
           ),
@@ -42,7 +43,7 @@ class HomeSectionHeader extends StatelessWidget {
                       style: AppTextStyles.of(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF2D5FA6),
+                        color: Color(0xFF3872B1),
                       ),
                     ),
                     const SizedBox(width: 2),
@@ -50,7 +51,7 @@ class HomeSectionHeader extends StatelessWidget {
                       '›',
                       style: AppTextStyles.of(
                         fontSize: 18,
-                        color: Color(0xFF2D5FA6),
+                        color: Color(0xFF3872B1),
                         fontWeight: FontWeight.w600,
                         height: 1.1,
                       ),

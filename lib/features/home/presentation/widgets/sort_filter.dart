@@ -109,7 +109,7 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
                 });
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2D5FA6),
+                backgroundColor: const Color(0xFF3872B1),
                 foregroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
@@ -143,11 +143,11 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
               width: 22,
               height: 22,
               decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFF2D5FA6) : Colors.white,
+                color: isSelected ? const Color(0xFF3872B1) : Colors.white,
                 borderRadius: BorderRadius.circular(4),
                 border: Border.all(
                   color: isSelected
-                      ? const Color(0xFF2D5FA6)
+                      ? const Color(0xFF3872B1)
                       : const Color(0xFFD1D5DB),
                   width: 1.5,
                 ),

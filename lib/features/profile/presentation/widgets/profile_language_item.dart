@@ -91,7 +91,7 @@ class ProfileLanguageItem extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12.r),
                     border: Border.all(
                       color: isSelected
-                          ? const Color(0xFF2D5FA6)
+                          ? const Color(0xFF3872B1)
                           : const Color(0xFFE5E7EB),
                     ),
                   ),
@@ -113,7 +113,7 @@ class ProfileLanguageItem extends StatelessWidget {
                         Icon(
                           Icons.check_circle_rounded,
                           size: 20.sp,
-                          color: const Color(0xFF2D5FA6),
+                          color: const Color(0xFF3872B1),
                         ),
                     ],
                   ),
@@ -177,7 +177,7 @@ class ProfileLanguageItem extends StatelessWidget {
                             onPressed: () =>
                                 Navigator.of(sheetContext).pop(selected),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF2D5FA6),
+                              backgroundColor: const Color(0xFF3872B1),
                               foregroundColor: Colors.white,
                               elevation: 0,
                               shape: RoundedRectangleBorder(

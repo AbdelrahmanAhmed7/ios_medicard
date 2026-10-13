@@ -114,7 +114,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
             style: AppTextStyles.of(
               fontSize: 16.sp,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF2D5FA6),
+              color: const Color(0xFF3872B1),
             ),
           ),
         ),
@@ -127,7 +127,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
-        color: Color(0xFF2D5FA6),
+        color: Color(0xFF3872B1),
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(24),
           bottomRight: Radius.circular(24),

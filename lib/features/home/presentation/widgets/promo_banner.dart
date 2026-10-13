@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../data/home_mock_data.dart';
+import '../../../../core/theming/app_text_styles.dart';
 
 class PromoBannerWidget extends StatefulWidget {
   final List<PromoBanner> banners;
@@ -15,7 +18,7 @@ class PromoBannerWidget extends StatefulWidget {
 }
 
 class _PromoBannerWidgetState extends State<PromoBannerWidget> {
-  final PageController _pageController = PageController();
+  final PageController _pageController = PageController(viewportFraction: 0.88);
   Timer? _timer;
   int _currentPage = 0;
 
@@ -58,9 +61,21 @@ class _PromoBannerWidgetState extends State<PromoBannerWidget> {
     }
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Padding(
+          padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 10.h),
+          child: Text(
+            'home.discover_offers'.tr(),
+            style: AppTextStyles.of(
+              fontSize: 17.sp,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF111827),
+            ),
+          ),
+        ),
         SizedBox(
-          height: 201,
+          height: 165,
           child: PageView.builder(
             controller: _pageController,
             itemCount: widget.banners.length,
@@ -70,7 +85,7 @@ class _PromoBannerWidgetState extends State<PromoBannerWidget> {
             itemBuilder: (context, index) {
               final banner = widget.banners[index];
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(horizontal: 6.w),
                 child: GestureDetector(
                   onTap: banner.providerId == null
                       ? null
@@ -79,11 +94,11 @@ class _PromoBannerWidgetState extends State<PromoBannerWidget> {
                           extra: banner.providerId,
                         ),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(16.r),
                     child: CachedNetworkImage(
                       imageUrl: banner.imageUrl,
                       width: double.infinity,
-                      height: 201,
+                      height: 165,
                       fit: BoxFit.contain,
                       errorWidget: (context, url, error) =>
                           const SizedBox.shrink(),
@@ -106,7 +121,7 @@ class _PromoBannerWidgetState extends State<PromoBannerWidget> {
               height: 6,
               decoration: BoxDecoration(
                 color: isActive
-                    ? const Color(0xFF2D5FA6)
+                    ? const Color(0xFF3872B1)
                     : const Color(0xFF9CA3AF),
                 borderRadius: BorderRadius.circular(3),
               ),

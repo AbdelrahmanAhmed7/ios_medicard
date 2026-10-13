@@ -105,7 +105,7 @@ class _BranchesScreenState extends State<BranchesScreen> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.r),
-                  borderSide: const BorderSide(color: Color(0xFF2D5FA6)),
+                  borderSide: const BorderSide(color: Color(0xFF3872B1)),
                 ),
               ),
             ),
@@ -175,7 +175,7 @@ class _BranchesScreenState extends State<BranchesScreen> {
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
-        color: Color(0xFF2D5FA6),
+        color: Color(0xFF3872B1),
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(24),
           bottomRight: Radius.circular(24),
@@ -309,7 +309,7 @@ class _BranchCard extends StatelessWidget {
                   children: [
                     Icon(
                       Icons.map_outlined,
-                      color: const Color(0xFF2D5FA6),
+                      color: const Color(0xFF3872B1),
                       size: 15.sp,
                     ),
                     SizedBox(width: 4.w),
@@ -318,7 +318,7 @@ class _BranchCard extends StatelessWidget {
                       style: AppTextStyles.of(
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w500,
-                        color: const Color(0xFF2D5FA6),
+                        color: const Color(0xFF3872B1),
                       ),
                     ),
                   ],

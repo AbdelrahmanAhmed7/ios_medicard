@@ -84,7 +84,7 @@ class FilterBottomSheet extends StatelessWidget {
                         style: AppTextStyles.of(
                           fontWeight: FontWeight.w500,
                           fontSize: 14.sp,
-                          color: const Color(0xFF2D5FA6),
+                          color: const Color(0xFF3872B1),
                         ),
                       ),
                     ),
@@ -169,7 +169,7 @@ class FilterBottomSheet extends StatelessWidget {
                   height: 52.h,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2D5FA6),
+                      backgroundColor: const Color(0xFF3872B1),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14.r),
                       ),
@@ -247,7 +247,7 @@ class _SortOptionTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
             color: isSelected
-                ? const Color(0xFF2D5FA6)
+                ? const Color(0xFF3872B1)
                 : const Color(0xFFE5E7EB),
             width: 1.2,
           ),
@@ -261,12 +261,12 @@ class _SortOptionTile extends StatelessWidget {
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: isSelected
-                      ? const Color(0xFF2D5FA6)
+                      ? const Color(0xFF3872B1)
                       : const Color(0xFFD1D5DB),
                   width: 2.w,
                 ),
                 color: isSelected
-                    ? const Color(0xFF2D5FA6)
+                    ? const Color(0xFF3872B1)
                     : Colors.transparent,
               ),
               child: isSelected
@@ -290,7 +290,7 @@ class _SortOptionTile extends StatelessWidget {
               Icon(
                 Icons.check_circle_rounded,
                 size: 18.sp,
-                color: const Color(0xFF2D5FA6),
+                color: const Color(0xFF3872B1),
               ),
           ],
         ),
@@ -333,7 +333,7 @@ class _LookupDropdown extends StatelessWidget {
                 height: 18.r,
                 child: const CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: Color(0xFF2D5FA6),
+                  color: Color(0xFF3872B1),
                 ),
               ),
             )
