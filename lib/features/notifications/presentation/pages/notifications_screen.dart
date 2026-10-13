@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:go_router/go_router.dart';
 import 'dart:async';
 
 import '../../../../core/widgets/app_blue_header.dart';
+import '../../data/model/notification_model.dart';
 import '../../push_notification_service.dart';
 import '../cubit/notification_cubit.dart';
 import '../cubit/notification_state.dart';
@@ -56,6 +58,50 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final position = _scrollController.position;
     if (position.pixels >= position.maxScrollExtent - 160.h) {
       context.read<NotificationCubit>().loadMore();
+    }
+  }
+
+  /// Opens a notification: marks it read, then routes by payload —
+  /// `ProviderId` (any casing) deep-links to the provider page,
+  /// `PackageId` resolves its provider first (loading dialog meanwhile).
+  Future<void> _openNotification(
+    BuildContext context,
+    NotificationModel notification,
+  ) async {
+    if (!notification.isRead) {
+      context.read<NotificationCubit>().markAsRead(notification.id);
+    }
+    final data = notification.data;
+    final rawProvider = data == null
+        ? null
+        : (data['ProviderId'] ?? data['providerId']);
+    final providerId = rawProvider is int
+        ? rawProvider
+        : int.tryParse('${rawProvider ?? ''}');
+    if (providerId != null && context.mounted) {
+      context.push('/provider-page', extra: providerId);
+      return;
+    }
+    final rawPackage = data == null
+        ? null
+        : (data['PackageId'] ?? data['packageId']);
+    final packageId = rawPackage is int
+        ? rawPackage
+        : int.tryParse('${rawPackage ?? ''}');
+    if (packageId == null || !context.mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+    final opened =
+        await PushNotificationService.openNotificationPackage(packageId);
+    if (!context.mounted) return;
+    Navigator.of(context).pop();
+    if (!opened && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('errors.something_went_wrong'.tr())),
+      );
     }
   }
 
@@ -140,6 +186,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       final notification = visibleItems[index];
                       return NotificationCard(
                         notification: notification,
+                        onTap: () => _openNotification(context, notification),
                         onMarkAsRead: notification.isRead
                             ? null
                             : () {

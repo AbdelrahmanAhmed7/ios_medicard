@@ -7,8 +7,12 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:medicard/core/constants/api_result.dart';
 import 'package:medicard/core/di/service_locator.dart';
+import 'package:medicard/core/routing/app_router.dart';
 import 'package:medicard/core/utils/platform_type.dart';
+import 'package:medicard/medicard_network/repository/medicard_network_repository.dart';
+import 'package:medicard/network/data/provider_page_response_model.dart';
 import 'package:medicard/features/notifications/data/domain/notification_repo.dart';
 import 'package:medicard/firebase_options.dart';
 
@@ -597,6 +601,8 @@ class PushNotificationService {
             actionId: response.actionId,
           ),
         );
+        // Same deep-link as in-app taps: provider page when present.
+        instance._navigateFromPayload(data);
       } catch (e) {
         if (kDebugMode) debugPrint('Error parsing notification payload: $e');
       }
@@ -612,7 +618,88 @@ class PushNotificationService {
         messageId: message.messageId,
       ),
     );
+    _navigateFromPayload(message.data);
   }
+
+  /// Deep-links a push payload. Priority: direct `ProviderId` →
+  /// provider page; else `PackageId` → fetch its provider (new backend
+  /// field) → provider page with the package sheet auto-opened.
+  /// Works from any app state via the static router since
+  /// these handlers have no BuildContext.
+  ///
+  /// NOTE: `PackageId`/`ServiceId` alone have no standalone destination —
+  /// package details only open as a sheet inside the provider page.
+  void _navigateFromPayload(Map<String, dynamic> data) {
+    final raw = data['ProviderId'] ?? data['providerId'];
+    final providerId = raw is int ? raw : int.tryParse('${raw ?? ''}');
+    if (providerId != null) {
+      if (kDebugMode) {
+        debugPrint('[Push] opening provider $providerId from notification');
+      }
+      AppRouter.current?.push('/provider-page', extra: providerId);
+      return;
+    }
+    final packageId = _intOrNull(
+      data['PackageId'] ?? data['packageId'],
+    );
+    if (packageId == null) {
+      if (kDebugMode) {
+        debugPrint(
+          '[Push] tap has no ProviderId '
+          '(package=${data['PackageId'] ?? data['packageId']}, '
+          'service=${data['ServiceId'] ?? data['serviceId']}), staying put',
+        );
+      }
+      return;
+    }
+    unawaited(_openPackageFromNotification(packageId));
+  }
+
+  /// Shared package deep-link: resolves the package's provider, then opens
+  /// the provider page with the package sheet auto-opened. Returns false
+  /// when the backend doesn't ship `providerId` yet (or the fetch fails).
+  static Future<bool> openNotificationPackage(int packageId) async {
+    try {
+      final ApiResult<PackageDetailsResponse> result =
+          await sl<MedicardNetworkRepository>().getPackageDetails(
+        packageId: packageId,
+      );
+      final resolvedProviderId = result.maybeWhen(
+        success: (response) => response.data?.providerId,
+        orElse: () => null,
+      );
+      if (resolvedProviderId == null) {
+        if (kDebugMode) {
+          debugPrint(
+            '[Push] package $packageId has no providerId yet',
+          );
+        }
+        return false;
+      }
+      AppRouter.current?.push(
+        '/provider-page',
+        extra: {
+          'providerId': resolvedProviderId,
+          'autoOpenPackageId': packageId,
+        },
+      );
+      return true;
+    } catch (e) {
+      if (kDebugMode) debugPrint('[Push] package resolve failed: $e');
+      return false;
+    }
+  }
+
+  Future<void> _openPackageFromNotification(int packageId) async {
+    final opened = await openNotificationPackage(packageId);
+    if (!opened && kDebugMode) {
+      debugPrint('[Push] could not deep-link package $packageId');
+    }
+  }
+
+  /// Parses backend ids that arrive as int or numeric string.
+  static int? _intOrNull(Object? raw) =>
+      raw is int ? raw : int.tryParse('${raw ?? ''}');
 
   /// Subscribe to topic
   Future<bool> subscribeToTopic(String topic) async {

@@ -28,7 +28,7 @@ abstract class NotificationClient {
     @Path("id") int id,
   );
 
-  @POST("Notification/read-all")
+  @PUT("Notification/read-all")
   Future<ApiResponse<dynamic>> markAllAsRead(
     @Header("Authorization") String token,
   );
