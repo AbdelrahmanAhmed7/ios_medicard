@@ -22,6 +22,7 @@ import 'core/theming/app_colors.dart';
 import 'core/theming/app_text_styles.dart';
 import 'core/theming/font_manager.dart';
 import 'features/notifications/push_notification_service.dart';
+import 'features/cart/presentation/widgets/floating_cart_button.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -230,7 +231,12 @@ class _MyAppState extends State<MyApp> {
                 supportedLocales: context.supportedLocales,
                 locale: context.locale,
                 builder: (context, child) {
-                  return child!;
+                  return Stack(
+                    children: [
+                      child!,
+                      const FloatingCartButton(),
+                    ],
+                  );
                 },
               ),
               if (_showSplash)

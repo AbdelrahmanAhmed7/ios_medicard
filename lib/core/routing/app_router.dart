@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -53,6 +54,14 @@ import '../helpers/shared_pref_helper.dart';
 import '../theming/app_toast.dart';
 
 class AppRouter {
+  /// Live router instance, set by [createRouter]. Used by widgets that live
+  /// outside the router subtree (e.g. app-wide overlays in MaterialApp
+  /// builder) and therefore can't use `context.push`.
+  static GoRouter? current;
+
+  /// Current location path, updated by [_LocationObserver]. Overlays listen
+  /// to hide themselves on specific screens (e.g. floating cart on cart).
+  static final ValueNotifier<String> currentLocation = ValueNotifier('');
   /// Determines the initial route based on the stored session state.
   ///
   /// Decision tree:
@@ -153,8 +162,9 @@ class AppRouter {
   }
 
   static GoRouter createRouter(String initialLocation) {
-    return GoRouter(
+    final router = GoRouter(
       navigatorKey: toastNavigatorKey,
+      observers: [_LocationObserver()],
       initialLocation: normalizeLocation(initialLocation),
       // Rebuilds all route pages when the language changes so that every
       // `.tr()` / `context.tr()` re-evaluates against the new locale.
@@ -544,7 +554,16 @@ class AppRouter {
         GoRoute(
           path: '/provider-page',
           builder: (context, state) {
-            final providerId = state.extra as int;
+            // int (legacy callers) or {providerId, autoOpenPackageId?} for
+            // notification deep-links that should open a package sheet.
+            final extra = state.extra;
+            if (extra is Map<String, dynamic>) {
+              return ProviderPageScreen(
+                providerId: extra['providerId'] as int,
+                autoOpenPackageId: extra['autoOpenPackageId'] as int?,
+              );
+            }
+            final providerId = extra as int;
             return ProviderPageScreen(providerId: providerId);
           },
         ),
@@ -565,5 +584,35 @@ class AppRouter {
         ),
       ],
     );
+    current = router;
+    return router;
   }
+}
+
+/// Reports the top route path to [AppRouter.currentLocation] on every
+/// navigation event so app-wide overlays can react to the current screen.
+class _LocationObserver extends NavigatorObserver {
+  void _update() {
+    final pages = navigator?.widget.pages;
+    final name =
+        (pages != null && pages.isNotEmpty) ? (pages.last.name ?? '') : '';
+    if (AppRouter.currentLocation.value != name) {
+      AppRouter.currentLocation.value = name;
+    }
+  }
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) =>
+      _update();
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) => _update();
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) =>
+      _update();
+
+  @override
+  void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) =>
+      _update();
 }
