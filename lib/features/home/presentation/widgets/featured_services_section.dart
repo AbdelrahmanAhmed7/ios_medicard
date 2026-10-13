@@ -7,12 +7,10 @@ import 'home_section_header.dart';
 
 class FeaturedServicesSection extends StatelessWidget {
   final List<FeaturedServiceModel> services;
-  final VoidCallback? onViewAll;
 
   const FeaturedServicesSection({
     super.key,
     required this.services,
-    this.onViewAll,
   });
 
   @override
@@ -20,7 +18,7 @@ class FeaturedServicesSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        HomeSectionHeader(title: 'home.featured_services'.tr(), onViewAll: onViewAll),
+        HomeSectionHeader(title: 'home.packages'.tr()),
         const SizedBox(height: 12),
         SizedBox(
           height: 274,

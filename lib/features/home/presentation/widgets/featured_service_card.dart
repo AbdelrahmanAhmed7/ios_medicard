@@ -1,17 +1,17 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/auth/auth_session_storage.dart';
 import '../../../../core/constants/api_result.dart';
 import '../../../../core/di/service_locator.dart';
+import '../../../../core/theming/app_text_styles.dart';
 import '../../../../core/theming/app_toast.dart';
 import '../../../../medicard_network/domain/usecases/get_package_details_usecase.dart';
 import '../../../../network/data/provider_page_response_model.dart';
 import '../../domain/models/featured_service_model.dart';
-
-import '../../../../core/theming/app_text_styles.dart';
 
 class FeaturedServiceCard extends StatefulWidget {
   final FeaturedServiceModel service;
@@ -42,9 +42,7 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
           border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(
-            15,
-          ), // حل مشكلة تسريب اللون الأبيض عند الحواف
+          borderRadius: BorderRadius.circular(15),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -53,21 +51,21 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                 children: [
                   Container(
                     color: const Color(0xFFEEF3FB),
-                    height: 159,
+                    height: 148,
                     width: double.infinity,
                     child: CachedNetworkImage(
                       imageUrl: service.imageUrl,
-                      height: 159,
+                      height: 148,
                       width: double.infinity,
-                      fit: BoxFit.contain,
+                      fit: BoxFit.cover,
                       placeholder: (context, url) => Container(
                         color: const Color(0xFFEEF3FB),
-                        height: 159,
+                        height: 148,
                         width: double.infinity,
                       ),
                       errorWidget: (context, url, error) => Container(
                         color: const Color(0xFFEEF3FB),
-                        height: 159,
+                        height: 148,
                         child: const Icon(
                           Icons.broken_image,
                           color: Color(0xFF9CA3AF),
@@ -135,7 +133,7 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
               // الفاصل بين الصورة والوصف
               const Divider(height: 1, thickness: 1, color: Color(0xFFE5E7EB)),
               Padding(
-                padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
+                padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
@@ -143,38 +141,38 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                     Text(
                       service.serviceName,
                       style: AppTextStyles.of(
-                        fontSize: 12,
+                        fontSize: 14.sp,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF1A1A2E),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 3),
                     Text(
                       service.providerName,
                       style: AppTextStyles.of(
-                        fontSize: 10,
+                        fontSize: 12.sp,
                         fontWeight: FontWeight.w400,
                         color: Color(0xFF6B7280),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 3),
                     Row(
                       children: [
                         const Icon(
                           Icons.location_on_outlined,
                           color: Color(0xFF9CA3AF),
-                          size: 10,
+                          size: 12,
                         ),
-                        const SizedBox(width: 2),
+                        const SizedBox(width: 3),
                         Expanded(
                           child: Text(
                             service.location,
                             style: AppTextStyles.of(
-                              fontSize: 10,
+                              fontSize: 11.5.sp,
                               fontWeight: FontWeight.w400,
                               color: Color(0xFF6B7280),
                             ),
@@ -184,55 +182,59 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 8),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          '${service.originalPrice.toInt()} EGP',
+                          'cart.egp_amount'.tr(
+                            args: ['${service.originalPrice.toInt()}'],
+                          ),
                           style: AppTextStyles.of(
-                            fontSize: 10,
+                            fontSize: 11.5.sp,
                             fontWeight: FontWeight.w400,
                             color: Color(0xFF9CA3AF),
                             decoration: TextDecoration.lineThrough,
                           ),
                         ),
-                        const SizedBox(width: 5),
+                        const SizedBox(width: 6),
                         Text(
-                          '${service.discountedPrice.toInt()} EGP',
+                          'cart.egp_amount'.tr(
+                            args: ['${service.discountedPrice.toInt()}'],
+                          ),
                           style: AppTextStyles.of(
-                            fontSize: 12,
+                            fontSize: 14.sp,
                             fontWeight: FontWeight.w700,
                             color: Color(0xFF3872B1),
                           ),
                         ),
                         const Spacer(),
                         SizedBox(
-                          height: 28,
+                          height: 30,
                           child: OutlinedButton(
                             onPressed: () => _bookPackage(context),
                             style: OutlinedButton.styleFrom(
                               backgroundColor: const Color(0xFF3872B1),
-                              foregroundColor: const Color(0xFF3872B1),
+                              foregroundColor: const Color(0xFFFFFFFF),
                               side: const BorderSide(
                                 color: Color(0xFF3872B1),
                                 width: 1.2,
                               ),
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
+                                horizontal: 16,
                               ),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(10),
                               ),
-                              minimumSize: const Size(0, 28),
+                              minimumSize: const Size(0, 30),
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               elevation: 0,
                             ),
                             child: Text(
                               'activity.book'.tr(),
                               style: AppTextStyles.of(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w400,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
                                 color: Color(0xFFFFFFFF),
                               ),
                             ),
@@ -406,7 +408,7 @@ class _PackageDetailsSheetContent extends StatelessWidget {
             imageUrl: image,
             height: 180,
             width: double.infinity,
-            fit: BoxFit.contain,
+            fit: BoxFit.cover,
             errorWidget: (_, _, _) => SizedBox(
               height: 180,
               width: double.infinity,
