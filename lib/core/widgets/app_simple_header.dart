@@ -81,8 +81,8 @@ class AppSimpleHeader extends StatelessWidget {
                             title!,
                             textAlign: TextAlign.left,
                             style: AppTextStyles.of(
-                              fontSize: 17.sp,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 26.sp,
+                              fontWeight: FontWeight.w700,
                               color: const Color(0xFF111827),
                             ),
                             maxLines: 1,

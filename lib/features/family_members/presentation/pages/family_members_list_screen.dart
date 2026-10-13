@@ -27,7 +27,7 @@ class _FamilyMembersListScreenState extends State<FamilyMembersListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: Colors.white,
       body: BlocConsumer<FamilyMembersCubit, FamilyMembersState>(
         listener: (context, state) {
           state.maybeWhen(orElse: () {});
@@ -68,7 +68,7 @@ class _FamilyMembersListScreenState extends State<FamilyMembersListScreen> {
                             child: Text(
                               'family_members.title'.tr(),
                               style: AppTextStyles.of(
-                                fontSize: 22.sp,
+                                fontSize: 26.sp,
                                 fontWeight: FontWeight.w700,
                                 color: const Color(0xFF111827),
                               ),
@@ -90,14 +90,35 @@ class _FamilyMembersListScreenState extends State<FamilyMembersListScreen> {
                                   .loadFamilyMembers();
                             },
                             child: ListView.builder(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 20.w,
-                                vertical: 16.h,
+                              padding: EdgeInsets.only(
+                                top: 8.h,
+                                bottom: 16.h,
                               ),
-                              itemCount: members.length,
+                              itemCount: members.length + 1,
                               itemBuilder: (context, index) {
+                                if (index == 0) {
+                                  return Padding(
+                                    padding: EdgeInsets.fromLTRB(
+                                      20.w,
+                                      4.h,
+                                      20.w,
+                                      8.h,
+                                    ),
+                                    child: Text(
+                                      'family_members.covered_members'.tr(),
+                                      style: AppTextStyles.of(
+                                        fontSize: 12.5.sp,
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing: 0.6,
+                                        color: const Color(0xFF6B7280),
+                                      ),
+                                    ),
+                                  );
+                                }
                                 return _FamilyMemberListItem(
-                                  member: members[index],
+                                  member: members[index - 1],
+                                  showDivider:
+                                      index < members.length,
                                 );
                               },
                             ),
@@ -166,36 +187,57 @@ class _FamilyMembersListScreenState extends State<FamilyMembersListScreen> {
 
 class _FamilyMemberListItem extends StatelessWidget {
   final FamilyMemberModel member;
+  final bool showDivider;
 
-  const _FamilyMemberListItem({required this.member});
+  const _FamilyMemberListItem({required this.member, this.showDivider = true});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 12.h),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(color: Colors.grey.shade200, width: 1),
-        ),
-        child: ListTile(
-          leading: _buildAvatar(member.imageUrl),
-          title: Text(
-            member.fullName ??
-                '${member.firstName ?? ''} ${member.lastName ?? ''}',
-            style: AppTextStyles.of(fontSize: 16.sp, fontWeight: FontWeight.w500),
-          ),
-          subtitle: Text(
-            RelationHelper.getLocalizedRelation(member.relation),
-            style: AppTextStyles.of(color: kAuthGreyText, fontSize: 14.sp),
-          ),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
+    final displayName =
+        member.fullName ??
+        '${member.firstName ?? ''} ${member.lastName ?? ''}'.trim();
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+          child: Row(
             children: [
-              IconButton(
-                icon: Icon(Icons.edit_outlined, color: Colors.grey),
-                onPressed: () {
+              _buildAvatar(member.imageUrl),
+              SizedBox(width: 14.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      displayName.isEmpty ? '—' : displayName,
+                      style: AppTextStyles.of(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF111827),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 3.h),
+                    Text(
+                      RelationHelper.getLocalizedRelation(member.relation),
+                      style: AppTextStyles.of(
+                        fontSize: 13.5.sp,
+                        color: const Color(0xFF6B7280),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              _CircleIconButton(
+                icon: Icons.edit_outlined,
+                foreground: const Color(0xFF475569),
+                background: const Color(0xFFF1F5F9),
+                onTap: () {
                   context.push(
                     '/family-members/edit',
                     extra: {
@@ -205,16 +247,19 @@ class _FamilyMemberListItem extends StatelessWidget {
                   );
                 },
               ),
-              IconButton(
-                icon: Icon(Icons.delete_outline, color: Colors.red),
-                onPressed: () {
-                  _showDeleteDialog(context, member);
-                },
+              SizedBox(width: 10.w),
+              _CircleIconButton(
+                icon: Icons.delete_outline_rounded,
+                foreground: const Color(0xFFDC2626),
+                background: const Color(0xFFFDECEC),
+                onTap: () => _showDeleteDialog(context, member),
               ),
             ],
           ),
         ),
-      ),
+        if (showDivider)
+          const Divider(height: 1, color: Color(0xFFEEF1F5)),
+      ],
     );
   }
 
@@ -252,18 +297,14 @@ class _FamilyMemberListItem extends StatelessWidget {
       return ClipOval(
         child: Image.network(
           imageUrl,
-          width: 48.r,
-          height: 48.r,
+          width: 56.r,
+          height: 56.r,
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) =>
               _buildPlaceholderAvatar(),
           loadingBuilder: (context, child, loadingProgress) {
             if (loadingProgress == null) return child;
-            return CircleAvatar(
-              radius: 24.r,
-              backgroundColor: Colors.grey.shade200,
-              child: const CircularProgressIndicator(),
-            );
+            return _buildPlaceholderAvatar();
           },
         ),
       );
@@ -273,9 +314,36 @@ class _FamilyMemberListItem extends StatelessWidget {
 
   Widget _buildPlaceholderAvatar() {
     return CircleAvatar(
-      radius: 24.r,
-      backgroundColor: Colors.grey.shade200,
-      child: Icon(Icons.person, color: Colors.grey, size: 24.sp),
+      radius: 28.r,
+      backgroundColor: const Color(0xFFE5E7EB),
+      child: Icon(Icons.person_rounded, color: const Color(0xFF9CA3AF), size: 28.sp),
+    );
+  }
+}
+
+class _CircleIconButton extends StatelessWidget {
+  final IconData icon;
+  final Color foreground;
+  final Color background;
+  final VoidCallback onTap;
+
+  const _CircleIconButton({
+    required this.icon,
+    required this.foreground,
+    required this.background,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 40.r,
+        height: 40.r,
+        decoration: BoxDecoration(color: background, shape: BoxShape.circle),
+        child: Icon(icon, color: foreground, size: 19.sp),
+      ),
     );
   }
 }

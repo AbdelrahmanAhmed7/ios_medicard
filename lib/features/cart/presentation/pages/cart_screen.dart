@@ -32,7 +32,7 @@ class _CartScreenState extends State<CartScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F6F9), // لون مقارب لخلفية الصورة
+      backgroundColor: Colors.white,
       body: Column(
         children: [
           SafeArea(
@@ -59,7 +59,7 @@ class _CartScreenState extends State<CartScreen> {
                     child: Text(
                       'cart.title'.tr(),
                       style: AppTextStyles.of(
-                        fontSize: 22.sp,
+                        fontSize: 26.sp,
                         fontWeight: FontWeight.w700,
                         color: const Color(0xFF111827),
                       ),

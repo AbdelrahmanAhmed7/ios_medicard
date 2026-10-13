@@ -50,7 +50,7 @@ class PendingAppointmentDetailsScreen extends StatelessWidget {
                     child: Text(
                       'activity.appointment_details'.tr(),
                       style: AppTextStyles.of(
-                        fontSize: 22.sp,
+                            fontSize: 26.sp,
                         fontWeight: FontWeight.w700,
                         color: const Color(0xFF111827),
                       ),

@@ -84,7 +84,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F8),
+      backgroundColor: Colors.white,
       body: BlocConsumer<CartCubit, CartState>(
         listenWhen: (previous, current) =>
             previous.createInvoiceError != current.createInvoiceError ||
@@ -157,7 +157,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                         child: Text(
                           'cart.checkout'.tr(),
                           style: AppTextStyles.of(
-                            fontSize: 22.sp,
+                            fontSize: 26.sp,
                             fontWeight: FontWeight.w700,
                             color: const Color(0xFF111827),
                           ),

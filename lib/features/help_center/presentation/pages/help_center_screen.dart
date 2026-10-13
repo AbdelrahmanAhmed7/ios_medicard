@@ -47,7 +47,7 @@ class HelpCenterScreen extends StatelessWidget {
                     child: Text(
                       'profile.help_center'.tr(),
                       style: AppTextStyles.of(
-                        fontSize: 22.sp,
+                            fontSize: 26.sp,
                         fontWeight: FontWeight.w700,
                         color: const Color(0xFF111827),
                       ),

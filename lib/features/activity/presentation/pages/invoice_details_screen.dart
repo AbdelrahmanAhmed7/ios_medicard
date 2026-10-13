@@ -50,14 +50,14 @@ class InvoiceDetailsScreen extends StatelessWidget {
                         }
                       },
                     ),
-                    Expanded(
-                      child: Text(
-                        'activity.appointment_details'.tr(),
-                        style: AppTextStyles.of(
-                          fontSize: 22.sp,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF111827),
-                        ),
+                      Expanded(
+                        child: Text(
+                          'activity.invoice_details_title'.tr(),
+                          style: AppTextStyles.of(
+                            fontSize: 26.sp,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF111827),
+                          ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -124,8 +124,12 @@ class _DetailsBody extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                'activity.order_number'.tr(args: ['${details.invoiceId}']),
-                style: AppTextStyles.of(fontSize: 18.sp, fontWeight: FontWeight.w700),
+                'activity.invoice_number'.tr(args: ['${details.invoiceId}']),
+                style: AppTextStyles.of(
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF0F172A),
+                ),
               ),
             ),
             _StatusBadge(status: details.status),
@@ -233,8 +237,8 @@ class _ProviderHeader extends StatelessWidget {
         children: [
           ClipOval(
             child: SizedBox(
-              width: 52.r,
-              height: 52.r,
+              width: 56.r,
+              height: 56.r,
               child: imageUrl == null
                   ? const Icon(Icons.local_hospital, color: Color(0xFF3872B1))
                   : CachedNetworkImage(
@@ -255,17 +259,22 @@ class _ProviderHeader extends StatelessWidget {
                 Text(
                   invoice.providerName,
                   style: AppTextStyles.of(
-                    fontSize: 16.sp,
+                    fontSize: 17.sp,
                     fontWeight: FontWeight.w700,
+                    color: const Color(0xFF0F172A),
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: 4.h),
+                SizedBox(height: 3.h),
                 Text(
                   invoice.branchName,
                   style: AppTextStyles.of(
-                    fontSize: 13.sp,
+                    fontSize: 13.5.sp,
                     color: const Color(0xFF6B7280),
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),

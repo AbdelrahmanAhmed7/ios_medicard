@@ -144,7 +144,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         );
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFFF8F9FA),
+        backgroundColor: Colors.white,
         body: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           behavior: HitTestBehavior.opaque,
@@ -179,7 +179,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                             child: Text(
                               'profile.change_password'.tr(),
                               style: AppTextStyles.of(
-                                fontSize: 22.sp,
+                                fontSize: 26.sp,
                                 fontWeight: FontWeight.w700,
                                 color: const Color(0xFF111827),
                               ),
@@ -338,6 +338,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         errorStyle: AppTextStyles.of(
           fontSize: 12.sp,
           height: 1.3,
+        ),
+        prefixIcon: Icon(
+          Icons.lock_outline_rounded,
+          color: Colors.grey.shade400,
+          size: 20.sp,
         ),
         suffixIcon: IconButton(
           icon: Icon(
