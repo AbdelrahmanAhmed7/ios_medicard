@@ -317,6 +317,10 @@ class PackageDetailsData {
   final double? discountPercentage;
   final List<String>? serviceNames;
 
+  /// Resolves once the backend ships it with `GET Package/{id}`.
+  /// Null on older backends — callers must fall back gracefully.
+  final int? providerId;
+
   PackageDetailsData({
     this.id,
     this.name,
@@ -326,6 +330,7 @@ class PackageDetailsData {
     this.priceAfter,
     this.discountPercentage,
     this.serviceNames,
+    this.providerId,
   });
 
   factory PackageDetailsData.fromJson(Map<String, dynamic> json) =>

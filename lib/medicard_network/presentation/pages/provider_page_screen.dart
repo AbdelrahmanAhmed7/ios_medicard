@@ -10,12 +10,21 @@ import '../widgets/provider_cart_bar.dart';
 import '../widgets/provider_content_section.dart';
 import '../widgets/provider_search_row.dart';
 import '../widgets/provider_top_header.dart';
+import '../widgets/package_details_sheet.dart';
 
 
 class ProviderPageScreen extends StatefulWidget {
   final int providerId;
 
-  const ProviderPageScreen({super.key, required this.providerId});
+  /// When set (notification deep-link), the package sheet opens
+  /// automatically once the page data is ready.
+  final int? autoOpenPackageId;
+
+  const ProviderPageScreen({
+    super.key,
+    required this.providerId,
+    this.autoOpenPackageId,
+  });
 
   @override
   State<ProviderPageScreen> createState() => _ProviderPageScreenState();
@@ -46,13 +55,18 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                   cubit.switchView(cubit.state.catalogView);
                 }
               },
-              child: Column(
-                children: [
-                  ProviderTopHeader(
+            child: Column(
+              children: [
+                ProviderTopHeader(
+                  selectedBranch: _selectedBranch,
+                  onBranchTap: _openBranchSelector,
+                ),
+                if (widget.autoOpenPackageId != null)
+                  _AutoOpenPackage(
+                    packageId: widget.autoOpenPackageId!,
                     selectedBranch: _selectedBranch,
-                    onBranchTap: _openBranchSelector,
                   ),
-                  Expanded(
+                Expanded(
                     child: NotificationListener<ScrollNotification>(
                       onNotification: (scrollInfo) =>
                           _handleScrollNotification(
@@ -131,4 +145,64 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
       setState(() => _selectedBranch = selected);
     }
   }
+}
+
+/// Opens a package sheet automatically once (notification deep-link).
+/// Loads the provider packages (a few pages max) and opens the sheet for
+/// [packageId]; silently gives up and leaves the user on the provider page
+/// when the package isn't found.
+class _AutoOpenPackage extends StatefulWidget {
+  final int packageId;
+  final ProviderBranch? selectedBranch;
+
+  const _AutoOpenPackage({required this.packageId, this.selectedBranch});
+
+  @override
+  State<_AutoOpenPackage> createState() => _AutoOpenPackageState();
+}
+
+class _AutoOpenPackageState extends State<_AutoOpenPackage> {
+  bool _done = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _open());
+  }
+
+  Future<void> _open() async {
+    if (!mounted) return;
+    final cubit = context.read<ProviderPageCubit>();
+    // Wait for the provider header data (loaded by the screen's init).
+    for (var i = 0; i < 40 && mounted; i++) {
+      final state = cubit.state;
+      if (state.providerData != null || state.providerError != null) break;
+      await Future<void>.delayed(const Duration(milliseconds: 250));
+    }
+    if (!mounted || _done) return;
+    if (cubit.state.providerData == null) return;
+    _done = true;
+    await cubit.loadPackages(reset: true);
+    for (var page = 0; page < 3; page++) {
+      if (!mounted) return;
+      final found = cubit.state.packages
+          .where((p) => p.id == widget.packageId)
+          .firstOrNull;
+      if (found != null) {
+        if (!mounted) return;
+        openPackageDetailsSheet(
+          context,
+          cubit,
+          found,
+          widget.selectedBranch,
+        );
+        return;
+      }
+      if (!cubit.state.packagesHasMore) return;
+      await cubit.loadPackages();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => const SizedBox.shrink();
 }
