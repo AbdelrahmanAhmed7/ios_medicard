@@ -19,7 +19,7 @@ class ChooseProviderScreen extends StatelessWidget {
     return BlocBuilder<CartCubit, CartState>(
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: const Color(0xFFF8FAFC),
+          backgroundColor: Colors.white,
           body: Column(
             children: [
               SafeArea(
@@ -212,13 +212,6 @@ class _ProviderCard extends StatelessWidget {
                 : const Color(0xFFE8EDF3),
             width: isSelected ? 2 : 1,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF0F172A).withValues(alpha: 0.05),
-              blurRadius: 14,
-              offset: const Offset(0, 5),
-            ),
-          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -347,7 +340,7 @@ class _ProviderCard extends StatelessWidget {
                       Text(
                         'cart.egp_amount'.tr(
                           args: [
-                            service.priceBefore!.toStringAsFixed(0),
+                            _money(service.priceBefore!),
                           ],
                         ),
                         style: AppTextStyles.of(
@@ -360,8 +353,9 @@ class _ProviderCard extends StatelessWidget {
                     Text(
                       'cart.egp_amount'.tr(
                         args: [
-                          (service.priceAfter ?? service.priceBefore ?? 0)
-                              .toStringAsFixed(0),
+                          _money(
+                            service.priceAfter ?? service.priceBefore ?? 0,
+                          ),
                         ],
                       ),
                       style: AppTextStyles.of(
@@ -425,7 +419,7 @@ class _ProviderCard extends StatelessWidget {
                 Text(
                   'cart.egp_amount'.tr(
                     args: [
-                      provider.totalPriceBefore.toStringAsFixed(0),
+                      _money(provider.totalPriceBefore),
                     ],
                   ),
                   style: AppTextStyles.of(
@@ -437,7 +431,7 @@ class _ProviderCard extends StatelessWidget {
                 SizedBox(width: 6.w),
                 Text(
                   'cart.egp_amount'.tr(
-                    args: [provider.totalPriceAfter.toStringAsFixed(0)],
+                    args: [_money(provider.totalPriceAfter)],
                   ),
                   style: AppTextStyles.of(
                     fontSize: 16.sp,
@@ -489,7 +483,7 @@ class _ChooseProviderBottomBar extends StatelessWidget {
               ),
               Text(
                 'cart.egp_amount'.tr(
-                  args: [provider.totalPriceAfter.toStringAsFixed(0)],
+                  args: [_money(provider.totalPriceAfter)],
                 ),
                 style: AppTextStyles.of(
                   fontSize: 16.sp,
@@ -517,11 +511,16 @@ class _ChooseProviderBottomBar extends StatelessWidget {
                               .assignProvider(provider);
                           if (context.mounted) {
                             if (didAssign) {
-                              // Plain push (not replacement) so Back from
-                              // checkout returns here to pick another provider.
+                              // Share THIS cubit instance (not a fresh one) so
+                              // checkout keeps the just-confirmed selection and
+                              // its fresh prices. Plain push keeps this page in
+                              // the stack for Back navigation.
                               context.push(
                                 '/checkout',
-                                extra: {'providerId': provider.providerId},
+                                extra: {
+                                  'cubit': context.read<CartCubit>(),
+                                  'providerId': provider.providerId,
+                                },
                               );
                             } else {
                               final error = context
@@ -682,4 +681,10 @@ class _ErrorView extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Same rule as the checkout/invoice totals: whole for integers, two
+/// decimals otherwise — so this screen never disagrees with checkout.
+String _money(double value) {
+  return value % 1 == 0 ? value.toStringAsFixed(0) : value.toStringAsFixed(2);
 }

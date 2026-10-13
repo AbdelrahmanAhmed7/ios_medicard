@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../../../core/constants/api_result.dart';
 import '../../../../core/utils/api_error_parser.dart';
 import '../../../../features/activity/domain/repositories/invoice_repository.dart';
@@ -35,9 +36,6 @@ class CartCubit extends Cubit<CartState> {
     this.providerId,
   }) : _cartSyncService = cartSyncService,
        super(const CartState()) {
-    // Every CartCubit instance (cart screen, provider page, search, …)
-    // re-syncs whenever any of them mutates the cart, so no screen keeps
-    // stale items.
     _cartSyncSubscription = _cartSyncService.stream.listen(
       (_) => refreshCart(),
     );
@@ -49,9 +47,6 @@ class CartCubit extends Cubit<CartState> {
     return super.close();
   }
 
-  /// Silent cart re-fetch (no loading shimmer): converges every instance to
-  /// the server truth after any mutation, local or remote. Concurrent calls
-  /// join the in-flight request instead of stacking up.
   Future<void> refreshCart() {
     if (isClosed) return Future.value();
     final ongoing = _cartRefresh;
@@ -390,13 +385,10 @@ class CartCubit extends Cubit<CartState> {
       }
     }
 
-    final selectedProvider = _resolveCheckoutProvider(
+    final checkoutProvider = await _resolveCheckoutProvider(
       cart: cart,
       initialProviderId: initialProviderId ?? providerId,
     );
-    final checkoutProvider =
-        selectedProvider ??
-        await _loadProviderOption(initialProviderId ?? providerId);
     if (isClosed) return;
 
     if (checkoutProvider == null) {
@@ -420,101 +412,46 @@ class CartCubit extends Cubit<CartState> {
     ]);
   }
 
-  Future<ProviderOption?> _loadProviderOption(int? providerId) async {
-    if (providerId == null) return null;
-    final result = await _networkRepository.getProviderPage(
-      providerId: providerId,
-    );
-    return result.maybeWhen(
-      success: (response) {
-        final data = response.data;
-        if (data == null) return null;
-        return ProviderOption(
-          providerId: data.id,
-          providerName: data.name,
-          coveredCount: 1,
-          uncoveredCount: 0,
-          totalCount: 1,
-          totalPriceBefore: state.checkoutPackagePriceBefore ?? 0,
-          totalPriceAfter:
-              state.checkoutPackagePriceAfter ??
-              state.checkoutPackagePriceBefore ??
-              0,
-          coveredServices: const [],
-          uncoveredServices: const [],
-        );
-      },
-      orElse: () => null,
-    );
-  }
-
-  ProviderOption? _resolveCheckoutProvider({
+  Future<ProviderOption?> _resolveCheckoutProvider({
     required Cart? cart,
     required int? initialProviderId,
-  }) {
-    final explicitProviderId =
-        initialProviderId ?? state.checkoutProvider?.providerId;
-    if (explicitProviderId != null) {
-      final fromSelected = state.selectedProvider;
-      if (fromSelected?.providerId == explicitProviderId) return fromSelected;
-
-      final fromCheckout = state.checkoutProvider;
-      if (fromCheckout?.providerId == explicitProviderId) return fromCheckout;
-
-      for (final provider in state.providers) {
-        if (provider.providerId == explicitProviderId) return provider;
-      }
-    }
-
-    if (state.selectedProvider != null) return state.selectedProvider;
-    if (state.checkoutProvider != null) return state.checkoutProvider;
-
-    final items = cart?.items ?? const <CartItem>[];
-    final providerIds = items
-        .where((item) => item.providerId != null)
-        .map((item) => item.providerId!)
-        .toSet();
-
-    if (providerIds.isEmpty) return null;
-
-    final targetProviderId =
-        explicitProviderId != null && providerIds.contains(explicitProviderId)
-        ? explicitProviderId
-        : providerIds.first;
-    final providerItems = items
-        .where((item) => item.providerId == targetProviderId)
-        .toList();
-    if (providerItems.isEmpty) return null;
-
-    return _providerFromCartItems(targetProviderId, providerItems);
+  }) async {
+    final targetId =
+        initialProviderId ??
+        state.selectedProvider?.providerId ??
+        _singleCartProviderId(cart);
+    if (targetId == null) return null;
+    return _freshProviderOption(targetId);
   }
 
-  ProviderOption _providerFromCartItems(int providerId, List<CartItem> items) {
-    String providerName = 'Selected provider';
-    for (final item in items) {
-      if (item.providerName?.isNotEmpty == true) {
-        providerName = item.providerName!;
-        break;
-      }
-    }
-    final totalPriceBefore = items.fold<double>(
-      0,
-      (sum, item) => sum + (item.priceBefore ?? item.priceAfter ?? 0),
-    );
-    final totalPriceAfter = items.fold<double>(
-      0,
-      (sum, item) => sum + (item.priceAfter ?? item.priceBefore ?? 0),
-    );
-    return ProviderOption(
-      providerId: providerId,
-      providerName: providerName,
-      coveredCount: items.length,
-      uncoveredCount: 0,
-      totalCount: items.length,
-      totalPriceBefore: totalPriceBefore,
-      totalPriceAfter: totalPriceAfter,
-      coveredServices: const [],
-      uncoveredServices: const [],
+  int? _singleCartProviderId(Cart? cart) {
+    final ids = {
+      for (final item in cart?.items ?? const <CartItem>[])
+        if (item.providerId != null) item.providerId!,
+    };
+    return ids.length == 1 ? ids.first : null;
+  }
+
+  Future<ProviderOption?> _freshProviderOption(int providerId) async {
+    final result = await _repository.getChooseProviders();
+    if (isClosed) return null;
+    return result.when(
+      success: (providers) {
+        if (isClosed) return null;
+        ProviderOption? match;
+        for (final p in providers) {
+          if (p.providerId == providerId) match = p;
+        }
+        emit(
+          state.copyWith(
+            providers: providers,
+            isProvidersLoading: false,
+            selectedProvider: match ?? state.selectedProvider,
+          ),
+        );
+        return match;
+      },
+      failure: (_) => null,
     );
   }
 
