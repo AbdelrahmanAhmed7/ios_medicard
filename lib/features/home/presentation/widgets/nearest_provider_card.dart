@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import '../../domain/models/provider_model.dart';
 
+import '../../../../core/services/url_launcher_service.dart';
 import '../../../../core/theming/app_text_styles.dart';
 
 class NearestProviderCard extends StatelessWidget {
@@ -34,22 +37,22 @@ class NearestProviderCard extends StatelessWidget {
                 children: [
                   Container(
                     color: const Color(0xFFEEF3FB),
-                    height: 159,
+                    height: 148,
                     width: double.infinity,
                     child: CachedNetworkImage(
                       imageUrl: provider.imageUrl,
-                      height: 159,
+                      height: 148,
                       width: double.infinity,
                       fit: BoxFit.cover,
                       alignment: Alignment.center,
                       placeholder: (context, url) => Container(
                         color: const Color(0xFFEEF3FB),
-                        height: 159,
+                        height: 148,
                         width: double.infinity,
                       ),
                       errorWidget: (context, url, error) => Container(
                         color: const Color(0xFFEEF3FB),
-                        height: 159,
+                        height: 148,
                         width: double.infinity,
                         child: const Icon(
                           Icons.broken_image,
@@ -180,6 +183,73 @@ class NearestProviderCard extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
+                        ],
+                      ),
+                    ],
+                    if (provider.distanceKm != null ||
+                        provider.mapUrl.isNotEmpty) ...[
+                      SizedBox(height: 8.h),
+                      Row(
+                        children: [
+                          if (provider.distanceKm != null)
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 9.w,
+                                vertical: 5.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFEFF6FF),
+                                borderRadius: BorderRadius.circular(20.r),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.navigation_outlined,
+                                    size: 12.sp,
+                                    color: const Color(0xFF3872B1),
+                                  ),
+                                  SizedBox(width: 4.w),
+                                  Text(
+                                    '${provider.distanceKm!.toStringAsFixed(1)} km',
+                                    style: AppTextStyles.of(
+                                      fontSize: 11.sp,
+                                      fontWeight: FontWeight.w600,
+                                      color: const Color(0xFF3872B1),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          const Spacer(),
+                          if (provider.mapUrl.isNotEmpty)
+                            TextButton.icon(
+                              onPressed: () => UrlLauncherService().launchURL(
+                                provider.mapUrl,
+                              ),
+                              icon: Icon(
+                                Icons.map_outlined,
+                                size: 14.sp,
+                                color: const Color(0xFF3872B1),
+                              ),
+                              label: Text(
+                                'provider_page.open_map'.tr(),
+                                style: AppTextStyles.of(
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFF3872B1),
+                                ),
+                              ),
+                              style: TextButton.styleFrom(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 6.w,
+                                  vertical: 2.h,
+                                ),
+                                minimumSize: Size.zero,
+                                tapTargetSize:
+                                    MaterialTapTargetSize.shrinkWrap,
+                              ),
+                            ),
                         ],
                       ),
                     ],

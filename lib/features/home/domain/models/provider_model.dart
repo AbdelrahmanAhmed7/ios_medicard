@@ -7,6 +7,8 @@ class ProviderModel {
   final String type;
   final String location;
   final List<String> badges;
+  final String mapUrl;
+  final double? distanceKm;
 
   const ProviderModel({
     this.providerId,
@@ -17,5 +19,7 @@ class ProviderModel {
     required this.type,
     required this.location,
     this.badges = const [],
+    this.mapUrl = '',
+    this.distanceKm,
   });
 }

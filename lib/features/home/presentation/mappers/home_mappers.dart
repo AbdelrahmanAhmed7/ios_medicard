@@ -18,6 +18,8 @@ List<ProviderModel> mapProviders(List<HomeNearestProvider> raw) {
       type: _textOrEmpty(p.branchName),
       location: _textOrEmpty(p.fullAddress),
       badges: const [],
+      mapUrl: _textOrEmpty(p.mapUrl),
+      distanceKm: p.distanceKm,
     );
   }).toList();
 }
