@@ -38,13 +38,6 @@ class InvoiceCard extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16.r),
           border: Border.all(color: const Color(0xFFE5E9F0), width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF0F172A).withValues(alpha: 0.05),
-              blurRadius: 16,
-              offset: const Offset(0, 6),
-            ),
-          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

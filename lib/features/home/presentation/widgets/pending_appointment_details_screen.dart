@@ -2,10 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../core/utils/app_date_formatter.dart';
-import '../../../../core/widgets/app_blue_header.dart';
 import '../../domain/models/appointment_model.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
@@ -25,13 +23,44 @@ class PendingAppointmentDetailsScreen extends StatelessWidget {
     final hasService = appointment.service.isNotEmpty;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F8),
+      backgroundColor: Colors.white,
       body: Column(
         children: [
-          AppBlueHeader(
-            title: 'activity.appointment_details'.tr(),
-            bottomRadius: 18,
-            onBack: () => context.pop(),
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(8.w, 10.h, 20.w, 6.h),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  IconButton(
+                    visualDensity: VisualDensity.compact,
+                    icon: Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: const Color(0xFF111827),
+                      size: 22.sp,
+                    ),
+                    onPressed: () {
+                      if (Navigator.of(context).canPop()) {
+                        Navigator.of(context).pop();
+                      }
+                    },
+                  ),
+                  Expanded(
+                    child: Text(
+                      'activity.appointment_details'.tr(),
+                      style: AppTextStyles.of(
+                        fontSize: 22.sp,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF111827),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
           Expanded(
             child: ListView(
@@ -40,8 +69,8 @@ class PendingAppointmentDetailsScreen extends StatelessWidget {
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(12.r),
-                    border: Border.all(color: const Color(0xFFD5D5D5)),
+                    borderRadius: BorderRadius.circular(16.r),
+                    border: Border.all(color: const Color(0xFFE5E9F0)),
                   ),
                   child: Column(
                     children: [
@@ -79,7 +108,7 @@ class PendingAppointmentDetailsScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const Divider(height: 1, color: Color(0xFFD5D5D5)),
+                      const Divider(height: 1, color: Color(0xFFEEF1F5)),
                       if (hasDate)
                         _InfoRow(
                           label: 'activity.date'.tr(),
@@ -88,7 +117,7 @@ class PendingAppointmentDetailsScreen extends StatelessWidget {
                               '${AppDateFormatter.formatTime(appointment.date, context.locale.languageCode)}',
                         ),
                       if (hasDate && hasService)
-                        const Divider(height: 1, color: Color(0xFFD5D5D5)),
+                        const Divider(height: 1, color: Color(0xFFEEF1F5)),
                       if (hasService)
                         _InfoRow(
                           label: 'activity.service'.tr(),
@@ -142,15 +171,17 @@ class _InfoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 15.h),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: Text(
               label,
               style: AppTextStyles.of(
-                fontSize: 15.sp,
+                fontSize: 14.sp,
                 fontWeight: FontWeight.w400,
+                color: const Color(0xFF6B7280),
               ),
             ),
           ),
@@ -163,8 +194,8 @@ class _InfoRow extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: AppTextStyles.of(
                 fontSize: 14.sp,
-                fontWeight: FontWeight.w400,
-                color: const Color(0xFF4B5563),
+                fontWeight: FontWeight.w500,
+                color: const Color(0xFF111827),
               ),
             ),
           ),

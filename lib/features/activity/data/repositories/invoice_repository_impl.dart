@@ -85,6 +85,12 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
             )
             .toList();
 
+        // TEMP-STATUS-DEBUG: remove after diagnosing Arabic status issue.
+        debugPrint(
+          '[TEMP] my-invoices tab=$tab lang=${AppLanguageManager.instance.currentLanguage} '
+          'statuses=${items.map((e) => '${e.invoiceId}:${e.status}').join(', ')}',
+        );
+
         final invoicesPage = InvoicesPage(
           items: items,
           pageNumber: page?.pageNumber ?? pageNumber,
