@@ -9,7 +9,8 @@ class CheckoutSummaryRow extends StatelessWidget {
   final Color? valueColor;
   final bool isBold;
 
-  const CheckoutSummaryRow({super.key,
+  const CheckoutSummaryRow({
+    super.key,
     required this.label,
     required this.value,
     this.valueColor,
@@ -19,7 +20,7 @@ class CheckoutSummaryRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
+      padding: EdgeInsets.symmetric(vertical: 6.h),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -27,13 +28,15 @@ class CheckoutSummaryRow extends StatelessWidget {
             child: Text(
               label,
               style: AppTextStyles.of(
-                fontSize: 14.sp,
-                fontWeight: isBold ? FontWeight.w600 : FontWeight.w400,
-                color: const Color(0xFF6B7280),
+                fontSize: isBold ? 15.sp : 14.sp,
+                fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
+                color: isBold
+                    ? const Color(0xFF111827)
+                    : const Color(0xFF6B7280),
               ),
             ),
           ),
-          SizedBox(width: 12.w),
+          SizedBox(width: 16.w),
           Flexible(
             child: Text(
               value,
@@ -41,8 +44,8 @@ class CheckoutSummaryRow extends StatelessWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: AppTextStyles.of(
-                fontSize: isBold ? 16.sp : 14.sp,
-                fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
+                fontSize: isBold ? 17.sp : 14.sp,
+                fontWeight: isBold ? FontWeight.w700 : FontWeight.w600,
                 color: valueColor ?? const Color(0xFF111827),
               ),
             ),

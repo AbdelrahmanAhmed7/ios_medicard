@@ -9,7 +9,11 @@ class ActivityErrorView extends StatelessWidget {
   final String error;
   final VoidCallback onRetry;
 
-  const ActivityErrorView({super.key, required this.error, required this.onRetry});
+  const ActivityErrorView({
+    super.key,
+    required this.error,
+    required this.onRetry,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +28,10 @@ class ActivityErrorView extends StatelessWidget {
             Text(
               error,
               textAlign: TextAlign.center,
-              style: AppTextStyles.of(fontSize: 14.sp, color: const Color(0xFF6B7280)),
+              style: AppTextStyles.of(
+                fontSize: 14.sp,
+                color: const Color(0xFF6B7280),
+              ),
             ),
             SizedBox(height: 16.h),
             ElevatedButton(

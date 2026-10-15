@@ -47,7 +47,12 @@ class _FloatingCartButtonState extends State<FloatingCartButton> {
     _locationRefreshScheduled = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _locationRefreshScheduled = false;
-      if (mounted) setState(() {});
+      if (!mounted) return;
+      setState(() {});
+      // Re-sync on every navigation: entering a visible route (e.g. home
+      // right after login) must re-fetch instead of trusting a stale 0.
+      // _refreshCount no-ops on hidden routes by itself.
+      _refreshCount();
     });
   }
 
@@ -58,29 +63,62 @@ class _FloatingCartButtonState extends State<FloatingCartButton> {
     super.dispose();
   }
 
+  /// Guards overlapping fetches (init + rapid sync events): only the
+  /// latest response is allowed to touch [_count].
+  int _refreshGeneration = 0;
+
   Future<void> _refreshCount() async {
+    // No cart on auth/guest screens — also avoids unauthenticated calls.
+    // Any stale count from a previous session is dropped here.
+    if (_isHiddenRoute(AppRouter.currentLocation.value)) {
+      if (mounted && _count != 0) setState(() => _count = 0);
+      return;
+    }
+    final generation = ++_refreshGeneration;
     try {
       final ApiResult<Cart> result = await sl<CartRepository>().getCart();
-      if (!mounted) return;
+      if (!mounted || generation != _refreshGeneration) return;
       result.when(
         success: (cart) {
-          if (!mounted) return;
+          if (!mounted || generation != _refreshGeneration) return;
           final count = cart.totalCount;
           if (count != _count) setState(() => _count = count);
         },
         failure: (_) {
-          if (!mounted) return;
-          if (_count != 0) setState(() => _count = 0);
+          // Keep the last known count: a transient failure (offline blip,
+          // timeout, token mid-refresh) must not hide a non-empty cart.
+          // The count still resets on hidden routes and on the next
+          // successful fetch.
         },
       );
     } catch (_) {}
   }
 
+  /// Routes where the cart button must never appear: the purchase flow
+  /// itself plus every screen reachable without a logged-in shopping
+  /// session (auth, onboarding, guest, activation).
+  static const _cartHiddenRoutes = <String>{
+    '/cart',
+    '/checkout',
+    '/medicard-login',
+    '/medicard-register',
+    '/forgot-password',
+    '/onboarding',
+    '/medicard-activation',
+    '/guest-home',
+  };
+
+  static bool _isHiddenRoute(String location) {
+    for (final route in _cartHiddenRoutes) {
+      if (location == route || location.startsWith('$route/')) return true;
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    // No point floating over the purchase flow itself.
     final location = AppRouter.currentLocation.value;
-    if (location == '/cart' || location == '/checkout') {
+    if (_isHiddenRoute(location)) {
       return const SizedBox.shrink();
     }
     if (_count <= 0) return const SizedBox.shrink();

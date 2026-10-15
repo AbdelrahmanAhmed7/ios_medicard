@@ -38,7 +38,7 @@ class _CartScreenState extends State<CartScreen> {
           SafeArea(
             bottom: false,
             child: Padding(
-              padding: EdgeInsets.fromLTRB(8.w, 10.h, 20.w, 6.h),
+              padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 6.h),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -103,7 +103,6 @@ class _CartScreenState extends State<CartScreen> {
                 }
                 return CartBody(
                   items: items,
-                  categoryCounters: state.cart?.categoryCounters ?? [],
                   initialProviderId: widget.initialProviderId,
                   initialBranch: widget.initialBranch,
                   syncError: state.cartError,

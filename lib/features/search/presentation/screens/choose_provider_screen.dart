@@ -12,7 +12,11 @@ import '../../../cart/presentation/cubit/cart_state.dart';
 import '../../../../core/theming/app_text_styles.dart';
 
 class ChooseProviderScreen extends StatelessWidget {
-  const ChooseProviderScreen({super.key});
+  /// When opened from the cart, confirming a provider should return to the
+  /// existing cart (and its shared cubit) instead of creating a checkout.
+  final bool returnToPreviousCart;
+
+  const ChooseProviderScreen({super.key, this.returnToPreviousCart = false});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +29,7 @@ class ChooseProviderScreen extends StatelessWidget {
               SafeArea(
                 bottom: false,
                 child: Padding(
-                  padding: EdgeInsets.fromLTRB(8.w, 10.h, 20.w, 6.h),
+                  padding: EdgeInsets.fromLTRB(8.w, 16.h, 8.w, 6.h),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -81,7 +85,10 @@ class ChooseProviderScreen extends StatelessWidget {
               Expanded(child: _buildBody(context, state)),
               // Bottom bar — only when a provider is selected
               if (state.selectedProvider != null)
-                _ChooseProviderBottomBar(provider: state.selectedProvider!),
+                _ChooseProviderBottomBar(
+                  provider: state.selectedProvider!,
+                  returnToPreviousCart: returnToPreviousCart,
+                ),
             ],
           ),
         );
@@ -124,7 +131,6 @@ class ChooseProviderScreen extends StatelessWidget {
   }
 }
 
-
 /// Small coverage pill under the provider name.
 class _CoveragePill extends StatelessWidget {
   final ProviderOption provider;
@@ -151,7 +157,9 @@ class _CoveragePill extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            coversAll ? Icons.check_circle_rounded : Icons.warning_amber_rounded,
+            coversAll
+                ? Icons.check_circle_rounded
+                : Icons.warning_amber_rounded,
             size: 13.sp,
             color: foreground,
           ),
@@ -182,7 +190,6 @@ class _CoveragePill extends StatelessWidget {
     );
   }
 }
-
 
 class _ProviderCard extends StatelessWidget {
   final ProviderOption provider;
@@ -339,9 +346,7 @@ class _ProviderCard extends StatelessWidget {
                     if (service.priceBefore != null)
                       Text(
                         'cart.egp_amount'.tr(
-                          args: [
-                            _money(service.priceBefore!),
-                          ],
+                          args: [_money(service.priceBefore!)],
                         ),
                         style: AppTextStyles.of(
                           fontSize: 11.sp,
@@ -418,9 +423,7 @@ class _ProviderCard extends StatelessWidget {
                 const Spacer(),
                 Text(
                   'cart.egp_amount'.tr(
-                    args: [
-                      _money(provider.totalPriceBefore),
-                    ],
+                    args: [_money(provider.totalPriceBefore)],
                   ),
                   style: AppTextStyles.of(
                     fontSize: 12.sp,
@@ -448,10 +451,14 @@ class _ProviderCard extends StatelessWidget {
   }
 }
 
-
 class _ChooseProviderBottomBar extends StatelessWidget {
   final ProviderOption provider;
-  const _ChooseProviderBottomBar({required this.provider});
+  final bool returnToPreviousCart;
+
+  const _ChooseProviderBottomBar({
+    required this.provider,
+    required this.returnToPreviousCart,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -482,9 +489,7 @@ class _ChooseProviderBottomBar extends StatelessWidget {
                 ),
               ),
               Text(
-                'cart.egp_amount'.tr(
-                  args: [_money(provider.totalPriceAfter)],
-                ),
+                'cart.egp_amount'.tr(args: [_money(provider.totalPriceAfter)]),
                 style: AppTextStyles.of(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.bold,
@@ -511,17 +516,14 @@ class _ChooseProviderBottomBar extends StatelessWidget {
                               .assignProvider(provider);
                           if (context.mounted) {
                             if (didAssign) {
-                              // Share THIS cubit instance (not a fresh one) so
-                              // checkout keeps the just-confirmed selection and
-                              // its fresh prices. Plain push keeps this page in
-                              // the stack for Back navigation.
-                              context.push(
-                                '/checkout',
-                                extra: {
-                                  'cubit': context.read<CartCubit>(),
-                                  'providerId': provider.providerId,
-                                },
-                              );
+                              // Provider selection only assigns the covered
+                              // items. Checkout remains scoped to each provider
+                              // group on the cart screen.
+                              if (returnToPreviousCart && context.canPop()) {
+                                context.pop();
+                              } else {
+                                context.go('/cart');
+                              }
                             } else {
                               final error = context
                                   .read<CartCubit>()
@@ -529,11 +531,11 @@ class _ChooseProviderBottomBar extends StatelessWidget {
                                   .assignProviderError;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                    content: Text(
-                                      error ??
-                                          'cart.failed_to_update_provider'.tr(),
-                                    ),
+                                  content: Text(
+                                    error ??
+                                        'cart.failed_to_update_provider'.tr(),
                                   ),
+                                ),
                               );
                             }
                           }
@@ -573,7 +575,6 @@ class _ChooseProviderBottomBar extends StatelessWidget {
   }
 }
 
-
 class _Initials extends StatelessWidget {
   final String name;
   const _Initials({required this.name});
@@ -596,7 +597,6 @@ class _Initials extends StatelessWidget {
     );
   }
 }
-
 
 class _EmptyView extends StatelessWidget {
   const _EmptyView();
@@ -625,7 +625,10 @@ class _EmptyView extends StatelessWidget {
           Text(
             'cart.no_providers_available'.tr(),
             textAlign: TextAlign.center,
-            style: AppTextStyles.of(fontSize: 13.sp, color: const Color(0xFF9CA3AF)),
+            style: AppTextStyles.of(
+              fontSize: 13.sp,
+              color: const Color(0xFF9CA3AF),
+            ),
           ),
         ],
       ),
@@ -656,7 +659,10 @@ class _ErrorView extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: AppTextStyles.of(fontSize: 14.sp, color: const Color(0xFF6B7280)),
+              style: AppTextStyles.of(
+                fontSize: 14.sp,
+                color: const Color(0xFF6B7280),
+              ),
             ),
             SizedBox(height: 16.h),
             ElevatedButton(

@@ -20,9 +20,15 @@ class InvoiceActionButton extends StatelessWidget {
     return InkWell(
       onTap: () async {
         final tab = TabScope.of(context);
-        final result = await context.push('/invoice-details', extra: {'invoice': item, 'tab': tab});
+        final result = await context.push(
+          '/invoice-details',
+          extra: {'invoice': item, 'tab': tab},
+        );
         if (result == true && context.mounted) {
-          context.read<ActivityCubit>().loadInvoices(tab: tab, forceRefresh: true);
+          context.read<ActivityCubit>().loadInvoices(
+            tab: tab,
+            forceRefresh: true,
+          );
         }
       },
       child: Row(

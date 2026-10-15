@@ -52,18 +52,11 @@ class CartItemCard extends StatelessWidget {
                           runSpacing: 5.h,
                           crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
-                            if (item.categoryName.isNotEmpty)
-                              _Tag(
-                                label: item.categoryName,
-                                bg: const Color(0xFFF1F5F9),
-                                fg: const Color(0xFF475569),
-                              ),
                             if (item.discountPercentage != null)
                               _Tag(
                                 label: 'cart.discount_percent'.tr(
                                   args: [
-                                    item.discountPercentage!
-                                        .toStringAsFixed(0),
+                                    item.discountPercentage!.toStringAsFixed(0),
                                   ],
                                 ),
                                 bg: const Color(0xFFEFF6FF),
@@ -176,9 +169,7 @@ class _PriceLine extends StatelessWidget {
       children: [
         if (item.priceBefore != null)
           Text(
-            'cart.egp_amount'.tr(
-              args: [checkoutMoney(item.priceBefore!)],
-            ),
+            'cart.egp_amount'.tr(args: [checkoutMoney(item.priceBefore!)]),
             style: AppTextStyles.of(
               fontSize: 12.sp,
               color: const Color(0xFF94A3B8),
@@ -191,9 +182,7 @@ class _PriceLine extends StatelessWidget {
           SizedBox(width: 6.w),
         if (item.priceAfter != null)
           Text(
-            'cart.egp_amount'.tr(
-              args: [checkoutMoney(item.priceAfter!)],
-            ),
+            'cart.egp_amount'.tr(args: [checkoutMoney(item.priceAfter!)]),
             style: AppTextStyles.of(
               fontSize: 15.sp,
               fontWeight: FontWeight.bold,

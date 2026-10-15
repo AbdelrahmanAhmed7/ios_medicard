@@ -9,7 +9,8 @@ class ActivityEmptyView extends StatelessWidget {
   final String message;
   final IconData icon;
 
-  const ActivityEmptyView({super.key,
+  const ActivityEmptyView({
+    super.key,
     required this.title,
     required this.message,
     required this.icon,

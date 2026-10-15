@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../../../core/theming/app_spacing.dart';
 import '../../../../../core/widgets/auth_shared_widgets.dart';
 import '../../../../../features/activity/domain/models/invoice_item.dart';
 import '../../../../../features/activity/presentation/cubit/activity_cubit.dart';
@@ -93,9 +94,7 @@ class InvoiceListState extends State<InvoiceList> {
     }
 
     if (widget.items.isEmpty && (widget.isLoadingMore || widget.hasMore)) {
-      return const Center(
-        child: CircularProgressIndicator(color: kAuthBlue),
-      );
+      return const Center(child: CircularProgressIndicator(color: kAuthBlue));
     }
 
     final itemCount =
@@ -103,13 +102,15 @@ class InvoiceListState extends State<InvoiceList> {
 
     return RefreshIndicator(
       color: kAuthBlue,
-      onRefresh: () => context
-          .read<ActivityCubit>()
-          .loadInvoices(tab: TabScope.of(context)),
+      onRefresh: () =>
+          context.read<ActivityCubit>().loadInvoices(tab: TabScope.of(context)),
       child: ListView.separated(
         controller: _scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+        padding: EdgeInsets.symmetric(
+          horizontal: AppSpacing.pageHorizontal,
+          vertical: 16.h,
+        ),
         itemCount: itemCount,
         separatorBuilder: (_, _) => SizedBox(height: 8.h),
         itemBuilder: (context, index) {

@@ -23,9 +23,11 @@ class CategoryBadgesRow extends StatelessWidget {
             color: const Color(0xFF334155),
           ),
         ),
-        SizedBox(height: 10.h),
+        SizedBox(height: 4.h),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
+          clipBehavior: Clip.none,
+          padding: EdgeInsets.only(top: 8.h, bottom: 2.h),
           child: Row(
             children: counters
                 .map(

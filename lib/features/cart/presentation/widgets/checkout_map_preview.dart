@@ -50,7 +50,7 @@ class CheckoutMapPreviewState extends State<CheckoutMapPreview> {
         }
       },
       child: ClipRRect(
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(12.r)),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(16.r)),
         child: Container(
           width: double.infinity,
           height: 146.h,

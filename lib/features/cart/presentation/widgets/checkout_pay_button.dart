@@ -28,7 +28,7 @@ class CheckoutPayButton extends StatelessWidget {
             foregroundColor: const Color(0xFF3872B1),
             side: const BorderSide(color: Color(0xFF3872B1)),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14.r),
+              borderRadius: BorderRadius.circular(16.r),
             ),
           ),
           child: Text(
@@ -72,7 +72,7 @@ class CheckoutPayButton extends StatelessWidget {
           foregroundColor: Colors.white,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.r),
+            borderRadius: BorderRadius.circular(16.r),
           ),
         ),
         child: isBusy

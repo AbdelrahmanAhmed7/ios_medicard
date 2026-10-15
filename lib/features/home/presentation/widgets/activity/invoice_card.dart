@@ -27,9 +27,15 @@ class InvoiceCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(16.r),
       onTap: () async {
         final tab = TabScope.of(context);
-        final result = await context.push('/invoice-details', extra: {'invoice': item, 'tab': tab});
+        final result = await context.push(
+          '/invoice-details',
+          extra: {'invoice': item, 'tab': tab},
+        );
         if (result == true && context.mounted) {
-          context.read<ActivityCubit>().loadInvoices(tab: tab, forceRefresh: true);
+          context.read<ActivityCubit>().loadInvoices(
+            tab: tab,
+            forceRefresh: true,
+          );
         }
       },
       child: Container(
@@ -160,9 +166,7 @@ class InvoiceCard extends StatelessWidget {
                 if (_amount(item) != null) ...[
                   SizedBox(width: 10.w),
                   Text(
-                    'cart.egp_amount'.tr(
-                      args: ['${_amount(item)!.toInt()}'],
-                    ),
+                    'cart.egp_amount'.tr(args: ['${_amount(item)!.toInt()}']),
                     style: AppTextStyles.of(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w700,

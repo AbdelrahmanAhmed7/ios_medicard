@@ -6,13 +6,13 @@ import 'package:go_router/go_router.dart';
 import 'package:medicard/core/widgets/auth_shared_widgets.dart';
 import '../../../../core/cubit/app_refresh_cubit.dart';
 import '../../../../core/di/service_locator.dart';
+import '../../../../core/theming/app_spacing.dart';
 import '../../../activity/presentation/cubit/activity_cubit.dart';
 import '../../../activity/presentation/cubit/activity_state.dart';
 import 'activity/activity_error_view.dart';
 import 'activity/invoice_list.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
-
 
 class ActivityScreen extends StatefulWidget {
   const ActivityScreen({super.key});
@@ -72,7 +72,12 @@ class _ActivityScreenState extends State<ActivityScreen>
           SafeArea(
             bottom: false,
             child: Padding(
-              padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 4.h),
+              padding: EdgeInsets.fromLTRB(
+                AppSpacing.pageHorizontal,
+                16.h,
+                AppSpacing.pageHorizontal,
+                4.h,
+              ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -136,7 +141,12 @@ class _ActivityScreenState extends State<ActivityScreen>
               ];
               return SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 4.h),
+                padding: EdgeInsets.fromLTRB(
+                  AppSpacing.pageHorizontal,
+                  12.h,
+                  AppSpacing.pageHorizontal,
+                  4.h,
+                ),
                 child: Row(
                   children: List.generate(labels.length, (i) {
                     final isSelected = _tabController.index == i;
@@ -152,9 +162,7 @@ class _ActivityScreenState extends State<ActivityScreen>
                             vertical: 9.h,
                           ),
                           decoration: BoxDecoration(
-                            color: isSelected
-                                ? kAuthBlue
-                                : Colors.white,
+                            color: isSelected ? kAuthBlue : Colors.white,
                             borderRadius: BorderRadius.circular(20.r),
                             border: Border.all(
                               color: isSelected
@@ -193,9 +201,9 @@ class _ActivityScreenState extends State<ActivityScreen>
                   ),
                   failure: (error) => ActivityErrorView(
                     error: error,
-                    onRetry: () => context
-                        .read<ActivityCubit>()
-                        .loadInvoices(tab: _tabController.index + 1),
+                    onRetry: () => context.read<ActivityCubit>().loadInvoices(
+                      tab: _tabController.index + 1,
+                    ),
                   ),
                   success: (invoices, isLoadingMore, hasMore) {
                     return TabBarView(

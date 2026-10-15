@@ -1,4 +1,3 @@
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,24 +17,30 @@ import '../widgets/checkout_patient_dropdown.dart';
 import '../widgets/checkout_pay_button.dart';
 import '../widgets/checkout_payment_dropdown.dart';
 import '../widgets/checkout_payment_summary.dart';
+import '../widgets/checkout_pricing.dart';
 import '../widgets/checkout_section_title.dart';
+import '../widgets/checkout_summary_row.dart';
 
 import '../../../home/presentation/widgets/order_placed_dialog.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final int? initialProviderId;
+  final String? initialProviderName;
   final ProviderBranch? initialBranch;
   final int? packageId;
   final String? packageName;
+  final List<String> packageServiceNames;
   final double? packagePriceBefore;
   final double? packagePriceAfter;
 
   const CheckoutScreen({
     super.key,
     this.initialProviderId,
+    this.initialProviderName,
     this.initialBranch,
     this.packageId,
     this.packageName,
+    this.packageServiceNames = const [],
     this.packagePriceBefore,
     this.packagePriceAfter,
   });
@@ -54,9 +59,11 @@ class _CheckoutScreenState extends State<CheckoutScreen>
     WidgetsBinding.instance.addObserver(this);
     context.read<CartCubit>().loadCheckout(
       initialProviderId: widget.initialProviderId,
+      initialProviderName: widget.initialProviderName,
       initialBranch: widget.initialBranch,
       packageId: widget.packageId,
       packageName: widget.packageName,
+      packageServiceNames: widget.packageServiceNames,
       packagePriceBefore: widget.packagePriceBefore,
       packagePriceAfter: widget.packagePriceAfter,
     );
@@ -136,7 +143,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
               SafeArea(
                 bottom: false,
                 child: Padding(
-                  padding: EdgeInsets.fromLTRB(8.w, 10.h, 20.w, 6.h),
+                  padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 6.h),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -170,6 +177,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                 ),
               ),
               Expanded(child: _buildBody(context, state)),
+              if (state.checkoutProvider != null) _CheckoutPayBar(state: state),
             ],
           );
         },
@@ -189,43 +197,117 @@ class _CheckoutScreenState extends State<CheckoutScreen>
         message: state.checkoutError!,
         onRetry: () => context.read<CartCubit>().loadCheckout(
           initialProviderId: widget.initialProviderId,
+          initialProviderName: widget.initialProviderName,
           initialBranch: widget.initialBranch,
           packageId: widget.packageId,
           packageName: widget.packageName,
+          packageServiceNames: widget.packageServiceNames,
           packagePriceBefore: widget.packagePriceBefore,
           packagePriceAfter: widget.packagePriceAfter,
         ),
       );
     }
 
-    final bottomSafePadding = MediaQuery.paddingOf(context).bottom;
-
     return ListView(
-      padding: EdgeInsets.fromLTRB(
-        14.w,
-        18.h,
-        14.w,
-        24.h + bottomSafePadding + 8.h,
-      ),
+      padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 24.h),
       children: [
-        CheckoutSectionTitle(text: 'cart.order_for'.tr()),
-        SizedBox(height: 8.h),
+        CheckoutSectionTitle(
+          text: 'cart.order_for'.tr(),
+          icon: Icons.person_outline_rounded,
+        ),
+        SizedBox(height: 10.h),
         CheckoutPatientDropdown(state: state),
-        SizedBox(height: 22.h),
-        CheckoutSectionTitle(text: 'cart.branch_location'.tr()),
-        SizedBox(height: 8.h),
+        SizedBox(height: 24.h),
+        CheckoutSectionTitle(
+          text: 'cart.branch_location'.tr(),
+          icon: Icons.location_on_outlined,
+        ),
+        SizedBox(height: 10.h),
         CheckoutBranchSelector(state: state),
-        SizedBox(height: 22.h),
-        CheckoutSectionTitle(text: 'cart.payment_method'.tr()),
-        SizedBox(height: 8.h),
+        SizedBox(height: 24.h),
+        CheckoutSectionTitle(
+          text: 'cart.payment_method'.tr(),
+          icon: Icons.credit_card_rounded,
+        ),
+        SizedBox(height: 10.h),
         CheckoutPaymentDropdown(state: state),
         SizedBox(height: 24.h),
-        CheckoutSectionTitle(text: 'cart.payment_summary'.tr()),
-        SizedBox(height: 12.h),
+        CheckoutSectionTitle(
+          text: 'cart.payment_summary'.tr(),
+          icon: Icons.receipt_long_outlined,
+        ),
+        SizedBox(height: 10.h),
         CheckoutPaymentSummary(state: state),
-        SizedBox(height: 22.h),
-        CheckoutPayButton(state: state),
       ],
+    );
+  }
+}
+
+class _CheckoutPayBar extends StatelessWidget {
+  final CartState state;
+
+  const _CheckoutPayBar({required this.state});
+
+  @override
+  Widget build(BuildContext context) {
+    final pricing = CheckoutPricing.fromState(state);
+    final showTotal = !state.isInvoiceOutcomeUnknown;
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: const Border(top: BorderSide(color: Color(0xFFE5E9F0))),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.06),
+            blurRadius: 14,
+            offset: const Offset(0, -4),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 12.h),
+          child: showTotal
+              ? Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'cart.total_to_pay'.tr(),
+                            style: AppTextStyles.of(
+                              fontSize: 11.5.sp,
+                              color: const Color(0xFF64748B),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          SizedBox(height: 2.h),
+                          Text(
+                            'cart.egp_amount'.tr(
+                              args: [checkoutMoney(pricing.total)],
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.of(
+                              fontSize: 18.sp,
+                              color: const Color(0xFF2563A9),
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: 14.w),
+                    Expanded(flex: 3, child: CheckoutPayButton(state: state)),
+                  ],
+                )
+              : CheckoutPayButton(state: state),
+        ),
+      ),
     );
   }
 }

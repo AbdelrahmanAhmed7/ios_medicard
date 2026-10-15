@@ -413,9 +413,11 @@ class CartCubit extends Cubit<CartState> {
 
   Future<void> loadCheckout({
     int? initialProviderId,
+    String? initialProviderName,
     ProviderBranch? initialBranch,
     int? packageId,
     String? packageName,
+    List<String> packageServiceNames = const [],
     double? packagePriceBefore,
     double? packagePriceAfter,
   }) async {
@@ -430,6 +432,7 @@ class CartCubit extends Cubit<CartState> {
         resetCreatedInvoicePaymentLink: true,
         checkoutPackageId: packageId,
         checkoutPackageName: packageName,
+        checkoutPackageServiceNames: packageServiceNames,
         checkoutPackagePriceBefore: packagePriceBefore,
         checkoutPackagePriceAfter: packagePriceAfter,
       ),
@@ -466,10 +469,16 @@ class CartCubit extends Cubit<CartState> {
       }
     }
 
-    final checkoutProvider = await _resolveCheckoutProvider(
-      cart: cart,
-      initialProviderId: initialProviderId ?? providerId,
-    );
+    final targetProviderId = initialProviderId ?? providerId;
+    final checkoutProvider = packageId != null && targetProviderId != null
+        ? _packageCheckoutProvider(
+            providerId: targetProviderId,
+            providerName: initialProviderName,
+          )
+        : await _resolveCheckoutProvider(
+            cart: cart,
+            initialProviderId: targetProviderId,
+          );
     if (isClosed) return;
 
     if (checkoutProvider == null) {
@@ -491,6 +500,23 @@ class CartCubit extends Cubit<CartState> {
       ),
       loadFamilyMembers(),
     ]);
+  }
+
+  ProviderOption _packageCheckoutProvider({
+    required int providerId,
+    String? providerName,
+  }) {
+    return ProviderOption(
+      providerId: providerId,
+      providerName: providerName?.trim() ?? '',
+      coveredCount: 0,
+      uncoveredCount: 0,
+      totalCount: 0,
+      totalPriceBefore: 0,
+      totalPriceAfter: 0,
+      coveredServices: const [],
+      uncoveredServices: const [],
+    );
   }
 
   Future<ProviderOption?> _resolveCheckoutProvider({
@@ -738,8 +764,7 @@ class CartCubit extends Cubit<CartState> {
     if (isClosed || !state.isInvoiceOutcomeUnknown) {
       return UnknownInvoiceResolution.stillUnknown;
     }
-    if (_unknownOutcomeItemIds.isEmpty ||
-        _unknownOutcomeSubmittedAt == null) {
+    if (_unknownOutcomeItemIds.isEmpty || _unknownOutcomeSubmittedAt == null) {
       return UnknownInvoiceResolution.stillUnknown;
     }
     final requestGeneration = ++_cartRequestGeneration;
@@ -758,10 +783,7 @@ class CartCubit extends Cubit<CartState> {
       success: (page) => page.items,
       failure: (_) => null,
     );
-    final cart = cartResult.when(
-      success: (c) => c,
-      failure: (_) => null,
-    );
+    final cart = cartResult.when(success: (c) => c, failure: (_) => null);
     if (invoices == null || cart == null) {
       return UnknownInvoiceResolution.stillUnknown;
     }
@@ -787,11 +809,7 @@ class CartCubit extends Cubit<CartState> {
     // Always converge the display to the fresh cart; the latch below
     // decides whether retry is allowed.
     emit(
-      state.copyWith(
-        cart: cart,
-        isCartLoading: false,
-        resetCartError: true,
-      ),
+      state.copyWith(cart: cart, isCartLoading: false, resetCartError: true),
     );
     _broadcastCartSnapshot(cart);
 
@@ -912,8 +930,12 @@ class CartCubit extends Cubit<CartState> {
     }
   }
 
-  /// Assigns [provider] to all uncovered services in the cart by calling
-  /// addToCart for each service that still has no provider.
+  /// Assigns [provider] to every covered cart item that has no provider yet.
+  ///
+  /// A provider option may also describe items that are already assigned to
+  /// that same provider (the cart and choose-providers endpoints both return
+  /// those items). In that case there is nothing to update, but the selection
+  /// is still valid and checkout should continue for the existing group.
   Future<bool> assignProvider(ProviderOption provider) async {
     if (isClosed || _providerAssignmentInFlight) return false;
     _providerAssignmentInFlight = true;
@@ -928,19 +950,35 @@ class CartCubit extends Cubit<CartState> {
         ),
       );
 
-      final unassignedCartItemIds = state.cart?.items
-          .where((item) => item.providerId == null)
-          .map((item) => item.cartItemId)
-          .toSet();
+      final cartItemsById = state.cart == null
+          ? null
+          : {for (final item in state.cart!.items) item.cartItemId: item};
+      final alreadyAssignedToProvider = provider.coveredServices.where(
+        (service) =>
+            service.cartItemId != 0 &&
+            cartItemsById?[service.cartItemId]?.providerId ==
+                provider.providerId,
+      );
       final servicesToUpdate = provider.coveredServices
           .where(
             (service) =>
                 service.cartItemId != 0 &&
-                (unassignedCartItemIds == null ||
-                    unassignedCartItemIds.contains(service.cartItemId)),
+                (cartItemsById == null ||
+                    cartItemsById[service.cartItemId]?.providerId == null),
           )
           .toList(growable: false);
       if (servicesToUpdate.isEmpty) {
+        if (alreadyAssignedToProvider.isNotEmpty) {
+          emit(
+            state.copyWith(
+              selectedProvider: provider,
+              checkoutProvider: provider,
+              isAssigningProvider: false,
+              resetAssignProviderError: true,
+            ),
+          );
+          return true;
+        }
         emit(
           state.copyWith(
             isAssigningProvider: false,

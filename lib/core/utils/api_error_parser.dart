@@ -196,6 +196,17 @@ String friendlyApiMessage(String message) {
     return 'activity.invoice_already_used'.tr();
   }
 
+  // Technical backend validation text (e.g. ASP.NET binding a null body to
+  // an action parameter named `dto`) means nothing to users — show the
+  // friendly validation message instead of the raw technical one.
+  if (lower.contains('dto') && lower.contains('required')) {
+    return 'errors.validation_failed'.tr();
+  }
+
+  if (lower.contains('one or more validation errors occurred')) {
+    return 'errors.validation_failed'.tr();
+  }
+
   return normalized;
 }
 

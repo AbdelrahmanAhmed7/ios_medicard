@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/service_locator.dart';
+import '../../../../core/theming/app_spacing.dart';
 import '../../../../core/theming/app_toast.dart';
 import '../../domain/models/invoice_details.dart';
 import '../../domain/models/invoice_item.dart';
@@ -13,7 +14,6 @@ import '../cubit/invoice_details_cubit.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 import '../../../../core/utils/image_url_resolver.dart';
-
 
 class InvoiceDetailsScreen extends StatelessWidget {
   final InvoiceItem invoice;
@@ -24,16 +24,20 @@ class InvoiceDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => sl<InvoiceDetailsCubit>()
-        ..loadDetails(invoice.invoiceId),
+      create: (_) => sl<InvoiceDetailsCubit>()..loadDetails(invoice.invoiceId),
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFF8FAFC),
         body: Column(
           children: [
             SafeArea(
               bottom: false,
               child: Padding(
-                padding: EdgeInsets.fromLTRB(8.w, 10.h, 20.w, 6.h),
+                padding: EdgeInsets.fromLTRB(
+                  AppSpacing.pageHorizontal,
+                  16.h,
+                  AppSpacing.pageHorizontal,
+                  6.h,
+                ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -50,14 +54,14 @@ class InvoiceDetailsScreen extends StatelessWidget {
                         }
                       },
                     ),
-                      Expanded(
-                        child: Text(
-                          'activity.invoice_details_title'.tr(),
-                          style: AppTextStyles.of(
-                            fontSize: 26.sp,
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xFF111827),
-                          ),
+                    Expanded(
+                      child: Text(
+                        'activity.invoice_details_title'.tr(),
+                        style: AppTextStyles.of(
+                          fontSize: 22.sp,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF111827),
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -107,7 +111,11 @@ class _DetailsBody extends StatelessWidget {
   final InvoiceDetails details;
   final int tab;
 
-  const _DetailsBody({required this.invoice, required this.details, required this.tab});
+  const _DetailsBody({
+    required this.invoice,
+    required this.details,
+    required this.tab,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -115,75 +123,505 @@ class _DetailsBody extends StatelessWidget {
       'dd MMM yyyy',
       context.locale.toString(),
     ).format(details.date);
-    final servicesText = _servicesText(details.services);
+    final discountPct = _discountPercent(details);
+    final saved = (details.totalBefore - details.totalAfter).clamp(
+      0,
+      double.infinity,
+    );
 
     return ListView(
-      padding: EdgeInsets.fromLTRB(16.w, 18.h, 16.w, 22.h),
+      padding: EdgeInsets.fromLTRB(
+        AppSpacing.pageHorizontal,
+        14.h,
+        AppSpacing.pageHorizontal,
+        24.h,
+      ),
       children: [
+        // ── Number + status ──────────────────────────────────────────
         Row(
           children: [
+            Icon(
+              Icons.receipt_long_rounded,
+              size: 20.sp,
+              color: const Color(0xFF6B7280),
+            ),
+            SizedBox(width: 6.w),
             Expanded(
               child: Text(
                 'activity.invoice_number'.tr(args: ['${details.invoiceId}']),
                 style: AppTextStyles.of(
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF0F172A),
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF111827),
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             _StatusBadge(status: details.status),
           ],
         ),
-        SizedBox(height: 22.h),
-        _InfoCard(
-          children: [
-            _ProviderHeader(invoice: invoice),
-            const Divider(height: 1, color: Color(0xFFEEF1F5)),
-            if (details.beneficiaryName != null) ...[
-              _InfoRow(
-                label: 'activity.beneficiary'.tr(),
-                value: details.beneficiaryName!,
-              ),
-              const Divider(height: 1, color: Color(0xFFEEF1F5)),
-            ],
-            _InfoRow(label: 'activity.date'.tr(), value: formattedDate),
-            const Divider(height: 1, color: Color(0xFFEEF1F5)),
-            _InfoRow(label: 'activity.service'.tr(), value: servicesText),
-          ],
+        SizedBox(height: 6.h),
+        // ── Big total ────────────────────────────────────────────────
+        Text(
+          'cart.egp_amount'.tr(args: [_money(details.totalAfter)]),
+          style: AppTextStyles.of(
+            fontSize: 32.sp,
+            fontWeight: FontWeight.w800,
+            color: const Color(0xFF111827),
+            height: 1.1,
+          ),
         ),
-        SizedBox(height: 28.h),
-        _InfoCard(
-          children: [
-            _InfoRow(
-              label: 'cart.subtotal'.tr(),
-              value: 'cart.egp_amount'.tr(args: [_money(details.totalBefore)]),
-            ),
-            const Divider(height: 1, color: Color(0xFFEEF1F5)),
-            _InfoRow(
-              label: 'cart.discount'.tr(),
-              value: 'cart.negative_discount_percent'.tr(
-                args: [_discountPercent(details).toStringAsFixed(0)],
-              ),
-              valueColor: const Color(0xFF10A75A),
-            ),
-            const Divider(height: 1, color: Color(0xFFEEF1F5)),
-            _InfoRow(
-              label: 'cart.total_amount'.tr(),
-              value: 'cart.egp_amount'.tr(args: [_money(details.totalAfter)]),
-              isBold: true,
-            ),
-          ],
+        SizedBox(height: 14.h),
+        // ── Date + branch ────────────────────────────────────────────
+        _MetaRow(date: formattedDate, branch: invoice.branchName),
+        SizedBox(height: 12.h),
+        // ── Provider ─────────────────────────────────────────────────
+        _ProviderCard(
+          invoice: invoice,
+          beneficiaryName: details.beneficiaryName,
         ),
-        SizedBox(height: 68.h),
+        SizedBox(height: 12.h),
+        // ── Services table ───────────────────────────────────────────
+        _ServicesCard(
+          services: details.services,
+          totalBefore: details.totalBefore,
+          totalAfter: details.totalAfter,
+          discountPct: discountPct,
+          saved: saved.toDouble(),
+        ),
+        SizedBox(height: 20.h),
         _DetailsActions(invoice: invoice, details: details, tab: tab),
       ],
     );
   }
+}
 
-  String _servicesText(List<InvoiceServiceItem> services) {
-    if (services.isEmpty) return '-';
-    return services.map((service) => service.serviceName).join(', ');
+/// Compact date + branch row.
+class _MetaRow extends StatelessWidget {
+  final String date;
+  final String branch;
+
+  const _MetaRow({required this.date, required this.branch});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: _MetaItem(
+            icon: Icons.calendar_month_outlined,
+            label: 'activity.date'.tr(),
+            value: date,
+          ),
+        ),
+        SizedBox(width: 8.w),
+        Expanded(
+          child: _MetaItem(
+            icon: Icons.location_on_outlined,
+            label: 'activity.branch'.tr(),
+            value: branch,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MetaItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+
+  const _MetaItem({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 18.sp, color: const Color(0xFF3872B1)),
+          SizedBox(width: 8.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  style: AppTextStyles.of(
+                    fontSize: 11.sp,
+                    color: const Color(0xFF6B7280),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(height: 2.h),
+                Text(
+                  value,
+                  style: AppTextStyles.of(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF111827),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Provider (image, name, branch) + optional beneficiary, in one card.
+class _ProviderCard extends StatelessWidget {
+  final InvoiceItem invoice;
+  final String? beneficiaryName;
+
+  const _ProviderCard({required this.invoice, this.beneficiaryName});
+
+  @override
+  Widget build(BuildContext context) {
+    final imageUrl = resolveImageUrl(invoice.providerImageUrl);
+
+    return Container(
+      padding: EdgeInsets.all(12.r),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              ClipOval(
+                child: SizedBox(
+                  width: 48.r,
+                  height: 48.r,
+                  child: imageUrl == null
+                      ? const Icon(
+                          Icons.local_hospital,
+                          color: Color(0xFF3872B1),
+                        )
+                      : CachedNetworkImage(
+                          imageUrl: imageUrl,
+                          fit: BoxFit.cover,
+                          errorWidget: (_, _, _) => const Icon(
+                            Icons.local_hospital,
+                            color: Color(0xFF3872B1),
+                          ),
+                        ),
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      invoice.providerName,
+                      style: AppTextStyles.of(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF111827),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 2.h),
+                    Text(
+                      invoice.branchName,
+                      style: AppTextStyles.of(
+                        fontSize: 13.sp,
+                        color: const Color(0xFF6B7280),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (beneficiaryName != null &&
+              beneficiaryName!.trim().isNotEmpty) ...[
+            const Divider(height: 20, color: Color(0xFFEEF1F5)),
+            Row(
+              children: [
+                Icon(
+                  Icons.person_outline_rounded,
+                  size: 18.sp,
+                  color: const Color(0xFF3872B1),
+                ),
+                SizedBox(width: 8.w),
+                Expanded(
+                  child: Text(
+                    'activity.beneficiary'.tr(),
+                    style: AppTextStyles.of(
+                      fontSize: 13.sp,
+                      color: const Color(0xFF6B7280),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Flexible(
+                  child: Text(
+                    beneficiaryName!,
+                    textAlign: TextAlign.end,
+                    style: AppTextStyles.of(
+                      fontSize: 13.5.sp,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF111827),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Services table: header + per-service prices + totals footer.
+/// Row order mirrors automatically in RTL.
+class _ServicesCard extends StatelessWidget {
+  final List<InvoiceServiceItem> services;
+  final double totalBefore;
+  final double totalAfter;
+  final double discountPct;
+  final double saved;
+
+  const _ServicesCard({
+    required this.services,
+    required this.totalBefore,
+    required this.totalAfter,
+    required this.discountPct,
+    required this.saved,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(12.r),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'activity.services_title'.tr(),
+            style: AppTextStyles.of(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF111827),
+            ),
+          ),
+          SizedBox(height: 10.h),
+          _TableHeaderRow(),
+          const Divider(height: 16, color: Color(0xFFEEF1F5)),
+          if (services.isEmpty)
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 8.h),
+              child: Text(
+                '-',
+                style: AppTextStyles.of(
+                  fontSize: 13.sp,
+                  color: const Color(0xFF6B7280),
+                ),
+              ),
+            ),
+          for (var i = 0; i < services.length; i++) ...[
+            _ServiceTableRow(service: services[i]),
+            if (i < services.length - 1)
+              const Divider(height: 16, color: Color(0xFFEEF1F5)),
+          ],
+          const Divider(height: 24, color: Color(0xFFEEF1F5)),
+          _TotalRow(
+            label: 'cart.subtotal'.tr(),
+            value: 'cart.egp_amount'.tr(args: [_money(totalBefore)]),
+          ),
+          SizedBox(height: 8.h),
+          if (saved > 0)
+            _TotalRow(
+              label: 'cart.discount'.tr(),
+              value:
+                  '-${'cart.egp_amount'.tr(args: [_money(saved)])} (${discountPct.toStringAsFixed(0)}%)',
+              valueColor: const Color(0xFF10A75A),
+            ),
+          if (saved > 0) SizedBox(height: 8.h),
+          _TotalRow(
+            label: 'cart.total_amount'.tr(),
+            value: 'cart.egp_amount'.tr(args: [_money(totalAfter)]),
+            isTotal: true,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TableHeaderRow extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          flex: 8,
+          child: Text(
+            'activity.service'.tr(),
+            style: AppTextStyles.of(
+              fontSize: 11.5.sp,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF6B7280),
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 4,
+          child: Text(
+            'activity.price_before'.tr(),
+            textAlign: TextAlign.end,
+            style: AppTextStyles.of(
+              fontSize: 11.5.sp,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF6B7280),
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 4,
+          child: Text(
+            'activity.price_after'.tr(),
+            textAlign: TextAlign.end,
+            style: AppTextStyles.of(
+              fontSize: 11.5.sp,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF6B7280),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ServiceTableRow extends StatelessWidget {
+  final InvoiceServiceItem service;
+
+  const _ServiceTableRow({required this.service});
+
+  @override
+  Widget build(BuildContext context) {
+    final hasDiscount = service.priceBefore > service.priceAfter;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          flex: 8,
+          child: Text(
+            service.serviceName,
+            style: AppTextStyles.of(
+              fontSize: 13.5.sp,
+              fontWeight: FontWeight.w500,
+              color: const Color(0xFF111827),
+              height: 1.35,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        Expanded(
+          flex: 4,
+          child: Text(
+            hasDiscount ? _money(service.priceBefore) : '',
+            textAlign: TextAlign.end,
+            style: AppTextStyles.of(
+              fontSize: 12.sp,
+              color: const Color(0xFF94A3B8),
+              decoration: TextDecoration.lineThrough,
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 4,
+          child: Text(
+            'cart.egp_amount'.tr(args: [_money(service.priceAfter)]),
+            textAlign: TextAlign.end,
+            style: AppTextStyles.of(
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF3872B1),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TotalRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color? valueColor;
+  final bool isTotal;
+
+  const _TotalRow({
+    required this.label,
+    required this.value,
+    this.valueColor,
+    this.isTotal = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            label,
+            style: AppTextStyles.of(
+              fontSize: isTotal ? 15.sp : 13.5.sp,
+              fontWeight: isTotal ? FontWeight.w700 : FontWeight.w400,
+              color: isTotal
+                  ? const Color(0xFF111827)
+                  : const Color(0xFF6B7280),
+            ),
+          ),
+        ),
+        SizedBox(width: 12.w),
+        Text(
+          value,
+          textAlign: TextAlign.end,
+          style: AppTextStyles.of(
+            fontSize: isTotal ? 17.sp : 13.5.sp,
+            fontWeight: FontWeight.w700,
+            color: valueColor ?? const Color(0xFF111827),
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -195,8 +633,7 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final normalized = status.toLowerCase();
-    final isCancelled =
-        normalized == 'canceled' || normalized == 'cancelled';
+    final isCancelled = normalized == 'canceled' || normalized == 'cancelled';
     final isCompleted = normalized == 'used' || normalized == 'completed';
     final color = isCancelled
         ? const Color(0xFFDC2626)
@@ -222,143 +659,16 @@ class _StatusBadge extends StatelessWidget {
   }
 }
 
-class _ProviderHeader extends StatelessWidget {
-  final InvoiceItem invoice;
-
-  const _ProviderHeader({required this.invoice});
-
-  @override
-  Widget build(BuildContext context) {
-    final imageUrl = resolveImageUrl(invoice.providerImageUrl);
-
-    return Padding(
-      padding: EdgeInsets.all(16.w),
-      child: Row(
-        children: [
-          ClipOval(
-            child: SizedBox(
-              width: 56.r,
-              height: 56.r,
-              child: imageUrl == null
-                  ? const Icon(Icons.local_hospital, color: Color(0xFF3872B1))
-                  : CachedNetworkImage(
-                      imageUrl: imageUrl,
-                      fit: BoxFit.cover,
-                      errorWidget: (_, _, _) => const Icon(
-                        Icons.local_hospital,
-                        color: Color(0xFF3872B1),
-                      ),
-                    ),
-            ),
-          ),
-          SizedBox(width: 14.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  invoice.providerName,
-                  style: AppTextStyles.of(
-                    fontSize: 17.sp,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF0F172A),
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: 3.h),
-                Text(
-                  invoice.branchName,
-                  style: AppTextStyles.of(
-                    fontSize: 13.5.sp,
-                    color: const Color(0xFF6B7280),
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InfoCard extends StatelessWidget {
-  final List<Widget> children;
-
-  const _InfoCard({required this.children});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: const Color(0xFFE5E9F0)),
-      ),
-      child: Column(children: children),
-    );
-  }
-}
-
-class _InfoRow extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color? valueColor;
-  final bool isBold;
-
-  const _InfoRow({
-    required this.label,
-    required this.value,
-    this.valueColor,
-    this.isBold = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Text(
-              label,
-              style: AppTextStyles.of(
-                fontSize: 14.sp,
-                fontWeight: isBold ? FontWeight.w600 : FontWeight.w400,
-                color: const Color(0xFF6B7280),
-              ),
-            ),
-          ),
-          SizedBox(width: 12.w),
-          Flexible(
-            child: Text(
-              value,
-              textAlign: TextAlign.end,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.of(
-                fontSize: isBold ? 16.sp : 14.sp,
-                fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
-                color: valueColor ?? const Color(0xFF111827),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _DetailsActions extends StatefulWidget {
   final InvoiceItem invoice;
   final InvoiceDetails details;
   final int tab;
 
-  const _DetailsActions({required this.invoice, required this.details, required this.tab});
+  const _DetailsActions({
+    required this.invoice,
+    required this.details,
+    required this.tab,
+  });
 
   @override
   State<_DetailsActions> createState() => _DetailsActionsState();
@@ -499,11 +809,11 @@ class _DetailsActionsState extends State<_DetailsActions> {
                 foregroundColor: Colors.red,
                 side: const BorderSide(color: Colors.red),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(9.r),
+                  borderRadius: BorderRadius.circular(12.r),
                 ),
                 textStyle: AppTextStyles.of(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               child: _isCanceling
@@ -515,14 +825,18 @@ class _DetailsActionsState extends State<_DetailsActions> {
         if (_canReview)
           SizedBox(
             width: double.infinity,
-            height: 50.h,
-            child: OutlinedButton(
+            height: 52.h,
+            child: ElevatedButton(
               onPressed: () async {
+                // The dialog builds above this page's provider scope, so
+                // hand the cubit over explicitly.
+                final cubit = context.read<InvoiceDetailsCubit>();
                 final reviewed = await showDialog<bool>(
                   context: context,
                   barrierDismissible: true,
-                  builder: (_) => _ReviewDialog(
-                    invoiceId: widget.invoice.invoiceId,
+                  builder: (_) => BlocProvider.value(
+                    value: cubit,
+                    child: _ReviewDialog(invoiceId: widget.invoice.invoiceId),
                   ),
                 );
                 // Hide the button immediately after an in-app submit
@@ -531,15 +845,16 @@ class _DetailsActionsState extends State<_DetailsActions> {
                   setState(() => _hasReviewedLocally = true);
                 }
               },
-              style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF2D6FB7),
-                side: const BorderSide(color: Color(0xFF2D6FB7)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF3872B1),
+                foregroundColor: Colors.white,
+                elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(9.r),
+                  borderRadius: BorderRadius.circular(12.r),
                 ),
                 textStyle: AppTextStyles.of(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               child: Text('activity.leave_review'.tr()),
@@ -616,7 +931,10 @@ class _ReviewDialogState extends State<_ReviewDialog> {
             ),
             Text(
               'activity.share_your_review'.tr(),
-              style: AppTextStyles.of(fontSize: 22.sp, fontWeight: FontWeight.w700),
+              style: AppTextStyles.of(
+                fontSize: 22.sp,
+                fontWeight: FontWeight.w700,
+              ),
             ),
             SizedBox(height: 14.h),
             Row(
@@ -645,7 +963,10 @@ class _ReviewDialogState extends State<_ReviewDialog> {
               SizedBox(height: 6.h),
               Text(
                 _errorText!,
-                style: AppTextStyles.of(fontSize: 12.sp, color: const Color(0xFFEF4444)),
+                style: AppTextStyles.of(
+                  fontSize: 12.sp,
+                  color: const Color(0xFFEF4444),
+                ),
               ),
             ],
             SizedBox(height: 10.h),

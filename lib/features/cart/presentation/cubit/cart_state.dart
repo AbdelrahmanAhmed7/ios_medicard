@@ -41,6 +41,7 @@ class CartState {
   final String? createdInvoicePaymentLink;
   final int? checkoutPackageId;
   final String? checkoutPackageName;
+  final List<String> checkoutPackageServiceNames;
   final double? checkoutPackagePriceBefore;
   final double? checkoutPackagePriceAfter;
 
@@ -75,6 +76,7 @@ class CartState {
     this.createdInvoicePaymentLink,
     this.checkoutPackageId,
     this.checkoutPackageName,
+    this.checkoutPackageServiceNames = const [],
     this.checkoutPackagePriceBefore,
     this.checkoutPackagePriceAfter,
   });
@@ -125,6 +127,7 @@ class CartState {
     bool resetCheckoutPackageId = false,
     String? checkoutPackageName,
     bool resetCheckoutPackageName = false,
+    List<String>? checkoutPackageServiceNames,
     double? checkoutPackagePriceBefore,
     bool resetCheckoutPackagePriceBefore = false,
     double? checkoutPackagePriceAfter,
@@ -192,6 +195,8 @@ class CartState {
       checkoutPackageName: resetCheckoutPackageName
           ? null
           : (checkoutPackageName ?? this.checkoutPackageName),
+      checkoutPackageServiceNames:
+          checkoutPackageServiceNames ?? this.checkoutPackageServiceNames,
       checkoutPackagePriceBefore: resetCheckoutPackagePriceBefore
           ? null
           : (checkoutPackagePriceBefore ?? this.checkoutPackagePriceBefore),

@@ -7,12 +7,10 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theming/app_text_styles.dart';
 import '../../../../network/data/provider_page_response_model.dart';
 import '../../domain/models/cart_item.dart';
-import '../../domain/models/category_counter.dart';
 import '../cubit/cart_cubit.dart';
 import '../cubit/cart_state.dart';
 import 'cart_item_card.dart';
 import 'cart_sync_warning.dart';
-import 'category_badges_row.dart';
 import 'checkout_summary_row.dart';
 
 /// Cart grouped by provider: every assigned provider gets its own bordered
@@ -21,15 +19,14 @@ import 'checkout_summary_row.dart';
 /// their own.
 class CartBody extends StatelessWidget {
   final List<CartItem> items;
-  final List<CategoryCounter> categoryCounters;
   final int? initialProviderId;
   final ProviderBranch? initialBranch;
   final String? syncError;
   final bool isBusy;
 
-  const CartBody({super.key,
+  const CartBody({
+    super.key,
     required this.items,
-    required this.categoryCounters,
     this.initialProviderId,
     this.initialBranch,
     this.syncError,
@@ -51,26 +48,22 @@ class CartBody extends StatelessWidget {
         }
 
         return ListView(
-          padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 24.h),
+          padding: EdgeInsets.fromLTRB(8.w, 12.h, 8.w, 24.h),
           children: [
             if (syncError != null) ...[
               CartSyncWarning(message: syncError!),
-              SizedBox(height: 12.h),
+              SizedBox(height: 14.h),
             ],
-            _SummaryStrip(
+            _CartSummaryCard(
               itemCount: items.length,
               total: items.fold<double>(
                 0,
                 (sum, i) => sum + (i.priceAfter ?? i.priceBefore ?? 0),
               ),
               isBusy: isBusy,
+              onClear: () => _showClearCartSheet(context),
             ),
-            SizedBox(height: 14.h),
-            if (categoryCounters.isNotEmpty) ...[
-              CategoryBadgesRow(counters: categoryCounters),
-              SizedBox(height: 16.h),
-            ],
-
+            SizedBox(height: 20.h),
             if (unassigned.isNotEmpty) ...[
               _NeedsProviderBanner(
                 onTap: () {
@@ -79,9 +72,25 @@ class CartBody extends StatelessWidget {
                   context.push('/choose-provider', extra: cubit);
                 },
               ),
-              SizedBox(height: 12.h),
-              ...unassigned.map((item) => CartItemCard(item: item)),
-              SizedBox(height: 8.h),
+              SizedBox(height: 14.h),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16.r),
+                  border: Border.all(color: const Color(0xFFE5E9F0)),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (var i = 0; i < unassigned.length; i++)
+                      CartItemCard(
+                        item: unassigned[i],
+                        showDivider: i < unassigned.length - 1,
+                      ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 10.h),
             ],
 
             for (final entry in groups.entries) ...[
@@ -98,27 +107,43 @@ class CartBody extends StatelessWidget {
   }
 }
 
-class _SummaryStrip extends StatelessWidget {
+class _CartSummaryCard extends StatelessWidget {
   final int itemCount;
   final double total;
   final bool isBusy;
+  final VoidCallback onClear;
 
-  const _SummaryStrip({
+  const _CartSummaryCard({
     required this.itemCount,
     required this.total,
     required this.isBusy,
+    required this.onClear,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 13.h),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
       decoration: BoxDecoration(
         color: const Color(0xFFEFF6FF),
-        borderRadius: BorderRadius.circular(14.r),
+        borderRadius: BorderRadius.circular(16.r),
       ),
       child: Row(
         children: [
+          Container(
+            width: 44.r,
+            height: 44.r,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.shopping_cart_outlined,
+              size: 21.sp,
+              color: const Color(0xFF2563EB),
+            ),
+          ),
+          SizedBox(width: 12.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,36 +157,67 @@ class _SummaryStrip extends StatelessWidget {
                     color: const Color(0xFF111827),
                   ),
                 ),
-                SizedBox(height: 2.h),
+                SizedBox(height: 3.h),
                 Text(
                   'cart.egp_amount'.tr(args: [checkoutMoney(total)]),
                   style: AppTextStyles.of(
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w700,
                     color: const Color(0xFF2563EB),
                   ),
                 ),
               ],
             ),
           ),
-          TextButton.icon(
-            onPressed: isBusy
-                ? null
-                : () => _showClearCartSheet(context),
-            icon: isBusy
-                ? SizedBox(
-                    width: 16.r,
-                    height: 16.r,
-                    child: const CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Icon(Icons.delete_sweep_outlined, size: 18.sp),
-            label: Text('cart.clear_cart'.tr()),
-            style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFFDC2626),
-              disabledForegroundColor: const Color(0xFF94A3B8),
+          SizedBox(width: 8.w),
+          _ClearCartButton(isBusy: isBusy, onTap: onClear),
+        ],
+      ),
+    );
+  }
+}
+
+class _ClearCartButton extends StatelessWidget {
+  final bool isBusy;
+  final VoidCallback onTap;
+
+  const _ClearCartButton({required this.isBusy, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    if (isBusy) {
+      return SizedBox(
+        width: 42.r,
+        height: 42.r,
+        child: const Center(
+          child: SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: Color(0xFF2563EB),
             ),
           ),
-        ],
+        ),
+      );
+    }
+    return Tooltip(
+      message: 'cart.clear_cart'.tr(),
+      child: Material(
+        color: const Color(0xFFFEE2E2),
+        shape: const CircleBorder(),
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: onTap,
+          child: Padding(
+            padding: EdgeInsets.all(10.r),
+            child: Icon(
+              Icons.delete_outline_rounded,
+              color: const Color(0xFFDC2626),
+              size: 20.sp,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -330,19 +386,17 @@ class _ProviderGroupSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final name = items
-        .map((i) => i.providerName)
-        .firstWhere(
-          (n) => n != null && n.isNotEmpty,
-          orElse: () => null,
-        ) ??
+    final name =
+        items
+            .map((i) => i.providerName)
+            .firstWhere((n) => n != null && n.isNotEmpty, orElse: () => null) ??
         '';
     final subtotal = items.fold<double>(
       0,
       (sum, i) => sum + (i.priceAfter ?? i.priceBefore ?? 0),
     );
     return Container(
-      margin: EdgeInsets.only(bottom: 12.h),
+      margin: EdgeInsets.only(bottom: 16.h),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
@@ -352,7 +406,7 @@ class _ProviderGroupSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.fromLTRB(14.w, 13.h, 14.w, 5.h),
+            padding: EdgeInsets.fromLTRB(14.w, 14.h, 14.w, 8.h),
             child: Row(
               children: [
                 Container(
@@ -404,7 +458,7 @@ class _ProviderGroupSection extends StatelessWidget {
           ),
           ...items.map((item) => CartItemCard(item: item)),
           Padding(
-            padding: EdgeInsets.fromLTRB(14.w, 6.h, 14.w, 8.h),
+            padding: EdgeInsets.fromLTRB(14.w, 10.h, 14.w, 10.h),
             child: Row(
               children: [
                 Text(
@@ -447,7 +501,7 @@ class _ProviderGroupSection extends StatelessWidget {
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14.r),
+                    borderRadius: BorderRadius.circular(16.r),
                   ),
                 ),
                 child: Text(

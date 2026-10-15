@@ -4,8 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
-/// Popup shown once after a cash order is successfully created,
-/// carrying the order number. Visa (online) payments don't use it because the
+/// Popup shown once after a cash invoice is successfully created,
+/// carrying the invoice number. Visa (online) payments don't use it because the
 /// payment status can't be verified from the backend on browser return.
 class OrderPlacedDialog {
   static Future<void> maybeShow(
@@ -45,34 +45,82 @@ class _OrderPlacedDialog extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
-                Icons.check_circle,
-                size: 56,
-                color: Color(0xFF159447),
+              SizedBox(
+                width: 68.r,
+                height: 68.r,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      width: 68.r,
+                      height: 68.r,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFEEF3FB),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.receipt_long_rounded,
+                        size: 32.sp,
+                        color: const Color(0xFF3872B1),
+                      ),
+                    ),
+                    PositionedDirectional(
+                      end: -2.w,
+                      bottom: -2.h,
+                      child: Container(
+                        width: 25.r,
+                        height: 25.r,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF159447),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 3),
+                        ),
+                        child: Icon(
+                          Icons.check_rounded,
+                          size: 15.sp,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               SizedBox(height: 18.h),
               Text(
-                'cart.order_placed_successfully'.tr(),
+                'cart.payment_success'.tr(),
                 textAlign: TextAlign.center,
                 style: AppTextStyles.of(
                   fontSize: AppFontSizes.s20,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF111827),
                 ),
               ),
-              SizedBox(height: 14.h),
+              SizedBox(height: 8.h),
+              Text(
+                'cart.payment_success_message'.tr(),
+                textAlign: TextAlign.center,
+                style: AppTextStyles.of(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w400,
+                  height: 1.45,
+                  color: const Color(0xFF6B7280),
+                ),
+              ),
+              SizedBox(height: 18.h),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF1F7FF),
-                  borderRadius: BorderRadius.circular(14.r),
+                  borderRadius: BorderRadius.circular(12.r),
                   border: Border.all(color: const Color(0xFFBFD9F7)),
                 ),
                 child: Text(
-                  'activity.order_number'.tr(args: [orderNumber]),
+                  'activity.invoice_number'.tr(args: [orderNumber]),
+                  textAlign: TextAlign.center,
                   style: AppTextStyles.of(
-                    fontSize: AppFontSizes.s12,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w700,
                     color: const Color(0xFF2E73BA),
                   ),
                 ),
@@ -92,9 +140,9 @@ class _OrderPlacedDialog extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    'common.ok'.tr(),
+                    'cart.view_invoices'.tr(),
                     style: AppTextStyles.of(
-                      fontSize: AppFontSizes.s20,
+                      fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
