@@ -275,7 +275,10 @@ class _HomeBody extends StatelessWidget {
             ],
             if (services.isNotEmpty)
               SliverToBoxAdapter(
-                child: FeaturedServicesSection(services: services),
+                child: FeaturedServicesSection(
+                  services: services,
+                  onViewAll: () => context.push('/packages'),
+                ),
               ),
           ],
         ],

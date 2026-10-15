@@ -21,8 +21,11 @@ class ProviderServiceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocSelector<ProviderPageCubit, ProviderPageState,
-        ({bool pending, bool inCart})>(
+    return BlocSelector<
+      ProviderPageCubit,
+      ProviderPageState,
+      ({bool pending, bool inCart})
+    >(
       selector: (state) {
         final id = service.id;
         return (
@@ -33,17 +36,24 @@ class ProviderServiceCard extends StatelessWidget {
       builder: (context, flags) {
         final cubit = context.read<ProviderPageCubit>();
         final serviceId = service.id;
+        final instruction = service.instruction?.trim() ?? '';
+        final hasSpecialOffer = service.isSpecialOffer == true;
+        final hasDiscount =
+            service.discountPercentage != null &&
+            service.discountPercentage! > 0;
+        final hasPrice =
+            service.priceBefore != null || service.priceAfter != null;
 
         return Container(
           width: double.infinity,
           padding: EdgeInsets.fromLTRB(16.w, 14.h, 14.w, 12.h),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(10.r),
+            borderRadius: BorderRadius.circular(16.r),
             border: Border.all(
               color: flags.inCart
                   ? const Color(0xFF3872B1).withValues(alpha: 0.4)
-                  : const Color(0xFFD1D5DB),
+                  : const Color(0xFFE5E9F0),
             ),
           ),
           child: Row(
@@ -62,57 +72,78 @@ class ProviderServiceCard extends StatelessWidget {
                         height: 1.35,
                       ),
                     ),
-                    SizedBox(height: 8.h),
-                    Wrap(
-                      spacing: 4.w,
-                      runSpacing: 4.h,
-                      children: [
-                        if (service.isSpecialOffer == true)
-                          ServiceBadge(
-                            label: 'provider_page.special_offer'.tr(),
-                            color: const Color(0xFFF97316),
-                            backgroundColor: const Color(0xFFFFF4E6),
-                            icon: Icons.local_offer_rounded,
-                          ),
-                        if (service.discountPercentage != null &&
-                            service.discountPercentage! > 0)
-                          ServiceBadge(
-                            label: 'cart.discount_percent'.tr(
-                              args: [
-                                service.discountPercentage!
-                                    .toStringAsFixed(0),
-                              ],
+                    if (instruction.isNotEmpty) ...[
+                      SizedBox(height: 4.h),
+                      Text(
+                        instruction,
+                        style: AppTextStyles.of(
+                          fontSize: 12.sp,
+                          color: const Color(0xFF6B7280),
+                          height: 1.4,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                    if (hasSpecialOffer || hasDiscount) ...[
+                      SizedBox(height: 7.h),
+                      Wrap(
+                        spacing: 4.w,
+                        runSpacing: 4.h,
+                        children: [
+                          if (hasSpecialOffer)
+                            ServiceBadge(
+                              label: 'provider_page.special_offer'.tr(),
+                              color: const Color(0xFFDC2626),
+                              backgroundColor: const Color(0xFFFEF2F2),
+                              icon: Icons.local_offer_rounded,
                             ),
-                            color: const Color(0xFF3872B1),
-                            backgroundColor: const Color(0xFFEFF6FF),
-                          ),
-                      ],
-                    ),
-                    SizedBox(height: 13.h),
-                    Row(
-                      children: [
-                        if (service.priceBefore != null) ...[
-                          Text(
-                            '${formatPrice(service.priceBefore)} EGP',
-                            style: AppTextStyles.of(
-                              fontSize: 12.sp,
-                              color: Colors.black,
-                              decoration: TextDecoration.lineThrough,
+                          if (hasDiscount)
+                            ServiceBadge(
+                              label: 'cart.discount_percent'.tr(
+                                args: [
+                                  service.discountPercentage!.toStringAsFixed(
+                                    0,
+                                  ),
+                                ],
+                              ),
+                              color: const Color(0xFF3872B1),
+                              backgroundColor: const Color(0xFFEFF6FF),
                             ),
-                          ),
-                          SizedBox(width: 12.w),
                         ],
-                        if (service.priceAfter != null)
-                          Text(
-                            '${formatPrice(service.priceAfter)} EGP',
-                            style: AppTextStyles.of(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w500,
-                              color: const Color(0xFF1F6BC1),
+                      ),
+                    ],
+                    if (hasPrice) ...[
+                      SizedBox(height: 13.h),
+                      Row(
+                        children: [
+                          if (service.priceBefore != null) ...[
+                            Text(
+                              'cart.egp_amount'.tr(
+                                args: [formatPrice(service.priceBefore)],
+                              ),
+                              style: AppTextStyles.of(
+                                fontSize: 12.sp,
+                                color: const Color(0xFF94A3B8),
+                                decoration: TextDecoration.lineThrough,
+                              ),
                             ),
-                          ),
-                      ],
-                    ),
+                            SizedBox(width: 12.w),
+                          ],
+                          if (service.priceAfter != null)
+                            Text(
+                              'cart.egp_amount'.tr(
+                                args: [formatPrice(service.priceAfter)],
+                              ),
+                              style: AppTextStyles.of(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w500,
+                                color: const Color(0xFF1F6BC1),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -126,46 +157,23 @@ class ProviderServiceCard extends StatelessWidget {
                     color: Color(0xFF3872B1),
                   ),
                 )
-              else if (flags.inCart && serviceId != null)
-                GestureDetector(
-                  onTap: () => cubit.removeFromCart(serviceId),
-                  child: Icon(
-                    Icons.check_circle_rounded,
-                    color: const Color(0xFF3872B1),
-                    size: 26.sp,
-                  ),
-                )
               else
-                GestureDetector(
-                  onTap: serviceId == null
-                      ? null
-                      : () async {
-                          if (await cubit.addToCart(
-                                serviceId,
-                                categoryId: service.categoryId,
-                              ) &&
-                              context.mounted) {
-                            showLoginRequiredMessage(context);
-                          }
-                        },
-                  child: Container(
-                    width: 24.r,
-                    height: 24.r,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: const Color(0xFF3872B1),
-                        width: 1.4,
-                      ),
-                    ),
-                    child: const Center(
-                      child: Icon(
-                        Icons.add,
-                        color: Color(0xFF3872B1),
-                        size: 20,
-                      ),
-                    ),
-                  ),
+                CartActionButton(
+                  inCart: flags.inCart,
+                  onPressed: () async {
+                    if (serviceId == null) return;
+                    if (flags.inCart) {
+                      cubit.removeFromCart(serviceId);
+                      return;
+                    }
+                    if (await cubit.addToCart(
+                          serviceId,
+                          categoryId: service.categoryId,
+                        ) &&
+                        context.mounted) {
+                      showLoginRequiredMessage(context);
+                    }
+                  },
                 ),
             ],
           ),

@@ -3,8 +3,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
 import '../../data/home_mock_data.dart';
 
+import '../../../../core/theming/app_spacing.dart';
 import '../../../../core/theming/app_text_styles.dart';
-
 
 class QuickActionsRow extends StatelessWidget {
   final List<QuickAction> actions;
@@ -14,7 +14,10 @@ class QuickActionsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+      padding: EdgeInsets.symmetric(
+        vertical: 16,
+        horizontal: AppSpacing.pageHorizontal,
+      ),
       child: Row(
         children: actions
             .map(

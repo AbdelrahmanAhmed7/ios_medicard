@@ -38,7 +38,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
       create: (context) =>
           sl<ProviderPageCubit>(param1: widget.providerId)..init(),
       child: Scaffold(
-        backgroundColor: const Color(0xFFF8FAFC),
+        backgroundColor: Colors.white,
         // Scoped rebuilds: the shell itself never rebuilds on cubit emits.
         // Each section below owns its rebuild scope (see widgets/).
         body: BlocSelector<ProviderPageCubit, ProviderPageState, bool>(
@@ -113,7 +113,9 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
     }
     switch (state.currentView) {
       case ProviderViewType.services:
-        if (!state.isServicesLoadingMore && state.servicesHasMore) {
+        if (state.categoryTabs.isNotEmpty) {
+          cubit.loadMoreCategoryServices();
+        } else if (!state.isServicesLoadingMore && state.servicesHasMore) {
           cubit.loadMoreServices();
         }
         return false;
@@ -130,11 +132,14 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
     }
   }
 
-  void _openBranchSelector(List<ProviderBranch>? branches) async {
+  void _openBranchSelector(
+    List<ProviderBranch>? branches,
+    String? providerName,
+  ) async {
     if (branches == null || branches.isEmpty) return;
     final selected = await context.push<ProviderBranch>(
       '/provider-branches',
-      extra: branches,
+      extra: {'branches': branches, 'providerName': providerName},
     );
     if (selected != null && mounted) {
       setState(() => _selectedBranch = selected);

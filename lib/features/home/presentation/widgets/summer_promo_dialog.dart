@@ -12,7 +12,7 @@ class SummerPromoDialog {
   static bool get _isPromoActive {
     final now = DateTime.now();
     final start = DateTime(now.year, 6, 1);
-    final end = DateTime(now.year, 10, 30, 23, 59, 59);
+    final end = DateTime(now.year, 10, 13, 23, 59, 59);
     return !now.isBefore(start) && !now.isAfter(end);
   }
 
@@ -89,7 +89,11 @@ class _SummerPromoDialog extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: Icon(Icons.close_rounded, size: 18.sp, color: Colors.black87),
+                child: Icon(
+                  Icons.close_rounded,
+                  size: 18.sp,
+                  color: Colors.black87,
+                ),
               ),
             ),
           ),

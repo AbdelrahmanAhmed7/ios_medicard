@@ -33,9 +33,7 @@ class ProviderSearchRow extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12.r),
-                      border: Border.all(
-                        color: const Color(0xFFE2E8F0),
-                      ),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
                     ),
                     child: TextField(
                       onChanged: (query) => cubit.updateSearchQuery(query),
@@ -81,59 +79,64 @@ class ProviderSearchRow extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12.r),
                     border: Border.all(color: const Color(0xFFE2E8F0)),
                   ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<ProviderViewType>(
-                      // Catalog-only control. While reviews content is open,
-                      // keep value null so re-selecting Services/Packages can
-                      // exit reviews.
-                      value: state.currentView == ProviderViewType.reviews
-                          ? null
-                          : state.catalogView,
-                      hint: Text(
-                        state.catalogView == ProviderViewType.packages
-                            ? 'provider_page.packages'.tr()
-                            : 'provider_page.services'.tr(),
-                        style: AppTextStyles.of(
-                          color: const Color(0xFF64748B),
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      icon: const Icon(
-                        Icons.keyboard_arrow_down_rounded,
-                        color: Color(0xFF64748B),
-                        size: 18,
-                      ),
-                      isDense: true,
-                      items: [
-                        DropdownMenuItem(
-                          value: ProviderViewType.services,
-                          child: Text(
-                            'provider_page.services'.tr(),
-                            style: AppTextStyles.of(
-                              color: const Color(0xFF64748B),
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w500,
-                            ),
+                  child: PopupMenuButton<ProviderViewType>(
+                    initialValue: state.catalogView,
+                    position: PopupMenuPosition.under,
+                    offset: Offset(0, 8.h),
+                    color: Colors.white,
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                      side: const BorderSide(color: Color(0xFFE2E8F0)),
+                    ),
+                    padding: EdgeInsets.zero,
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: ProviderViewType.services,
+                        child: Text(
+                          'provider_page.services'.tr(),
+                          style: AppTextStyles.of(
+                            color: const Color(0xFF64748B),
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                        DropdownMenuItem(
-                          value: ProviderViewType.packages,
-                          child: Text(
-                            'provider_page.packages'.tr(),
-                            style: AppTextStyles.of(
-                              color: const Color(0xFF64748B),
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w500,
-                            ),
+                      ),
+                      PopupMenuItem(
+                        value: ProviderViewType.packages,
+                        child: Text(
+                          'provider_page.packages'.tr(),
+                          style: AppTextStyles.of(
+                            color: const Color(0xFF64748B),
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w500,
                           ),
+                        ),
+                      ),
+                    ],
+                    onSelected: (newValue) async {
+                      await cubit.switchView(newValue);
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          state.catalogView == ProviderViewType.packages
+                              ? 'provider_page.packages'.tr()
+                              : 'provider_page.services'.tr(),
+                          style: AppTextStyles.of(
+                            color: const Color(0xFF64748B),
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        const Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          color: Color(0xFF64748B),
+                          size: 18,
                         ),
                       ],
-                      onChanged: (newValue) async {
-                        if (newValue != null) {
-                          await cubit.switchView(newValue);
-                        }
-                      },
                     ),
                   ),
                 ),

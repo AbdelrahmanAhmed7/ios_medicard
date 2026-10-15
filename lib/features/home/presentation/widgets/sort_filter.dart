@@ -189,10 +189,7 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
           value: value,
           hint: Text(
             hint,
-            style: AppTextStyles.of(
-              fontSize: 13,
-              color: Color(0xFF6B7280),
-            ),
+            style: AppTextStyles.of(fontSize: 13, color: Color(0xFF6B7280)),
           ),
           isExpanded: true,
           icon: const Icon(

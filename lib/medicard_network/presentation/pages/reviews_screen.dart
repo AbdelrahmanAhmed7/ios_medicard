@@ -1,32 +1,24 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../../core/theming/app_text_styles.dart';
+import '../../../../core/theming/app_text_styles.dart';
+import '../../../../core/utils/error_state_widget.dart';
+import '../../logic/provider_page_cubit.dart';
+import '../../logic/provider_page_state.dart';
+import '../widgets/provider_review_card.dart';
 
-// Sample review model for demo purposes
-class Review {
-  final String userName;
-  final String? userImage;
-  final double rating;
-  final String date;
-  final String text;
-
-  Review({
-    required this.userName,
-    this.userImage,
-    required this.rating,
-    required this.date,
-    required this.text,
-  });
-}
-
+/// Standalone reviews page. Shares the provider page cubit (passed via
+/// route extra) so cart/selection state stays in sync.
 class ReviewsScreen extends StatefulWidget {
+  final int providerId;
   final String? providerName;
 
   const ReviewsScreen({
     super.key,
-    this.providerName = 'Alfa',
+    required this.providerId,
+    this.providerName,
   });
 
   @override
@@ -34,398 +26,152 @@ class ReviewsScreen extends StatefulWidget {
 }
 
 class _ReviewsScreenState extends State<ReviewsScreen> {
-  // Which star rating is selected (5 by default as per screenshot)
-  int? selectedRating;
-
-  // Sample reviews data
-  final List<Review> sampleReviews = [
-    Review(
-      userName: 'Me',
-      rating: 5,
-      date: '2 weeks ago',
-      text: 'من از زمان تحويل و كيفيت كالا كاملا راضى بودم و خريد اين كالا رو به شما پيشنهاد ميكنم.',
-    ),
-    Review(
-      userName: 'Ahmed Mohamed',
-      rating: 4,
-      date: '2 weeks ago',
-      text: 'من از زمان تحويل و كيفيت كالا كاملا راضى بودم و خريد اين كالا رو به شما پيشنهاد ميكنم.',
-    ),
-    Review(
-      userName: 'Ahmed Mohamed',
-      rating: 5,
-      date: '2 weeks ago',
-      text: 'من از زمان تحويل و كيفيت كالا كاملا راضى بودم و خريد اين كالا رو به شما پيشنهاد ميكنم.',
-    ),
-    Review(
-      userName: 'Ahmed Mohamed',
-      rating: 3,
-      date: '2 weeks ago',
-      text: 'من از زمان تحويل و كيفيت كالا كاملا راضى بودم و خريد اين كالا رو به شما پيشنهاد ميكنم.',
-    ),
-  ];
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    selectedRating = 5; // Default selected is 5 stars as per the screenshot
+    _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<ProviderPageCubit>().loadReviews(reset: true);
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController
+      ..removeListener(_onScroll)
+      ..dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final position = _scrollController.position;
+    if (position.pixels >= position.maxScrollExtent - 200) {
+      context.read<ProviderPageCubit>().loadMoreReviews();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: Colors.white,
       body: Column(
         children: [
-          _buildBlueHeader(context),
-          _buildShareReviewButton(context),
-          Expanded(
-            child: ListView.separated(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-              itemCount: sampleReviews.length,
-              physics: const BouncingScrollPhysics(),
-              separatorBuilder: (context, index) => SizedBox(height: 12.h),
-              itemBuilder: (context, index) {
-                final review = sampleReviews[index];
-                return _ReviewCard(review: review);
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Build the Share your review button
-  Widget _buildShareReviewButton(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(16.w),
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 12.h),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
-        ),
-        child: Center(
-          child: Text(
-            'Share your review',
-            style: AppTextStyles.of(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFF3872B1),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Build the top blue header
-  Widget _buildBlueHeader(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      decoration: const BoxDecoration(
-        color: Color(0xFF3872B1),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
-        ),
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 24.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Back button
-              GestureDetector(
-                onTap: () => context.pop(),
-                child: Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: Colors.white,
-                  size: 22.sp,
-                ),
-              ),
-              SizedBox(height: 16.h),
-
-              // Breadcrumb (Alfa > Reviews)
-              Row(
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(8.w, 10.h, 20.w, 6.h),
+              child: Row(
                 children: [
-                  Text(
-                    widget.providerName ?? '',
-                    style: AppTextStyles.of(
-                      color: Colors.white,
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.bold,
+                  IconButton(
+                    visualDensity: VisualDensity.compact,
+                    icon: Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: const Color(0xFF111827),
+                      size: 22.sp,
                     ),
+                    onPressed: () {
+                      if (Navigator.of(context).canPop()) {
+                        Navigator.of(context).pop();
+                      }
+                    },
                   ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.w),
-                    child: Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      color: Colors.white70,
-                      size: 12.sp,
-                    ),
-                  ),
-                  Text(
-                    'Reviews',
-                    style: AppTextStyles.of(
-                      color: Colors.white70,
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 24.h),
-
-              // Rating summary section
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Large rating display on left
                   Expanded(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '4.5',
-                              style: AppTextStyles.of(
-                                fontSize: 48.sp,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            SizedBox(width: 4.w),
-                            Icon(
-                              Icons.star_rounded,
-                              color: const Color(0xFFF5A623),
-                              size: 32.sp,
-                            ),
-                          ],
-                        ),
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 12.w, vertical: 4.h),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withAlpha(40),
-                            borderRadius: BorderRadius.circular(20.r),
+                        Text(
+                          'provider_page.reviews'.tr(),
+                          style: AppTextStyles.of(
+                            fontSize: 26.sp,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF111827),
                           ),
-                          child: Text(
-                            '653 reviews',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if ((widget.providerName ?? '').isNotEmpty) ...[
+                          SizedBox(height: 2.h),
+                          Text(
+                            widget.providerName!,
                             style: AppTextStyles.of(
-                              fontSize: 12.sp,
-                              color: Colors.white,
+                              fontSize: 13.sp,
+                              color: const Color(0xFF6B7280),
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  SizedBox(width: 24.w),
-
-                  // Star rating bars on right
-                  Expanded(
-                    child: Column(
-                      children: [
-                        _buildRatingBar(5, 42, () => _selectRating(5)),
-                        SizedBox(height: 6.h),
-                        _buildRatingBar(4, 12, () => _selectRating(4)),
-                        SizedBox(height: 6.h),
-                        _buildRatingBar(3, 5, () => _selectRating(3)),
-                        SizedBox(height: 6.h),
-                        _buildRatingBar(2, 2, () => _selectRating(2)),
-                        SizedBox(height: 6.h),
-                        _buildRatingBar(1, 1, () => _selectRating(1)),
+                        ],
                       ],
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 16.h),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Build individual rating bar
-  Widget _buildRatingBar(int stars, int count, VoidCallback onTap) {
-    final isSelected = selectedRating == stars;
-    return GestureDetector(
-      onTap: onTap,
-      child: Row(
-        children: [
-          Text(
-            '$stars',
-            style: AppTextStyles.of(
-              fontSize: 12.sp,
-              color: Colors.white,
-              fontWeight: FontWeight.w500,
             ),
           ),
-          SizedBox(width: 4.w),
-          Icon(
-            Icons.star_rounded,
-            color: isSelected
-                ? const Color(0xFFF5A623)
-                : Colors.white.withAlpha(100),
-            size: 14.sp,
-          ),
-          SizedBox(width: 8.w),
           Expanded(
-            child: Container(
-              height: 8.h,
-              decoration: BoxDecoration(
-                color: Colors.white.withAlpha(50),
-                borderRadius: BorderRadius.circular(4.r),
-              ),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: FractionallySizedBox(
-                  widthFactor: count / 42, // 42 is max count as per screenshot
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? const Color(0xFFF5A623)
-                          : Colors.white,
-                      borderRadius: BorderRadius.circular(4.r),
+            child: BlocBuilder<ProviderPageCubit, ProviderPageState>(
+              buildWhen: (previous, current) =>
+                  previous.reviews != current.reviews ||
+                  previous.isReviewsLoading != current.isReviewsLoading ||
+                  previous.isReviewsLoadingMore !=
+                      current.isReviewsLoadingMore ||
+                  previous.reviewsError != current.reviewsError,
+              builder: (context, state) {
+                if (state.isReviewsLoading && state.reviews.isEmpty) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: Color(0xFF3872B1),
                     ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          SizedBox(width: 8.w),
-          Text(
-            '$count',
-            style: AppTextStyles.of(
-              fontSize: 12.sp,
-              color: Colors.white,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Handle star rating selection
-  void _selectRating(int rating) {
-    setState(() {
-      selectedRating = rating;
-    });
-  }
-}
-
-// Individual review card widget
-class _ReviewCard extends StatelessWidget {
-  final Review review;
-
-  const _ReviewCard({required this.review});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  // User avatar
-                  Container(
-                    width: 48.w,
-                    height: 48.w,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFE2E8F0),
-                      shape: BoxShape.circle,
+                  );
+                }
+                if (state.reviewsError != null && state.reviews.isEmpty) {
+                  return ErrorStateWidget(
+                    error: state.reviewsError!,
+                    onRetry: () => context
+                        .read<ProviderPageCubit>()
+                        .loadReviews(reset: true),
+                  );
+                }
+                if (state.reviews.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'provider_page.no_reviews_found'.tr(),
+                      style: AppTextStyles.of(
+                        fontSize: 14.sp,
+                        color: const Color(0xFF6B7280),
+                      ),
                     ),
-                    child: review.userImage != null
-                        ? ClipOval(
-                            child: Image.network(
-                              review.userImage!,
-                              fit: BoxFit.cover,
-                            ),
-                          )
-                        : Icon(
-                            Icons.person_rounded,
-                            color: const Color(0xFF64748B),
-                            size: 24.sp,
+                  );
+                }
+                return ListView.separated(
+                  controller: _scrollController,
+                  padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 24.h),
+                  itemCount:
+                      state.reviews.length +
+                      (state.isReviewsLoadingMore ? 1 : 0),
+                  separatorBuilder: (_, _) => SizedBox(height: 12.h),
+                  itemBuilder: (context, index) {
+                    if (index >= state.reviews.length) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: Color(0xFF3872B1),
                           ),
-                  ),
-                  SizedBox(width: 12.w),
-                  // User name and stars
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        review.userName,
-                        style: AppTextStyles.of(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFF0F172A),
                         ),
-                      ),
-                      SizedBox(height: 4.h),
-                      Row(
-                        children: List.generate(5, (index) {
-                          return Icon(
-                            index < review.rating
-                                ? Icons.star_rounded
-                                : Icons.star_border_rounded,
-                            color: const Color(0xFFF5A623),
-                            size: 14.sp,
-                          );
-                        }),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              // More options button
-              Icon(
-                Icons.more_vert_rounded,
-                color: const Color(0xFF64748B),
-                size: 20.sp,
-              ),
-            ],
-          ),
-          SizedBox(height: 8.h),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Text(
-              review.date,
-              style: AppTextStyles.of(
-                fontSize: 12.sp,
-                color: const Color(0xFF64748B),
-              ),
-            ),
-          ),
-          SizedBox(height: 12.h),
-          Text(
-            review.text,
-            style: AppTextStyles.of(
-              fontSize: 14.sp,
-              color: const Color(0xFF475569),
+                      );
+                    }
+                    return ProviderReviewCard(
+                      review: state.reviews[index],
+                    );
+                  },
+                );
+              },
             ),
           ),
         ],

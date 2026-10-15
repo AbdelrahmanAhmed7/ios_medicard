@@ -20,7 +20,6 @@ import '../mappers/guest_home_mappers.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
-
 class GuestHomeScreen extends StatefulWidget {
   const GuestHomeScreen({super.key});
 
@@ -96,20 +95,27 @@ class _GuestHomeScreenState extends State<GuestHomeScreen> {
     required Widget child,
     List<PromoBanner> banners = const [],
   }) {
-    return CustomScrollView(
-      physics: const BouncingScrollPhysics(),
-      slivers: [
-        const SliverToBoxAdapter(child: _GuestHomeHeader()),
-        SliverToBoxAdapter(
-          child: QuickActionsRow(actions: HomeMockData.guestQuickActions),
+    return RefreshIndicator(
+      onRefresh: _guestHomeCubit.getGuestHomeData,
+      backgroundColor: Colors.white,
+      color: const Color(0xFF3872B1),
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
         ),
-        if (banners.isNotEmpty) ...[
-          SliverToBoxAdapter(child: PromoBannerWidget(banners: banners)),
-          const SliverToBoxAdapter(child: SizedBox(height: 16)),
+        slivers: [
+          const SliverToBoxAdapter(child: _GuestHomeHeader()),
+          SliverToBoxAdapter(
+            child: QuickActionsRow(actions: HomeMockData.guestQuickActions),
+          ),
+          if (banners.isNotEmpty) ...[
+            SliverToBoxAdapter(child: PromoBannerWidget(banners: banners)),
+            const SliverToBoxAdapter(child: SizedBox(height: 16)),
+          ],
+          SliverToBoxAdapter(child: child),
+          const SliverToBoxAdapter(child: SizedBox(height: 32)),
         ],
-        SliverToBoxAdapter(child: child),
-        const SliverToBoxAdapter(child: SizedBox(height: 32)),
-      ],
+      ),
     );
   }
 }

@@ -39,10 +39,7 @@ class PendingAppointmentCard extends StatelessWidget {
           );
           return;
         }
-        context.push(
-          '/pending-appointment-details',
-          extra: appointment,
-        );
+        context.push('/pending-appointment-details', extra: appointment);
       },
       child: Container(
         width: 303,

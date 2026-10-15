@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../data/home_mock_data.dart';
+import '../../../../core/theming/app_spacing.dart';
 import '../../../../core/theming/app_text_styles.dart';
 
 class PromoBannerWidget extends StatefulWidget {
@@ -64,7 +65,12 @@ class _PromoBannerWidgetState extends State<PromoBannerWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 10.h),
+          padding: EdgeInsets.fromLTRB(
+            AppSpacing.pageHorizontal,
+            0,
+            AppSpacing.pageHorizontal,
+            8.h,
+          ),
           child: Text(
             'home.discover_offers'.tr(),
             style: AppTextStyles.of(

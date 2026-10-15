@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../../core/theming/app_spacing.dart';
 import '../../../../core/theming/app_text_styles.dart';
 
 /// Reusable section header: "Title  View all ›"
@@ -15,7 +16,7 @@ class HomeSectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: AppSpacing.pageHorizontalInsets,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [

@@ -52,6 +52,7 @@ Map<String, dynamic> _$HomeSliderToJson(HomeSlider instance) =>
 Map<String, dynamic> _$HomePendingAppointmentToJson(
   HomePendingAppointment instance,
 ) => <String, dynamic>{
+  'invoiceId': instance.invoiceId,
   'providerId': instance.providerId,
   'providerBranchId': instance.providerBranchId,
   'providerName': instance.providerName,

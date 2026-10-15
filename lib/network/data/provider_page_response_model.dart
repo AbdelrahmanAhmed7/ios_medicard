@@ -4,6 +4,9 @@ import 'provider_services_response_model.dart';
 
 part 'provider_page_response_model.g.dart';
 
+Object? _readPackageImage(Map<dynamic, dynamic> json, String key) =>
+    json['image'] ?? json['imageUrl'];
+
 @JsonSerializable(explicitToJson: true)
 class ProviderPageResponse {
   final int? httpStatusCode;
@@ -260,21 +263,30 @@ class ProviderPackagesData {
 class ProviderPackage {
   final int? id;
   final String? name;
+  final int? providerId;
+  final String? providerNameAr;
+  final String? providerNameEn;
+  @JsonKey(name: 'image', readValue: _readPackageImage)
   final String? imageUrl;
   final String? description;
   final double? priceBefore;
   final double? priceAfter;
   final double? discountPercentage;
+  final List<String>? serviceNames;
   final int? servicesCount;
 
   ProviderPackage({
     this.id,
     this.name,
+    this.providerId,
+    this.providerNameAr,
+    this.providerNameEn,
     this.imageUrl,
     this.description,
     this.priceBefore,
     this.priceAfter,
     this.discountPercentage,
+    this.serviceNames,
     this.servicesCount,
   });
 
@@ -282,6 +294,13 @@ class ProviderPackage {
       _$ProviderPackageFromJson(json);
 
   Map<String, dynamic> toJson() => _$ProviderPackageToJson(this);
+
+  String providerName(bool isArabic) {
+    final localized = isArabic ? providerNameAr : providerNameEn;
+    if (localized != null && localized.trim().isNotEmpty) return localized;
+    final fallback = isArabic ? providerNameEn : providerNameAr;
+    return fallback?.trim() ?? '';
+  }
 }
 
 @JsonSerializable(explicitToJson: true)
@@ -310,6 +329,8 @@ class PackageDetailsResponse {
 class PackageDetailsData {
   final int? id;
   final String? name;
+  final String? providerNameAr;
+  final String? providerNameEn;
   final String? description;
   final String? image;
   final double? priceBefore;
@@ -324,6 +345,8 @@ class PackageDetailsData {
   PackageDetailsData({
     this.id,
     this.name,
+    this.providerNameAr,
+    this.providerNameEn,
     this.description,
     this.image,
     this.priceBefore,
@@ -337,4 +360,11 @@ class PackageDetailsData {
       _$PackageDetailsDataFromJson(json);
 
   Map<String, dynamic> toJson() => _$PackageDetailsDataToJson(this);
+
+  String providerName(bool isArabic) {
+    final localized = isArabic ? providerNameAr : providerNameEn;
+    if (localized != null && localized.trim().isNotEmpty) return localized;
+    final fallback = isArabic ? providerNameEn : providerNameAr;
+    return fallback?.trim() ?? '';
+  }
 }

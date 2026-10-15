@@ -78,32 +78,44 @@ Future<void> openPackageCheckout(
   }
   if (!context.mounted) return;
 
-  final branches = cubit.state.providerData?.branches;
-  final branchId =
-      selectedBranch?.branchId ??
-      ((branches != null && branches.isNotEmpty)
-          ? branches.first.branchId
-          : null);
-  final branch =
-      selectedBranch ??
-      ((branches != null && branches.isNotEmpty) ? branches.first : null);
-
-  if (branchId == null || branch == null) {
+  var resolvedDetails = details ?? cubit.state.packageDetailsById[packageId];
+  var packageProviderId = resolvedDetails?.providerId ?? packageData.providerId;
+  if (packageProviderId == null) {
+    await cubit.togglePackageDetails(packageId);
+    if (!context.mounted) return;
+    resolvedDetails = cubit.state.packageDetailsById[packageId];
+    packageProviderId = resolvedDetails?.providerId;
+  }
+  if (packageProviderId == null) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('provider_page.select_branch_first'.tr())),
+      const SnackBar(content: Text('Package provider data is missing.')),
     );
     return;
   }
 
+  final isArabic = context.locale.languageCode == 'ar';
+  final detailsProviderName = resolvedDetails?.providerName(isArabic) ?? '';
+  final packageProviderName = packageData.providerName(isArabic);
+  final providerName = detailsProviderName.isNotEmpty
+      ? detailsProviderName
+      : packageProviderName.isNotEmpty
+      ? packageProviderName
+      : cubit.state.providerData?.name;
+
   context.push(
     '/checkout',
     extra: {
-      'providerId': cubit.providerId,
-      'selectedBranch': branch,
+      'providerId': packageProviderId,
+      'providerName': providerName,
+      'selectedBranch': selectedBranch,
       'packageId': packageId,
-      'packageName': details?.name ?? packageData.name,
-      'packagePriceBefore': details?.priceBefore ?? packageData.priceBefore,
-      'packagePriceAfter': details?.priceAfter ?? packageData.priceAfter,
+      'packageName': resolvedDetails?.name ?? packageData.name,
+      'packageServiceNames':
+          resolvedDetails?.serviceNames ?? packageData.serviceNames ?? const [],
+      'packagePriceBefore':
+          resolvedDetails?.priceBefore ?? packageData.priceBefore,
+      'packagePriceAfter':
+          resolvedDetails?.priceAfter ?? packageData.priceAfter,
     },
   );
 }
@@ -155,9 +167,7 @@ class _PackageDetailsSheetBody extends StatelessWidget {
             return Container(
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(12.r),
-                ),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(12.r)),
               ),
               clipBehavior: Clip.antiAlias,
               child: ListView(
@@ -297,8 +307,7 @@ class _PackageDetailsSheetBody extends StatelessWidget {
                                       style: AppTextStyles.of(
                                         color: Colors.black,
                                         fontSize: 13.sp,
-                                        decoration:
-                                            TextDecoration.lineThrough,
+                                        decoration: TextDecoration.lineThrough,
                                       ),
                                     ),
                                     SizedBox(width: 10.w),
@@ -332,15 +341,11 @@ class _PackageDetailsSheetBody extends StatelessWidget {
                                           );
                                         },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(
-                                      0xFF3872B1,
-                                    ),
+                                    backgroundColor: const Color(0xFF3872B1),
                                     foregroundColor: Colors.white,
                                     elevation: 0,
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                        8.r,
-                                      ),
+                                      borderRadius: BorderRadius.circular(8.r),
                                     ),
                                   ),
                                   child: Text(
@@ -354,9 +359,7 @@ class _PackageDetailsSheetBody extends StatelessWidget {
                               ),
                               SizedBox(
                                 height:
-                                    MediaQuery.of(
-                                      context,
-                                    ).padding.bottom +
+                                    MediaQuery.of(context).padding.bottom +
                                     16.h,
                               ),
                             ],

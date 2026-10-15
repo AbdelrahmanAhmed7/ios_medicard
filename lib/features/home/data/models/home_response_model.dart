@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'home_response_model.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(createFactory: false)
 class HomeResponseModel {
   final int? httpStatusCode;
   final List<String>? errors;
@@ -74,7 +74,7 @@ class HomeDataModel {
   Map<String, dynamic> toJson() => _$HomeDataModelToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(createFactory: false)
 class HomeSlider {
   final int? id;
   final String? imageUrl;
@@ -98,7 +98,7 @@ class HomeSlider {
   Map<String, dynamic> toJson() => _$HomeSliderToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(createFactory: false)
 class HomePendingAppointment {
   final int? invoiceId;
   final int? providerId;
@@ -138,7 +138,7 @@ class HomePendingAppointment {
   Map<String, dynamic> toJson() => _$HomePendingAppointmentToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(createFactory: false)
 class HomeNearestProvider {
   final int? providerId;
   final int? providerBranchId;
@@ -175,7 +175,7 @@ class HomeNearestProvider {
   Map<String, dynamic> toJson() => _$HomeNearestProviderToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(createFactory: false)
 class HomePackage {
   final int? packageId;
   final int? providerId;

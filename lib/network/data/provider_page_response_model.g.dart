@@ -229,11 +229,17 @@ ProviderPackage _$ProviderPackageFromJson(Map<String, dynamic> json) =>
     ProviderPackage(
       id: (json['id'] as num?)?.toInt(),
       name: json['name'] as String?,
-      imageUrl: json['imageUrl'] as String?,
+      providerId: (json['providerId'] as num?)?.toInt(),
+      providerNameAr: json['providerNameAr'] as String?,
+      providerNameEn: json['providerNameEn'] as String?,
+      imageUrl: _readPackageImage(json, 'image') as String?,
       description: json['description'] as String?,
       priceBefore: (json['priceBefore'] as num?)?.toDouble(),
       priceAfter: (json['priceAfter'] as num?)?.toDouble(),
       discountPercentage: (json['discountPercentage'] as num?)?.toDouble(),
+      serviceNames: (json['serviceNames'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
       servicesCount: (json['servicesCount'] as num?)?.toInt(),
     );
 
@@ -241,11 +247,15 @@ Map<String, dynamic> _$ProviderPackageToJson(ProviderPackage instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
-      'imageUrl': instance.imageUrl,
+      'providerId': instance.providerId,
+      'providerNameAr': instance.providerNameAr,
+      'providerNameEn': instance.providerNameEn,
+      'image': instance.imageUrl,
       'description': instance.description,
       'priceBefore': instance.priceBefore,
       'priceAfter': instance.priceAfter,
       'discountPercentage': instance.discountPercentage,
+      'serviceNames': instance.serviceNames,
       'servicesCount': instance.servicesCount,
     };
 
@@ -275,6 +285,8 @@ PackageDetailsData _$PackageDetailsDataFromJson(Map<String, dynamic> json) =>
     PackageDetailsData(
       id: (json['id'] as num?)?.toInt(),
       name: json['name'] as String?,
+      providerNameAr: json['providerNameAr'] as String?,
+      providerNameEn: json['providerNameEn'] as String?,
       description: json['description'] as String?,
       image: json['image'] as String?,
       priceBefore: (json['priceBefore'] as num?)?.toDouble(),
@@ -290,6 +302,8 @@ Map<String, dynamic> _$PackageDetailsDataToJson(PackageDetailsData instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
+      'providerNameAr': instance.providerNameAr,
+      'providerNameEn': instance.providerNameEn,
       'description': instance.description,
       'image': instance.image,
       'priceBefore': instance.priceBefore,

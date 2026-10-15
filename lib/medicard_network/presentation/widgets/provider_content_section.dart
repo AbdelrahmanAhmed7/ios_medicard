@@ -28,16 +28,37 @@ class ProviderContentSection extends StatelessWidget {
     return BlocBuilder<ProviderPageCubit, ProviderPageState>(
       buildWhen: ProviderRebuildScopes.isContentSliceChanged,
       builder: (context, state) {
+        late final Widget content;
+        String? title;
         if (state.currentView == ProviderViewType.services) {
-          return CategoryTabsSection(state: state);
+          title = 'provider_page.services'.tr();
+          content = CategoryTabsSection(state: state);
         } else if (state.currentView == ProviderViewType.packages) {
-          return PackagesSection(
+          title = 'provider_page.packages'.tr();
+          content = PackagesSection(
             state: state,
             selectedBranch: selectedBranch,
           );
         } else {
-          return ReviewsSection(state: state);
+          content = ReviewsSection(state: state);
         }
+
+        if (title == null) return content;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: AppTextStyles.of(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF111827),
+              ),
+            ),
+            SizedBox(height: 12.h),
+            content,
+          ],
+        );
       },
     );
   }
@@ -210,10 +231,7 @@ class TabServicesBody extends StatelessWidget {
     return Column(
       children: [
         for (var i = 0; i < items.length; i++) ...[
-          CategoryServiceCard(
-            service: items[i],
-            categoryId: tab.categoryId,
-          ),
+          CategoryServiceCard(service: items[i], categoryId: tab.categoryId),
           if (i < items.length - 1) SizedBox(height: 12.h),
         ],
         if (tab.hasMore && query.isEmpty) ...[

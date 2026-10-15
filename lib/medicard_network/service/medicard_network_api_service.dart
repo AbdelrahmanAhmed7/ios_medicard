@@ -4,6 +4,7 @@ import 'package:retrofit/retrofit.dart';
 import '../../network/data/provider_page_response_model.dart';
 import '../../network/data/provider_services_response_model.dart';
 import '../../network/data/provider_categories_models.dart';
+import '../../network/data/all_packages_models.dart';
 
 part 'medicard_network_api_service.g.dart';
 
@@ -48,6 +49,13 @@ abstract class MedicardNetworkApiService {
   Future<PackageDetailsResponse> getPackageDetails(
     @Path("packageId") int packageId,
   );
+
+  @GET("Package")
+  Future<AllPackagesResponse> getAllPackages({
+    @Query("pageNumber") int? pageNumber,
+    @Query("pageSize") int? pageSize,
+    @Query("Search") String? search,
+  });
 
   @GET("CategoryService/providerCategories")
   Future<ProviderCategoriesResponse> getProviderCategories(

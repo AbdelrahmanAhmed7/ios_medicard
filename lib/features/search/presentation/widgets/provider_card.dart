@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +12,6 @@ import '../../data/models/search_provider_model.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
-
 class ProviderCard extends StatelessWidget {
   final SearchProviderModel provider;
 
@@ -21,14 +22,11 @@ class ProviderCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         if (provider.providerId != null) {
-          context.push(
-            '/provider-page',
-            extra: provider.providerId,
-          );
+          context.push('/provider-page', extra: provider.providerId);
         }
       },
       child: Container(
-        constraints: BoxConstraints(minHeight: 124.h),
+        height: 150.h,
         margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -42,56 +40,54 @@ class ProviderCard extends StatelessWidget {
             ),
           ],
         ),
-        child: IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildImageSection(),
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(12.w, 13.h, 12.w, 13.h),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                    if (_hasText(provider.providerName)) ...[
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              provider.providerName!.trim(),
-                              style: AppTextStyles.of(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 16.sp,
-                                color: const Color(0xFF0F172A),
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildImageSection(),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(12.w, 13.h, 12.w, 13.h),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _hasText(provider.providerName)
+                                ? provider.providerName!.trim()
+                                : '',
+                            style: AppTextStyles.of(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16.sp,
+                              color: const Color(0xFF0F172A),
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          Icon(
-                            Icons.arrow_forward_ios_rounded,
-                            size: 14.sp,
-                            color: const Color(0xFFC3CEDD),
-                          ),
-                        ],
+                        ),
+                        Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          size: 14.sp,
+                          color: const Color(0xFFC3CEDD),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 7.h),
+                    if ((provider.maxDiscountPercentage ?? 0) > 0) ...[
+                      _DiscountChipsRow(
+                        categoryName: provider.categoryName,
+                        maxDiscount: provider.maxDiscountPercentage,
                       ),
                       SizedBox(height: 7.h),
                     ],
-                      if ((provider.maxDiscountPercentage ?? 0) > 0) ...[
-                        _DiscountChipsRow(
-                          categoryName: provider.categoryName,
-                          maxDiscount: provider.maxDiscountPercentage,
-                        ),
-                        SizedBox(height: 7.h),
-                      ],
-                      _RatingAndLocationRow(provider: provider),
-                    ],
-                  ),
+                    _LocationAndContactRow(provider: provider),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -99,6 +95,7 @@ class ProviderCard extends StatelessWidget {
 
   Widget _buildImageSection() {
     return SizedBox(
+      key: ValueKey('provider_image_${provider.providerId}'),
       width: 108.w,
       child: Padding(
         padding: EdgeInsets.all(8.r),
@@ -106,35 +103,77 @@ class ProviderCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12.r),
           child: Stack(
             fit: StackFit.expand,
-          children: [
-            CachedNetworkImage(
-              imageUrl: provider.imageUrl ?? '',
-              fit: BoxFit.cover,
-              placeholder: (context, url) => Container(
-                color: const Color(0xFFEEF3FB),
-                child: Icon(
-                  Icons.local_hospital_outlined,
-                  color: const Color(0xFFB9CBE4),
-                  size: 30.sp,
+            children: [
+              CachedNetworkImage(
+                imageUrl: provider.imageUrl ?? '',
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Container(
+                  color: const Color(0xFFEEF3FB),
+                  child: Icon(
+                    Icons.local_hospital_outlined,
+                    color: const Color(0xFFB9CBE4),
+                    size: 30.sp,
+                  ),
+                ),
+                errorWidget: (context, url, error) => Container(
+                  color: const Color(0xFFEEF3FB),
+                  child: Icon(
+                    Icons.local_hospital_outlined,
+                    color: const Color(0xFF3872B1),
+                    size: 30.sp,
+                  ),
                 ),
               ),
-              errorWidget: (context, url, error) => Container(
-                color: const Color(0xFFEEF3FB),
-                child: Icon(
-                  Icons.local_hospital_outlined,
-                  color: const Color(0xFF3872B1),
-                  size: 30.sp,
+              if ((provider.averageRating ?? 0) > 0)
+                PositionedDirectional(
+                  top: 6.h,
+                  start: 6.w,
+                  child: _RatingBadge(
+                    key: ValueKey('provider_rating_${provider.providerId}'),
+                    rating: provider.averageRating!,
+                  ),
                 ),
-              ),
-            ),
-          ],
-        ),
+            ],
+          ),
         ),
       ),
     );
   }
 
   bool _hasText(String? value) => value != null && value.trim().isNotEmpty;
+}
+
+class _RatingBadge extends StatelessWidget {
+  final double rating;
+
+  const _RatingBadge({super.key, required this.rating});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF8E7),
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(color: const Color(0xFFFDE6AE)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.star_rounded, color: const Color(0xFFF5A623), size: 13.sp),
+          SizedBox(width: 2.w),
+          Text(
+            rating.toStringAsFixed(1),
+            style: AppTextStyles.of(
+              fontSize: 10.5.sp,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF1F2937),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _DiscountChipsRow extends StatelessWidget {
@@ -150,20 +189,20 @@ class _DiscountChipsRow extends StatelessWidget {
     }
 
     final pct = maxDiscount!.toStringAsFixed(0);
-    final hasCategory =
-        categoryName != null && categoryName!.trim().isNotEmpty;
+    final hasCategory = categoryName != null && categoryName!.trim().isNotEmpty;
 
-    return Wrap(
-      spacing: 6.w,
-      runSpacing: 6.h,
+    return Row(
       children: [
         if (hasCategory)
-          _buildChip(
-            categoryName!.trim(),
-            const Color(0xFFF1F5F9),
-            const Color(0xFF64748B),
-            FontWeight.w500,
+          Flexible(
+            child: _buildChip(
+              categoryName!.trim(),
+              const Color(0xFFF1F5F9),
+              const Color(0xFF64748B),
+              FontWeight.w500,
+            ),
           ),
+        if (hasCategory) SizedBox(width: 6.w),
         _buildChip(
           'search.up_to_discount'.tr(args: [pct]),
           const Color(0xFFEFF6FF),
@@ -183,28 +222,27 @@ class _DiscountChipsRow extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: AppTextStyles.of(
-          fontSize: 11.sp,
-          color: fg,
-          fontWeight: weight,
-        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: AppTextStyles.of(fontSize: 11.sp, color: fg, fontWeight: weight),
       ),
     );
   }
 }
 
-class _RatingAndLocationRow extends StatelessWidget {
+class _LocationAndContactRow extends StatelessWidget {
   final SearchProviderModel provider;
 
-  const _RatingAndLocationRow({required this.provider});
+  const _LocationAndContactRow({required this.provider});
 
   @override
   Widget build(BuildContext context) {
-    final hasRating = (provider.averageRating ?? 0) > 0;
     final hasDistance = provider.distanceKm != null;
     final hotline = provider.hotline?.trim() ?? '';
+    final whatsApp = provider.whatsApp?.trim() ?? '';
+    final hasContactAction = hotline.isNotEmpty || whatsApp.isNotEmpty;
 
-    if (!hasRating && !hasDistance && hotline.isEmpty) {
+    if (!hasDistance && !hasContactAction) {
       return const SizedBox.shrink();
     }
 
@@ -212,24 +250,9 @@ class _RatingAndLocationRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Row(
-          children: [
-            if (hasRating) ...[
-              Icon(
-                Icons.star_rounded,
-                color: const Color(0xFFF5A623),
-                size: 16.sp,
-              ),
-              SizedBox(width: 4.w),
-              Text(
-                provider.totalReviews != null && provider.totalReviews! > 0
-                    ? '${provider.averageRating!.toStringAsFixed(1)} (${provider.totalReviews})'
-                    : provider.averageRating!.toStringAsFixed(1),
-                style: AppTextStyles.of(fontSize: 12.sp),
-              ),
-            ],
-            if (hasRating && hasDistance) const Spacer(),
-            if (hasDistance) ...[
+        if (hasDistance)
+          Row(
+            children: [
               Icon(
                 Icons.location_on_outlined,
                 size: 14.sp,
@@ -245,53 +268,68 @@ class _RatingAndLocationRow extends StatelessWidget {
                 ),
               ),
             ],
-          ],
-        ),
-        if (hotline.isNotEmpty) ...[
+          ),
+        if (hasContactAction) ...[
           SizedBox(height: 7.h),
           Row(
             children: [
-              GestureDetector(
-                onTap: () => UrlLauncherService().makePhoneCall(hotline),
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 10.w,
-                    vertical: 5.h,
+              if (hotline.isNotEmpty)
+                GestureDetector(
+                  key: ValueKey('provider_phone_${provider.providerId}'),
+                  onTap: () => UrlLauncherService().makePhoneCall(hotline),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 10.w,
+                      vertical: 5.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFECFDF5),
+                      borderRadius: BorderRadius.circular(20.r),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.phone_in_talk_rounded,
+                          size: 13.sp,
+                          color: const Color(0xFF16A34A),
+                        ),
+                        SizedBox(width: 5.w),
+                        Directionality(
+                          textDirection: ui.TextDirection.ltr,
+                          child: Text(
+                            hotline,
+                            style: AppTextStyles.of(
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF15803D),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFECFDF5),
-                    borderRadius: BorderRadius.circular(20.r),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.phone_in_talk_rounded,
-                        size: 13.sp,
-                        color: const Color(0xFF16A34A),
-                      ),
-                      SizedBox(width: 5.w),
-                      Text(
-                        hotline,
-                        style: AppTextStyles.of(
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF15803D),
+                ),
+              const Spacer(),
+              if (whatsApp.isNotEmpty)
+                Tooltip(
+                  message: 'help_center.whatsapp'.tr(),
+                  child: GestureDetector(
+                    key: ValueKey('provider_whatsapp_${provider.providerId}'),
+                    onTap: () => UrlLauncherService().launchWhatsApp(whatsApp),
+                    behavior: HitTestBehavior.opaque,
+                    child: SizedBox.square(
+                      dimension: 28.r,
+                      child: Center(
+                        child: SvgPicture.asset(
+                          'assets/whatsapp-svgrepo-com.svg',
+                          width: 20.r,
+                          height: 20.r,
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(width: 8.w),
-              GestureDetector(
-                onTap: () => UrlLauncherService().launchWhatsApp(hotline),
-                child: SvgPicture.asset(
-                  'assets/whatsapp-svgrepo-com.svg',
-                  width: 28.r,
-                  height: 28.r,
-                ),
-              ),
             ],
           ),
         ],

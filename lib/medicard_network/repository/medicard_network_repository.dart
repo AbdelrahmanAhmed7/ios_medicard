@@ -5,6 +5,7 @@ import '../../core/utils/api_error_parser.dart';
 import '../../network/data/provider_page_response_model.dart';
 import '../../network/data/provider_services_response_model.dart';
 import '../../network/data/provider_categories_models.dart';
+import '../../network/data/all_packages_models.dart';
 import '../service/medicard_network_api_service.dart';
 
 class MedicardNetworkRepository {
@@ -76,6 +77,29 @@ class MedicardNetworkRepository {
       }
     } catch (e) {
       _logDebugError('getProviderCategories', e);
+      return ApiResult.failure(_cleanError(e));
+    }
+  }
+  Future<ApiResult<AllPackagesResponse>> getAllPackages({
+    int pageNumber = 1,
+    int pageSize = 15,
+    String? search,
+  }) async {
+    try {
+      final response = await _apiService.getAllPackages(
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+        search: search,
+      );
+      if (response.succeeded == true) {
+        return ApiResult.success(response);
+      } else {
+        return ApiResult.failure(
+          response.message ?? 'Failed to load packages',
+        );
+      }
+    } catch (e) {
+      _logDebugError('getAllPackages', e);
       return ApiResult.failure(_cleanError(e));
     }
   }

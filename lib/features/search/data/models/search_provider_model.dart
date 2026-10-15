@@ -4,6 +4,7 @@ class SearchProviderModel {
   final String? categoryName;
   final String? imageUrl;
   final String? hotline;
+  final String? whatsApp;
   final double? maxDiscountPercentage;
   final double? averageRating;
   final int? totalReviews;
@@ -15,6 +16,7 @@ class SearchProviderModel {
     this.categoryName,
     this.imageUrl,
     this.hotline,
+    this.whatsApp,
     this.maxDiscountPercentage,
     this.averageRating,
     this.totalReviews,
@@ -30,6 +32,12 @@ class SearchProviderModel {
           json['imageUrl'] ?? json['providerImageUrl'] ?? json['image'],
         ),
         hotline: _stringValue(json['hotline'] ?? json['hotLine']),
+        whatsApp: _stringValue(
+          json['whatsApp'] ??
+              json['whatsapp'] ??
+              json['whatsAppNumber'] ??
+              json['whatsappNumber'],
+        ),
         maxDiscountPercentage: _doubleValue(
           json['maxDiscountPercentage'] ?? json['discountPercentage'],
         ),
@@ -44,6 +52,7 @@ class SearchProviderModel {
     'categoryName': categoryName,
     'imageUrl': imageUrl,
     'hotline': hotline,
+    'whatsApp': whatsApp,
     'maxDiscountPercentage': maxDiscountPercentage,
     'averageRating': averageRating,
     'totalReviews': totalReviews,

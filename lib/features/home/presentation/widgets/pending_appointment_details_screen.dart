@@ -8,14 +8,10 @@ import '../../domain/models/appointment_model.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
-
 class PendingAppointmentDetailsScreen extends StatelessWidget {
   final AppointmentModel appointment;
 
-  const PendingAppointmentDetailsScreen({
-    super.key,
-    required this.appointment,
-  });
+  const PendingAppointmentDetailsScreen({super.key, required this.appointment});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +25,7 @@ class PendingAppointmentDetailsScreen extends StatelessWidget {
           SafeArea(
             bottom: false,
             child: Padding(
-              padding: EdgeInsets.fromLTRB(8.w, 10.h, 20.w, 6.h),
+              padding: EdgeInsets.fromLTRB(8.w, 16.h, 8.w, 6.h),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -50,7 +46,7 @@ class PendingAppointmentDetailsScreen extends StatelessWidget {
                     child: Text(
                       'activity.appointment_details'.tr(),
                       style: AppTextStyles.of(
-                            fontSize: 26.sp,
+                        fontSize: 26.sp,
                         fontWeight: FontWeight.w700,
                         color: const Color(0xFF111827),
                       ),

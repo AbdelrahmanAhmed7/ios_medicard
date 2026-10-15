@@ -82,7 +82,7 @@ class ProviderPackageCard extends StatelessWidget {
               ),
             ),
             Expanded(
-              flex: 3,
+              flex: 4,
               child: Padding(
                 padding: EdgeInsets.fromLTRB(8.w, 7.h, 8.w, 8.h),
                 child: Column(
@@ -98,7 +98,20 @@ class ProviderPackageCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: 5.h),
+                    if (packageData.description?.trim().isNotEmpty == true) ...[
+                      SizedBox(height: 3.h),
+                      Text(
+                        packageData.description!.trim(),
+                        style: AppTextStyles.of(
+                          fontSize: 10.5.sp,
+                          color: const Color(0xFF6B7280),
+                          height: 1.3,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                    const Spacer(),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.end,

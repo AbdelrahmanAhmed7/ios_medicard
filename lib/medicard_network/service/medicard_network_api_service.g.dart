@@ -213,6 +213,42 @@ class _MedicardNetworkApiService implements MedicardNetworkApiService {
   }
 
   @override
+  Future<AllPackagesResponse> getAllPackages({
+    int? pageNumber,
+    int? pageSize,
+    String? search,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'pageNumber': pageNumber,
+      r'pageSize': pageSize,
+      r'Search': search,
+    };
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<AllPackagesResponse>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            'Package',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late AllPackagesResponse _value;
+    try {
+      _value = AllPackagesResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
   Future<ProviderCategoriesResponse> getProviderCategories(
     int providerId,
   ) async {

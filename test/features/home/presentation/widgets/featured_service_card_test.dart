@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medicard/core/constants/api_result.dart';
 import 'package:medicard/core/di/service_locator.dart';
@@ -63,14 +64,17 @@ Widget _testApp(Widget child) {
     fallbackLocale: const Locale('en'),
     useOnlyLangCode: true,
     child: Builder(
-      builder: (context) => MaterialApp(
-        localizationsDelegates: context.localizationDelegates,
-        supportedLocales: context.supportedLocales,
-        locale: context.locale,
-        // The app's styles inherit the family from ThemeData; the default test
-        // font is a fixed-width box per glyph, which overflows the 270dp card.
-        theme: ThemeData(fontFamily: 'Cairo'),
-        home: Scaffold(body: child),
+      builder: (context) => ScreenUtilInit(
+        designSize: const Size(1400, 2000),
+        builder: (_, _) => MaterialApp(
+          localizationsDelegates: context.localizationDelegates,
+          supportedLocales: context.supportedLocales,
+          locale: context.locale,
+          // The app's styles inherit the family from ThemeData; the default
+          // test font is a fixed-width box per glyph, which overflows the card.
+          theme: ThemeData(fontFamily: 'Cairo'),
+          home: Scaffold(body: child),
+        ),
       ),
     ),
   );
@@ -102,10 +106,22 @@ void main() {
       );
       // Wide surface + small DPR so dp width is large enough that the card's
       // Rows (price + CTA) don't overflow during layout in tests.
-      TestWidgetsFlutterBinding.instance.platformDispatcher.views.first
-          .physicalSize = const Size(1400, 2000);
-      TestWidgetsFlutterBinding.instance.platformDispatcher.views.first
-          .devicePixelRatio = 1.0;
+      TestWidgetsFlutterBinding
+          .instance
+          .platformDispatcher
+          .views
+          .first
+          .physicalSize = const Size(
+        1400,
+        2000,
+      );
+      TestWidgetsFlutterBinding
+              .instance
+              .platformDispatcher
+              .views
+              .first
+              .devicePixelRatio =
+          1.0;
     });
 
     tearDown(() async {

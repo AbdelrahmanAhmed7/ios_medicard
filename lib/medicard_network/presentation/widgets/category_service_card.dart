@@ -22,7 +22,11 @@ class CategoryServiceCard extends StatelessWidget {
   /// services-by-category payload carries no category id itself.
   final int? categoryId;
 
-  const CategoryServiceCard({super.key, required this.service, this.categoryId});
+  const CategoryServiceCard({
+    super.key,
+    required this.service,
+    this.categoryId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,8 +38,11 @@ class CategoryServiceCard extends StatelessWidget {
         ? raw.id
         : (raw.serviceId as int? ?? raw.id as int?);
     if (serviceId == null) return const SizedBox.shrink();
-    return BlocSelector<ProviderPageCubit, ProviderPageState,
-        ({bool pending, bool inCart})>(
+    return BlocSelector<
+      ProviderPageCubit,
+      ProviderPageState,
+      ({bool pending, bool inCart})
+    >(
       selector: (state) => (
         pending: state.pendingCartActionIds.contains(serviceId),
         inCart: state.isServiceInCart(serviceId),
@@ -53,7 +60,7 @@ class CategoryServiceCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(16.r),
             border: Border.all(
               color: isSpecialOffer
-                  ? const Color(0xFFF97316).withValues(alpha: 0.45)
+                  ? const Color(0xFFDC2626).withValues(alpha: 0.45)
                   : flags.inCart
                   ? const Color(0xFF3872B1).withValues(alpha: 0.4)
                   : const Color(0xFFE2E8F0),
@@ -74,8 +81,6 @@ class CategoryServiceCard extends StatelessWidget {
                         color: const Color(0xFF0F172A),
                       ),
                     ),
-                    SizedBox(height: 4.h),
-                    _ServicePrice(service: service),
                     if (((service as dynamic).instruction as String?)
                             ?.trim()
                             .isNotEmpty ==
@@ -96,31 +101,14 @@ class CategoryServiceCard extends StatelessWidget {
                       SizedBox(height: 6.h),
                       ServiceBadge(
                         label: 'provider_page.special_offer'.tr(),
-                        color: const Color(0xFFF97316),
-                        backgroundColor: const Color(0xFFFFF4E6),
+                        color: const Color(0xFFDC2626),
+                        backgroundColor: const Color(0xFFFEF2F2),
                         icon: Icons.local_offer_rounded,
                       ),
                     ],
-                    if (flags.inCart) ...[
-                      SizedBox(height: 4.h),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.check_circle_rounded,
-                            size: 14.sp,
-                            color: const Color(0xFF3872B1),
-                          ),
-                          SizedBox(width: 4.w),
-                          Text(
-                            'Added to cart',
-                            style: AppTextStyles.of(
-                              fontSize: 12.sp,
-                              color: const Color(0xFF3872B1),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
+                    if (_hasPrice(service)) ...[
+                      SizedBox(height: 10.h),
+                      _ServicePrice(service: service),
                     ],
                   ],
                 ),
@@ -135,31 +123,14 @@ class CategoryServiceCard extends StatelessWidget {
                     color: Color(0xFF3872B1),
                   ),
                 )
-              else if (flags.inCart)
-                GestureDetector(
-                  onTap: () => cubit.removeFromCart(serviceId),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 12.w,
-                      vertical: 6.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEF4444),
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                    child: Text(
-                      'Remove',
-                      style: AppTextStyles.of(
-                        fontSize: 12.sp,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                )
               else
-                GestureDetector(
-                  onTap: () async {
+                CartActionButton(
+                  inCart: flags.inCart,
+                  onPressed: () async {
+                    if (flags.inCart) {
+                      cubit.removeFromCart(serviceId);
+                      return;
+                    }
                     if (await cubit.addToCart(
                           serviceId,
                           categoryId: categoryId,
@@ -168,24 +139,6 @@ class CategoryServiceCard extends StatelessWidget {
                       showLoginRequiredMessage(context);
                     }
                   },
-                  child: Container(
-                    width: 32.r,
-                    height: 32.r,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: const Color(0xFF3872B1),
-                        width: 1.2,
-                      ),
-                    ),
-                    child: const Center(
-                      child: Icon(
-                        Icons.add,
-                        color: Color(0xFF3872B1),
-                        size: 20,
-                      ),
-                    ),
-                  ),
                 ),
             ],
           ),
@@ -194,6 +147,10 @@ class CategoryServiceCard extends StatelessWidget {
     );
   }
 }
+
+bool _hasPrice(dynamic service) =>
+    (service as dynamic).priceBefore != null ||
+    (service as dynamic).priceAfter != null;
 
 /// Price row: before (struck) + after, hidden when the backend sent none.
 class _ServicePrice extends StatelessWidget {
@@ -231,4 +188,3 @@ class _ServicePrice extends StatelessWidget {
     );
   }
 }
-

@@ -22,7 +22,10 @@ class HomeBottomNav extends StatelessWidget {
     final bottomSafePadding = MediaQuery.viewPaddingOf(context).bottom;
     final items = <_NavItem>[
       _NavItem(icon: Icons.home_outlined, labelKey: 'home.nav_home'),
-      _NavItem(icon: Icons.receipt_long_outlined, labelKey: 'home.nav_invoices'),
+      _NavItem(
+        icon: Icons.receipt_long_outlined,
+        labelKey: 'home.nav_invoices',
+      ),
       _NavItem(
         icon: Icons.person_outline_rounded,
         labelKey: 'home.nav_profile',

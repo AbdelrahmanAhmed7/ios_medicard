@@ -246,8 +246,7 @@ class NearestProviderCard extends StatelessWidget {
                                   vertical: 2.h,
                                 ),
                                 minimumSize: Size.zero,
-                                tapTargetSize:
-                                    MaterialTapTargetSize.shrinkWrap,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
                             ),
                         ],

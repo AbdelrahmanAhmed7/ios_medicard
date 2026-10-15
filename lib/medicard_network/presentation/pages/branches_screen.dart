@@ -12,11 +12,7 @@ class BranchesScreen extends StatefulWidget {
   final List<ProviderBranch> branches;
   final String? providerName;
 
-  const BranchesScreen({
-    super.key,
-    required this.branches,
-    this.providerName = 'Alfa',
-  });
+  const BranchesScreen({super.key, required this.branches, this.providerName});
 
   @override
   State<BranchesScreen> createState() => _BranchesScreenState();
@@ -50,15 +46,31 @@ class _BranchesScreenState extends State<BranchesScreen> {
     }).toList();
   }
 
+  /// Arabic-aware count: واحد/اثنان/3-10 فروع/11+ فرع. English: 1 branch.
+  String _branchesCountText(int count, BuildContext context) {
+    final isArabic = context.locale.languageCode == 'ar';
+    if (!isArabic) {
+      return count == 1
+          ? 'provider_page.branches_found_one'.tr()
+          : 'provider_page.branches_found'.tr(args: ['$count']);
+    }
+    if (count == 1) return 'provider_page.branches_found_one'.tr();
+    if (count == 2) return 'provider_page.branches_found_two'.tr();
+    if (count <= 10) {
+      return 'provider_page.branches_found_few'.tr(args: ['$count']);
+    }
+    return 'provider_page.branches_found'.tr(args: ['$count']);
+  }
+
   @override
   Widget build(BuildContext context) {
     final filtered = _filteredBranches;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: Colors.white,
       body: Column(
         children: [
-          _buildBlueHeader(context),
+          _buildHeader(context),
           // Search field
           Padding(
             padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 0),
@@ -96,15 +108,15 @@ class _BranchesScreenState extends State<BranchesScreen> {
                   vertical: 12.h,
                 ),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(14.r),
+                  borderSide: const BorderSide(color: Color(0xFFE5E9F0)),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(14.r),
+                  borderSide: const BorderSide(color: Color(0xFFE5E9F0)),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.r),
+                  borderRadius: BorderRadius.circular(14.r),
                   borderSide: const BorderSide(color: Color(0xFF3872B1)),
                 ),
               ),
@@ -118,7 +130,7 @@ class _BranchesScreenState extends State<BranchesScreen> {
               child: Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: Text(
-                  'provider_page.branches_found'.tr(args: ['${filtered.length}']),
+                  _branchesCountText(filtered.length, context),
                   style: AppTextStyles.of(
                     fontSize: 12.sp,
                     color: const Color(0xFF6B7280),
@@ -171,62 +183,61 @@ class _BranchesScreenState extends State<BranchesScreen> {
     );
   }
 
-  Widget _buildBlueHeader(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      decoration: const BoxDecoration(
-        color: Color(0xFF3872B1),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
-        ),
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 24.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              GestureDetector(
-                onTap: () => context.pop(),
-                child: Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: Colors.white,
-                  size: 22.sp,
+  Widget _buildHeader(BuildContext context) {
+    final providerName = (widget.providerName ?? '').trim();
+    return SafeArea(
+      bottom: false,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(8.w, 10.h, 20.w, 6.h),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                IconButton(
+                  visualDensity: VisualDensity.compact,
+                  icon: Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: const Color(0xFF111827),
+                    size: 22.sp,
+                  ),
+                  onPressed: () {
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop();
+                    }
+                  },
                 ),
-              ),
-              SizedBox(height: 16.h),
-              Row(
-                children: [
-                  Text(
-                    widget.providerName ?? '',
-                    style: AppTextStyles.of(
-                      color: Colors.white,
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.w),
-                    child: Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      color: Colors.white70,
-                      size: 12.sp,
-                    ),
-                  ),
-                  Text(
+                Expanded(
+                  child: Text(
                     'provider_page.branches'.tr(),
                     style: AppTextStyles.of(
-                      color: Colors.white70,
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w500,
+                      fontSize: 26.sp,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF111827),
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ],
+                ),
+              ],
+            ),
+            if (providerName.isNotEmpty) ...[
+              SizedBox(height: 2.h),
+              Padding(
+                padding: EdgeInsetsDirectional.only(start: 48.w),
+                child: Text(
+                  providerName,
+                  style: AppTextStyles.of(
+                    fontSize: 13.sp,
+                    color: const Color(0xFF6B7280),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
-          ),
+          ],
         ),
       ),
     );

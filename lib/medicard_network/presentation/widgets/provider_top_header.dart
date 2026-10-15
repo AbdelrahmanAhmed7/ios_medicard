@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/widgets/app_blue_header.dart';
+import '../../../core/widgets/app_simple_header.dart';
 import '../../../network/data/provider_page_response_model.dart';
 import '../../logic/provider_page_cubit.dart';
 import '../../logic/provider_page_state.dart';
@@ -13,7 +13,7 @@ import 'provider_shared_widgets.dart';
 /// error, or view changes — never on list/scroll/cart churn.
 class ProviderTopHeader extends StatelessWidget {
   final ProviderBranch? selectedBranch;
-  final ValueChanged<List<ProviderBranch>?> onBranchTap;
+  final void Function(List<ProviderBranch>?, String?) onBranchTap;
 
   const ProviderTopHeader({
     super.key,
@@ -27,7 +27,7 @@ class ProviderTopHeader extends StatelessWidget {
       buildWhen: ProviderRebuildScopes.isHeaderSliceChanged,
       builder: (context, state) {
         final cubit = context.read<ProviderPageCubit>();
-        return AppBlueHeader(
+        return AppSimpleHeader(
           onBack: () {
             if (state.currentView == ProviderViewType.reviews) {
               cubit.switchView(state.catalogView);
@@ -37,7 +37,7 @@ class ProviderTopHeader extends StatelessWidget {
           },
           bottomChild: state.isProviderLoading
               ? const Center(
-                  child: CircularProgressIndicator(color: Colors.white),
+                  child: CircularProgressIndicator(color: Color(0xFF3872B1)),
                 )
               : state.providerData != null
               ? ProviderInfoRow(
@@ -46,9 +46,16 @@ class ProviderTopHeader extends StatelessWidget {
                   selectedBranch: selectedBranch,
                   onBranchTap: () => onBranchTap(
                     state.providerData!.branches,
+                    state.providerData!.name,
                   ),
-                  onRatingTap: () =>
-                      cubit.switchView(ProviderViewType.reviews),
+                  onRatingTap: () => context.push(
+                    '/provider-reviews',
+                    extra: {
+                      'cubit': cubit,
+                      'providerId': cubit.providerId,
+                      'providerName': state.providerData!.name,
+                    },
+                  ),
                 )
               : const SizedBox.shrink(),
         );
