@@ -63,6 +63,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  # Used by tool/generate_code_reference.dart to build the living code index.
+  analyzer: ^13.0.0
   flutter_lints: ^6.0.0
   json_serializable:
   freezed:
