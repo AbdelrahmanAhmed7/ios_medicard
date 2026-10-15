@@ -3,19 +3,40 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/auth/auth_session_storage.dart';
 import '../../core/auth/auth_refresh_service.dart';
-import '../../features/cart/presentation/cubit/cart_cubit.dart';
-import '../../features/cart/presentation/pages/checkout_screen.dart';
-import '../../features/cart/presentation/pages/cart_screen.dart';
+import '../../core/auth/auth_session_storage.dart';
+import '../../features/activate_card/presentation/pages/activate_card_screen.dart';
 import '../../features/activity/domain/models/invoice_item.dart';
 import '../../features/activity/presentation/pages/invoice_details_screen.dart';
-import '../../features/activate_card/presentation/pages/activate_card_screen.dart';
-import '../../features/home/presentation/pages/home_screen.dart';
+import '../../features/auth/presentation/cubit/forgot_password_cubit.dart';
+import '../../features/auth/presentation/screens/forgot_password_screen.dart';
+import '../../features/auth/presentation/screens/otp_verification_screen.dart';
+import '../../features/auth/presentation/screens/reset_password_screen.dart';
+import '../../features/cart/presentation/cubit/cart_cubit.dart';
+import '../../features/cart/presentation/pages/cart_screen.dart';
+import '../../features/cart/presentation/pages/checkout_screen.dart';
+import '../../features/ecard/presentation/cubit/ecard_cubit.dart';
+import '../../features/ecard/presentation/pages/digital_membership_screen.dart';
+import '../../features/content/domain/models/content_type.dart';
+import '../../features/content/presentation/cubit/content_cubit.dart';
+import '../../features/content/presentation/pages/content_screen.dart';
+import '../../features/family_members/data/models/family_member_model.dart';
+import '../../features/family_members/presentation/cubit/family_members_cubit.dart';
+import '../../features/family_members/presentation/pages/add_edit_family_member_screen.dart';
+import '../../features/family_members/presentation/pages/family_members_list_screen.dart';
+import '../../features/addresses/data/models/user_address_model.dart';
+import '../../features/addresses/presentation/cubit/addresses_cubit.dart';
+import '../../features/addresses/presentation/cubit/address_form_cubit.dart';
+import '../../features/addresses/presentation/pages/add_edit_address_screen.dart';
+import '../../features/addresses/presentation/pages/addresses_list_screen.dart';
+import '../../features/guest_home/presentation/pages/guest_home_screen.dart';
+import '../../features/help_center/presentation/pages/help_center_screen.dart';
 import '../../features/home/domain/models/appointment_model.dart';
+import '../../features/home/presentation/pages/home_screen.dart';
 import '../../features/home/presentation/widgets/pending_appointment_details_screen.dart';
 import '../../features/notifications/presentation/cubit/notification_cubit.dart';
 import '../../features/notifications/presentation/pages/notifications_screen.dart';
+import '../../features/packages/presentation/pages/all_packages_screen.dart';
 import '../../features/profile/data/models/profile_response_model.dart';
 import '../../features/profile/presentation/cubit/change_password_cubit.dart';
 import '../../features/profile/presentation/cubit/profile_cubit.dart';
@@ -26,27 +47,15 @@ import '../../features/search/presentation/cubit/filter_cubit.dart';
 import '../../features/search/presentation/cubit/search_cubit.dart';
 import '../../features/search/presentation/screens/choose_provider_screen.dart';
 import '../../features/search/presentation/screens/search_screen.dart';
-import '../../features/content/domain/models/content_type.dart';
-import '../../features/content/presentation/cubit/content_cubit.dart';
-import '../../features/content/presentation/pages/content_screen.dart';
-import '../../features/family_members/presentation/cubit/family_members_cubit.dart';
-import '../../features/family_members/presentation/pages/family_members_list_screen.dart';
-import '../../features/family_members/presentation/pages/add_edit_family_member_screen.dart';
-import '../../features/family_members/data/models/family_member_model.dart';
-import '../../features/guest_home/presentation/pages/guest_home_screen.dart';
-import '../../features/help_center/presentation/pages/help_center_screen.dart';
-import '../../medicard_network/presentation/pages/provider_page_screen.dart';
+import '../../medicard_network/logic/provider_page_cubit.dart';
 import '../../medicard_network/presentation/pages/branches_screen.dart';
+import '../../medicard_network/presentation/pages/provider_page_screen.dart';
 import '../../medicard_network/presentation/pages/reviews_screen.dart';
 import '../../network/data/provider_page_response_model.dart';
 import '../../presentation/logic/medicard_login_cubit.dart';
 import '../../presentation/logic/register_cubit.dart';
 import '../../presentation/medicard_login_screen.dart';
 import '../../presentation/register_screen.dart';
-import '../../features/auth/presentation/cubit/forgot_password_cubit.dart';
-import '../../features/auth/presentation/screens/forgot_password_screen.dart';
-import '../../features/auth/presentation/screens/otp_verification_screen.dart';
-import '../../features/auth/presentation/screens/reset_password_screen.dart';
 import '../constants/constants.dart';
 import '../cubit/app_refresh_cubit.dart';
 import '../di/service_locator.dart';
@@ -62,6 +71,7 @@ class AppRouter {
   /// Current location path, updated by [_LocationObserver]. Overlays listen
   /// to hide themselves on specific screens (e.g. floating cart on cart).
   static final ValueNotifier<String> currentLocation = ValueNotifier('');
+
   /// Determines the initial route based on the stored session state.
   ///
   /// Decision tree:
@@ -250,9 +260,7 @@ class AppRouter {
           path: '/medicard-home',
           builder: (context, state) {
             final tab = state.uri.queryParameters['tab'];
-            return HomeScreen(
-              initialIndex: tab == 'activity' ? 1 : 0,
-            );
+            return HomeScreen(initialIndex: tab == 'activity' ? 1 : 0);
           },
         ),
         GoRoute(
@@ -370,6 +378,10 @@ class AppRouter {
           },
         ),
         GoRoute(
+          path: '/packages',
+          builder: (context, state) => const AllPackagesScreen(),
+        ),
+        GoRoute(
           path: '/help-center',
           builder: (context, state) => const HelpCenterScreen(),
         ),
@@ -456,6 +468,43 @@ class AppRouter {
           },
         ),
         GoRoute(
+          path: '/addresses',
+          builder: (context, state) {
+            return BlocProvider(
+              create: (_) => sl<AddressesCubit>(),
+              child: const AddressesListScreen(),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/digital-membership',
+          builder: (context, state) {
+            return BlocProvider(
+              create: (_) => sl<ECardCubit>(),
+              child: const DigitalMembershipScreen(),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/addresses/add',
+          builder: (context, state) {
+            return BlocProvider(
+              create: (_) => sl<AddressFormCubit>(),
+              child: const AddEditAddressScreen(),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/addresses/edit',
+          builder: (context, state) {
+            final address = state.extra as UserAddressModel?;
+            return BlocProvider(
+              create: (_) => sl<AddressFormCubit>(),
+              child: AddEditAddressScreen(address: address),
+            );
+          },
+        ),
+        GoRoute(
           path: '/cart',
           builder: (context, state) {
             final extra = state.extra as Map<String, dynamic>?;
@@ -477,9 +526,15 @@ class AppRouter {
               final extra = state.extra as Map<String, dynamic>;
               final cubit = extra['cubit'] as CartCubit?;
               final providerId = extra['providerId'] as int?;
+              final providerName = extra['providerName'] as String?;
               final selectedBranch = extra['selectedBranch'] as ProviderBranch?;
               final packageId = extra['packageId'] as int?;
               final packageName = extra['packageName'] as String?;
+              final packageServiceNames =
+                  (extra['packageServiceNames'] as List?)
+                      ?.whereType<String>()
+                      .toList() ??
+                  const <String>[];
               final packagePriceBefore = (extra['packagePriceBefore'] as num?)
                   ?.toDouble();
               final packagePriceAfter = (extra['packagePriceAfter'] as num?)
@@ -489,9 +544,11 @@ class AppRouter {
                   value: cubit,
                   child: CheckoutScreen(
                     initialProviderId: providerId,
+                    initialProviderName: providerName,
                     initialBranch: selectedBranch,
                     packageId: packageId,
                     packageName: packageName,
+                    packageServiceNames: packageServiceNames,
                     packagePriceBefore: packagePriceBefore,
                     packagePriceAfter: packagePriceAfter,
                   ),
@@ -501,9 +558,11 @@ class AppRouter {
                 create: (_) => sl<CartCubit>(param1: providerId),
                 child: CheckoutScreen(
                   initialProviderId: providerId,
+                  initialProviderName: providerName,
                   initialBranch: selectedBranch,
                   packageId: packageId,
                   packageName: packageName,
+                  packageServiceNames: packageServiceNames,
                   packagePriceBefore: packagePriceBefore,
                   packagePriceAfter: packagePriceAfter,
                 ),
@@ -534,7 +593,7 @@ class AppRouter {
             if (state.extra is CartCubit) {
               return BlocProvider.value(
                 value: state.extra as CartCubit,
-                child: const ChooseProviderScreen(),
+                child: const ChooseProviderScreen(returnToPreviousCart: true),
               );
             }
 
@@ -556,10 +615,13 @@ class AppRouter {
           builder: (context, state) {
             // int (legacy callers) or {providerId, autoOpenPackageId?} for
             // notification deep-links that should open a package sheet.
+            // Raw Map check: literals infer as Map<String, Object?>/int,
+            // which fail a parameterized Map<String, dynamic> check.
             final extra = state.extra;
-            if (extra is Map<String, dynamic>) {
+            if (extra is Map) {
+              final providerId = extra['providerId'] as int;
               return ProviderPageScreen(
-                providerId: extra['providerId'] as int,
+                providerId: providerId,
                 autoOpenPackageId: extra['autoOpenPackageId'] as int?,
               );
             }
@@ -570,16 +632,44 @@ class AppRouter {
         GoRoute(
           path: '/provider-branches',
           builder: (context, state) {
-            final branches = state.extra as List<ProviderBranch>;
-            return BranchesScreen(branches: branches);
+            final extra = state.extra;
+            // Raw Map check (not Map<String, dynamic>): map literals infer
+            // as Map<String, Object?>, which fails the parameterized check.
+            if (extra is Map) {
+              final branches = extra['branches'];
+              return BranchesScreen(
+                branches: branches is List
+                    ? branches.whereType<ProviderBranch>().toList()
+                    : const <ProviderBranch>[],
+                providerName: extra['providerName'] as String?,
+              );
+            }
+            return BranchesScreen(
+              branches: extra is List
+                  ? extra.whereType<ProviderBranch>().toList()
+                  : const <ProviderBranch>[],
+            );
           },
         ),
         GoRoute(
           path: '/provider-reviews',
           builder: (context, state) {
-            final extra = state.extra as Map<String, dynamic>?;
-            final providerName = extra?['providerName'] as String?;
-            return ReviewsScreen(providerName: providerName);
+            final extra = state.extra;
+            if (extra is Map) {
+              final cubit = extra['cubit'] as ProviderPageCubit?;
+              final providerId = (extra['providerId'] as num?)?.toInt() ?? 0;
+              final providerName = extra['providerName'] as String?;
+              if (cubit != null) {
+                return BlocProvider.value(
+                  value: cubit,
+                  child: ReviewsScreen(
+                    providerId: providerId,
+                    providerName: providerName,
+                  ),
+                );
+              }
+            }
+            return const SizedBox.shrink();
           },
         ),
       ],
@@ -594,8 +684,9 @@ class AppRouter {
 class _LocationObserver extends NavigatorObserver {
   void _update() {
     final pages = navigator?.widget.pages;
-    final name =
-        (pages != null && pages.isNotEmpty) ? (pages.last.name ?? '') : '';
+    final name = (pages != null && pages.isNotEmpty)
+        ? (pages.last.name ?? '')
+        : '';
     if (AppRouter.currentLocation.value != name) {
       AppRouter.currentLocation.value = name;
     }

@@ -58,6 +58,10 @@ import '../../features/content/presentation/cubit/content_cubit.dart';
 import '../../features/family_members/data/repository/family_members_repository_impl.dart';
 import '../../features/family_members/domain/repository/family_members_repository.dart';
 import '../../features/family_members/presentation/cubit/family_members_cubit.dart';
+import '../../features/addresses/data/repository/addresses_repository_impl.dart';
+import '../../features/addresses/domain/repository/addresses_repository.dart';
+import '../../features/addresses/presentation/cubit/addresses_cubit.dart';
+import '../../features/addresses/presentation/cubit/address_form_cubit.dart';
 import '../../features/guest_home/domain/usecases/get_guest_home_data_usecase.dart';
 import '../../features/guest_home/presentation/cubit/guest_home_cubit.dart';
 import '../../features/activity/data/data_source/invoice_remote_data_source.dart';
@@ -184,6 +188,9 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<FamilyMembersRepository>(
     () => FamilyMembersRepositoryImpl(sl()),
   );
+  sl.registerLazySingleton<AddressesRepository>(
+    () => AddressesRepositoryImpl(sl()),
+  );
   sl.registerLazySingleton<ActivateCardRepository>(
     () => ActivateCardRepositoryImpl(),
   );
@@ -298,6 +305,8 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory<ChangePasswordCubit>(() => ChangePasswordCubit(sl()));
   sl.registerFactory<ContentCubit>(() => ContentCubit(sl()));
   sl.registerFactory<FamilyMembersCubit>(() => FamilyMembersCubit(sl()));
+  sl.registerFactory<AddressesCubit>(() => AddressesCubit(sl()));
+  sl.registerFactory<AddressFormCubit>(() => AddressFormCubit(sl()));
   sl.registerFactory<GuestHomeCubit>(() => GuestHomeCubit(sl(), sl()));
   sl.registerFactory<ActivateCardCubit>(() => ActivateCardCubit(sl()));
   sl.registerFactory<InvoiceDetailsCubit>(
