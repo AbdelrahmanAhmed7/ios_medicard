@@ -3,11 +3,14 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../../core/theming/app_text_styles.dart';
 import '../../data/model/notification_model.dart';
 
-import '../../../../core/theming/app_text_styles.dart';
-
-
+/// Notification list item.
+///
+/// Flat bordered card matching the rest of the app (addresses, family
+/// members, invoices): 8.w side margin, 14.r radius, no heavy shadows.
+/// Unread items get a tinted background, a brand-colored border and a dot.
 class NotificationCard extends StatelessWidget {
   final NotificationModel notification;
   final VoidCallback? onTap;
@@ -20,183 +23,272 @@ class NotificationCard extends StatelessWidget {
     this.onMarkAsRead,
   });
 
+  static const _brandBlue = Color(0xFF3872B1);
+  static const _ink = Color(0xFF111827);
+  static const _subtleText = Color(0xFF6B7280);
+  static const _faintText = Color(0xFF98A2B3);
+  static const _cardBorder = Color(0xFFE2E8F0);
+
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
-        padding: EdgeInsets.all(14.r),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14.r),
-          border: Border.all(color: const Color(0xFFE2E8F0), width: 1.w),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (!notification.isRead)
-              Padding(
-                padding: EdgeInsets.only(top: 18.h, right: 8.w),
-                child: Container(
-                  width: 8.w,
-                  height: 8.w,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF3B82F6),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            Container(
-              width: 52.r,
-              height: 52.r,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
-              ),
-              child: ClipOval(child: _NotificationImage(notification.imageUrl)),
+    final isUnread = !notification.isRead;
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 5.h),
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          padding: EdgeInsets.all(14.r),
+          decoration: BoxDecoration(
+            color: isUnread ? const Color(0xFFF2F7FD) : Colors.white,
+            borderRadius: BorderRadius.circular(14.r),
+            border: Border.all(
+              color: isUnread
+                  ? _brandBlue.withValues(alpha: 0.4)
+                  : _cardBorder,
             ),
-            SizedBox(width: 12.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 2.h),
-                  Text(
-                    notification.title,
-                    style: AppTextStyles.of(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14.sp,
-                      color: const Color(0xFF3B82F6),
-                      height: 1.2,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    notification.body,
-                    style: AppTextStyles.of(
-                      fontWeight: FontWeight.w400,
-                      fontSize: 13.sp,
-                      color: const Color(0xFF64748B),
-                      height: 1.3,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(width: 8.w),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(top: 2.h),
-                  child: Text(
-                    _formatRelativeTime(notification.createdAt),
-                    style: AppTextStyles.of(
-                      fontWeight: FontWeight.w400,
-                      fontSize: 11.sp,
-                      color: const Color(0xFF94A3B8),
-                    ),
-                  ),
-                ),
-                if (!notification.isRead && onMarkAsRead != null) ...[
-                  SizedBox(height: 10.h),
-                  GestureDetector(
-                    onTap: onMarkAsRead,
-                    child: Container(
-                      width: 30.r,
-                      height: 30.r,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: const Color(0xFFEFF6FF),
-                        border: Border.all(
-                          color: const Color(0xFFBFDBFE),
-                          width: 1.w,
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _NotificationThumbnail(notification: notification),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            notification.title,
+                            style: AppTextStyles.of(
+                              fontWeight: isUnread
+                                  ? FontWeight.w700
+                                  : FontWeight.w600,
+                              fontSize: 14.sp,
+                              color: _ink,
+                              height: 1.3,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                      ),
-                      child: Icon(
-                        Icons.check,
-                        color: const Color(0xFF2563EB),
-                        size: 17.sp,
-                      ),
+                        if (isUnread) ...[
+                          SizedBox(width: 8.w),
+                          Padding(
+                            padding: EdgeInsets.only(top: 6.h),
+                            child: Container(
+                              width: 8.r,
+                              height: 8.r,
+                              decoration: const BoxDecoration(
+                                color: _brandBlue,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
-                  ),
-                ],
-              ],
-            ),
-          ],
+                    SizedBox(height: 4.h),
+                    Text(
+                      notification.body,
+                      style: AppTextStyles.of(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 13.sp,
+                        color: _subtleText,
+                        height: 1.45,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 10.h),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.schedule_rounded,
+                          size: 13.sp,
+                          color: _faintText,
+                        ),
+                        SizedBox(width: 4.w),
+                        Text(
+                          _formatRelativeTime(context, notification.createdAt),
+                          style: AppTextStyles.of(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 11.sp,
+                            color: _faintText,
+                          ),
+                        ),
+                        const Spacer(),
+                        if (isUnread && onMarkAsRead != null)
+                          _MarkReadAction(onPressed: onMarkAsRead!),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  String _formatRelativeTime(DateTime dateTime) {
+  String _formatRelativeTime(BuildContext context, DateTime dateTime) {
     final difference = DateTime.now().difference(dateTime);
-
-    if (difference.inMinutes < 1) return 'notifications.now'.tr();
+    if (difference.isNegative || difference.inMinutes < 1) {
+      return context.tr('notifications.now');
+    }
     if (difference.inMinutes < 60) {
-      return 'notifications.minutes_ago'.tr(args: ['${difference.inMinutes}']);
+      return context.tr(
+        'notifications.minutes_ago',
+        args: ['${difference.inMinutes}'],
+      );
     }
     if (difference.inHours < 24) {
-      return 'notifications.hours_ago'.tr(args: ['${difference.inHours}']);
+      return context.tr(
+        'notifications.hours_ago',
+        args: ['${difference.inHours}'],
+      );
     }
     if (difference.inDays < 7) {
-      return 'notifications.days_ago'.tr(args: ['${difference.inDays}']);
+      return context.tr(
+        'notifications.days_ago',
+        args: ['${difference.inDays}'],
+      );
     }
     if (difference.inDays < 30) {
-      return 'notifications.weeks_ago'.tr(args: ['${difference.inDays ~/ 7}']);
+      return context.tr(
+        'notifications.weeks_ago',
+        args: ['${difference.inDays ~/ 7}'],
+      );
     }
     if (difference.inDays < 365) {
-      return 'notifications.months_ago'.tr(
+      return context.tr(
+        'notifications.months_ago',
         args: ['${difference.inDays ~/ 30}'],
       );
     }
+    return context.tr(
+      'notifications.years_ago',
+      args: ['${difference.inDays ~/ 365}'],
+    );
+  }
+}
 
-    return 'notifications.years_ago'.tr(args: ['${difference.inDays ~/ 365}']);
+/// Subtle text action instead of a filled pill — less visual noise.
+class _MarkReadAction extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const _MarkReadAction({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: context.tr('notifications.mark_read'),
+      child: GestureDetector(
+        onTap: onPressed,
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.done_all_rounded,
+                size: 15.sp,
+                color: NotificationCard._brandBlue,
+              ),
+              SizedBox(width: 4.w),
+              Text(
+                context.tr('notifications.mark_read'),
+                style: AppTextStyles.of(
+                  fontSize: 11.5.sp,
+                  fontWeight: FontWeight.w700,
+                  color: NotificationCard._brandBlue,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NotificationThumbnail extends StatelessWidget {
+  final NotificationModel notification;
+
+  const _NotificationThumbnail({required this.notification});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 48.r,
+      height: 48.r,
+      decoration: BoxDecoration(
+        color: const Color(0xFFEAF2FB),
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: _NotificationImage(
+        imageUrl: notification.imageUrl,
+        fallbackIcon: _fallbackIcon(notification.data),
+      ),
+    );
+  }
+
+  IconData _fallbackIcon(Map<String, dynamic>? data) {
+    if (data == null) return Icons.notifications_none_rounded;
+    if (data.containsKey('PackageId') || data.containsKey('packageId')) {
+      return Icons.local_offer_outlined;
+    }
+    if (data.containsKey('ProviderId') || data.containsKey('providerId')) {
+      return Icons.local_hospital_outlined;
+    }
+    return Icons.notifications_none_rounded;
   }
 }
 
 class _NotificationImage extends StatelessWidget {
   final String imageUrl;
+  final IconData fallbackIcon;
 
-  const _NotificationImage(this.imageUrl);
+  const _NotificationImage({
+    required this.imageUrl,
+    required this.fallbackIcon,
+  });
 
   @override
   Widget build(BuildContext context) {
     if (imageUrl.trim().isEmpty) {
-      return const _NotificationFallbackIcon();
+      return _NotificationFallbackIcon(icon: fallbackIcon);
     }
 
     return CachedNetworkImage(
       imageUrl: imageUrl,
       fit: BoxFit.cover,
-      placeholder: (context, url) => const Center(
-        child: SizedBox(
-          width: 18,
-          height: 18,
-          child: CircularProgressIndicator(strokeWidth: 2),
-        ),
-      ),
-      errorWidget: (context, url, error) => const _NotificationFallbackIcon(),
+      placeholder: (_, _) => _NotificationFallbackIcon(icon: fallbackIcon),
+      errorWidget: (_, _, _) => _NotificationFallbackIcon(icon: fallbackIcon),
     );
   }
 }
 
 class _NotificationFallbackIcon extends StatelessWidget {
-  const _NotificationFallbackIcon();
+  final IconData icon;
+
+  const _NotificationFallbackIcon({required this.icon});
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Icon(
-        Icons.notifications_outlined,
-        color: const Color(0xFF94A3B8),
-        size: 24.sp,
+        icon,
+        color: NotificationCard._brandBlue,
+        size: 22.sp,
       ),
     );
   }

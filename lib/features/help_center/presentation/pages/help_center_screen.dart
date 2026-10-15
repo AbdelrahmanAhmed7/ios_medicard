@@ -26,7 +26,7 @@ class HelpCenterScreen extends StatelessWidget {
           SafeArea(
             bottom: false,
             child: Padding(
-              padding: EdgeInsets.fromLTRB(8.w, 10.h, 20.w, 6.h),
+              padding: EdgeInsets.fromLTRB(8.w, 16.h, 8.w, 6.h),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -47,7 +47,7 @@ class HelpCenterScreen extends StatelessWidget {
                     child: Text(
                       'profile.help_center'.tr(),
                       style: AppTextStyles.of(
-                            fontSize: 26.sp,
+                        fontSize: 26.sp,
                         fontWeight: FontWeight.w700,
                         color: const Color(0xFF111827),
                       ),
@@ -61,7 +61,12 @@ class HelpCenterScreen extends StatelessWidget {
           ),
           Expanded(
             child: ListView(
-              padding: EdgeInsets.fromLTRB(20.w, 24.h, 20.w, 24.h + bottomPadding),
+              padding: EdgeInsets.fromLTRB(
+                8.w,
+                24.h,
+                8.w,
+                24.h + bottomPadding,
+              ),
               children: [
                 // Intro row (no card)
                 Row(
@@ -104,51 +109,68 @@ class HelpCenterScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 4.h),
 
-                // Phone
-                _ContactTile(
-                  icon: Icons.phone_outlined,
-                  iconColor: const Color(0xFF10B981),
-                  bgColor: const Color(0xFFECFDF5),
-                  label: 'help_center.phone'.tr(),
-                  value: _phone,
-                  onTap: () => launcher.makePhoneCall(_phone),
-                ),
-
-                // WhatsApp
-                _ContactTile(
-                  icon: Icons.chat_rounded,
-                  iconColor: const Color(0xFF25D366),
-                  bgColor: const Color(0xFFF0FDF4),
-                  label: 'help_center.whatsapp'.tr(),
-                  value: _whatsApp,
-                  onTap: () => launcher.launchWhatsApp(
-                    _whatsApp,
-                    message: 'help_center.whatsapp_message'.tr(),
+                // Contact tiles grouped in a card like the other pages.
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16.w,
+                    vertical: 4.h,
                   ),
-                ),
-
-                // Email
-                _ContactTile(
-                  icon: Icons.email_outlined,
-                  iconColor: const Color(0xFF3872B1),
-                  bgColor: const Color(0xFFEFF6FF),
-                  label: 'help_center.email'.tr(),
-                  value: _email,
-                  onTap: () => launcher.launchEmail(
-                    _email,
-                    subject: 'help_center.email_subject'.tr(),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14.r),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
                   ),
-                ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Phone
+                      _ContactTile(
+                        icon: Icons.phone_outlined,
+                        iconColor: const Color(0xFF10B981),
+                        bgColor: const Color(0xFFECFDF5),
+                        label: 'help_center.phone'.tr(),
+                        value: _phone,
+                        onTap: () => launcher.makePhoneCall(_phone),
+                      ),
 
-                // Website
-                _ContactTile(
-                  icon: Icons.language_rounded,
-                  iconColor: const Color(0xFF8B5CF6),
-                  bgColor: const Color(0xFFF5F3FF),
-                  label: 'help_center.website'.tr(),
-                  value: _website,
-                  showDivider: false,
-                  onTap: () => launcher.launchURL(_website),
+                      // WhatsApp
+                      _ContactTile(
+                        icon: Icons.chat_rounded,
+                        iconColor: const Color(0xFF25D366),
+                        bgColor: const Color(0xFFF0FDF4),
+                        label: 'help_center.whatsapp'.tr(),
+                        value: _whatsApp,
+                        onTap: () => launcher.launchWhatsApp(
+                          _whatsApp,
+                          message: 'help_center.whatsapp_message'.tr(),
+                        ),
+                      ),
+
+                      // Email
+                      _ContactTile(
+                        icon: Icons.email_outlined,
+                        iconColor: const Color(0xFF3872B1),
+                        bgColor: const Color(0xFFEFF6FF),
+                        label: 'help_center.email'.tr(),
+                        value: _email,
+                        onTap: () => launcher.launchEmail(
+                          _email,
+                          subject: 'help_center.email_subject'.tr(),
+                        ),
+                      ),
+
+                      // Website
+                      _ContactTile(
+                        icon: Icons.language_rounded,
+                        iconColor: const Color(0xFF8B5CF6),
+                        bgColor: const Color(0xFFF5F3FF),
+                        label: 'help_center.website'.tr(),
+                        value: _website,
+                        showDivider: false,
+                        onTap: () => launcher.launchURL(_website),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -158,7 +180,6 @@ class HelpCenterScreen extends StatelessWidget {
     );
   }
 }
-
 
 class _ContactTile extends StatelessWidget {
   final IconData icon;
@@ -231,8 +252,7 @@ class _ContactTile extends StatelessWidget {
               ],
             ),
           ),
-          if (showDivider)
-            const Divider(height: 1, color: Color(0xFFE5E7EB)),
+          if (showDivider) const Divider(height: 1, color: Color(0xFFE5E7EB)),
         ],
       ),
     );
