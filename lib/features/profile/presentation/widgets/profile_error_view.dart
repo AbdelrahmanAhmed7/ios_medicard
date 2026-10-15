@@ -8,7 +8,6 @@ import 'profile_content.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
-
 class ProfileErrorView extends StatelessWidget {
   final String error;
 
@@ -41,9 +40,7 @@ class ProfileErrorView extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 24.w),
                   child: Text(
-                    error.isEmpty
-                        ? 'errors.something_went_wrong'.tr()
-                        : error,
+                    error.isEmpty ? 'errors.something_went_wrong'.tr() : error,
                     textAlign: TextAlign.center,
                     style: AppTextStyles.of(color: const Color(0xFF6B7280)),
                   ),

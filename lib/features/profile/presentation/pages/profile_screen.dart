@@ -25,7 +25,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     if (kDebugMode) debugPrint('[ProfileFlow] Standalone ProfileScreen opened');
     _profileCubit = sl<ProfileCubit>();
-    if (kDebugMode) debugPrint('[ProfileFlow] ProfileCubit created for ProfileScreen');
+    if (kDebugMode) {
+      debugPrint('[ProfileFlow] ProfileCubit created for ProfileScreen');
+    }
     _profileCubit.loadProfile();
     // Family count / reward points can change on other screens (family
     // add/delete). Refresh the summary silently when asked — no user action.

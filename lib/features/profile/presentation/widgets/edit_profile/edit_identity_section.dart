@@ -150,10 +150,7 @@ class EditIdentitySection extends StatelessWidget {
         SizedBox(height: 14.h),
 
         EditProfileFieldLabel('edit_profile.gender'.tr()),
-        EditProfileGenderDropdown(
-          isMale: isMale,
-          onChanged: onGenderChanged,
-        ),
+        EditProfileGenderDropdown(isMale: isMale, onChanged: onGenderChanged),
 
         SizedBox(height: 32.h),
       ],
@@ -202,31 +199,19 @@ class EditBirthDateField extends StatelessWidget {
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.r),
-              borderSide: BorderSide(
-                color: Colors.grey.shade300,
-                width: 1,
-              ),
+              borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.r),
-              borderSide: const BorderSide(
-                color: kAuthBlue,
-                width: 1.2,
-              ),
+              borderSide: const BorderSide(color: kAuthBlue, width: 1.2),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.r),
-              borderSide: const BorderSide(
-                color: Colors.red,
-                width: 1,
-              ),
+              borderSide: const BorderSide(color: Colors.red, width: 1),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.r),
-              borderSide: const BorderSide(
-                color: Colors.red,
-                width: 1.2,
-              ),
+              borderSide: const BorderSide(color: Colors.red, width: 1.2),
             ),
             suffixIcon: Icon(
               Icons.calendar_today_outlined,

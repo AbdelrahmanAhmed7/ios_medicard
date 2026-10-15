@@ -158,7 +158,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   SafeArea(
                     bottom: false,
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(8.w, 10.h, 20.w, 6.h),
+                      padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 6.h),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
@@ -219,22 +219,22 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
                         SizedBox(height: 16.h),
 
-                          _FieldLabel('change_password.new_password'.tr()),
-                          _buildPasswordField(
-                            focusNode: _newPasswordFocus,
-                            autovalidateMode: _newPasswordTouched
-                                ? AutovalidateMode.onUserInteraction
-                                : AutovalidateMode.disabled,
-                            controller: _newPasswordController,
-                            hintText: 'change_password.new_password_hint'.tr(),
-                            showPassword: _showNewPassword,
-                            onToggle: () => setState(
-                              () => _showNewPassword = !_showNewPassword,
-                            ),
-                            validator: _validateNewPassword,
+                        _FieldLabel('change_password.new_password'.tr()),
+                        _buildPasswordField(
+                          focusNode: _newPasswordFocus,
+                          autovalidateMode: _newPasswordTouched
+                              ? AutovalidateMode.onUserInteraction
+                              : AutovalidateMode.disabled,
+                          controller: _newPasswordController,
+                          hintText: 'change_password.new_password_hint'.tr(),
+                          showPassword: _showNewPassword,
+                          onToggle: () => setState(
+                            () => _showNewPassword = !_showNewPassword,
                           ),
-                          SizedBox(height: 10.h),
-                          _buildPasswordRequirements(),
+                          validator: _validateNewPassword,
+                        ),
+                        SizedBox(height: 10.h),
+                        _buildPasswordRequirements(),
 
                         SizedBox(height: 16.h),
 
@@ -335,10 +335,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         fillColor: Colors.white,
         contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
         errorMaxLines: 3,
-        errorStyle: AppTextStyles.of(
-          fontSize: 12.sp,
-          height: 1.3,
-        ),
+        errorStyle: AppTextStyles.of(fontSize: 12.sp, height: 1.3),
         prefixIcon: Icon(
           Icons.lock_outline_rounded,
           color: Colors.grey.shade400,

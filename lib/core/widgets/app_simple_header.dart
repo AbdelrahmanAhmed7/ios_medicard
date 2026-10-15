@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../theming/app_spacing.dart';
 import '../theming/app_text_styles.dart';
 
 /// Lightweight page header replacing the big blue [AppBlueHeader] on inner
@@ -52,71 +53,71 @@ class AppSimpleHeader extends StatelessWidget {
     return SafeArea(
       bottom: false,
       child: Padding(
-          padding: EdgeInsets.fromLTRB(8.w, 8.h, 8.w, bottomChild != null ? 12.h : 14.h),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  if (showBack)
-                    IconButton(
-                      visualDensity: VisualDensity.compact,
-                      icon: Icon(
-                        Icons.arrow_back_ios_new_rounded,
-                        color: const Color(0xFF111827),
-                        size: 22.sp,
-                      ),
-                      onPressed: () => _handleBack(context),
-                    )
-                  else
-                    SizedBox(width: 8.w),
-                  if (title != null)
-                    Expanded(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.pageHorizontal,
+          16.h,
+          AppSpacing.pageHorizontal,
+          bottomChild != null ? 12.h : 14.h,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (showBack)
+                  IconButton(
+                    visualDensity: VisualDensity.compact,
+                    icon: Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: const Color(0xFF111827),
+                      size: 22.sp,
+                    ),
+                    onPressed: () => _handleBack(context),
+                  ),
+                if (title != null)
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title!,
+                          textAlign: TextAlign.left,
+                          style: AppTextStyles.of(
+                            fontSize: 26.sp,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF111827),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (subtitle != null) ...[
+                          SizedBox(height: 2.h),
                           Text(
-                            title!,
+                            subtitle!,
                             textAlign: TextAlign.left,
                             style: AppTextStyles.of(
-                              fontSize: 26.sp,
-                              fontWeight: FontWeight.w700,
-                              color: const Color(0xFF111827),
+                              fontSize: 12.sp,
+                              color: const Color(0xFF6B7280),
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          if (subtitle != null) ...[
-                            SizedBox(height: 2.h),
-                            Text(
-                              subtitle!,
-                              textAlign: TextAlign.left,
-                              style: AppTextStyles.of(
-                                fontSize: 12.sp,
-                                color: const Color(0xFF6B7280),
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
                         ],
-                      ),
-                    )
-                  else
-                    const Spacer(),
-                  if (actions != null)
-                    Row(mainAxisSize: MainAxisSize.min, children: actions!),
-                ],
-              ),
-              if (bottomChild != null) ...[
-                SizedBox(height: 8.h),
-                bottomChild!,
+                      ],
+                    ),
+                  )
+                else
+                  const Spacer(),
+                if (actions != null)
+                  Row(mainAxisSize: MainAxisSize.min, children: actions!),
               ],
-            ],
-          ),
+            ),
+            if (bottomChild != null) ...[SizedBox(height: 8.h), bottomChild!],
+          ],
         ),
-      );
+      ),
+    );
   }
 }

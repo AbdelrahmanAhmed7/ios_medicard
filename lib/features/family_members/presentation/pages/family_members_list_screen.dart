@@ -14,7 +14,6 @@ import '../cubit/family_members_state.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
-
 class FamilyMembersListScreen extends StatefulWidget {
   const FamilyMembersListScreen({super.key});
 
@@ -47,7 +46,7 @@ class _FamilyMembersListScreenState extends State<FamilyMembersListScreen> {
                   SafeArea(
                     bottom: false,
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(8.w, 10.h, 20.w, 6.h),
+                      padding: EdgeInsets.fromLTRB(8.w, 16.h, 8.w, 6.h),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
@@ -90,18 +89,15 @@ class _FamilyMembersListScreenState extends State<FamilyMembersListScreen> {
                                   .loadFamilyMembers();
                             },
                             child: ListView.builder(
-                              padding: EdgeInsets.only(
-                                top: 8.h,
-                                bottom: 16.h,
-                              ),
+                              padding: EdgeInsets.only(top: 6.h, bottom: 16.h),
                               itemCount: members.length + 1,
                               itemBuilder: (context, index) {
                                 if (index == 0) {
                                   return Padding(
                                     padding: EdgeInsets.fromLTRB(
-                                      20.w,
+                                      8.w,
                                       4.h,
-                                      20.w,
+                                      8.w,
                                       8.h,
                                     ),
                                     child: Text(
@@ -117,8 +113,6 @@ class _FamilyMembersListScreenState extends State<FamilyMembersListScreen> {
                                 }
                                 return _FamilyMemberListItem(
                                   member: members[index - 1],
-                                  showDivider:
-                                      index < members.length,
                                 );
                               },
                             ),
@@ -177,7 +171,10 @@ class _FamilyMembersListScreenState extends State<FamilyMembersListScreen> {
           SizedBox(height: 16.h),
           Text(
             'family_members.no_family_members'.tr(),
-            style: AppTextStyles.of(fontSize: 18.sp, fontWeight: FontWeight.w600),
+            style: AppTextStyles.of(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),
@@ -187,79 +184,79 @@ class _FamilyMembersListScreenState extends State<FamilyMembersListScreen> {
 
 class _FamilyMemberListItem extends StatelessWidget {
   final FamilyMemberModel member;
-  final bool showDivider;
 
-  const _FamilyMemberListItem({required this.member, this.showDivider = true});
+  const _FamilyMemberListItem({required this.member});
 
   @override
   Widget build(BuildContext context) {
     final displayName =
         member.fullName ??
         '${member.firstName ?? ''} ${member.lastName ?? ''}'.trim();
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
-          child: Row(
-            children: [
-              _buildAvatar(member.imageUrl),
-              SizedBox(width: 14.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      displayName.isEmpty ? '—' : displayName,
-                      style: AppTextStyles.of(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF111827),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: 3.h),
-                    Text(
-                      RelationHelper.getLocalizedRelation(member.relation),
-                      style: AppTextStyles.of(
-                        fontSize: 13.5.sp,
-                        color: const Color(0xFF6B7280),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+    // Card with side margin like the notification cards, instead of a
+    // full-bleed row stuck to the screen edges.
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+      padding: EdgeInsets.all(14.r),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Row(
+        children: [
+          _buildAvatar(member.imageUrl),
+          SizedBox(width: 14.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  displayName.isEmpty ? '—' : displayName,
+                  style: AppTextStyles.of(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF111827),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              _CircleIconButton(
-                icon: Icons.edit_outlined,
-                foreground: const Color(0xFF475569),
-                background: const Color(0xFFF1F5F9),
-                onTap: () {
-                  context.push(
-                    '/family-members/edit',
-                    extra: {
-                      'member': member,
-                      'cubit': context.read<FamilyMembersCubit>(),
-                    },
-                  );
-                },
-              ),
-              SizedBox(width: 10.w),
-              _CircleIconButton(
-                icon: Icons.delete_outline_rounded,
-                foreground: const Color(0xFFDC2626),
-                background: const Color(0xFFFDECEC),
-                onTap: () => _showDeleteDialog(context, member),
-              ),
-            ],
+                SizedBox(height: 3.h),
+                Text(
+                  RelationHelper.getLocalizedRelation(member.relation),
+                  style: AppTextStyles.of(
+                    fontSize: 13.5.sp,
+                    color: const Color(0xFF6B7280),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
-        ),
-        if (showDivider)
-          const Divider(height: 1, color: Color(0xFFEEF1F5)),
-      ],
+          _CircleIconButton(
+            icon: Icons.edit_outlined,
+            foreground: const Color(0xFF475569),
+            background: const Color(0xFFF1F5F9),
+            onTap: () {
+              context.push(
+                '/family-members/edit',
+                extra: {
+                  'member': member,
+                  'cubit': context.read<FamilyMembersCubit>(),
+                },
+              );
+            },
+          ),
+          SizedBox(width: 10.w),
+          _CircleIconButton(
+            icon: Icons.delete_outline_rounded,
+            foreground: const Color(0xFFDC2626),
+            background: const Color(0xFFFDECEC),
+            onTap: () => _showDeleteDialog(context, member),
+          ),
+        ],
+      ),
     );
   }
 
@@ -316,7 +313,11 @@ class _FamilyMemberListItem extends StatelessWidget {
     return CircleAvatar(
       radius: 28.r,
       backgroundColor: const Color(0xFFE5E7EB),
-      child: Icon(Icons.person_rounded, color: const Color(0xFF9CA3AF), size: 28.sp),
+      child: Icon(
+        Icons.person_rounded,
+        color: const Color(0xFF9CA3AF),
+        size: 28.sp,
+      ),
     );
   }
 }

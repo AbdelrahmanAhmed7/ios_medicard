@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:medicard/core/widgets/app_simple_header.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
+import '../../../../core/theming/app_spacing.dart';
 import '../../../../core/widgets/auth_shared_widgets.dart';
 import '../../data/models/profile_response_model.dart';
 import '../../data/models/profile_summary_response_model.dart';
@@ -88,6 +89,28 @@ class ProfileContent extends StatelessWidget {
                 ),
               ),
               const Divider(color: kAuthBorderColor, height: 1),
+              ProfileItem(
+                icon: Icons.location_on_outlined,
+                label: 'profile.my_addresses'.tr(),
+                route: '/addresses',
+                trailing: Icon(
+                  Icons.chevron_right_rounded,
+                  color: Colors.black54,
+                  size: 20.sp,
+                ),
+              ),
+              const Divider(color: kAuthBorderColor, height: 1),
+              ProfileItem(
+                icon: Icons.badge_outlined,
+                label: 'profile.digital_membership'.tr(),
+                route: '/digital-membership',
+                trailing: Icon(
+                  Icons.chevron_right_rounded,
+                  color: Colors.black54,
+                  size: 20.sp,
+                ),
+              ),
+              const Divider(color: kAuthBorderColor, height: 1),
               ProfileLanguageItem(data: data),
               const Divider(color: kAuthBorderColor, height: 1),
               ProfileItem(
@@ -146,7 +169,7 @@ class ProfileContent extends StatelessWidget {
           SizedBox(height: 24.h),
 
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.w),
+            padding: AppSpacing.pageHorizontalInsets,
             child: OutlinedButton(
               onPressed: () {
                 // Logic حذف الحساب
@@ -172,7 +195,7 @@ class ProfileContent extends StatelessWidget {
           SizedBox(height: 12.h),
 
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.w),
+            padding: AppSpacing.pageHorizontalInsets,
             child: OutlinedButton(
               onPressed: () => showLogoutConfirmation(context),
               style: OutlinedButton.styleFrom(

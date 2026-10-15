@@ -13,7 +13,8 @@ import 'family_members_state.dart';
 class FamilyMembersCubit extends Cubit<FamilyMembersState> {
   final FamilyMembersRepository repository;
 
-  FamilyMembersCubit(this.repository) : super(const FamilyMembersState.initial());
+  FamilyMembersCubit(this.repository)
+    : super(const FamilyMembersState.initial());
 
   Future<void> loadFamilyMembers() async {
     if (isClosed) return;
@@ -50,7 +51,12 @@ class FamilyMembersCubit extends Cubit<FamilyMembersState> {
 
     emit(const FamilyMembersState.creating());
     try {
-      await repository.createFamilyMember(firstName, lastName, relation, imageUrl);
+      await repository.createFamilyMember(
+        firstName,
+        lastName,
+        relation,
+        imageUrl,
+      );
       if (isClosed) return;
       showSuccessToast('family_members.member_added_successfully'.tr());
       emit(const FamilyMembersState.created());
@@ -83,7 +89,13 @@ class FamilyMembersCubit extends Cubit<FamilyMembersState> {
 
     emit(const FamilyMembersState.updating());
     try {
-      await repository.updateFamilyMember(id, firstName, lastName, relation, imageUrl);
+      await repository.updateFamilyMember(
+        id,
+        firstName,
+        lastName,
+        relation,
+        imageUrl,
+      );
       if (isClosed) return;
       showSuccessToast('family_members.member_updated_successfully'.tr());
       emit(const FamilyMembersState.updated());

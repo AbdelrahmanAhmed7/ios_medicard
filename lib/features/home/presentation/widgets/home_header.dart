@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
+import '../../../../core/theming/app_spacing.dart';
+import '../../../../core/theming/app_toast.dart';
 import '../../../../core/widgets/app_blue_header.dart';
+import '../../../addresses/presentation/widgets/address_selection_sheet.dart';
 
 import '../cubit/location_cubit.dart';
 import '../cubit/location_state.dart';
@@ -28,7 +31,12 @@ class HomeHeader extends StatelessWidget {
         child: SizedBox(
           height: kMainTabHeaderContentHeight,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.pageHorizontal,
+              10,
+              AppSpacing.pageHorizontal,
+              10,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: const [
@@ -56,7 +64,7 @@ class _HeaderTopRow extends StatelessWidget {
             builder: (context, state) {
               return LocationDisplay(
                 text: _locationText(state, context),
-                onTap: context.read<LocationCubit>().retryLocation,
+                onTap: () => _openAddressSheet(context),
               );
             },
           ),
@@ -87,6 +95,32 @@ class _HeaderTopRow extends StatelessWidget {
       LocationLoaded(:final name) => name,
       LocationError(:final message) => message,
     };
+  }
+
+  void _openAddressSheet(BuildContext context) {
+    final locationCubit = context.read<LocationCubit>();
+    AddressSelectionSheet.show(
+      context,
+      onSelect: (address) {
+        if (!address.hasCoordinates) {
+          showWarningToast('addresses.location_unavailable'.tr());
+          return;
+        }
+        final label = address.isWork
+            ? 'addresses.work'.tr()
+            : 'addresses.home'.tr();
+        locationCubit.selectAddress(
+          id: address.id,
+          name: label,
+          latitude: address.lat!,
+          longitude: address.long!,
+        );
+      },
+      onUseCurrentLocation: () async {
+        await locationCubit.clearSelectedAddress();
+        await locationCubit.retryLocation();
+      },
+    );
   }
 }
 

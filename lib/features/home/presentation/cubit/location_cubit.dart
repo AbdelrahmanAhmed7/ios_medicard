@@ -5,6 +5,7 @@ import 'package:geocoding/geocoding.dart';
 
 import '../../../../core/services/location_repository.dart';
 import '../../../../core/services/location_service.dart';
+import '../../../../core/services/selected_address_store.dart';
 import 'location_state.dart';
 
 class LocationCubit extends Cubit<LocationState> {
@@ -18,11 +19,63 @@ class LocationCubit extends Cubit<LocationState> {
     : super(const LocationInitial());
 
   Future<void> loadLocation() async {
+    // Prefer a previously selected saved address over the device GPS.
+    final saved = await SelectedAddressStore.read();
+    if (isClosed) return;
+    if (saved != null) {
+      _applySelectedAddress(saved);
+      return;
+    }
     await _resolveLocationName(clearCache: false);
   }
 
   Future<void> refreshLocation() async {
     await _resolveLocationName(clearCache: true);
+  }
+
+  /// Uses a saved user address as the active location (persisted across
+  /// restarts). Coordinates are cached so home/search requests use them.
+  Future<void> selectAddress({
+    required int? id,
+    required String name,
+    required double latitude,
+    required double longitude,
+  }) async {
+    if (isClosed) return;
+    await SelectedAddressStore.save(
+      id: id,
+      name: name,
+      latitude: latitude,
+      longitude: longitude,
+    );
+    if (isClosed) return;
+    _applySelectedAddress(
+      SelectedAddressData(
+        id: id,
+        name: name,
+        latitude: latitude,
+        longitude: longitude,
+      ),
+    );
+  }
+
+  /// Drops the selected address and falls back to the device GPS.
+  Future<void> clearSelectedAddress() async {
+    await SelectedAddressStore.clear();
+    _locationRepository.clear();
+  }
+
+  void _applySelectedAddress(SelectedAddressData data) {
+    _locationRepository.cache(
+      LocationResult.granted(data.latitude, data.longitude),
+    );
+    emit(
+      LocationLoaded(
+        name: data.name,
+        latitude: data.latitude,
+        longitude: data.longitude,
+      ),
+    );
   }
 
   /// Called when user taps the location display (e.g. "Location unavailable").

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -48,8 +49,7 @@ class RegisterTextField extends StatelessWidget {
       validator:
           validator ??
           (required
-              ? (v) =>
-                    (v == null || v.isEmpty) ? 'This field is required' : null
+              ? (v) => (v == null || v.isEmpty) ? 'common.required'.tr() : null
               : null),
     );
   }

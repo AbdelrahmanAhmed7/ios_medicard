@@ -12,7 +12,6 @@ import '../cubit/family_members_state.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
-
 class AddEditFamilyMemberScreen extends StatefulWidget {
   final FamilyMemberModel? member;
 
@@ -154,7 +153,7 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
                   SafeArea(
                     bottom: false,
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(8.w, 10.h, 12.w, 6.h),
+                      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 6.h),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
@@ -201,7 +200,7 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
                   ),
                   SizedBox(height: 24.h),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20.w),
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
                     child: Form(
                       key: _formKey,
                       child: Column(
@@ -285,7 +284,9 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
     if (name.isEmpty) return 'common.required'.tr();
     if (name.length < 2) return 'edit_profile.invalid_name'.tr();
     final validNamePattern = RegExp(r"^[\p{L}][\p{L} .'\-]*$", unicode: true);
-    if (!validNamePattern.hasMatch(name)) return 'edit_profile.invalid_name'.tr();
+    if (!validNamePattern.hasMatch(name)) {
+      return 'edit_profile.invalid_name'.tr();
+    }
     return null;
   }
 
@@ -309,7 +310,9 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
         color: Colors.grey.shade500,
         size: 20.sp,
       ),
-      decoration: authInputDecoration(hintText: 'family_members.select_relation'.tr()),
+      decoration: authInputDecoration(
+        hintText: 'family_members.select_relation'.tr(),
+      ),
       items: RelationHelper.getRelationsList().map((relation) {
         return DropdownMenuItem<int>(
           value: relation['id'] as int,

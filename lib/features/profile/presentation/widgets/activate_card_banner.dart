@@ -1,9 +1,9 @@
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
+import '../../../../core/theming/app_spacing.dart';
 import '../../../../core/widgets/auth_shared_widgets.dart';
 import 'card_number_input_sheet.dart';
 import '../../data/models/profile_response_model.dart';
@@ -16,7 +16,7 @@ class ActivateCardBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      padding: AppSpacing.pageHorizontalInsets,
       child: InkWell(
         onTap: () => showActivateCardDialog(context, data),
         borderRadius: BorderRadius.circular(16.r),

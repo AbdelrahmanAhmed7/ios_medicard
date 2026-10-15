@@ -337,7 +337,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                     // ── Form Section ────────────────────────────────────
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 24.w),
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -381,7 +381,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               requiredKey: 'auth.register.lastNameRequired',
                             ),
                           ),
-                          SizedBox(height: 16.h),
                           SizedBox(height: 16.h),
                           RegisterAccountSection(
                             phoneNumberController: _phoneNumberController,

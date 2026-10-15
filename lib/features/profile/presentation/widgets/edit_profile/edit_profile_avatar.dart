@@ -48,9 +48,7 @@ class EditProfileAvatar extends StatelessWidget {
               ],
             ),
             child: imageFile != null
-                ? ClipOval(
-                    child: Image.file(imageFile!, fit: BoxFit.cover),
-                  )
+                ? ClipOval(child: Image.file(imageFile!, fit: BoxFit.cover))
                 : isPickingImage
                 ? Container(
                     decoration: const BoxDecoration(shape: BoxShape.circle),

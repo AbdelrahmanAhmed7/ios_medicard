@@ -1,4 +1,3 @@
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -47,7 +46,10 @@ class ProfileLanguageItem extends StatelessWidget {
               children: [
                 Text(
                   currentLanguage,
-                  style: AppTextStyles.of(color: kAuthGreyText, fontSize: 14.sp),
+                  style: AppTextStyles.of(
+                    color: kAuthGreyText,
+                    fontSize: 14.sp,
+                  ),
                 ),
                 SizedBox(width: 4.w),
                 Icon(
@@ -156,13 +158,10 @@ class ProfileLanguageItem extends StatelessWidget {
                       children: [
                         Expanded(
                           child: OutlinedButton(
-                            onPressed: () =>
-                                Navigator.of(sheetContext).pop(),
+                            onPressed: () => Navigator.of(sheetContext).pop(),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: const Color(0xFF334155),
-                              side: const BorderSide(
-                                color: Color(0xFFD1D5DB),
-                              ),
+                              side: const BorderSide(color: Color(0xFFD1D5DB)),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12.r),
                               ),

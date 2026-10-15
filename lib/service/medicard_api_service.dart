@@ -24,6 +24,11 @@ import '../features/family_members/data/models/get_family_members_response_model
 import '../features/family_members/data/models/get_family_member_response_model.dart';
 import '../features/family_members/data/models/create_family_member_request_model.dart';
 import '../features/family_members/data/models/family_member_operation_response_model.dart';
+import '../features/addresses/data/models/get_user_addresses_response_model.dart';
+import '../features/addresses/data/models/get_user_address_response_model.dart';
+import '../features/addresses/data/models/save_user_address_request_model.dart';
+import '../features/addresses/data/models/user_address_operation_response_model.dart';
+import '../features/search/data/models/lookup_response_model.dart';
 import '../features/guest_home/data/models/guest_home_response_model.dart';
 
 part 'medicard_api_service.g.dart';
@@ -164,6 +169,38 @@ abstract class MedicardApiService {
   Future<FamilyMemberOperationResponseModel> deleteFamilyMember(
     @Path('id') int id,
   );
+
+  // ── User Addresses ────────────────────────────────────────────────────────
+
+  @GET('/UserAddress')
+  Future<GetUserAddressesResponseModel> getUserAddresses();
+
+  @GET('/UserAddress/{id}')
+  Future<GetUserAddressResponseModel> getUserAddress(@Path('id') int id);
+
+  @POST('/UserAddress')
+  Future<UserAddressOperationResponseModel> createUserAddress(
+    @Body() SaveUserAddressRequestModel request,
+  );
+
+  @PUT('/UserAddress/{id}')
+  Future<UserAddressOperationResponseModel> updateUserAddress(
+    @Path('id') int id,
+    @Body() SaveUserAddressRequestModel request,
+  );
+
+  @DELETE('/UserAddress/{id}')
+  Future<UserAddressOperationResponseModel> deleteUserAddress(
+    @Path('id') int id,
+  );
+
+  // ── Lookups (governorates / cities) ───────────────────────────────────────
+
+  @GET('/Lookups/governorates')
+  Future<LookupResponseModel> getGovernorates();
+
+  @GET('/Lookups/cities')
+  Future<LookupResponseModel> getCities(@Query('governorateId') int governorateId);
 
   // ── Guest Home ────────────────────────────────────────────────────────────
 

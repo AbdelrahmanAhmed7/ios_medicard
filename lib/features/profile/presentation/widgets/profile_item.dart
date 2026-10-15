@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -12,8 +11,13 @@ class ProfileItem extends StatelessWidget {
   final String? route;
   final Map<String, dynamic>? routeExtra;
 
-  const ProfileItem({super.key,this.icon, required this.label, this.trailing, this.route})
-    : routeExtra = null;
+  const ProfileItem({
+    super.key,
+    this.icon,
+    required this.label,
+    this.trailing,
+    this.route,
+  }) : routeExtra = null;
 
   @override
   Widget build(BuildContext context) {

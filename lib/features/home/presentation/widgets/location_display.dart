@@ -2,16 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
-
 class LocationDisplay extends StatelessWidget {
   final String text;
   final VoidCallback onTap;
 
-  const LocationDisplay({
-    super.key,
-    required this.text,
-    required this.onTap,
-  });
+  const LocationDisplay({super.key, required this.text, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

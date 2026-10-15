@@ -6,9 +6,7 @@ part 'change_language_request_model.g.dart';
 class ChangeLanguageRequestModel {
   final String language;
 
-  const ChangeLanguageRequestModel({
-    required this.language,
-  });
+  const ChangeLanguageRequestModel({required this.language});
 
   factory ChangeLanguageRequestModel.fromJson(Map<String, dynamic> json) =>
       _$ChangeLanguageRequestModelFromJson(json);

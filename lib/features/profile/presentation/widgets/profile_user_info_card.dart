@@ -1,12 +1,10 @@
-
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/theming/app_spacing.dart';
 import '../../../../core/theming/app_text_styles.dart';
-import '../../../../core/widgets/auth_shared_widgets.dart';
 import 'profile_avatar.dart';
 import '../../data/models/profile_response_model.dart';
 import '../cubit/profile_cubit.dart';
@@ -20,7 +18,7 @@ class ProfileUserInfoCard extends StatelessWidget {
     final imageUrl = data.imageUrl;
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      padding: AppSpacing.pageHorizontalInsets,
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -47,15 +45,6 @@ class ProfileUserInfoCard extends StatelessWidget {
                           style: AppTextStyles.of(
                             color: Colors.black,
                             fontSize: 17.sp,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        SizedBox(height: 4.h),
-                        Text(
-                          'profile.standard_plan'.tr(),
-                          style: AppTextStyles.of(
-                            color: kAuthGreyText,
-                            fontSize: 14.sp,
                             fontWeight: FontWeight.w500,
                           ),
                         ),

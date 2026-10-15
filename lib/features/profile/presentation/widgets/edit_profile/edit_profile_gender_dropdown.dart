@@ -53,10 +53,7 @@ class EditProfileGenderDropdown extends StatelessWidget {
       ),
       items: [
         DropdownMenuItem(value: true, child: Text('edit_profile.male'.tr())),
-        DropdownMenuItem(
-          value: false,
-          child: Text('edit_profile.female'.tr()),
-        ),
+        DropdownMenuItem(value: false, child: Text('edit_profile.female'.tr())),
       ],
       onChanged: onChanged,
     );

@@ -1,7 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../../core/theming/app_spacing.dart';
 
 class ProfileCard extends StatelessWidget {
   final List<Widget> children;
@@ -10,7 +10,7 @@ class ProfileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      padding: AppSpacing.pageHorizontalInsets,
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,

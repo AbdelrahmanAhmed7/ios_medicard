@@ -14,8 +14,8 @@ class FamilyMembersRepositoryImpl implements FamilyMembersRepository {
   @override
   Future<List<FamilyMemberModel>> getFamilyMembers() async {
     // Token is injected automatically by AuthInterceptor.
-    final GetFamilyMembersResponseModel response =
-        await apiService.getFamilyMembers();
+    final GetFamilyMembersResponseModel response = await apiService
+        .getFamilyMembers();
     if (response.succeeded == true) {
       // data can be null or empty after deleting the last member — treat as []
       return response.data ?? [];
@@ -28,8 +28,8 @@ class FamilyMembersRepositoryImpl implements FamilyMembersRepository {
 
   @override
   Future<FamilyMemberModel> getFamilyMember(int id) async {
-    final GetFamilyMemberResponseModel response =
-        await apiService.getFamilyMember(id);
+    final GetFamilyMemberResponseModel response = await apiService
+        .getFamilyMember(id);
     if (response.succeeded == true && response.data != null) {
       return response.data!;
     } else {
@@ -53,8 +53,8 @@ class FamilyMembersRepositoryImpl implements FamilyMembersRepository {
           relation: relation,
           imageUrl: imageUrl,
         );
-    final FamilyMemberOperationResponseModel response =
-        await apiService.createFamilyMember(request);
+    final FamilyMemberOperationResponseModel response = await apiService
+        .createFamilyMember(request);
     if (response.succeeded != true) {
       throw Exception(
         response.errors?.join(', ') ?? 'Failed to create family member',
@@ -77,8 +77,8 @@ class FamilyMembersRepositoryImpl implements FamilyMembersRepository {
           relation: relation,
           imageUrl: imageUrl,
         );
-    final FamilyMemberOperationResponseModel response =
-        await apiService.updateFamilyMember(id, request);
+    final FamilyMemberOperationResponseModel response = await apiService
+        .updateFamilyMember(id, request);
     if (response.succeeded != true) {
       throw Exception(
         response.errors?.join(', ') ?? 'Failed to update family member',
@@ -88,8 +88,8 @@ class FamilyMembersRepositoryImpl implements FamilyMembersRepository {
 
   @override
   Future<void> deleteFamilyMember(int id) async {
-    final FamilyMemberOperationResponseModel response =
-        await apiService.deleteFamilyMember(id);
+    final FamilyMemberOperationResponseModel response = await apiService
+        .deleteFamilyMember(id);
     if (response.succeeded != true) {
       throw Exception(
         response.errors?.join(', ') ?? 'Failed to delete family member',

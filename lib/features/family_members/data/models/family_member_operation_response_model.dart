@@ -18,8 +18,10 @@ class FamilyMemberOperationResponseModel {
     this.data,
   });
 
-  factory FamilyMemberOperationResponseModel.fromJson(Map<String, dynamic> json) =>
-      _$FamilyMemberOperationResponseModelFromJson(json);
+  factory FamilyMemberOperationResponseModel.fromJson(
+    Map<String, dynamic> json,
+  ) => _$FamilyMemberOperationResponseModelFromJson(json);
 
-  Map<String, dynamic> toJson() => _$FamilyMemberOperationResponseModelToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$FamilyMemberOperationResponseModelToJson(this);
 }

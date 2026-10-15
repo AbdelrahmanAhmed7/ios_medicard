@@ -2,7 +2,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/theming/app_spacing.dart';
 import '../../../../core/theming/app_text_styles.dart';
 import '../../../ecard/data/models/card_data_response_model.dart';
 import '../../../ecard/presentation/cubit/ecard_cubit.dart';
@@ -33,13 +35,38 @@ class _ECardPreviewCardState extends State<ECardPreviewCard> {
           loaded: (data) {
             if (data == null) return const SizedBox.shrink();
             return Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: _MediCardPreview(card: data),
+              padding: AppSpacing.pageHorizontalInsets,
+              child: GestureDetector(
+                onTap: () => context.push('/digital-membership'),
+                child: _MediCardPreview(card: data),
+              ),
             );
           },
           orElse: () => const SizedBox.shrink(),
         );
       },
+    );
+  }
+}
+
+/// Tiny uppercase caption over a value on the card artwork (bank-card style).
+/// Letter-spacing is dropped in Arabic — it breaks letter connections.
+class _CardLabel extends StatelessWidget {
+  final String text;
+
+  const _CardLabel(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    final isArabic = context.locale.languageCode == 'ar';
+    return Text(
+      text,
+      style: AppTextStyles.of(
+        color: Colors.white.withValues(alpha: 0.65),
+        fontSize: 9.sp,
+        fontWeight: FontWeight.w600,
+        letterSpacing: isArabic ? 0 : 1.0,
+      ),
     );
   }
 }
@@ -55,9 +82,9 @@ class _MediCardPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final name = card.fullName;
-    final plan = (card.planType ?? '').trim();
     final number = card.formattedCardNumber;
     final expiry = card.formattedExpiry;
+    final direction = Directionality.of(context);
 
     return AspectRatio(
       aspectRatio: _aspectRatio,
@@ -71,76 +98,62 @@ class _MediCardPreview extends StatelessWidget {
               fit: BoxFit.cover,
               alignment: Alignment.center,
             ),
-            if (plan.isNotEmpty)
-              Positioned(
-                top: 16.h,
-                right: 16.w,
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 10.w,
-                    vertical: 5.h,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.18),
-                    borderRadius: BorderRadius.circular(8.r),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.35),
-                    ),
-                  ),
-                  child: Text(
-                    plan,
-                    style: AppTextStyles.of(
-                      color: Colors.white,
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ),
             Positioned(
               left: 24.w,
               right: 24.w,
               top: 88.h,
-              child: Text(
-                number.isEmpty ? '—' : number,
-                style: AppTextStyles.of(
-                  color: Colors.white,
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1.2,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _CardLabel('membership.card_number'.tr().toUpperCase()),
+                  SizedBox(height: 2.h),
+                  Text(
+                    number.isEmpty ? '—' : number,
+                    style: AppTextStyles.of(
+                      color: Colors.white,
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ],
               ),
             ),
-            Positioned(
-              left: 24.w,
-              right: 110.w,
+            Positioned.directional(
+              textDirection: direction,
+              start: 24.w,
+              end: 110.w,
               bottom: 18.h,
-              child: Text(
-                name.isEmpty ? '—' : name,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.of(
-                  color: Colors.white,
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w700,
-                  height: 1.2,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _CardLabel('membership.member_name'.tr().toUpperCase()),
+                  SizedBox(height: 2.h),
+                  Text(
+                    name.isEmpty ? '—' : name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.of(
+                      color: Colors.white,
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w700,
+                      height: 1.2,
+                    ),
+                  ),
+                ],
               ),
             ),
-            Positioned(
-              right: 18.w,
+            Positioned.directional(
+              textDirection: direction,
+              end: 18.w,
               bottom: 18.h,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    'ecard.expiry_date'.tr(),
-                    style: AppTextStyles.of(
-                      color: Colors.white.withValues(alpha: 0.75),
-                      fontSize: 9.sp,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+                  _CardLabel('membership.expiry_date_label'.tr().toUpperCase()),
                   SizedBox(height: 2.h),
                   Text(
                     expiry,

@@ -80,8 +80,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   bool get _hasCurrentPhoto =>
       _pickedImage != null ||
-      (!_removeImage &&
-          hasValidProfileImageUrl(widget.profileData.imageUrl));
+      (!_removeImage && hasValidProfileImageUrl(widget.profileData.imageUrl));
 
   Future<void> _showImageOptions() async {
     final showRemove = _hasCurrentPhoto;
@@ -211,7 +210,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-
   Future<void> _selectBirthDate() async {
     final initialDate = _birthDate.isNotEmpty
         ? DateTime.tryParse(_birthDate) ?? DateTime(1990)
@@ -251,7 +249,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _isMale = widget.profileData.isMale;
 
     for (final name in [
-      'firstName', 'lastName', 'phoneNumber', 'nationalId', 'passportNumber',
+      'firstName',
+      'lastName',
+      'phoneNumber',
+      'nationalId',
+      'passportNumber',
     ]) {
       final node = FocusNode();
       node.addListener(() {
@@ -364,18 +366,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     Positioned(
                       bottom: 0,
                       child: EditProfileAvatar(
-                      imageFile: _pickedImage,
-                      isPickingImage: _isPickingImage,
-                      removeImage: _removeImage,
-                      imageUrl: widget.profileData.imageUrl,
-                      onPreviewTap: () => showProfileImagePreview(
-                        context,
                         imageFile: _pickedImage,
-                        imageUrl: widget.profileData.imageUrl,
+                        isPickingImage: _isPickingImage,
                         removeImage: _removeImage,
+                        imageUrl: widget.profileData.imageUrl,
+                        onPreviewTap: () => showProfileImagePreview(
+                          context,
+                          imageFile: _pickedImage,
+                          imageUrl: widget.profileData.imageUrl,
+                          removeImage: _removeImage,
+                        ),
+                        onEditTap: _showImageOptions,
                       ),
-                      onEditTap: _showImageOptions,
-                    ),
                     ),
                   ],
                 ),
@@ -390,11 +392,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         firstNameController: _firstNameController,
                         lastNameController: _lastNameController,
                         firstNameFocusNode: _focusNodes['firstName'],
-                        firstNameAutovalidate: _touchedFields.contains('firstName')
+                        firstNameAutovalidate:
+                            _touchedFields.contains('firstName')
                             ? AutovalidateMode.onUserInteraction
                             : AutovalidateMode.disabled,
                         lastNameFocusNode: _focusNodes['lastName'],
-                        lastNameAutovalidate: _touchedFields.contains('lastName')
+                        lastNameAutovalidate:
+                            _touchedFields.contains('lastName')
                             ? AutovalidateMode.onUserInteraction
                             : AutovalidateMode.disabled,
                         nameValidator: _validateName,
@@ -407,19 +411,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         cardNumberController: _cardNumberController,
                         nationalIdController: _nationalIdController,
                         nationalIdFocusNode: _focusNodes['nationalId'],
-                        nationalIdAutovalidate: _touchedFields.contains('nationalId')
+                        nationalIdAutovalidate:
+                            _touchedFields.contains('nationalId')
                             ? AutovalidateMode.onUserInteraction
                             : AutovalidateMode.disabled,
                         digitsFormatters: [_digitsOnly(maxDigits: 14)],
                         nationalIdValidator: _validateNationalId,
                         passportNumberController: _passportNumberController,
                         passportNumberFocusNode: _focusNodes['passportNumber'],
-                        passportNumberAutovalidate: _touchedFields.contains('passportNumber')
+                        passportNumberAutovalidate:
+                            _touchedFields.contains('passportNumber')
                             ? AutovalidateMode.onUserInteraction
                             : AutovalidateMode.disabled,
                         phoneNumberController: _phoneNumberController,
                         phoneNumberFocusNode: _focusNodes['phoneNumber'],
-                        phoneNumberAutovalidate: _touchedFields.contains('phoneNumber')
+                        phoneNumberAutovalidate:
+                            _touchedFields.contains('phoneNumber')
                             ? AutovalidateMode.onUserInteraction
                             : AutovalidateMode.disabled,
                         phoneNumberValidator: _validatePhoneNumber,
@@ -510,7 +517,4 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       RegExp(r"[\p{L} .'\-]", unicode: true),
     );
   }
-
-
-
 }

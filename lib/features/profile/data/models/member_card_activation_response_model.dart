@@ -22,10 +22,8 @@ class MemberCardActivationResponseModel {
 
   factory MemberCardActivationResponseModel.fromJson(
     Map<String, dynamic> json,
-  ) =>
-      _$MemberCardActivationResponseModelFromJson(json);
+  ) => _$MemberCardActivationResponseModelFromJson(json);
 
-  Map<String, dynamic> toJson() => _$MemberCardActivationResponseModelToJson(
-    this,
-  );
+  Map<String, dynamic> toJson() =>
+      _$MemberCardActivationResponseModelToJson(this);
 }

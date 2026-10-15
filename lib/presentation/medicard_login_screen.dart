@@ -125,7 +125,7 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
 
                     // ── Form Section ─────────────────────────────────────
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 24.w),
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
