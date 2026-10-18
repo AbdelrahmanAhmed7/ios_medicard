@@ -211,6 +211,7 @@ class _HomeBody extends StatelessWidget {
           ),
           success: (data) => _buildLoadedView(context, data),
           failed: (failure, isRetrying) => _buildShellScrollView(
+            showQuickActions: false,
             slivers: [
               SliverToBoxAdapter(
                 child: HomeErrorView(
@@ -290,6 +291,7 @@ class _HomeBody extends StatelessWidget {
     required List<Widget> slivers,
     List<PromoBanner> banners = const [],
     bool isRefreshing = false,
+    bool showQuickActions = true,
   }) {
     return CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(
@@ -306,10 +308,12 @@ class _HomeBody extends StatelessWidget {
         const SliverToBoxAdapter(child: ECardPreviewCard()),
         const SliverToBoxAdapter(child: SizedBox(height: 8)),
 
-        SliverToBoxAdapter(
-          child: QuickActionsRow(actions: HomeMockData.quickActions),
-        ),
-        const SliverToBoxAdapter(child: SizedBox(height: 4)),
+        if (showQuickActions) ...[
+          SliverToBoxAdapter(
+            child: QuickActionsRow(actions: HomeMockData.quickActions),
+          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 4)),
+        ],
 
         if (banners.isNotEmpty) ...[
           SliverToBoxAdapter(child: PromoBannerWidget(banners: banners)),

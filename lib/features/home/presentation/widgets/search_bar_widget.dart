@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:easy_localization/easy_localization.dart';
 
-import '../../../../core/theming/app_text_styles.dart';
+import '../../../../core/widgets/unified_search_field.dart';
 
 class SearchBarWidget extends StatelessWidget {
   final double? latitude;
@@ -20,27 +20,20 @@ class SearchBarWidget extends StatelessWidget {
         );
       },
       child: AbsorbPointer(
-        child: TextField(
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.white,
-            hintText: 'home.search_hint'.tr(),
-            hintStyle: AppTextStyles.of(color: Color(0xFF9CA3AF), fontSize: 14),
-            prefixIcon: const Icon(
-              Icons.search,
-              color: Color(0xFF9CA3AF),
-              size: 20,
-            ),
-            prefixIconConstraints: const BoxConstraints(
-              minWidth: 32,
-              minHeight: 0,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-          ),
+        child: UnifiedSearchField(
+          readOnly: true,
+          borderRadius: 24.r,
+          borderColor: const Color(0xFFE5E9F0),
+          backgroundColor: Colors.white,
+          useShadow: true,
+          transparentBackground: true,
+          showAnimatedHint: true,
+          hintWordKeys: const [
+            'home.search_word_1',
+            'home.search_word_2',
+            'home.search_word_3',
+          ],
+          searchForPrefixKey: 'home.search_for',
         ),
       ),
     );

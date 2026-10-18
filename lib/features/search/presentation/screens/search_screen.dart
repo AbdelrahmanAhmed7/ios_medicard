@@ -209,9 +209,7 @@ class _SearchScreenState extends State<SearchScreen>
                                     fontWeight: isSelected
                                         ? FontWeight.w700
                                         : FontWeight.w400,
-                                    color: isSelected
-                                        ? const Color(0xFF3872B1)
-                                        : const Color(0xFF6B7280),
+                                    color: const Color(0xFF3872B1),
                                   ),
                                 ),
                               ),
@@ -242,7 +240,9 @@ class _SearchScreenState extends State<SearchScreen>
                 children: [
                   SearchProvidersTab(scrollController: _scrollController),
                   if (_showServicesTab)
-                    SearchServicesTab(enableCartFeatures: widget.enableCartFeatures),
+                    SearchServicesTab(
+                      enableCartFeatures: widget.enableCartFeatures,
+                    ),
                 ],
               ),
             ),
