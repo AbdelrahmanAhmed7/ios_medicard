@@ -5,6 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 
 import '../../../../core/cubit/app_refresh_cubit.dart';
 import '../../../../core/di/service_locator.dart';
+import '../../../../core/widgets/auth_shared_widgets.dart';
 import '../../../../features/home/presentation/widgets/featured_services_section.dart';
 import '../../../../features/home/presentation/widgets/home_error_view.dart';
 import '../../../../features/home/presentation/widgets/home_shimmer.dart';
@@ -127,46 +128,80 @@ class _GuestHomeHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: Color(0xFF3872B1),
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
+        color: Colors.white,
+        border: Border(bottom: BorderSide(color: Color(0xFFEEF1F5))),
       ),
-      padding: const EdgeInsets.only(left: 20, right: 20, top: 50, bottom: 20),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'guest_home.welcome_title'.tr(),
-                  style: AppTextStyles.of(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEFF6FF),
+                  borderRadius: BorderRadius.circular(13),
+                ),
+                child: const Icon(
+                  Icons.health_and_safety_outlined,
+                  color: kAuthBlue,
+                  size: 23,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'guest_home.welcome_title'.tr(),
+                      style: AppTextStyles.of(
+                        color: kAuthInk,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'guest_home.explore_health_services'.tr(),
+                      style: AppTextStyles.of(
+                        color: kAuthGreyText,
+                        fontSize: 12.5,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              TextButton.icon(
+                onPressed: () => context.go('/medicard-login'),
+                style: TextButton.styleFrom(
+                  foregroundColor: kAuthBlue,
+                  backgroundColor: const Color(0xFFEFF6FF),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 9,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  'guest_home.explore_health_services'.tr(),
-                  style: AppTextStyles.of(color: Colors.white70, fontSize: 14),
+                icon: const Icon(Icons.login_rounded, size: 17),
+                label: Text(
+                  'auth.login.loginButton'.tr(),
+                  style: AppTextStyles.of(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ],
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              context.go('/medicard-login');
-            },
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.white,
-              backgroundColor: Colors.white.withValues(alpha: 0.15),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
               ),
-            ),
-            child: Text('auth.login.loginButton'.tr()),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

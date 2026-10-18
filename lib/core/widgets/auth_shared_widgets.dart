@@ -8,9 +8,11 @@ import '../theming/app_text_styles.dart';
 // ── Design tokens ────────────────────────────────────────────────────────────
 
 const kAuthBlue = Color(0xFF3872B1);
+const kAuthInk = Color(0xFF0F172A);
 const kAuthBorderColor = Color(0xFFE5E7EB);
 const kAuthGreyText = Color(0xFF6B7280);
-const kAuthBackground = Color(0xFFF5F7FA);
+const kAuthBackground = Colors.white;
+const kAuthFieldBackground = Color(0xFFF8FAFC);
 
 // ── AuthFieldLabel ────────────────────────────────────────────────────────────
 
@@ -24,8 +26,8 @@ class AuthFieldLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     final labelStyle = AppTextStyles.of(
       fontSize: 13.sp,
-      color: kAuthGreyText,
-      fontWeight: FontWeight.w500,
+      color: const Color(0xFF334155),
+      fontWeight: FontWeight.w600,
     );
 
     return RichText(
@@ -109,47 +111,59 @@ class AuthGenderOption extends StatelessWidget {
 
 InputDecoration authInputDecoration({
   required String hintText,
+  Widget? prefixIcon,
   Widget? suffixIcon,
 }) {
   return InputDecoration(
     hintText: hintText,
-    hintStyle: AppTextStyles.of(fontSize: 14.sp, color: const Color(0xFFB0B8C1)),
+    counterText: '',
+    hintStyle: AppTextStyles.of(
+      fontSize: 14.sp,
+      color: const Color(0xFFB0B8C1),
+    ),
     filled: true,
-    fillColor: Colors.white,
+    fillColor: kAuthFieldBackground,
+    prefixIcon: prefixIcon,
     suffixIcon: suffixIcon,
-    contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+    contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+    errorMaxLines: 2,
+    errorStyle: AppTextStyles.of(
+      fontSize: 11.5.sp,
+      color: const Color(0xFFDC2626),
+      height: 1.25,
+    ),
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12.r),
+      borderRadius: BorderRadius.circular(14.r),
       borderSide: const BorderSide(color: kAuthBorderColor),
     ),
     enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12.r),
+      borderRadius: BorderRadius.circular(14.r),
       borderSide: const BorderSide(color: kAuthBorderColor),
     ),
     focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12.r),
-      borderSide: const BorderSide(color: kAuthBlue, width: 1.5),
+      borderRadius: BorderRadius.circular(14.r),
+      borderSide: const BorderSide(color: kAuthBlue, width: 1.6),
     ),
     errorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12.r),
-      borderSide: const BorderSide(color: Colors.red),
+      borderRadius: BorderRadius.circular(14.r),
+      borderSide: const BorderSide(color: Color(0xFFEF4444)),
     ),
     focusedErrorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12.r),
-      borderSide: const BorderSide(color: Colors.red, width: 1.5),
+      borderRadius: BorderRadius.circular(14.r),
+      borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.6),
     ),
   );
 }
 
-// ── AuthBlueHeader ────────────────────────────────────────────────────────────
+// ── AuthHeader ────────────────────────────────────────────────────────────────
 
-class AuthBlueHeader extends StatelessWidget {
+class AuthHeader extends StatelessWidget {
   final bool showBackButton;
   final VoidCallback? onBack;
   final String logoAsset;
   final String title;
 
-  const AuthBlueHeader({
+  const AuthHeader({
     super.key,
     this.showBackButton = false,
     this.onBack,
@@ -159,58 +173,186 @@ class AuthBlueHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final statusBarHeight = MediaQuery.of(context).padding.top;
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(
-        color: kAuthBlue,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(32),
-          bottomRight: Radius.circular(32),
-        ),
-      ),
-      padding: EdgeInsets.fromLTRB(28.w, statusBarHeight + 32.h, 28.w, 36.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (showBackButton) ...[
-            GestureDetector(
-              onTap: onBack,
-              child: Container(
-                width: 36.w,
-                height: 36.w,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(10.r),
-                ),
-                child: Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: Colors.white,
-                  size: 18.sp,
+      color: Colors.white,
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(8.w, 9.h, 8.w, 9.h),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 42.r,
+                height: 42.r,
+                child: showBackButton
+                    ? IconButton(
+                        padding: EdgeInsets.zero,
+                        visualDensity: VisualDensity.compact,
+                        onPressed: onBack,
+                        icon: Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          color: kAuthInk,
+                          size: 20.sp,
+                        ),
+                      )
+                    : null,
+              ),
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 38.r,
+                      height: 38.r,
+                      padding: EdgeInsets.all(5.r),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEFF6FF),
+                        borderRadius: BorderRadius.circular(11.r),
+                      ),
+                      child: Image.asset(logoAsset, fit: BoxFit.contain),
+                    ),
+                    SizedBox(width: 10.w),
+                    Flexible(
+                      child: Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.of(
+                          fontSize: 17.sp,
+                          fontWeight: FontWeight.w700,
+                          color: kAuthInk,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            SizedBox(height: 20.h),
-          ],
-          Image.asset(
-            logoAsset,
-            width: 72.w,
-            height: 72.w,
-            fit: BoxFit.contain,
-            color: Colors.white,
+              SizedBox(width: 42.r, height: 42.r),
+            ],
           ),
-          SizedBox(height: 16.h),
+        ),
+      ),
+    );
+  }
+}
+
+// ── AuthContentCard ──────────────────────────────────────────────────────────
+
+class AuthContentCard extends StatelessWidget {
+  final Widget child;
+  final EdgeInsetsGeometry? padding;
+
+  const AuthContentCard({super.key, required this.child, this.padding});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: padding ?? EdgeInsets.fromLTRB(16.w, 18.h, 16.w, 32.h),
+      child: child,
+    );
+  }
+}
+
+class AuthSectionIntro extends StatelessWidget {
+  final String title;
+  final String? subtitle;
+
+  const AuthSectionIntro({super.key, required this.title, this.subtitle});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: AppTextStyles.of(
+            fontSize: 23.sp,
+            fontWeight: FontWeight.w700,
+            color: kAuthInk,
+            height: 1.25,
+          ),
+        ),
+        if (subtitle != null && subtitle!.trim().isNotEmpty) ...[
+          SizedBox(height: 7.h),
           Text(
-            title,
+            subtitle!,
             style: AppTextStyles.of(
-              fontSize: 22.sp,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              height: 1.2,
+              fontSize: 13.5.sp,
+              color: kAuthGreyText,
+              height: 1.5,
             ),
           ),
         ],
+      ],
+    );
+  }
+}
+
+class AuthSecondaryButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onPressed;
+  final IconData? icon;
+  final bool tonal;
+
+  const AuthSecondaryButton({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.icon,
+    this.tonal = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 52.h,
+      child: OutlinedButton.icon(
+        onPressed: onPressed,
+        style: OutlinedButton.styleFrom(
+          foregroundColor: tonal ? const Color(0xFF475569) : kAuthBlue,
+          backgroundColor: tonal ? const Color(0xFFF1F5F9) : Colors.white,
+          side: BorderSide(
+            color: tonal ? const Color(0xFFE2E8F0) : kAuthBlue,
+            width: tonal ? 1 : 1.4,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14.r),
+          ),
+          elevation: 0,
+        ),
+        icon: icon == null ? const SizedBox.shrink() : Icon(icon, size: 19.sp),
+        label: Text(
+          label,
+          style: AppTextStyles.of(fontSize: 15.sp, fontWeight: FontWeight.w700),
+        ),
       ),
+    );
+  }
+}
+
+class AuthDivider extends StatelessWidget {
+  final String label;
+
+  const AuthDivider({super.key, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const Expanded(child: Divider(color: Color(0xFFE2E8F0))),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 12.w),
+          child: Text(
+            label,
+            style: AppTextStyles.of(fontSize: 12.5.sp, color: kAuthGreyText),
+          ),
+        ),
+        const Expanded(child: Divider(color: Color(0xFFE2E8F0))),
+      ],
     );
   }
 }
@@ -233,16 +375,19 @@ class AuthPrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: 52.h,
+      height: 54.h,
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: kAuthBlue,
-          disabledBackgroundColor: kAuthBlue.withValues(alpha: 0.6),
+          disabledBackgroundColor: const Color(0xFF9DB7D4),
+          foregroundColor: Colors.white,
+          disabledForegroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: BorderRadius.circular(14.r),
           ),
-          elevation: 0,
+          elevation: 1,
+          shadowColor: kAuthBlue.withValues(alpha: 0.28),
         ),
         child: isLoading
             ? const SizedBox(

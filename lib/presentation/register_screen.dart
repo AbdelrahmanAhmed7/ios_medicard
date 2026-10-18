@@ -329,47 +329,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // ── Blue Header ─────────────────────────────────────
-                    AuthBlueHeader(
+                    AuthHeader(
                       showBackButton: true,
                       onBack: () => context.go('/medicard-login'),
                       title: 'auth.welcomeTitle'.tr(),
                     ),
 
                     // ── Form Section ────────────────────────────────────
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    AuthContentCard(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(height: 28.h),
-
-                          Text(
-                            'auth.register.title'.tr(),
-                            style: AppTextStyles.of(
-                              fontSize: 24.sp,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
+                          AuthSectionIntro(
+                            title: 'auth.register.title'.tr(),
+                            subtitle: 'auth.register.subtitle'.tr(),
                           ),
-                          SizedBox(height: 6.h),
-                          Text(
-                            'auth.register.subtitle'.tr(),
-                            style: AppTextStyles.of(
-                              fontSize: 13.sp,
-                              color: kAuthGreyText,
-                            ),
-                          ),
-                          SizedBox(height: 24.h),
+                          SizedBox(height: 22.h),
 
                           RegisterNameRow(
                             firstNameController: _firstNameController,
                             lastNameController: _lastNameController,
                             firstNameFocusNode: _focusNodes['firstName'],
-                            firstNameAutovalidate: _touchedFields.contains('firstName')
+                            firstNameAutovalidate:
+                                _touchedFields.contains('firstName')
                                 ? AutovalidateMode.onUserInteraction
                                 : AutovalidateMode.disabled,
                             lastNameFocusNode: _focusNodes['lastName'],
-                            lastNameAutovalidate: _touchedFields.contains('lastName')
+                            lastNameAutovalidate:
+                                _touchedFields.contains('lastName')
                                 ? AutovalidateMode.onUserInteraction
                                 : AutovalidateMode.disabled,
                             firstNameValidator: (v) => _validateName(
@@ -385,7 +372,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           RegisterAccountSection(
                             phoneNumberController: _phoneNumberController,
                             phoneNumberFocusNode: _focusNodes['phoneNumber'],
-                            phoneNumberAutovalidate: _touchedFields.contains('phoneNumber')
+                            phoneNumberAutovalidate:
+                                _touchedFields.contains('phoneNumber')
                                 ? AutovalidateMode.onUserInteraction
                                 : AutovalidateMode.disabled,
                             phoneNumberValidator: _validatePhoneNumber,
@@ -406,20 +394,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               () => _obscurePassword = !_obscurePassword,
                             ),
                             passwordFocusNode: _focusNodes['password'],
-                            passwordAutovalidate: _touchedFields.contains('password')
+                            passwordAutovalidate:
+                                _touchedFields.contains('password')
                                 ? AutovalidateMode.onUserInteraction
                                 : AutovalidateMode.disabled,
                             passwordValidator: _validatePassword,
                             passwordMinLength: _passwordMinLength,
                             confirmPasswordFieldKey: _confirmPasswordFieldKey,
-                            confirmPasswordController: _confirmPasswordController,
+                            confirmPasswordController:
+                                _confirmPasswordController,
                             obscureConfirmPassword: _obscureConfirmPassword,
                             onConfirmPasswordToggle: () => setState(
                               () => _obscureConfirmPassword =
                                   !_obscureConfirmPassword,
                             ),
-                            confirmPasswordFocusNode: _focusNodes['confirmPassword'],
-                            confirmPasswordAutovalidate: _touchedFields.contains('confirmPassword')
+                            confirmPasswordFocusNode:
+                                _focusNodes['confirmPassword'],
+                            confirmPasswordAutovalidate:
+                                _touchedFields.contains('confirmPassword')
                                 ? AutovalidateMode.onUserInteraction
                                 : AutovalidateMode.disabled,
                             confirmPasswordValidator: _validateConfirmPassword,
@@ -429,13 +421,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             nationalIdFieldKey: _nationalIdFieldKey,
                             nationalIdController: _nationalIdController,
                             nationalIdFocusNode: _focusNodes['nationalId'],
-                            nationalIdAutovalidate: _touchedFields.contains('nationalId')
+                            nationalIdAutovalidate:
+                                _touchedFields.contains('nationalId')
                                 ? AutovalidateMode.onUserInteraction
                                 : AutovalidateMode.disabled,
                             nationalIdValidator: _validateNationalId,
                             passportNumberController: _passportNumberController,
-                            passportNumberFocusNode: _focusNodes['passportNumber'],
-                            passportNumberAutovalidate: _touchedFields.contains('passportNumber')
+                            passportNumberFocusNode:
+                                _focusNodes['passportNumber'],
+                            passportNumberAutovalidate:
+                                _touchedFields.contains('passportNumber')
                                 ? AutovalidateMode.onUserInteraction
                                 : AutovalidateMode.disabled,
                             passportNumberValidator: _validatePassportNumber,

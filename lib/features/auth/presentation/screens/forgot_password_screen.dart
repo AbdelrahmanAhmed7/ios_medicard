@@ -11,8 +11,6 @@ import '../../../../core/widgets/auth_shared_widgets.dart';
 import '../cubit/forgot_password_cubit.dart';
 import '../cubit/forgot_password_state.dart';
 
-import '../../../../core/theming/app_text_styles.dart';
-
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
 
@@ -81,10 +79,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           otpSent: (phoneNumber, otp) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (!mounted) return;
-              context.push('/forgot-password/verify', extra: {
-                'phoneNumber': phoneNumber,
-                'otp': otp,
-              });
+              context.push(
+                '/forgot-password/verify',
+                extra: {'phoneNumber': phoneNumber, 'otp': otp},
+              );
             });
           },
           failed: (error) {
@@ -100,10 +98,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     LanguageHelper.convertArabicToEnglishNumerals(
                       _phoneController.text.trim(),
                     );
-                context.push('/forgot-password/verify', extra: {
-                  'phoneNumber': phoneNumber,
-                  'otp': '',
-                });
+                context.push(
+                  '/forgot-password/verify',
+                  extra: {'phoneNumber': phoneNumber, 'otp': ''},
+                );
                 return;
               }
               showErrorToast(error);
@@ -128,26 +126,20 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AuthBlueHeader(
-                      title: 'auth.forgot.title'.tr(),
+                    AuthHeader(
+                      title: 'auth.welcomeTitle'.tr(),
                       showBackButton: true,
                       onBack: () => context.pop(),
                     ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    AuthContentCard(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(height: 28.h),
-                          Text(
-                            'auth.forgot.subtitle'.tr(),
-                            style: AppTextStyles.of(
-                              fontSize: 15.sp,
-                              color: kAuthGreyText,
-                              height: 1.4,
-                            ),
+                          AuthSectionIntro(
+                            title: 'auth.forgot.title'.tr(),
+                            subtitle: 'auth.forgot.subtitle'.tr(),
                           ),
-                          SizedBox(height: 24.h),
+                          SizedBox(height: 22.h),
                           AuthFieldLabel('auth.forgot.phone_label'.tr()),
                           SizedBox(height: 6.h),
                           TextFormField(

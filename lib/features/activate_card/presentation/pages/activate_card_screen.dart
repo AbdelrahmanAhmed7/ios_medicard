@@ -62,9 +62,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
   void initState() {
     super.initState();
     _passwordController.addListener(_onPasswordChanged);
-    _focusNodes = {
-      for (final name in _fieldNames) name: FocusNode(),
-    };
+    _focusNodes = {for (final name in _fieldNames) name: FocusNode()};
     for (final name in _fieldNames) {
       _focusNodes[name]!.addListener(() {
         if (!_focusNodes[name]!.hasFocus && _touchedFields.add(name)) {
@@ -134,37 +132,22 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // ── Blue Header ─────────────────────────────────────
-                    AuthBlueHeader(
+                    AuthHeader(
                       showBackButton: true,
                       onBack: () => context.pop(),
                       title: 'auth.welcomeTitle'.tr(),
                     ),
 
                     // ── Form Section ────────────────────────────────────
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    AuthContentCard(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(height: 28.h),
-
-                          Text(
-                            'activate_card.title'.tr(),
-                            style: AppTextStyles.of(
-                              fontSize: 24.sp,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
+                          AuthSectionIntro(
+                            title: 'activate_card.title'.tr(),
+                            subtitle: 'activate_card.subtitle'.tr(),
                           ),
-                          SizedBox(height: 6.h),
-                          Text(
-                            'activate_card.subtitle'.tr(),
-                            style: AppTextStyles.of(
-                              fontSize: 13.sp,
-                              color: kAuthGreyText,
-                            ),
-                          ),
-                          SizedBox(height: 24.h),
+                          SizedBox(height: 22.h),
 
                           // First Name
                           AuthFieldLabel('auth.register.firstName'.tr()),
@@ -799,8 +782,8 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
+        color: kAuthFieldBackground,
+        borderRadius: BorderRadius.circular(14.r),
         border: Border.all(color: kAuthBorderColor),
       ),
       child: Row(

@@ -121,26 +121,15 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // ── Blue Header ──────────────────────────────────────
-                    AuthBlueHeader(title: 'auth.welcomeTitle'.tr()),
+                    AuthHeader(title: 'auth.welcomeTitle'.tr()),
 
                     // ── Form Section ─────────────────────────────────────
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    AuthContentCard(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(height: 28.h),
-
-                          // Sign In title
-                          Text(
-                            'auth.login.title'.tr(),
-                            style: AppTextStyles.of(
-                              fontSize: 24.sp,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                          SizedBox(height: 24.h),
+                          AuthSectionIntro(title: 'auth.login.title'.tr()),
+                          SizedBox(height: 22.h),
 
                           // Mobile/Medicard Number field
                           AuthFieldLabel('auth.login.mobileOrCardNumber'.tr()),
@@ -206,21 +195,25 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
                           SizedBox(height: 20.h),
 
                           // Or divider
-                          _OrDivider(),
+                          AuthDivider(label: 'auth.login.or'.tr()),
                           SizedBox(height: 20.h),
 
                           // Activate Card Button
-                          _ActivateCardButton(
+                          AuthSecondaryButton(
+                            label: 'auth.login.activateCard'.tr(),
+                            icon: Icons.credit_card_rounded,
                             onPressed: () =>
                                 context.push('/medicard-activation'),
                           ),
-                          SizedBox(height: 20.h),
+                          SizedBox(height: 12.h),
 
                           // Continue as Guest Button
-                          _ContinueAsGuestButton(
+                          AuthSecondaryButton(
+                            label: 'auth.login.continueAsGuest'.tr(),
+                            icon: Icons.person_outline_rounded,
+                            tonal: true,
                             onPressed: () => context.go('/guest-home'),
                           ),
-                          SizedBox(height: 32.h),
                         ],
                       ),
                     ),
@@ -309,90 +302,4 @@ bool _looksLikePhoneAttempt(String value) {
 
 bool _isPotentialCardNumber(String value) {
   return RegExp(r'^[0-9]{4,12}$').hasMatch(value);
-}
-
-// ── Or Divider ──────────────────────────────────────────────────────────────
-
-class _OrDivider extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Expanded(child: Divider(color: Color(0xFFD1D5DB), thickness: 1)),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12.w),
-          child: Text(
-            'auth.login.or'.tr(),
-            style: AppTextStyles.of(fontSize: 13.sp, color: kAuthGreyText),
-          ),
-        ),
-        const Expanded(child: Divider(color: Color(0xFFD1D5DB), thickness: 1)),
-      ],
-    );
-  }
-}
-
-// ── Activate Card Button ─────────────────────────────────────────────────────
-
-class _ActivateCardButton extends StatelessWidget {
-  final VoidCallback onPressed;
-  const _ActivateCardButton({required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 52.h,
-      child: OutlinedButton(
-        onPressed: onPressed,
-        style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: kAuthBlue, width: 1.5),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.r),
-          ),
-          backgroundColor: Colors.white,
-        ),
-        child: Text(
-          'auth.login.activateCard'.tr(),
-          style: AppTextStyles.of(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.bold,
-            color: kAuthBlue,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ── Continue as Guest Button ─────────────────────────────────────────────────
-
-class _ContinueAsGuestButton extends StatelessWidget {
-  final VoidCallback onPressed;
-  const _ContinueAsGuestButton({required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 52.h,
-      child: TextButton(
-        onPressed: onPressed,
-        style: TextButton.styleFrom(
-          backgroundColor: Colors.grey.shade100,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.r),
-          ),
-        ),
-        child: Text(
-          'auth.login.continueAsGuest'.tr(),
-          style: AppTextStyles.of(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
-            color: Colors.grey.shade700,
-          ),
-        ),
-      ),
-    );
-  }
 }

@@ -11,7 +11,6 @@ import '../cubit/forgot_password_state.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
-
 class ResetPasswordScreen extends StatefulWidget {
   final String phoneNumber;
   final String token;
@@ -147,26 +146,20 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AuthBlueHeader(
-                      title: 'auth.forgot.reset_title'.tr(),
+                    AuthHeader(
+                      title: 'auth.welcomeTitle'.tr(),
                       showBackButton: true,
                       onBack: () => context.pop(),
                     ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    AuthContentCard(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(height: 28.h),
-                          Text(
-                            'auth.forgot.reset_subtitle'.tr(),
-                            style: AppTextStyles.of(
-                              fontSize: 15.sp,
-                              color: kAuthGreyText,
-                              height: 1.4,
-                            ),
+                          AuthSectionIntro(
+                            title: 'auth.forgot.reset_title'.tr(),
+                            subtitle: 'auth.forgot.reset_subtitle'.tr(),
                           ),
-                          SizedBox(height: 24.h),
+                          SizedBox(height: 22.h),
                           AuthFieldLabel('auth.forgot.new_password'.tr()),
                           SizedBox(height: 6.h),
                           TextFormField(

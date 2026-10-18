@@ -16,7 +16,6 @@ import '../cubit/forgot_password_state.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
-
 class OtpVerificationScreen extends StatefulWidget {
   final String phoneNumber;
   final String otp;
@@ -157,28 +156,22 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AuthBlueHeader(
-                      title: 'auth.forgot.otp_title'.tr(),
+                    AuthHeader(
+                      title: 'auth.welcomeTitle'.tr(),
                       showBackButton: true,
                       onBack: () => context.pop(),
                     ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    AuthContentCard(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(height: 28.h),
-                          Text(
-                            'auth.forgot.otp_subtitle'.tr(
+                          AuthSectionIntro(
+                            title: 'auth.forgot.otp_title'.tr(),
+                            subtitle: 'auth.forgot.otp_subtitle'.tr(
                               args: [widget.phoneNumber],
                             ),
-                            style: AppTextStyles.of(
-                              fontSize: 15.sp,
-                              color: kAuthGreyText,
-                              height: 1.4,
-                            ),
                           ),
-                          SizedBox(height: 24.h),
+                          SizedBox(height: 22.h),
 
                           if (_showOtp && widget.otp.isNotEmpty) ...[
                             _OtpPreviewCard(
@@ -215,20 +208,17 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                           SizedBox(height: 12.h),
                           Center(
                             child: TextButton(
-                              onPressed:
-                                  isLoading || _resendSecondsLeft > 0
-                                      ? null
-                                      : () {
-                                          context
-                                              .read<ForgotPasswordCubit>()
-                                              .sendOtp(widget.phoneNumber);
-                                        },
+                              onPressed: isLoading || _resendSecondsLeft > 0
+                                  ? null
+                                  : () {
+                                      context
+                                          .read<ForgotPasswordCubit>()
+                                          .sendOtp(widget.phoneNumber);
+                                    },
                               child: Text(
                                 _resendSecondsLeft > 0
                                     ? 'auth.forgot.resend_in'.tr(
-                                        args: [
-                                          '$_resendSecondsLeft',
-                                        ],
+                                        args: ['$_resendSecondsLeft'],
                                       )
                                     : 'auth.forgot.resend'.tr(),
                                 style: AppTextStyles.of(
@@ -266,9 +256,9 @@ class _OtpPreviewCard extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
       decoration: BoxDecoration(
-        color: const Color(0xFFEBF1FB),
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: kAuthBlue, width: 1),
+        color: const Color(0xFFEFF6FF),
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: const Color(0xFFBFDBFE)),
       ),
       child: Row(
         children: [
