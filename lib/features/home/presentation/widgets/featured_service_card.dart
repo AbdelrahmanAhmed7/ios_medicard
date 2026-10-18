@@ -10,6 +10,8 @@ import '../../../../core/di/service_locator.dart';
 import '../../../../core/theming/app_text_styles.dart';
 import '../../../../core/theming/app_toast.dart';
 import '../../../../medicard_network/domain/usecases/get_package_details_usecase.dart';
+import '../../../../medicard_network/presentation/widgets/package_details_sheet.dart';
+import '../../../../medicard_network/presentation/widgets/provider_shared_widgets.dart';
 import '../../../../network/data/provider_page_response_model.dart';
 import '../../domain/models/featured_service_model.dart';
 
@@ -259,7 +261,10 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
     showModalBottomSheet<void>(
       context: cardContext,
       isScrollControlled: true,
+      isDismissible: true,
+      enableDrag: true,
       backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withValues(alpha: 0.35),
       builder: (sheetContext) => _PackageDetailsSheet(
         packageId: packageId,
         fallback: service,
@@ -290,6 +295,7 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
         '/checkout',
         extra: {
           'providerId': service.providerId,
+          'providerName': service.providerName,
           if (service.providerBranchId != null)
             'selectedBranch': ProviderBranch(
               branchId: service.providerBranchId!,
@@ -299,6 +305,7 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
           'packageName': service.serviceName,
           'packagePriceBefore': service.originalPrice,
           'packagePriceAfter': service.discountedPrice,
+          'packageServiceNames': const <String>[],
         },
       );
     } finally {
@@ -323,14 +330,21 @@ class _PackageDetailsSheet extends StatefulWidget {
 }
 
 class _PackageDetailsSheetState extends State<_PackageDetailsSheet> {
-  late final Future<ApiResult<PackageDetailsResponse>> _detailsFuture;
+  late Future<ApiResult<PackageDetailsResponse>> _detailsFuture;
 
   @override
   void initState() {
     super.initState();
-    _detailsFuture = sl<GetPackageDetailsUseCase>().call(
-      packageId: widget.packageId,
-    );
+    _detailsFuture = _loadDetails();
+  }
+
+  Future<ApiResult<PackageDetailsResponse>> _loadDetails() =>
+      sl<GetPackageDetailsUseCase>().call(packageId: widget.packageId);
+
+  void _retry() {
+    setState(() {
+      _detailsFuture = _loadDetails();
+    });
   }
 
   @override
@@ -340,185 +354,33 @@ class _PackageDetailsSheetState extends State<_PackageDetailsSheet> {
       builder: (context, snapshot) {
         final isLoading = snapshot.connectionState != ConnectionState.done;
         final result = snapshot.data;
+        PackageDetailsData? details;
+        String? error;
+        result?.when(
+          success: (response) => details = response.data,
+          failure: (message) => error = message,
+        );
 
-        return Container(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.sizeOf(context).height * 0.82,
-          ),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-          ),
-          child: isLoading
-              ? const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(40),
-                    child: CircularProgressIndicator(),
-                  ),
-                )
-              : result == null
-              ? const SizedBox.shrink()
-              : result.when(
-                  success: (response) => _PackageDetailsSheetContent(
-                    details: response.data,
-                    fallback: widget.fallback,
-                    onBook: widget.onBook,
-                  ),
-                  failure: (error) => Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Text(error),
-                  ),
-                ),
+        final fallback = widget.fallback;
+        final originalPrice = fallback.originalPrice;
+        final fallbackDiscount = originalPrice > 0
+            ? ((originalPrice - fallback.discountedPrice) / originalPrice) * 100
+            : 0.0;
+
+        return PackageDetailsSheetView(
+          imageUrl: packageImageUrl(details?.image ?? fallback.imageUrl),
+          name: details?.name ?? fallback.serviceName,
+          description: details?.description ?? fallback.location,
+          serviceNames: details?.serviceNames ?? const <String>[],
+          priceBefore: details?.priceBefore ?? fallback.originalPrice,
+          priceAfter: details?.priceAfter ?? fallback.discountedPrice,
+          discount: details?.discountPercentage ?? fallbackDiscount,
+          isLoading: isLoading,
+          error: error,
+          onRetry: _retry,
+          onAdd: widget.onBook,
         );
       },
     );
-  }
-}
-
-class _PackageDetailsSheetContent extends StatelessWidget {
-  final PackageDetailsData? details;
-  final FeaturedServiceModel fallback;
-  final VoidCallback onBook;
-
-  const _PackageDetailsSheetContent({
-    required this.details,
-    required this.fallback,
-    required this.onBook,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final image = _imageUrl(details?.image ?? fallback.imageUrl);
-    final name = details?.name ?? fallback.serviceName;
-    final description = details?.description ?? fallback.location;
-    final serviceNames = details?.serviceNames ?? const <String>[];
-    final priceBefore = details?.priceBefore ?? fallback.originalPrice;
-    final priceAfter = details?.priceAfter ?? fallback.discountedPrice;
-
-    final bottomPadding = MediaQuery.of(context).padding.bottom + 18;
-
-    return ListView(
-      padding: EdgeInsets.zero,
-      shrinkWrap: true,
-      children: [
-        Container(
-          color: const Color(0xFFEEF3FB),
-          width: double.infinity,
-          child: CachedNetworkImage(
-            imageUrl: image,
-            height: 180,
-            width: double.infinity,
-            fit: BoxFit.cover,
-            errorWidget: (_, _, _) => SizedBox(
-              height: 180,
-              width: double.infinity,
-              child: const Icon(Icons.broken_image, color: Color(0xFF9CA3AF)),
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(18),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                name,
-                style: AppTextStyles.of(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF0F172A),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                description,
-                style: AppTextStyles.of(
-                  fontSize: 14,
-                  color: Color(0xFF475569),
-                  height: 1.35,
-                ),
-              ),
-              if (serviceNames.isNotEmpty) ...[
-                const SizedBox(height: 20),
-                Text(
-                  'provider_page.tests_included'.tr(),
-                  style: AppTextStyles.of(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                ...List.generate(
-                  serviceNames.length,
-                  (index) => Text(
-                    '${index + 1}-${serviceNames[index]}',
-                    style: AppTextStyles.of(
-                      fontSize: 14,
-                      color: Color(0xFF475569),
-                    ),
-                  ),
-                ),
-              ],
-              const SizedBox(height: 22),
-              Row(
-                children: [
-                  Text(
-                    'cart.total_amount'.tr(),
-                    style: AppTextStyles.of(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF64748B),
-                    ),
-                  ),
-                  const Spacer(),
-                  Text(
-                    'cart.egp_amount'.tr(args: ['${priceBefore.toInt()}']),
-                    style: AppTextStyles.of(
-                      decoration: TextDecoration.lineThrough,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    'cart.egp_amount'.tr(args: ['${priceAfter.toInt()}']),
-                    style: AppTextStyles.of(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF3872B1),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton(
-                  onPressed: onBook,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF3872B1),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: Text('activity.book'.tr()),
-                ),
-              ),
-              SizedBox(height: bottomPadding),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  String _imageUrl(String value) {
-    final trimmed = value.trim();
-    if (trimmed.isEmpty || trimmed.startsWith('http')) return trimmed;
-    final normalized = trimmed.startsWith('/') ? trimmed.substring(1) : trimmed;
-    if (normalized.startsWith('uploads/')) {
-      return 'https://medicard-api-v2.medicardeg.com/$normalized';
-    }
-    return 'https://medicard-api-v2.medicardeg.com/uploads/providers/$normalized';
   }
 }

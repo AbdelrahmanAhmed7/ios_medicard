@@ -31,6 +31,7 @@ class ProviderInfoRow extends StatelessWidget {
   final ProviderPageData data;
   final int servicesCount;
   final ProviderBranch? selectedBranch;
+  final VoidCallback onBack;
   final VoidCallback onBranchTap;
   final VoidCallback onRatingTap;
 
@@ -39,6 +40,7 @@ class ProviderInfoRow extends StatelessWidget {
     required this.data,
     required this.servicesCount,
     required this.selectedBranch,
+    required this.onBack,
     required this.onBranchTap,
     required this.onRatingTap,
   });
@@ -51,15 +53,30 @@ class ProviderInfoRow extends StatelessWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            SizedBox(
+              width: 40.r,
+              height: 40.r,
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                visualDensity: VisualDensity.compact,
+                onPressed: onBack,
+                icon: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: const Color(0xFF111827),
+                  size: 20.sp,
+                ),
+              ),
+            ),
+            SizedBox(width: 4.w),
             Container(
-              width: 76.w,
-              height: 76.w,
+              width: 54.r,
+              height: 54.r,
               decoration: BoxDecoration(
                 color: Colors.white,
                 shape: BoxShape.circle,
                 border: Border.all(color: const Color(0xFFE5E9F0), width: 1.5),
               ),
-              padding: EdgeInsets.all(8.r),
+              padding: EdgeInsets.all(6.r),
               child: ClipOval(
                 child: CachedNetworkImage(
                   imageUrl: data.providerLogo,
@@ -71,7 +88,7 @@ class ProviderInfoRow extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(width: 14.w),
+            SizedBox(width: 10.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,62 +96,82 @@ class ProviderInfoRow extends StatelessWidget {
                   Text(
                     data.providerName,
                     style: AppTextStyles.of(
-                      fontSize: 19.sp,
+                      fontSize: 17.sp,
                       fontWeight: FontWeight.bold,
                       color: const Color(0xFF111827),
-                      height: 1.25,
+                      height: 1.2,
                     ),
-                    maxLines: 2,
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  SizedBox(height: 8.h),
+                  SizedBox(height: 6.h),
                   Wrap(
-                    spacing: 14.w,
-                    runSpacing: 6.h,
+                    spacing: 8.w,
+                    runSpacing: 4.h,
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.layers_outlined,
-                            color: const Color(0xFF6B7280),
-                            size: 14.sp,
+                      if (data.categoryName.trim().isNotEmpty)
+                        Text(
+                          data.categoryName,
+                          style: AppTextStyles.of(
+                            color: const Color(0xFF64748B),
+                            fontSize: 11.5.sp,
+                            fontWeight: FontWeight.w500,
                           ),
-                          SizedBox(width: 4.w),
-                          Text(
-                            'provider_page.services_count'.tr(
-                              args: ['$servicesCount'],
-                            ),
-                            style: AppTextStyles.of(
-                              color: const Color(0xFF4B5563),
-                              fontSize: 12.sp,
-                            ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 7.w,
+                          vertical: 3.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEFF6FF),
+                          borderRadius: BorderRadius.circular(10.r),
+                        ),
+                        child: Text(
+                          'provider_page.services_count'.tr(
+                            args: ['$servicesCount'],
                           ),
-                        ],
+                          style: AppTextStyles.of(
+                            color: const Color(0xFF2563EB),
+                            fontSize: 10.5.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
-                      if (data.phones != null && data.phones!.isNotEmpty)
+                      if (data.rating != null)
                         GestureDetector(
-                          onTap: () => UrlLauncherService().makePhoneCall(
-                            data.phones!.first,
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.phone_in_talk_rounded,
-                                color: const Color(0xFF6B7280),
-                                size: 14.sp,
-                              ),
-                              SizedBox(width: 4.w),
-                              Text(
-                                data.phones!.first,
-                                style: AppTextStyles.of(
-                                  color: const Color(0xFF4B5563),
-                                  fontSize: 12.sp,
+                          onTap: onRatingTap,
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 7.w,
+                              vertical: 3.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF7E6),
+                              borderRadius: BorderRadius.circular(10.r),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.star_rounded,
+                                  color: const Color(0xFFF5A623),
+                                  size: 13.sp,
                                 ),
-                              ),
-                            ],
+                                SizedBox(width: 3.w),
+                                Text(
+                                  '${data.rating} (${data.reviewsCount ?? 0})',
+                                  style: AppTextStyles.of(
+                                    color: const Color(0xFF92400E),
+                                    fontSize: 10.sp,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                     ],
@@ -142,94 +179,79 @@ class ProviderInfoRow extends StatelessWidget {
                 ],
               ),
             ),
-            if (data.rating != null) ...[
+            if (data.phones?.isNotEmpty == true) ...[
               SizedBox(width: 8.w),
-              GestureDetector(
-                onTap: onRatingTap,
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFEF3C7),
-                    borderRadius: BorderRadius.circular(10.r),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.star_rounded,
-                        color: const Color(0xFFF5A623),
-                        size: 16.sp,
+              Tooltip(
+                message: 'provider_page.call'.tr(),
+                child: Material(
+                  color: const Color(0xFFEFF6FF),
+                  shape: const CircleBorder(),
+                  child: InkWell(
+                    customBorder: const CircleBorder(),
+                    onTap: () =>
+                        UrlLauncherService().makePhoneCall(data.phones!.first),
+                    child: SizedBox(
+                      width: 36.r,
+                      height: 36.r,
+                      child: Icon(
+                        Icons.phone_in_talk_rounded,
+                        color: const Color(0xFF2563EB),
+                        size: 18.sp,
                       ),
-                      SizedBox(width: 4.w),
-                      Text(
-                        '${data.rating} (${data.reviewsCount ?? 0})',
-                        style: AppTextStyles.of(
-                          color: const Color(0xFF92400E),
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
             ],
           ],
         ),
-        SizedBox(height: 12.h),
-        Material(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12.r),
-          child: InkWell(
-            onTap: onBranchTap,
-            borderRadius: BorderRadius.circular(12.r),
-            child: Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 11.h),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12.r),
-                border: Border.all(color: const Color(0xFFD8E0EA)),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 30.r,
-                    height: 30.r,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFEFF6FF),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
+        if (data.branches?.isNotEmpty == true) ...[
+          SizedBox(height: 8.h),
+          Material(
+            color: const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(11.r),
+            child: InkWell(
+              onTap: onBranchTap,
+              borderRadius: BorderRadius.circular(11.r),
+              child: Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(horizontal: 11.w, vertical: 8.h),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(11.r),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
                       Icons.location_on_outlined,
                       color: const Color(0xFF3872B1),
-                      size: 16.sp,
+                      size: 17.sp,
                     ),
-                  ),
-                  SizedBox(width: 10.w),
-                  Expanded(
-                    child: Text(
-                      selectedBranch?.branchName ??
-                          'provider_page.select_branch'.tr(),
-                      style: AppTextStyles.of(
-                        fontSize: 13.sp,
-                        color: const Color(0xFF334155),
-                        fontWeight: FontWeight.w600,
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: Text(
+                        selectedBranch?.branchName ??
+                            'provider_page.select_branch'.tr(),
+                        style: AppTextStyles.of(
+                          fontSize: 12.5.sp,
+                          color: const Color(0xFF334155),
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                  SizedBox(width: 8.w),
-                  Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    color: const Color(0xFF3872B1),
-                    size: 22.sp,
-                  ),
-                ],
+                    Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      color: const Color(0xFF3872B1),
+                      size: 20.sp,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
+        ],
       ],
     );
   }
@@ -294,10 +316,10 @@ class PackagePlainServiceNames extends StatelessWidget {
   Widget build(BuildContext context) {
     if (serviceNames.isEmpty) {
       return Text(
-        'No services found',
+        'provider_page.no_services_found'.tr(),
         style: AppTextStyles.of(
-          fontSize: 14.sp,
-          color: const Color(0xFF64748B),
+          fontSize: 13.sp,
+          color: const Color(0xFF94A3B8),
         ),
       );
     }
@@ -306,14 +328,38 @@ class PackagePlainServiceNames extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: List.generate(serviceNames.length, (index) {
         return Padding(
-          padding: EdgeInsets.only(bottom: 2.h),
-          child: Text(
-            '${index + 1}-${serviceNames[index]}',
-            style: AppTextStyles.of(
-              fontSize: 14.sp,
-              color: const Color(0xFF4B5563),
-              height: 1.22,
-            ),
+          padding: EdgeInsets.only(
+            bottom: index < serviceNames.length - 1 ? 9.h : 0,
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 20.r,
+                height: 20.r,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFDBEAFE),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.check_rounded,
+                  color: const Color(0xFF2563EB),
+                  size: 13.sp,
+                ),
+              ),
+              SizedBox(width: 9.w),
+              Expanded(
+                child: Text(
+                  serviceNames[index],
+                  style: AppTextStyles.of(
+                    fontSize: 13.sp,
+                    color: const Color(0xFF334155),
+                    fontWeight: FontWeight.w500,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       }),

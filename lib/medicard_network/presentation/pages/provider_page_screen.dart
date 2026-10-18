@@ -11,7 +11,6 @@ import '../widgets/provider_search_row.dart';
 import '../widgets/provider_top_header.dart';
 import '../widgets/package_details_sheet.dart';
 
-
 class ProviderPageScreen extends StatefulWidget {
   final int providerId;
 
@@ -41,63 +40,71 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
         backgroundColor: Colors.white,
         // Scoped rebuilds: the shell itself never rebuilds on cubit emits.
         // Each section below owns its rebuild scope (see widgets/).
-        body: BlocSelector<ProviderPageCubit, ProviderPageState, bool>(
-          selector: (state) =>
-              state.currentView == ProviderViewType.reviews,
-          builder: (context, isReviews) {
-            final cubit = context.read<ProviderPageCubit>();
-            return PopScope(
-              canPop: !isReviews,
-              onPopInvokedWithResult: (didPop, result) {
-                if (!didPop &&
-                    cubit.state.currentView == ProviderViewType.reviews) {
-                  cubit.switchView(cubit.state.catalogView);
-                }
-              },
-            child: Column(
-              children: [
-                ProviderTopHeader(
-                  selectedBranch: _selectedBranch,
-                  onBranchTap: _openBranchSelector,
-                ),
-                if (widget.autoOpenPackageId != null)
-                  _AutoOpenPackage(
-                    packageId: widget.autoOpenPackageId!,
-                    selectedBranch: _selectedBranch,
-                  ),
-                Expanded(
-                    child: NotificationListener<ScrollNotification>(
-                      onNotification: (scrollInfo) =>
-                          _handleScrollNotification(
-                            scrollInfo,
-                            cubit.state,
-                            cubit,
-                          ),
-                      child: SingleChildScrollView(
-                        physics: const BouncingScrollPhysics(),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16.w,
-                            vertical: 16.h,
-                          ),
+        body: SafeArea(
+          bottom: false,
+          child: BlocSelector<ProviderPageCubit, ProviderPageState, bool>(
+            selector: (state) => state.currentView == ProviderViewType.reviews,
+            builder: (context, isReviews) {
+              final cubit = context.read<ProviderPageCubit>();
+              return PopScope(
+                canPop: !isReviews,
+                onPopInvokedWithResult: (didPop, result) {
+                  if (!didPop &&
+                      cubit.state.currentView == ProviderViewType.reviews) {
+                    cubit.switchView(cubit.state.catalogView);
+                  }
+                },
+                child: Column(
+                  children: [
+                    if (widget.autoOpenPackageId != null)
+                      _AutoOpenPackage(
+                        packageId: widget.autoOpenPackageId!,
+                        selectedBranch: _selectedBranch,
+                      ),
+                    Expanded(
+                      child: NotificationListener<ScrollNotification>(
+                        onNotification: (scrollInfo) =>
+                            _handleScrollNotification(
+                              scrollInfo,
+                              cubit.state,
+                              cubit,
+                            ),
+                        child: SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
                           child: Column(
                             children: [
-                              const ProviderSearchRow(),
-                              ProviderContentSection(
+                              ProviderTopHeader(
                                 selectedBranch: _selectedBranch,
+                                onBranchTap: _openBranchSelector,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(
+                                  16.w,
+                                  12.h,
+                                  16.w,
+                                  16.h,
+                                ),
+                                child: Column(
+                                  children: [
+                                    const ProviderSearchRow(),
+                                    ProviderContentSection(
+                                      selectedBranch: _selectedBranch,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
               );
             },
           ),
         ),
+      ),
     );
   }
 
@@ -107,8 +114,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
     ProviderPageCubit cubit,
   ) {
     if (scrollInfo is! ScrollUpdateNotification) return false;
-    if (scrollInfo.metrics.pixels <
-        scrollInfo.metrics.maxScrollExtent - 200) {
+    if (scrollInfo.metrics.pixels < scrollInfo.metrics.maxScrollExtent - 200) {
       return false;
     }
     switch (state.currentView) {
@@ -190,12 +196,7 @@ class _AutoOpenPackageState extends State<_AutoOpenPackage> {
           .firstOrNull;
       if (found != null) {
         if (!mounted) return;
-        openPackageDetailsSheet(
-          context,
-          cubit,
-          found,
-          widget.selectedBranch,
-        );
+        openPackageDetailsSheet(context, cubit, found, widget.selectedBranch);
         return;
       }
       if (!cubit.state.packagesHasMore) return;

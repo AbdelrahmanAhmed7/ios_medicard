@@ -36,53 +36,24 @@ class ProviderPackageCard extends StatelessWidget {
           children: [
             Expanded(
               flex: 5,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(8.r),
-                      topRight: Radius.circular(8.r),
-                    ),
-                    child: CachedNetworkImage(
-                      imageUrl: packageData.imageUrl ?? '',
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      errorWidget: (context, url, error) => const Icon(
-                        Icons.local_hospital,
-                        color: Color(0xFF3872B1),
-                      ),
-                    ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(8.r),
+                  topRight: Radius.circular(8.r),
+                ),
+                child: CachedNetworkImage(
+                  imageUrl: packageData.imageUrl ?? '',
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  errorWidget: (context, url, error) => const Icon(
+                    Icons.local_hospital,
+                    color: Color(0xFF3872B1),
                   ),
-                  Positioned(
-                    top: 6.w,
-                    right: 6.w,
-                    child: GestureDetector(
-                      onTap: onQuickAdd,
-                      child: Container(
-                        width: 24.r,
-                        height: 24.r,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: const Color(0xFF3872B1),
-                            width: 1.3,
-                          ),
-                        ),
-                        child: Icon(
-                          Icons.add_rounded,
-                          color: const Color(0xFF3872B1),
-                          size: 20.sp,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
             Expanded(
-              flex: 4,
+              flex: 5,
               child: Padding(
                 padding: EdgeInsets.fromLTRB(8.w, 7.h, 8.w, 8.h),
                 child: Column(
@@ -113,34 +84,46 @@ class ProviderPackageCard extends StatelessWidget {
                     ],
                     const Spacer(),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        if (packageData.priceBefore != null)
-                          Flexible(
-                            child: Text(
-                              '${formatPrice(packageData.priceBefore)} EGP',
-                              style: AppTextStyles.of(
-                                fontSize: 11.sp,
-                                color: Colors.black,
-                                decoration: TextDecoration.lineThrough,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (packageData.priceBefore != null)
+                                Text(
+                                  '${formatPrice(packageData.priceBefore)} EGP',
+                                  style: AppTextStyles.of(
+                                    fontSize: 10.5.sp,
+                                    color: const Color(0xFF94A3B8),
+                                    decoration: TextDecoration.lineThrough,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              if (packageData.priceAfter != null)
+                                Text(
+                                  '${formatPrice(packageData.priceAfter)} EGP',
+                                  style: AppTextStyles.of(
+                                    fontSize: 13.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: const Color(0xFF1F6BC1),
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                            ],
                           ),
-                        SizedBox(width: 8.w),
-                        if (packageData.priceAfter != null)
-                          Text(
-                            '${formatPrice(packageData.priceAfter)} EGP',
-                            style: AppTextStyles.of(
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.w500,
-                              color: const Color(0xFF1F6BC1),
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                        ),
+                        SizedBox(width: 6.w),
+                        IgnorePointer(
+                          ignoring: onQuickAdd == null,
+                          child: CartActionButton(
+                            inCart: false,
+                            onPressed: onQuickAdd ?? () {},
                           ),
+                        ),
                       ],
                     ),
                   ],

@@ -7,6 +7,7 @@ import '../../../core/theming/app_text_styles.dart';
 import '../../logic/provider_page_cubit.dart';
 import '../../logic/provider_page_state.dart';
 import 'provider_rebuild_scopes.dart';
+import '../../../core/widgets/unified_search_field.dart';
 
 /// Search field + view-switcher dropdown. The text field keeps its own input
 /// state; this row rebuilds only when its visibility or the dropdown value
@@ -35,38 +36,12 @@ class ProviderSearchRow extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12.r),
                       border: Border.all(color: const Color(0xFFE2E8F0)),
                     ),
-                    child: TextField(
+                    child: UnifiedSearchField(
                       onChanged: (query) => cubit.updateSearchQuery(query),
-                      style: AppTextStyles.of(
-                        fontSize: 14.sp,
-                        color: const Color(0xFF1A1A2E),
-                      ),
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white,
-                        hintText: 'provider_page.search_services'.tr(),
-                        hintStyle: AppTextStyles.of(
-                          color: const Color(0xFF9CA3AF),
-                          fontSize: 14.sp,
-                        ),
-                        prefixIcon: Icon(
-                          Icons.search,
-                          color: const Color(0xFF9CA3AF),
-                          size: 20.sp,
-                        ),
-                        prefixIconConstraints: const BoxConstraints(
-                          minWidth: 30,
-                          minHeight: 0,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12.r),
-                          borderSide: BorderSide.none,
-                        ),
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 4.w,
-                          vertical: 12.h,
-                        ),
-                      ),
+                      hintText: 'provider_page.search_services'.tr(),
+                      borderRadius: 12.r,
+                      useShadow: false,
+                      transparentBackground: false,
                     ),
                   ),
                 ),
@@ -142,7 +117,7 @@ class ProviderSearchRow extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 16.h),
+            SizedBox(height: 12.h),
           ],
         );
       },
