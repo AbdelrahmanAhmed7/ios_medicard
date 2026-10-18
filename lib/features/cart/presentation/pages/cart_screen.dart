@@ -50,8 +50,10 @@ class _CartScreenState extends State<CartScreen> {
                       size: 22.sp,
                     ),
                     onPressed: () {
-                      if (Navigator.of(context).canPop()) {
-                        Navigator.of(context).pop();
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        context.go('/medicard-home');
                       }
                     },
                   ),

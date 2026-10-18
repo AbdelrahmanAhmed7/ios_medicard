@@ -143,7 +143,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
               SafeArea(
                 bottom: false,
                 child: Padding(
-                  padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 6.h),
+                  padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 16.h),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -209,7 +209,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
     }
 
     return ListView(
-      padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 24.h),
+      padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 24.h),
       children: [
         CheckoutSectionTitle(
           text: 'cart.order_for'.tr(),

@@ -12,6 +12,7 @@ import '../cubit/cart_state.dart';
 import 'cart_item_card.dart';
 import 'cart_sync_warning.dart';
 import 'checkout_summary_row.dart';
+import 'provider_checkout_notice.dart';
 
 /// Cart grouped by provider: every assigned provider gets its own bordered
 /// section (header + divider-separated items + subtotal + scoped checkout).
@@ -63,6 +64,8 @@ class CartBody extends StatelessWidget {
               isBusy: isBusy,
               onClear: () => _showClearCartSheet(context),
             ),
+            SizedBox(height: 12.h),
+            ProviderCheckoutNotice(message: 'cart.provider_checkout_hint'.tr()),
             SizedBox(height: 20.h),
             if (unassigned.isNotEmpty) ...[
               _NeedsProviderBanner(

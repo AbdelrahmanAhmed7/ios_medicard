@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../../../cart/domain/models/provider_option.dart';
 import '../../../cart/presentation/cubit/cart_cubit.dart';
 import '../../../cart/presentation/cubit/cart_state.dart';
+import '../../../cart/presentation/widgets/provider_checkout_notice.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
@@ -82,6 +83,13 @@ class ChooseProviderScreen extends StatelessWidget {
                   ),
                 ),
               ),
+              if (!state.isProvidersLoading && state.providers.isNotEmpty)
+                Padding(
+                  padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 0),
+                  child: ProviderCheckoutNotice(
+                    message: 'cart.choose_provider_hint'.tr(),
+                  ),
+                ),
               Expanded(child: _buildBody(context, state)),
               // Bottom bar — only when a provider is selected
               if (state.selectedProvider != null)
@@ -522,7 +530,7 @@ class _ChooseProviderBottomBar extends StatelessWidget {
                               if (returnToPreviousCart && context.canPop()) {
                                 context.pop();
                               } else {
-                                context.go('/cart');
+                                context.pushReplacement('/cart');
                               }
                             } else {
                               final error = context

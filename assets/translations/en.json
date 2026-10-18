@@ -396,6 +396,7 @@
     "no_reviews_found": "No reviews found",
     "select_branch_first": "Please select a branch first.",
     "no_provider_branch_found": "No provider branch found for this package.",
+    "package_details": "Package details",
     "tests_included": "Tests included",
     "search_branches": "Search branches...",
     "branches_found": "{} branches found",
@@ -470,7 +471,10 @@
     "order_placed_successfully": "Order Placed Successfully",
     "view_invoices": "View invoices",
     "view_activity": "View Activity",
-    "negative_discount_percent": "- {}%"
+    "negative_discount_percent": "- {}%",
+    "separate_checkout_title": "Separate checkout per provider",
+    "provider_checkout_hint": "Each provider has its own checkout. Complete payment for each provider separately.",
+    "choose_provider_hint": "Checkout is completed separately for each provider. After confirming, you will return to the cart to continue checkout."
   },
   "activity": {
     "invoices_subtitle": "Track and manage all your invoices",

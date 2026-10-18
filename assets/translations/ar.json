@@ -396,6 +396,7 @@
     "no_reviews_found": "لا توجد تقييمات",
     "select_branch_first": "يرجى اختيار الفرع أولاً.",
     "no_provider_branch_found": "لم يتم العثور على فرع لهذه الباقة.",
+    "package_details": "تفاصيل الباقة",
     "tests_included": "الفحوصات المتضمنة",
     "search_branches": "بحث في الفروع...",
     "branches_found": "{} فرع",
@@ -472,7 +473,10 @@
     "order_placed_successfully": "تم إرسال الطلب بنجاح",
     "view_invoices": "عرض الفواتير",
     "view_activity": "عرض النشاط",
-    "negative_discount_percent": "- {}%"
+    "negative_discount_percent": "- {}%",
+    "separate_checkout_title": "دفع منفصل لكل مقدم خدمة",
+    "provider_checkout_hint": "لكل مقدم خدمة عملية دفع مستقلة. أكمل الدفع لكل مقدم خدمة بشكل منفصل.",
+    "choose_provider_hint": "الدفع يتم لكل مقدم خدمة على حدة. بعد التأكيد ستعود للسلة، ثم اضغط على \"الدفع\" لمتابعة الشراء."
   },
   "activity": {
     "invoices_subtitle": "تابع وأدر جميع فواتيرك",
