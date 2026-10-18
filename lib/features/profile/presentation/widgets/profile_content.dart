@@ -175,7 +175,8 @@ class ProfileContent extends StatelessWidget {
                 // Logic حذف الحساب
               },
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: kAuthBlue, width: 1.2),
+                foregroundColor: const Color(0xFFDC2626),
+                side: const BorderSide(color: Color(0xFFDC2626), width: 1.2),
                 minimumSize: Size(double.infinity, 50.h),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.r),
@@ -184,7 +185,7 @@ class ProfileContent extends StatelessWidget {
               child: Text(
                 'common.delete_account'.tr(),
                 style: AppTextStyles.of(
-                  color: kAuthBlue,
+                  color: const Color(0xFFDC2626),
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
                 ),

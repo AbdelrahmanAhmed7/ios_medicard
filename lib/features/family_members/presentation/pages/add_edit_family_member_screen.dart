@@ -90,12 +90,18 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
           content: Text('family_members.delete_member_confirmation'.tr()),
           actions: [
             TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFF6B7280),
+              ),
               onPressed: () {
                 context.pop();
               },
               child: Text('common.cancel'.tr()),
             ),
             TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFFDC2626),
+              ),
               onPressed: () {
                 context.pop();
                 context.read<FamilyMembersCubit>().deleteFamilyMember(

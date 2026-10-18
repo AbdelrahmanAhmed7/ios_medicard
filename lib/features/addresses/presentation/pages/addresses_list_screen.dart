@@ -297,10 +297,16 @@ class _AddressListItem extends StatelessWidget {
           content: Text('addresses.delete_confirmation'.tr()),
           actions: [
             TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFF6B7280),
+              ),
               onPressed: () => dialogContext.pop(),
               child: Text('common.cancel'.tr()),
             ),
             TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFFDC2626),
+              ),
               onPressed: () {
                 dialogContext.pop();
                 context.read<AddressesCubit>().deleteAddress(id: address.id!);

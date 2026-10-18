@@ -180,6 +180,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         content: Text('profile.remove_image_confirm'.tr()),
         actions: [
           TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFF6B7280),
+            ),
             onPressed: () => Navigator.of(dialogContext).pop(false),
             child: Text('common.cancel'.tr()),
           ),
