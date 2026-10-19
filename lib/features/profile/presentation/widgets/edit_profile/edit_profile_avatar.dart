@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -29,75 +30,91 @@ class EditProfileAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(
+      clipBehavior: Clip.none,
       children: [
         GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: onPreviewTap,
           child: Container(
-            width: 110.r,
-            height: 110.r,
+            width: 104.r,
+            height: 104.r,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 3),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+              border: Border.all(color: const Color(0xFFE2E8F0), width: 3),
             ),
-            child: imageFile != null
-                ? ClipOval(child: Image.file(imageFile!, fit: BoxFit.cover))
-                : isPickingImage
-                ? Container(
-                    decoration: const BoxDecoration(shape: BoxShape.circle),
-                    child: ClipOval(
-                      child: ColoredBox(
-                        color: Colors.grey.shade200,
-                        child: const Center(
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.5,
-                            color: kAuthBlue,
-                          ),
+            padding: const EdgeInsets.all(2),
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Color(0xFFF1F5F9),
+                shape: BoxShape.circle,
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: imageFile != null
+                  ? Image.file(imageFile!, fit: BoxFit.cover)
+                  : isPickingImage
+                  ? const Center(
+                      child: SizedBox.square(
+                        dimension: 26,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          color: kAuthBlue,
                         ),
                       ),
-                    ),
-                  )
-                : removeImage
-                ? const CircleAvatar(
-                    backgroundColor: Color(0xFFE0E0E0),
-                    child: Icon(Icons.person, size: 55, color: Colors.white),
-                  )
-                : _RemoteImage(imageUrl: imageUrl),
+                    )
+                  : removeImage
+                  ? const _AvatarPlaceholder()
+                  : _RemoteImage(imageUrl: imageUrl),
+            ),
           ),
         ),
         PositionedDirectional(
           bottom: 2.h,
           end: 2.w,
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: onEditTap,
-            child: Container(
-              width: 40.r,
-              height: 40.r,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                border: Border.all(color: kAuthBlue, width: 1),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+          child: Semantics(
+            button: true,
+            label: 'edit_profile.change_photo'.tr(),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: onEditTap,
+              child: Container(
+                width: 38.r,
+                height: 38.r,
+                decoration: BoxDecoration(
+                  color: kAuthBlue,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 3),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF0F172A).withValues(alpha: 0.12),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.photo_camera_outlined,
+                  size: 17,
+                  color: Colors.white,
+                ),
               ),
-              child: Icon(Icons.edit_outlined, size: 18.sp, color: kAuthBlue),
             ),
           ),
         ),
       ],
+    );
+  }
+}
+
+class _AvatarPlaceholder extends StatelessWidget {
+  const _AvatarPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return const ColoredBox(
+      color: Color(0xFFE2E8F0),
+      child: Center(
+        child: Icon(Icons.person_rounded, size: 48, color: Color(0xFF94A3B8)),
+      ),
     );
   }
 }
@@ -110,19 +127,15 @@ class _RemoteImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!hasValidProfileImageUrl(imageUrl)) {
-      return const CircleAvatar(
-        backgroundColor: Color(0xFFE0E0E0),
-        child: Icon(Icons.person, size: 55, color: Colors.white),
-      );
+      return const _AvatarPlaceholder();
     }
-    return ClipOval(
-      child: CachedNetworkImage(
-        imageUrl: imageUrl!,
-        fit: BoxFit.cover,
-        placeholder: (context, url) => Container(color: Colors.grey[200]),
-        errorWidget: (context, url, error) =>
-            const Icon(Icons.person, size: 55),
+    return CachedNetworkImage(
+      imageUrl: imageUrl!,
+      fit: BoxFit.cover,
+      placeholder: (context, url) => const ColoredBox(
+        color: Color(0xFFF1F5F9),
       ),
+      errorWidget: (context, url, error) => const _AvatarPlaceholder(),
     );
   }
 }
@@ -209,14 +222,11 @@ class _PreviewPhoto extends StatelessWidget {
       return CachedNetworkImage(
         imageUrl: imageUrl!,
         fit: BoxFit.cover,
-        placeholder: (context, url) => Container(color: Colors.grey[200]),
-        errorWidget: (context, url, error) =>
-            const Icon(Icons.person, size: 55),
+        placeholder: (context, url) =>
+            const ColoredBox(color: Color(0xFFF1F5F9)),
+        errorWidget: (context, url, error) => const _AvatarPlaceholder(),
       );
     }
-    return const CircleAvatar(
-      backgroundColor: Color(0xFFE0E0E0),
-      child: Icon(Icons.person, size: 55, color: Colors.white),
-    );
+    return const _AvatarPlaceholder();
   }
 }

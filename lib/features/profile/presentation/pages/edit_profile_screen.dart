@@ -1,3 +1,4 @@
+import 'package:medicard/core/widgets/app_header_back_button.dart';
 import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
@@ -12,6 +13,7 @@ import '../../../../core/utils/language_helper.dart';
 import '../../../../core/widgets/auth_shared_widgets.dart';
 import '../../data/models/profile_response_model.dart';
 import '../widgets/edit_profile/edit_profile_avatar.dart';
+import '../widgets/edit_profile/edit_profile_labels.dart';
 import '../widgets/edit_profile/edit_identity_section.dart';
 import '../widgets/edit_profile/edit_name_row.dart';
 import '../cubit/profile_cubit.dart';
@@ -97,7 +99,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         builder: (sheetContext) {
           return SafeArea(
             child: Padding(
-              padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 16.h),
+              padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 16.h),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -105,51 +107,31 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     width: 40.w,
                     height: 4.h,
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
+                      color: const Color(0xFFE2E8F0),
                       borderRadius: BorderRadius.circular(2.r),
                     ),
                   ),
-                  SizedBox(height: 18.h),
-                  ListTile(
-                    leading: Icon(
-                      Icons.photo_library_outlined,
-                      color: kAuthBlue,
-                    ),
-                    title: Text(
-                      'edit_profile.change_photo'.tr(),
-                      style: AppTextStyles.of(
-                        fontSize: 15.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
-                    ),
+                  SizedBox(height: 14.h),
+                  _SheetAction(
+                    icon: Icons.photo_library_outlined,
+                    label: 'edit_profile.change_photo'.tr(),
                     onTap: () {
                       Navigator.pop(sheetContext);
                       _pickImage();
                     },
                   ),
                   if (showRemove) ...[
-                    const Divider(height: 1),
-                    ListTile(
-                      leading: const Icon(
-                        Icons.delete_outline,
-                        color: Colors.red,
-                      ),
-                      title: Text(
-                        'edit_profile.remove_photo'.tr(),
-                        style: AppTextStyles.of(
-                          fontSize: 15.sp,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.red,
-                        ),
-                      ),
+                    SizedBox(height: 8.h),
+                    _SheetAction(
+                      icon: Icons.delete_outline_rounded,
+                      label: 'edit_profile.remove_photo'.tr(),
+                      isDestructive: true,
                       onTap: () {
                         Navigator.pop(sheetContext);
                         _removeCurrentImage();
                       },
                     ),
                   ],
-                  SizedBox(height: 8.h),
                 ],
               ),
             ),
@@ -180,15 +162,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         content: Text('profile.remove_image_confirm'.tr()),
         actions: [
           TextButton(
-            style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFF6B7280),
-            ),
+            style: TextButton.styleFrom(foregroundColor: kAuthGreyText),
             onPressed: () => Navigator.of(dialogContext).pop(false),
             child: Text('common.cancel'.tr()),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: const Color(0xFFDC2626),
               foregroundColor: Colors.white,
             ),
             onPressed: () => Navigator.of(dialogContext).pop(true),
@@ -322,141 +302,160 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final statusBarHeight = MediaQuery.of(context).padding.top;
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
-        behavior: HitTestBehavior.opaque,
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      body: SafeArea(
+        bottom: false,
+        child: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          behavior: HitTestBehavior.opaque,
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              padding: EdgeInsets.only(bottom: 24.h + bottomPadding),
               children: [
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      height: 140.h + statusBarHeight,
-                      decoration: const BoxDecoration(
-                        color: kAuthBlue,
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(24),
-                          bottomRight: Radius.circular(24),
-                        ),
-                      ),
-                      padding: EdgeInsetsDirectional.fromSTEB(
-                        16.w,
-                        statusBarHeight + 12.h,
-                        16.w,
-                        0,
-                      ),
-                      alignment: AlignmentDirectional.topStart,
-                      child: IconButton(
-                        icon: Icon(
-                          Icons.arrow_back_ios_new_rounded,
-                          color: Colors.white,
-                          size: 22.sp,
-                        ),
-                        onPressed: () => context.pop(),
-                      ),
-                    ),
-                    SizedBox(width: double.infinity, height: 50.h),
-                    Positioned(
-                      bottom: 0,
-                      child: EditProfileAvatar(
-                        imageFile: _pickedImage,
-                        isPickingImage: _isPickingImage,
-                        removeImage: _removeImage,
-                        imageUrl: widget.profileData.imageUrl,
-                        onPreviewTap: () => showProfileImagePreview(
-                          context,
-                          imageFile: _pickedImage,
-                          imageUrl: widget.profileData.imageUrl,
-                          removeImage: _removeImage,
-                        ),
-                        onEditTap: _showImageOptions,
-                      ),
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: 70.h),
+                const _EditProfileHeader(),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20.w),
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      EditNameRow(
-                        firstNameController: _firstNameController,
-                        lastNameController: _lastNameController,
-                        firstNameFocusNode: _focusNodes['firstName'],
-                        firstNameAutovalidate:
-                            _touchedFields.contains('firstName')
-                            ? AutovalidateMode.onUserInteraction
-                            : AutovalidateMode.disabled,
-                        lastNameFocusNode: _focusNodes['lastName'],
-                        lastNameAutovalidate:
-                            _touchedFields.contains('lastName')
-                            ? AutovalidateMode.onUserInteraction
-                            : AutovalidateMode.disabled,
-                        nameValidator: _validateName,
-                        lettersFormatters: [_lettersOnly()],
-                      ),
+                      _buildPhotoCard(),
                       SizedBox(height: 14.h),
-
-                      EditIdentitySection(
-                        cardNumber: widget.profileData.cardNumber,
-                        cardNumberController: _cardNumberController,
-                        nationalIdController: _nationalIdController,
-                        nationalIdFocusNode: _focusNodes['nationalId'],
-                        nationalIdAutovalidate:
-                            _touchedFields.contains('nationalId')
-                            ? AutovalidateMode.onUserInteraction
-                            : AutovalidateMode.disabled,
-                        digitsFormatters: [_digitsOnly(maxDigits: 14)],
-                        nationalIdValidator: _validateNationalId,
-                        passportNumberController: _passportNumberController,
-                        passportNumberFocusNode: _focusNodes['passportNumber'],
-                        passportNumberAutovalidate:
-                            _touchedFields.contains('passportNumber')
-                            ? AutovalidateMode.onUserInteraction
-                            : AutovalidateMode.disabled,
-                        phoneNumberController: _phoneNumberController,
-                        phoneNumberFocusNode: _focusNodes['phoneNumber'],
-                        phoneNumberAutovalidate:
-                            _touchedFields.contains('phoneNumber')
-                            ? AutovalidateMode.onUserInteraction
-                            : AutovalidateMode.disabled,
-                        phoneNumberValidator: _validatePhoneNumber,
-                        birthDateController: _birthDateController,
-                        birthDateIsEmpty: _birthDate.isEmpty,
-                        onSelectBirthDate: _selectBirthDate,
-                        isMale: _isMale,
-                        onGenderChanged: (val) {
-                          setState(() {
-                            _isMale = val;
-                          });
-                        },
-                      ),
-
-                      AuthPrimaryButton(
-                        label: 'common.update'.tr(),
-                        isLoading: _isSaving,
-                        onPressed: _isSaving ? () {} : _saveProfile,
+                      _buildFormCard(),
+                      SizedBox(height: 24.h),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 4.w),
+                        child: AuthPrimaryButton(
+                          label: 'common.update'.tr(),
+                          isLoading: _isSaving,
+                          onPressed: _isSaving ? () {} : _saveProfile,
+                        ),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: 24.h + bottomPadding),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildPhotoCard() {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(vertical: 20.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18.r),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        children: [
+          EditProfileAvatar(
+            imageFile: _pickedImage,
+            isPickingImage: _isPickingImage,
+            removeImage: _removeImage,
+            imageUrl: widget.profileData.imageUrl,
+            onPreviewTap: () => showProfileImagePreview(
+              context,
+              imageFile: _pickedImage,
+              imageUrl: widget.profileData.imageUrl,
+              removeImage: _removeImage,
+            ),
+            onEditTap: _showImageOptions,
+          ),
+          SizedBox(height: 10.h),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.w),
+            child: Text(
+              'edit_profile.change_photo'.tr(),
+              textAlign: TextAlign.center,
+              style: AppTextStyles.of(
+                fontSize: 12.5.sp,
+                color: kAuthGreyText,
+                fontWeight: FontWeight.w500,
+                height: 1.35,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFormCard() {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 16.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18.r),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          EditProfileSectionTitle('edit_profile.personal_info'.tr()),
+          SizedBox(height: 10.h),
+          EditNameRow(
+            firstNameController: _firstNameController,
+            lastNameController: _lastNameController,
+            firstNameFocusNode: _focusNodes['firstName'],
+            firstNameAutovalidate:
+                _touchedFields.contains('firstName')
+                ? AutovalidateMode.onUserInteraction
+                : AutovalidateMode.disabled,
+            lastNameFocusNode: _focusNodes['lastName'],
+            lastNameAutovalidate:
+                _touchedFields.contains('lastName')
+                ? AutovalidateMode.onUserInteraction
+                : AutovalidateMode.disabled,
+            nameValidator: _validateName,
+            lettersFormatters: [_lettersOnly()],
+          ),
+          SizedBox(height: 18.h),
+          EditProfileSectionTitle('edit_profile.identity_info'.tr()),
+          SizedBox(height: 10.h),
+          EditIdentitySection(
+            cardNumber: widget.profileData.cardNumber,
+            cardNumberController: _cardNumberController,
+            nationalIdController: _nationalIdController,
+            nationalIdFocusNode: _focusNodes['nationalId'],
+            nationalIdAutovalidate:
+                _touchedFields.contains('nationalId')
+                ? AutovalidateMode.onUserInteraction
+                : AutovalidateMode.disabled,
+            digitsFormatters: [_digitsOnly(maxDigits: 14)],
+            nationalIdValidator: _validateNationalId,
+            passportNumberController: _passportNumberController,
+            passportNumberFocusNode: _focusNodes['passportNumber'],
+            passportNumberAutovalidate:
+                _touchedFields.contains('passportNumber')
+                ? AutovalidateMode.onUserInteraction
+                : AutovalidateMode.disabled,
+            phoneNumberController: _phoneNumberController,
+            phoneNumberFocusNode: _focusNodes['phoneNumber'],
+            phoneNumberAutovalidate:
+                _touchedFields.contains('phoneNumber')
+                ? AutovalidateMode.onUserInteraction
+                : AutovalidateMode.disabled,
+            phoneNumberValidator: _validatePhoneNumber,
+            birthDateController: _birthDateController,
+            birthDateIsEmpty: _birthDate.isEmpty,
+            onSelectBirthDate: _selectBirthDate,
+            isMale: _isMale,
+            onGenderChanged: (val) {
+              setState(() {
+                _isMale = val;
+              });
+            },
+          ),
+        ],
       ),
     );
   }
@@ -518,6 +517,107 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   TextInputFormatter _lettersOnly() {
     return FilteringTextInputFormatter.allow(
       RegExp(r"[\p{L} .'\-]", unicode: true),
+    );
+  }
+}
+
+/// Full-width row in the photo action sheet, matching the app's sheet style
+/// instead of a bare [ListTile].
+class _SheetAction extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final bool isDestructive;
+
+  const _SheetAction({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.isDestructive = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final foreground = isDestructive
+        ? const Color(0xFFDC2626)
+        : const Color(0xFF111827);
+    return Semantics(
+      button: true,
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(14.r),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, size: 20.sp, color: foreground),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.of(
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w600,
+                    color: foreground,
+                    height: 1.3,
+                  ),
+                ),
+              ),
+              const Icon(
+                Icons.chevron_right_rounded,
+                size: 20,
+                color: Color(0xFF94A3B8),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Same header as the other account screens: back + bold title on the page
+/// background (no full-bleed banner).
+class _EditProfileHeader extends StatelessWidget {
+  const _EditProfileHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: AppHeaderSpacing.padding(top: 16.h, bottom: 12.h),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          AppHeaderBackButton(
+            color: const Color(0xFF111827),
+            onPressed: () {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              }
+            },
+          ),
+          Expanded(
+            child: Text(
+              'edit_profile.title'.tr(),
+              style: AppTextStyles.of(
+                fontSize: 26.sp,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF111827),
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

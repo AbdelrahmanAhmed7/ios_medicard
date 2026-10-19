@@ -224,6 +224,9 @@
     "success": "Password changed successfully"
   },
   "edit_profile": {
+    "title": "Edit Profile",
+    "personal_info": "Personal information",
+    "identity_info": "Identity details",
     "first_name": "First Name",
     "last_name": "Last Name",
     "name": "Name",

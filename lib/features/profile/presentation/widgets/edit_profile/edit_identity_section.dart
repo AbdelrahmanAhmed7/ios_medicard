@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../../../core/theming/app_colors.dart';
 import '../../../../../core/theming/app_text_styles.dart';
 import '../../../../../core/widgets/auth_shared_widgets.dart';
 import 'edit_profile_gender_dropdown.dart';
@@ -102,22 +103,24 @@ class EditIdentitySection extends StatelessWidget {
 
         EditProfileFieldLabel('edit_profile.phone_number'.tr()),
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 65.w,
-              height: 50.h,
+              width: 72.w,
+              height: 52.h,
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12.r),
-                border: Border.all(color: Colors.grey.shade300),
+                color: const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(14.r),
+                border: Border.all(color: kAuthBorderColor),
               ),
               alignment: Alignment.center,
               child: Text(
                 '+20',
                 style: AppTextStyles.of(
                   fontSize: 15.sp,
-                  color: Colors.black54,
-                  fontWeight: FontWeight.w500,
+                  color: const Color(0xFF64748B),
+                  fontWeight: FontWeight.w600,
+                  height: 1.3,
                 ),
               ),
             ),
@@ -181,42 +184,17 @@ class EditBirthDateField extends StatelessWidget {
           readOnly: true,
           style: AppTextStyles.of(
             fontSize: 15.sp,
-            color: isEmpty ? Colors.grey.shade400 : Colors.black,
+            color: isEmpty ? const Color(0xFFB0B8C1) : AppColors.inkClr,
             fontWeight: FontWeight.w500,
+            height: 1.3,
           ),
-          decoration: InputDecoration(
+          decoration: authInputDecoration(
             hintText: 'edit_profile.date_of_birth'.tr(),
-            hintStyle: AppTextStyles.of(
-              fontSize: 14.sp,
-              color: Colors.grey.shade400,
-              fontWeight: FontWeight.w400,
-            ),
-            filled: true,
-            fillColor: Colors.white,
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: 16.w,
-              vertical: 14.h,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.r),
-              borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.r),
-              borderSide: const BorderSide(color: kAuthBlue, width: 1.2),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.r),
-              borderSide: const BorderSide(color: Colors.red, width: 1),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.r),
-              borderSide: const BorderSide(color: Colors.red, width: 1.2),
-            ),
-            suffixIcon: Icon(
+          ).copyWith(
+            suffixIcon: const Icon(
               Icons.calendar_today_outlined,
               color: kAuthGreyText,
-              size: 18.sp,
+              size: 18,
             ),
           ),
           validator: (value) {

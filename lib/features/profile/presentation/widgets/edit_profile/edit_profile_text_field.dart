@@ -3,11 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../../../core/theming/app_colors.dart';
 import '../../../../../core/theming/app_text_styles.dart';
 import '../../../../../core/widgets/auth_shared_widgets.dart';
 
 /// Shared text field for the edit-profile form. Focus wiring stays on the
 /// screen (it owns the focus nodes); everything visual lives here.
+///
+/// Uses the shared [authInputDecoration] so the form reads the same as the
+/// address, family-member and checkout screens.
 class EditProfileTextField extends StatelessWidget {
   final TextEditingController controller;
   final String hintText;
@@ -36,6 +40,7 @@ class EditProfileTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final decoration = authInputDecoration(hintText: hintText);
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
@@ -46,40 +51,22 @@ class EditProfileTextField extends StatelessWidget {
       autovalidateMode: autovalidateMode,
       style: AppTextStyles.of(
         fontSize: 15.sp,
-        color: readOnly ? Colors.grey.shade500 : Colors.black,
+        color: readOnly ? AppColors.inkMutedClr : AppColors.inkClr,
         fontWeight: FontWeight.w500,
+        height: 1.3,
       ),
-      decoration: InputDecoration(
-        hintText: hintText,
-        hintStyle: AppTextStyles.of(
-          fontSize: 14.sp,
-          color: Colors.grey.shade400,
-          fontWeight: FontWeight.w400,
-        ),
-        counterText: '',
-        filled: true,
-        fillColor: readOnly ? Colors.grey.shade100 : Colors.white,
-        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(
-            color: readOnly ? Colors.grey.shade300 : kAuthBlue,
-            width: readOnly ? 1.0 : 1.2,
-          ),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: const BorderSide(color: Colors.red, width: 1),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: const BorderSide(color: Colors.red, width: 1.2),
-        ),
-      ),
+      decoration: readOnly
+          ? decoration.copyWith(
+              filled: true,
+              fillColor: const Color(0xFFF1F5F9),
+              enabledBorder: decoration.enabledBorder?.copyWith(
+                borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+              ),
+              focusedBorder: decoration.focusedBorder?.copyWith(
+                borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+              ),
+            )
+          : decoration,
       validator:
           validator ??
           (required
