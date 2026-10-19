@@ -12,7 +12,8 @@ import '../theming/app_text_styles.dart';
 /// When a [subtitle] is provided the back button sits on its own row and the
 /// title/subtitle block is rendered underneath it, starting on the same edge as
 /// the back arrow (large-title layout). Headers with a title only keep the
-/// title inline with the back button.
+/// title inline with the back button. Set [inlineTitleWithSubtitle] to keep
+/// the title/subtitle block beside the back button too.
 class AppSimpleHeader extends StatelessWidget {
   /// Start-aligned title. Pass null to omit.
   final String? title;
@@ -20,6 +21,9 @@ class AppSimpleHeader extends StatelessWidget {
   /// Optional subtitle below the title. When set, the title moves below the
   /// back button so it starts on the back arrow's edge.
   final String? subtitle;
+
+  /// Keeps the title and subtitle beside the back button in the same row.
+  final bool inlineTitleWithSubtitle;
 
   /// Whether to show the back button. Defaults to `true`.
   final bool showBack;
@@ -46,6 +50,7 @@ class AppSimpleHeader extends StatelessWidget {
     super.key,
     this.title,
     this.subtitle,
+    this.inlineTitleWithSubtitle = false,
     this.showBack = true,
     this.onBack,
     this.actions,
@@ -98,7 +103,7 @@ class AppSimpleHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasSubtitle = subtitle != null;
+    final useLargeTitle = subtitle != null && !inlineTitleWithSubtitle;
     final backButton = showBack
         ? AppHeaderBackButton(
             color: backColor,
@@ -122,7 +127,7 @@ class AppSimpleHeader extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (hasSubtitle) ...[
+            if (useLargeTitle) ...[
               if (backButton != null || trailing != null)
                 Row(
                   children: [
