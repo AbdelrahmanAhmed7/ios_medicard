@@ -196,6 +196,7 @@ class _FloatingCartButtonState extends State<FloatingCartButton> {
                         fontSize: 11.sp,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
+                        decoration: TextDecoration.none,
                       ),
                     ),
                   ),
