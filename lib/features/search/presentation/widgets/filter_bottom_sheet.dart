@@ -8,6 +8,7 @@ import '../cubit/filter_state.dart';
 import '../cubit/search_cubit.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
+import '../../../../core/widgets/app_dropdown_menu_item.dart';
 
 class FilterBottomSheet extends StatelessWidget {
   const FilterBottomSheet({super.key, this.hideProviderFilters = false});
@@ -122,12 +123,9 @@ class FilterBottomSheet extends StatelessWidget {
                           isLoading: state.isLoadingGovernorates,
                           items: state.governorates
                               .map(
-                                (g) => DropdownMenuItem(
+                                (g) => AppDropdownMenuItem(
                                   value: g.id,
-                                  child: Text(
-                                    g.name ?? '',
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
+                                  label: g.name ?? '',
                                 ),
                               )
                               .toList(),
@@ -143,12 +141,9 @@ class FilterBottomSheet extends StatelessWidget {
                           isDisabled: state.selectedGovernorateId == null,
                           items: state.cities
                               .map(
-                                (c) => DropdownMenuItem(
+                                (c) => AppDropdownMenuItem(
                                   value: c.id,
-                                  child: Text(
-                                    c.name ?? '',
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
+                                  label: c.name ?? '',
                                 ),
                               )
                               .toList(),

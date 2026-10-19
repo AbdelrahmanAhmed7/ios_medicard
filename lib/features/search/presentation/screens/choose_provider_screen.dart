@@ -1,3 +1,4 @@
+import 'package:medicard/core/widgets/app_simple_header.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -27,61 +28,13 @@ class ChooseProviderScreen extends StatelessWidget {
           backgroundColor: Colors.white,
           body: Column(
             children: [
-              SafeArea(
-                bottom: false,
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(8.w, 16.h, 8.w, 6.h),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        visualDensity: VisualDensity.compact,
-                        icon: Icon(
-                          Icons.arrow_back_ios_new_rounded,
-                          color: const Color(0xFF111827),
-                          size: 22.sp,
-                        ),
-                        onPressed: () {
-                          if (Navigator.of(context).canPop()) {
-                            Navigator.of(context).pop();
-                          }
-                        },
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'cart.choose_provider'.tr(),
-                              style: AppTextStyles.of(
-                                fontSize: 26.sp,
-                                fontWeight: FontWeight.w700,
-                                color: const Color(0xFF111827),
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            if (state.providers.isNotEmpty) ...[
-                              SizedBox(height: 2.h),
-                              Text(
-                                'cart.providers_available'.tr(
-                                  args: ['${state.providers.length}'],
-                                ),
-                                style: AppTextStyles.of(
-                                  fontSize: 12.5.sp,
-                                  color: const Color(0xFF6B7280),
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              AppSimpleHeader(
+                title: 'cart.choose_provider'.tr(),
+                subtitle: state.providers.isNotEmpty
+                    ? 'cart.providers_available'.tr(
+                        args: ['${state.providers.length}'],
+                      )
+                    : null,
               ),
               if (!state.isProvidersLoading && state.providers.isNotEmpty)
                 Padding(

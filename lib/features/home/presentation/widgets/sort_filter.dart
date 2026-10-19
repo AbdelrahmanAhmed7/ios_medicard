@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 
+import '../../../../core/widgets/app_dropdown_menu_item.dart';
 import '../../../../core/theming/app_text_styles.dart';
 
 enum SortOption { nearest, highestRating }
@@ -198,16 +199,7 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
           ),
           items: items
               .map(
-                (e) => DropdownMenuItem(
-                  value: e,
-                  child: Text(
-                    e,
-                    style: AppTextStyles.of(
-                      fontSize: 13,
-                      color: Color(0xFF1A1A2E),
-                    ),
-                  ),
-                ),
+                (e) => AppDropdownMenuItem<String>(value: e, label: e, fontSize: 13),
               )
               .toList(),
           onChanged: onChanged,

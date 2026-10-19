@@ -1,3 +1,4 @@
+import 'package:medicard/core/widgets/app_header_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -50,12 +51,11 @@ class _SearchAppBarState extends State<SearchAppBar> {
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: EdgeInsets.fromLTRB(8.w, 12.h, 16.w, 6.h),
+          padding: AppHeaderSpacing.padding(top: 12.h, bottom: 6.h),
           child: Row(
             children: [
-              // Back button
-              GestureDetector(
-                onTap: () {
+              AppHeaderBackButton(
+                onPressed: () {
                   // Search can be the last page on the stack (deep link or
                   // restored state) — a bare pop() crashes go_router there.
                   if (context.canPop()) {
@@ -64,17 +64,8 @@ class _SearchAppBarState extends State<SearchAppBar> {
                     context.go('/medicard-home');
                   }
                 },
-                child: SizedBox(
-                  width: 42.r,
-                  height: 42.r,
-                  child: Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    color: const Color(0xFF111827),
-                    size: 22.sp,
-                  ),
-                ),
+                color: const Color(0xFF111827),
               ),
-              SizedBox(width: 10.w),
 
               // Floating search pill.
               Expanded(
