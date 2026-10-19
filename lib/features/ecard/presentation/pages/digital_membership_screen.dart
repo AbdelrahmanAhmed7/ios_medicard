@@ -1,3 +1,4 @@
+import 'package:medicard/core/widgets/app_header_back_button.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -41,9 +42,9 @@ class DigitalMembershipScreen extends StatelessWidget {
               if (data == null) {
                 return ErrorStateWidget(
                   error: 'errors.not_found_error'.tr(),
-                  onRetry: () => context
-                      .read<ECardCubit>()
-                      .loadCardData(forceRefresh: true),
+                  onRetry: () => context.read<ECardCubit>().loadCardData(
+                    forceRefresh: true,
+                  ),
                 );
               }
               return _MembershipBody(card: data);
@@ -81,19 +82,13 @@ class _MembershipBody extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 8.w),
             child: _DetailsGroup(
               rows: [
-                _DetailRow(
-                  label: 'membership.member_name'.tr(),
-                  value: name,
-                ),
+                _DetailRow(label: 'membership.member_name'.tr(), value: name),
                 if (card.formattedCardNumber.isNotEmpty)
                   _DetailRow(
                     label: 'membership.card_number'.tr(),
                     value: card.formattedCardNumber,
                   ),
-                _DetailRow(
-                  label: 'membership.valid_until'.tr(),
-                  value: expiry,
-                ),
+                _DetailRow(label: 'membership.valid_until'.tr(), value: expiry),
               ],
             ),
           ),
@@ -119,17 +114,12 @@ class _Header extends StatelessWidget {
     return SafeArea(
       bottom: false,
       child: Padding(
-        padding: EdgeInsets.fromLTRB(8.w, 16.h, 8.w, 6.h),
+        padding: AppHeaderSpacing.padding(top: 16.h, bottom: 6.h),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            IconButton(
-              visualDensity: VisualDensity.compact,
-              icon: Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: const Color(0xFF111827),
-                size: 22.sp,
-              ),
+            AppHeaderBackButton(
+              color: const Color(0xFF111827),
               onPressed: () {
                 if (Navigator.of(context).canPop()) {
                   Navigator.of(context).pop();
@@ -156,7 +146,8 @@ class _Header extends StatelessWidget {
 }
 
 /// Digital card visual reusing the ecard artwork — the same card shown
-/// on home.
+/// on home. The artwork is shown edge to edge (no frame/clip) so it reads as
+/// a single printed surface.
 class _DigitalCardArt extends StatelessWidget {
   final CardData card;
 
@@ -174,86 +165,83 @@ class _DigitalCardArt extends StatelessWidget {
 
     return AspectRatio(
       aspectRatio: _aspectRatio,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16.r),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Image.asset(
-              _assetPath,
-              fit: BoxFit.cover,
-              alignment: Alignment.center,
-            ),
-            Positioned(
-              left: 24.w,
-              right: 24.w,
-              top: 88.h,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _CardLabel('membership.card_number'.tr().toUpperCase()),
-                  SizedBox(height: 2.h),
-                  Text(
-                    number.isEmpty ? '—' : number,
-                    style: AppTextStyles.of(
-                      color: Colors.white,
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 1.2,
-                    ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            _assetPath,
+            fit: BoxFit.cover,
+            alignment: Alignment.center,
+          ),
+          Positioned(
+            left: 24.w,
+            right: 24.w,
+            top: 88.h,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _CardLabel('membership.card_number'.tr().toUpperCase()),
+                SizedBox(height: 2.h),
+                Text(
+                  number.isEmpty ? '—' : number,
+                  style: AppTextStyles.of(
+                    color: Colors.white,
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.2,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            Positioned.directional(
-              textDirection: direction,
-              start: 24.w,
-              end: 110.w,
-              bottom: 18.h,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _CardLabel('membership.member_name'.tr().toUpperCase()),
-                  SizedBox(height: 2.h),
-                  Text(
-                    name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.of(
-                      color: Colors.white,
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w700,
-                      height: 1.2,
-                    ),
+          ),
+          Positioned.directional(
+            textDirection: direction,
+            start: 24.w,
+            end: 110.w,
+            bottom: 18.h,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _CardLabel('membership.member_name'.tr().toUpperCase()),
+                SizedBox(height: 2.h),
+                Text(
+                  name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.of(
+                    color: Colors.white,
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w700,
+                    height: 1.2,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            Positioned.directional(
-              textDirection: direction,
-              end: 18.w,
-              bottom: 18.h,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _CardLabel('membership.expiry_date_label'.tr().toUpperCase()),
-                  SizedBox(height: 2.h),
-                  Text(
-                    expiry,
-                    style: AppTextStyles.of(
-                      color: Colors.white,
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
+          ),
+          Positioned.directional(
+            textDirection: direction,
+            end: 18.w,
+            bottom: 18.h,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _CardLabel('membership.expiry_date_label'.tr().toUpperCase()),
+                SizedBox(height: 2.h),
+                Text(
+                  expiry,
+                  style: AppTextStyles.of(
+                    color: Colors.white,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w700,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

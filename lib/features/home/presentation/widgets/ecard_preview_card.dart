@@ -88,86 +88,83 @@ class _MediCardPreview extends StatelessWidget {
 
     return AspectRatio(
       aspectRatio: _aspectRatio,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16.r),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Image.asset(
-              _assetPath,
-              fit: BoxFit.cover,
-              alignment: Alignment.center,
-            ),
-            Positioned(
-              left: 24.w,
-              right: 24.w,
-              top: 88.h,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _CardLabel('membership.card_number'.tr().toUpperCase()),
-                  SizedBox(height: 2.h),
-                  Text(
-                    number.isEmpty ? '—' : number,
-                    style: AppTextStyles.of(
-                      color: Colors.white,
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 1.2,
-                    ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            _assetPath,
+            fit: BoxFit.cover,
+            alignment: Alignment.center,
+          ),
+          Positioned(
+            left: 24.w,
+            right: 24.w,
+            top: 88.h,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _CardLabel('membership.card_number'.tr().toUpperCase()),
+                SizedBox(height: 2.h),
+                Text(
+                  number.isEmpty ? '—' : number,
+                  style: AppTextStyles.of(
+                    color: Colors.white,
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.2,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            Positioned.directional(
-              textDirection: direction,
-              start: 24.w,
-              end: 110.w,
-              bottom: 18.h,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _CardLabel('membership.member_name'.tr().toUpperCase()),
-                  SizedBox(height: 2.h),
-                  Text(
-                    name.isEmpty ? '—' : name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.of(
-                      color: Colors.white,
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w700,
-                      height: 1.2,
-                    ),
+          ),
+          Positioned.directional(
+            textDirection: direction,
+            start: 24.w,
+            end: 110.w,
+            bottom: 18.h,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _CardLabel('membership.member_name'.tr().toUpperCase()),
+                SizedBox(height: 2.h),
+                Text(
+                  name.isEmpty ? '—' : name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.of(
+                    color: Colors.white,
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w700,
+                    height: 1.2,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            Positioned.directional(
-              textDirection: direction,
-              end: 18.w,
-              bottom: 18.h,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _CardLabel('membership.expiry_date_label'.tr().toUpperCase()),
-                  SizedBox(height: 2.h),
-                  Text(
-                    expiry,
-                    style: AppTextStyles.of(
-                      color: Colors.white,
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
+          ),
+          Positioned.directional(
+            textDirection: direction,
+            end: 18.w,
+            bottom: 18.h,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _CardLabel('membership.expiry_date_label'.tr().toUpperCase()),
+                SizedBox(height: 2.h),
+                Text(
+                  expiry,
+                  style: AppTextStyles.of(
+                    color: Colors.white,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w700,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
