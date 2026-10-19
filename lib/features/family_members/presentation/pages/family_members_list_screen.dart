@@ -1,4 +1,6 @@
+import 'package:medicard/core/widgets/app_simple_header.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -27,137 +29,114 @@ class _FamilyMembersListScreenState extends State<FamilyMembersListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: BlocConsumer<FamilyMembersCubit, FamilyMembersState>(
-        listener: (context, state) {
-          state.maybeWhen(orElse: () {});
-        },
-        builder: (context, state) {
-          return state.when(
-            initial: () {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                context.read<FamilyMembersCubit>().loadFamilyMembers();
-              });
-              return const Center(child: CircularProgressIndicator());
-            },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            success: (members) {
-              return Column(
-                children: [
-                  SafeArea(
-                    bottom: false,
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(8.w, 16.h, 8.w, 6.h),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          IconButton(
-                            visualDensity: VisualDensity.compact,
-                            icon: Icon(
-                              Icons.arrow_back_ios_new_rounded,
-                              color: const Color(0xFF111827),
-                              size: 22.sp,
-                            ),
-                            onPressed: () {
-                              if (Navigator.of(context).canPop()) {
-                                Navigator.of(context).pop();
-                              }
-                            },
-                          ),
-                          Expanded(
-                            child: Text(
-                              'family_members.title'.tr(),
-                              style: AppTextStyles.of(
-                                fontSize: 26.sp,
-                                fontWeight: FontWeight.w700,
-                                color: const Color(0xFF111827),
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: members.isEmpty
-                        ? _buildEmptyState(context)
-                        : RefreshIndicator(
-                            onRefresh: () async {
-                              context
-                                  .read<FamilyMembersCubit>()
-                                  .loadFamilyMembers();
-                            },
-                            child: ListView.builder(
-                              padding: EdgeInsets.only(top: 6.h, bottom: 16.h),
-                              itemCount: members.length + 1,
-                              itemBuilder: (context, index) {
-                                if (index == 0) {
-                                  return Padding(
-                                    padding: EdgeInsets.fromLTRB(
-                                      8.w,
-                                      4.h,
-                                      8.w,
-                                      8.h,
-                                    ),
-                                    child: Text(
-                                      'family_members.covered_members'.tr(),
-                                      style: AppTextStyles.of(
-                                        fontSize: 12.5.sp,
-                                        fontWeight: FontWeight.w600,
-                                        letterSpacing: 0.6,
-                                        color: const Color(0xFF6B7280),
-                                      ),
+      body: Column(
+        children: [
+          AppSimpleHeader(title: 'family_members.title'.tr()),
+          Expanded(
+            child: BlocConsumer<FamilyMembersCubit, FamilyMembersState>(
+              listener: (context, state) {
+                state.maybeWhen(orElse: () {});
+              },
+              builder: (context, state) {
+                return state.when(
+                  initial: () {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      context.read<FamilyMembersCubit>().loadFamilyMembers();
+                    });
+                    return const Center(child: CircularProgressIndicator());
+                  },
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  success: (members) {
+                    return Column(
+                      children: [
+                        Expanded(
+                          child: members.isEmpty
+                              ? _buildEmptyState(context)
+                              : RefreshIndicator(
+                                  onRefresh: () => context
+                                      .read<FamilyMembersCubit>()
+                                      .loadFamilyMembers(),
+                                  child: ListView.builder(
+                                    physics:
+                                        const AlwaysScrollableScrollPhysics(),
+                                    padding: EdgeInsets.only(bottom: 16.h),
+                                    itemCount: members.length + 1,
+                                    itemBuilder: (context, index) {
+                                      if (index == 0) {
+                                        return Padding(
+                                          padding: EdgeInsets.fromLTRB(
+                                            14.w,
+                                            14.h,
+                                            14.w,
+                                            10.h,
+                                          ),
+                                          child: Text(
+                                            'family_members.covered_members'
+                                                .tr()
+                                                .toUpperCase(),
+                                            style: AppTextStyles.of(
+                                              fontSize: 11.sp,
+                                              fontWeight: FontWeight.w700,
+                                              letterSpacing: 0.8,
+                                              color: const Color(0xFF657293),
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                      return _FamilyMemberListItem(
+                                        member: members[index - 1],
+                                      );
+                                    },
+                                  ),
+                                ),
+                        ),
+                        SafeArea(
+                          child: Padding(
+                            padding: EdgeInsets.all(16.w),
+                            child: AuthPrimaryButton(
+                              label: 'family_members.add_member'.tr(),
+                              isLoading: false,
+                              onPressed: () {
+                                if (members.length >= kMaxFamilyMembers) {
+                                  showWarningToast(
+                                    'family_members.max_limit_reached'.tr(
+                                      args: ['$kMaxFamilyMembers'],
                                     ),
                                   );
+                                  return;
                                 }
-                                return _FamilyMemberListItem(
-                                  member: members[index - 1],
+                                context.push(
+                                  '/family-members/add',
+                                  extra: context.read<FamilyMembersCubit>(),
                                 );
                               },
                             ),
                           ),
+                        ),
+                      ],
+                    );
+                  },
+                  failed: (error) => ErrorStateWidget(
+                    error: error,
+                    onRetry: () {
+                      context.read<FamilyMembersCubit>().loadFamilyMembers();
+                    },
                   ),
-                  SafeArea(
-                    child: Padding(
-                      padding: EdgeInsets.all(16.w),
-                      child: AuthPrimaryButton(
-                        label: 'family_members.add_member'.tr(),
-                        isLoading: false,
-                        onPressed: () {
-                          if (members.length >= kMaxFamilyMembers) {
-                            showWarningToast(
-                              'family_members.max_limit_reached'.tr(
-                                args: ['$kMaxFamilyMembers'],
-                              ),
-                            );
-                            return;
-                          }
-                          context.push(
-                            '/family-members/add',
-                            extra: context.read<FamilyMembersCubit>(),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            },
-            failed: (error) => ErrorStateWidget(
-              error: error,
-              onRetry: () {
-                context.read<FamilyMembersCubit>().loadFamilyMembers();
+                  creating: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  created: () => const SizedBox.shrink(),
+                  updating: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  updated: () => const SizedBox.shrink(),
+                  deleting: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  deleted: () => const SizedBox.shrink(),
+                );
               },
             ),
-            creating: () => const Center(child: CircularProgressIndicator()),
-            created: () => const SizedBox.shrink(),
-            updating: () => const Center(child: CircularProgressIndicator()),
-            updated: () => const SizedBox.shrink(),
-            deleting: () => const Center(child: CircularProgressIndicator()),
-            deleted: () => const SizedBox.shrink(),
-          );
-        },
+          ),
+        ],
       ),
     );
   }
@@ -192,20 +171,17 @@ class _FamilyMemberListItem extends StatelessWidget {
     final displayName =
         member.fullName ??
         '${member.firstName ?? ''} ${member.lastName ?? ''}'.trim();
-    // Card with side margin like the notification cards, instead of a
-    // full-bleed row stuck to the screen edges.
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
-      padding: EdgeInsets.all(14.r),
-      decoration: BoxDecoration(
+      constraints: BoxConstraints(minHeight: 68.h),
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+      decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border(bottom: BorderSide(color: Color(0xFFE9ECF2))),
       ),
       child: Row(
         children: [
           _buildAvatar(member.imageUrl),
-          SizedBox(width: 14.w),
+          SizedBox(width: 10.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -214,9 +190,9 @@ class _FamilyMemberListItem extends StatelessWidget {
                 Text(
                   displayName.isEmpty ? '—' : displayName,
                   style: AppTextStyles.of(
-                    fontSize: 16.sp,
+                    fontSize: 13.5.sp,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF111827),
+                    color: const Color(0xFF0B1435),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -225,8 +201,8 @@ class _FamilyMemberListItem extends StatelessWidget {
                 Text(
                   RelationHelper.getLocalizedRelation(member.relation),
                   style: AppTextStyles.of(
-                    fontSize: 13.5.sp,
-                    color: const Color(0xFF6B7280),
+                    fontSize: 11.5.sp,
+                    color: const Color(0xFF7481A1),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -235,9 +211,10 @@ class _FamilyMemberListItem extends StatelessWidget {
             ),
           ),
           _CircleIconButton(
-            icon: Icons.edit_outlined,
-            foreground: const Color(0xFF475569),
-            background: const Color(0xFFF1F5F9),
+            tooltip: 'family_members.edit_member'.tr(),
+            icon: CupertinoIcons.pencil,
+            foreground: const Color(0xFF566384),
+            background: const Color(0xFFF0F4F8),
             onTap: () {
               context.push(
                 '/family-members/edit',
@@ -248,11 +225,12 @@ class _FamilyMemberListItem extends StatelessWidget {
               );
             },
           ),
-          SizedBox(width: 10.w),
+          SizedBox(width: 2.w),
           _CircleIconButton(
-            icon: Icons.delete_outline_rounded,
-            foreground: const Color(0xFFDC2626),
-            background: const Color(0xFFFDECEC),
+            tooltip: 'family_members.delete_member'.tr(),
+            icon: CupertinoIcons.trash,
+            foreground: const Color(0xFFFF454B),
+            background: const Color(0xFFFBF2F3),
             onTap: () => _showDeleteDialog(context, member),
           ),
         ],
@@ -300,8 +278,8 @@ class _FamilyMemberListItem extends StatelessWidget {
       return ClipOval(
         child: Image.network(
           imageUrl,
-          width: 56.r,
-          height: 56.r,
+          width: 42.r,
+          height: 42.r,
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) =>
               _buildPlaceholderAvatar(),
@@ -316,25 +294,19 @@ class _FamilyMemberListItem extends StatelessWidget {
   }
 
   Widget _buildPlaceholderAvatar() {
-    return CircleAvatar(
-      radius: 28.r,
-      backgroundColor: const Color(0xFFE5E7EB),
-      child: Icon(
-        Icons.person_rounded,
-        color: const Color(0xFF9CA3AF),
-        size: 28.sp,
-      ),
-    );
+    return CircleAvatar(radius: 21.r, backgroundColor: const Color(0xFFD9D9D9));
   }
 }
 
 class _CircleIconButton extends StatelessWidget {
+  final String tooltip;
   final IconData icon;
   final Color foreground;
   final Color background;
   final VoidCallback onTap;
 
   const _CircleIconButton({
+    required this.tooltip,
     required this.icon,
     required this.foreground,
     required this.background,
@@ -343,13 +315,16 @@ class _CircleIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 40.r,
-        height: 40.r,
+    return IconButton(
+      tooltip: tooltip,
+      onPressed: onTap,
+      padding: EdgeInsets.zero,
+      constraints: BoxConstraints(minWidth: 40.r, minHeight: 48.r),
+      icon: Container(
+        width: 32.r,
+        height: 32.r,
         decoration: BoxDecoration(color: background, shape: BoxShape.circle),
-        child: Icon(icon, color: foreground, size: 19.sp),
+        child: Icon(icon, color: foreground, size: 20.sp),
       ),
     );
   }

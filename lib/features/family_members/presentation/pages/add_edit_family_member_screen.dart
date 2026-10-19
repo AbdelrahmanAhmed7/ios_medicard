@@ -1,3 +1,4 @@
+import 'package:medicard/core/widgets/app_simple_header.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -5,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicard/core/utils/relation_helper.dart';
+import '../../../../core/widgets/app_dropdown_menu_item.dart';
 import '../../../../core/widgets/auth_shared_widgets.dart';
 import '../../data/models/family_member_model.dart';
 import '../cubit/family_members_cubit.dart';
@@ -156,53 +158,22 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SafeArea(
-                    bottom: false,
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 6.h),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          IconButton(
-                            visualDensity: VisualDensity.compact,
-                            icon: Icon(
-                              Icons.arrow_back_ios_new_rounded,
-                              color: const Color(0xFF111827),
-                              size: 22.sp,
-                            ),
-                            onPressed: () {
-                              if (Navigator.of(context).canPop()) {
-                                Navigator.of(context).pop();
-                              }
-                            },
+                  AppSimpleHeader(
+                    title: widget.member == null
+                        ? 'family_members.add_member'.tr()
+                        : 'family_members.edit_member'.tr(),
+                    actions: [
+                      if (widget.member != null)
+                        IconButton(
+                          visualDensity: VisualDensity.compact,
+                          icon: Icon(
+                            Icons.delete_outline_rounded,
+                            color: const Color(0xFFDC2626),
+                            size: 22.sp,
                           ),
-                          Expanded(
-                            child: Text(
-                              widget.member == null
-                                  ? 'family_members.add_member'.tr()
-                                  : 'family_members.edit_member'.tr(),
-                              style: AppTextStyles.of(
-                                fontSize: 26.sp,
-                                fontWeight: FontWeight.w700,
-                                color: const Color(0xFF111827),
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          if (widget.member != null)
-                            IconButton(
-                              visualDensity: VisualDensity.compact,
-                              icon: Icon(
-                                Icons.delete_outline_rounded,
-                                color: const Color(0xFFDC2626),
-                                size: 22.sp,
-                              ),
-                              onPressed: _showDeleteDialog,
-                            ),
-                        ],
-                      ),
-                    ),
+                          onPressed: _showDeleteDialog,
+                        ),
+                    ],
                   ),
                   SizedBox(height: 24.h),
                   Padding(
@@ -320,9 +291,9 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
         hintText: 'family_members.select_relation'.tr(),
       ),
       items: RelationHelper.getRelationsList().map((relation) {
-        return DropdownMenuItem<int>(
+        return AppDropdownMenuItem<int>(
           value: relation['id'] as int,
-          child: Text(relation['name'] as String),
+          label: relation['name'] as String,
         );
       }).toList(),
       onChanged: (value) {
