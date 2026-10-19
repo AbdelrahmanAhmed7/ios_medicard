@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../core/theming/app_colors.dart';
 import '../../../core/theming/app_text_styles.dart';
 import '../../logic/provider_page_cubit.dart';
 import '../../logic/provider_page_state.dart';
@@ -71,9 +72,10 @@ class ProviderSearchRow extends StatelessWidget {
                         child: Text(
                           'provider_page.services'.tr(),
                           style: AppTextStyles.of(
-                            color: const Color(0xFF64748B),
+                            color: AppColors.inkClr,
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w500,
+                            height: 1.3,
                           ),
                         ),
                       ),
@@ -82,9 +84,10 @@ class ProviderSearchRow extends StatelessWidget {
                         child: Text(
                           'provider_page.packages'.tr(),
                           style: AppTextStyles.of(
-                            color: const Color(0xFF64748B),
+                            color: AppColors.inkClr,
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w500,
+                            height: 1.3,
                           ),
                         ),
                       ),

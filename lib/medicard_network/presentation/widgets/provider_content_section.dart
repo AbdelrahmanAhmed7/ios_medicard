@@ -50,12 +50,13 @@ class ProviderContentSection extends StatelessWidget {
             Text(
               title,
               style: AppTextStyles.of(
-                fontSize: 18.sp,
+                fontSize: 16.sp,
                 fontWeight: FontWeight.w700,
                 color: const Color(0xFF111827),
+                height: 1.3,
               ),
             ),
-            SizedBox(height: 12.h),
+            SizedBox(height: 8.h),
             content,
           ],
         );

@@ -382,6 +382,7 @@
     "deleted_successfully": "تم حذف العنوان بنجاح"
   },
   "provider_page": {
+    "title": "مقدم الخدمة",
     "select_branch": "اختر الفرع",
     "branches": "الفروع",
     "services": "الخدمات",
@@ -393,6 +394,8 @@
     "services_count": "{} خدمة",
     "open_map": "فتح الخريطة",
     "reviews": "التقييمات",
+    "see_all_reviews": "عرض كل التقييمات",
+    "reviews_count": "{} تقييم",
     "special_offer": "عرض خاص",
     "packages": "الباقات",
     "no_packages_found": "لا توجد باقات",

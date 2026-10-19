@@ -1,3 +1,4 @@
+import 'package:medicard/core/widgets/app_simple_header.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -185,61 +186,9 @@ class _BranchesScreenState extends State<BranchesScreen> {
 
   Widget _buildHeader(BuildContext context) {
     final providerName = (widget.providerName ?? '').trim();
-    return SafeArea(
-      bottom: false,
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(8.w, 10.h, 20.w, 6.h),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                IconButton(
-                  visualDensity: VisualDensity.compact,
-                  icon: Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    color: const Color(0xFF111827),
-                    size: 22.sp,
-                  ),
-                  onPressed: () {
-                    if (Navigator.of(context).canPop()) {
-                      Navigator.of(context).pop();
-                    }
-                  },
-                ),
-                Expanded(
-                  child: Text(
-                    'provider_page.branches'.tr(),
-                    style: AppTextStyles.of(
-                      fontSize: 26.sp,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF111827),
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-            if (providerName.isNotEmpty) ...[
-              SizedBox(height: 2.h),
-              Padding(
-                padding: EdgeInsetsDirectional.only(start: 48.w),
-                child: Text(
-                  providerName,
-                  style: AppTextStyles.of(
-                    fontSize: 13.sp,
-                    color: const Color(0xFF6B7280),
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
+    return AppSimpleHeader(
+      title: 'provider_page.branches'.tr(),
+      subtitle: providerName.isEmpty ? null : providerName,
     );
   }
 }

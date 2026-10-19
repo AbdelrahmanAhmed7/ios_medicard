@@ -1,3 +1,4 @@
+import 'package:medicard/core/widgets/app_simple_header.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,11 +16,7 @@ class ReviewsScreen extends StatefulWidget {
   final int providerId;
   final String? providerName;
 
-  const ReviewsScreen({
-    super.key,
-    required this.providerId,
-    this.providerName,
-  });
+  const ReviewsScreen({super.key, required this.providerId, this.providerName});
 
   @override
   State<ReviewsScreen> createState() => _ReviewsScreenState();
@@ -60,58 +57,11 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          SafeArea(
-            bottom: false,
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(8.w, 10.h, 20.w, 6.h),
-              child: Row(
-                children: [
-                  IconButton(
-                    visualDensity: VisualDensity.compact,
-                    icon: Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: const Color(0xFF111827),
-                      size: 22.sp,
-                    ),
-                    onPressed: () {
-                      if (Navigator.of(context).canPop()) {
-                        Navigator.of(context).pop();
-                      }
-                    },
-                  ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'provider_page.reviews'.tr(),
-                          style: AppTextStyles.of(
-                            fontSize: 26.sp,
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xFF111827),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        if ((widget.providerName ?? '').isNotEmpty) ...[
-                          SizedBox(height: 2.h),
-                          Text(
-                            widget.providerName!,
-                            style: AppTextStyles.of(
-                              fontSize: 13.sp,
-                              color: const Color(0xFF6B7280),
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          AppSimpleHeader(
+            title: 'provider_page.reviews'.tr(),
+            subtitle: (widget.providerName ?? '').isNotEmpty
+                ? widget.providerName
+                : null,
           ),
           Expanded(
             child: BlocBuilder<ProviderPageCubit, ProviderPageState>(
@@ -124,9 +74,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
               builder: (context, state) {
                 if (state.isReviewsLoading && state.reviews.isEmpty) {
                   return const Center(
-                    child: CircularProgressIndicator(
-                      color: Color(0xFF3872B1),
-                    ),
+                    child: CircularProgressIndicator(color: Color(0xFF3872B1)),
                   );
                 }
                 if (state.reviewsError != null && state.reviews.isEmpty) {
@@ -166,9 +114,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                         ),
                       );
                     }
-                    return ProviderReviewCard(
-                      review: state.reviews[index],
-                    );
+                    return ProviderReviewCard(review: state.reviews[index]);
                   },
                 );
               },

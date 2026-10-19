@@ -382,6 +382,7 @@
     "deleted_successfully": "Address deleted successfully"
   },
   "provider_page": {
+    "title": "Provider",
     "select_branch": "Select Branch",
     "branches": "Branches",
     "services": "Services",
@@ -393,6 +394,8 @@
     "services_count": "{} Services",
     "open_map": "Open map",
     "reviews": "Reviews",
+    "see_all_reviews": "See all reviews",
+    "reviews_count": "{} reviews",
     "special_offer": "Special Offer",
     "packages": "Packages",
     "no_packages_found": "No packages found",

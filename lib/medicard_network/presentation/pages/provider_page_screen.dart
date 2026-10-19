@@ -56,6 +56,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                 },
                 child: Column(
                   children: [
+                    const ProviderTopHeader(),
                     if (widget.autoOpenPackageId != null)
                       _AutoOpenPackage(
                         packageId: widget.autoOpenPackageId!,
@@ -73,14 +74,14 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                           physics: const BouncingScrollPhysics(),
                           child: Column(
                             children: [
-                              ProviderTopHeader(
+                              ProviderDetailsSection(
                                 selectedBranch: _selectedBranch,
                                 onBranchTap: _openBranchSelector,
                               ),
                               Padding(
                                 padding: EdgeInsets.fromLTRB(
                                   16.w,
-                                  12.h,
+                                  8.h,
                                   16.w,
                                   16.h,
                                 ),
