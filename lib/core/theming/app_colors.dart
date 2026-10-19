@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   static const blackClr = Color(0xff090F47);
+
+  // Design system neutrals (ink scale)
+  static const inkClr = Color(0xFF111827);
+  static const inkSoftClr = Color(0xFF475569);
+  static const inkMutedClr = Color(0xFF64748B);
+  static const inkFaintClr = Color(0xFF94A3B8);
+  static const lineClr = Color(0xFFE2E8F0);
   static const errorClr = Color(0xFFEA5D5D);
   static const primaryClr = Color(0xFF4285F4);
   static const backgroundClr = Color(0xFFF5F5F5);

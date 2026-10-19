@@ -1,3 +1,4 @@
+import 'package:medicard/core/widgets/app_header_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -158,17 +159,12 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   SafeArea(
                     bottom: false,
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 6.h),
+                      padding: AppHeaderSpacing.padding(top: 16.h, bottom: 6.h),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          IconButton(
-                            visualDensity: VisualDensity.compact,
-                            icon: Icon(
-                              Icons.arrow_back_ios_new_rounded,
-                              color: const Color(0xFF111827),
-                              size: 22.sp,
-                            ),
+                          AppHeaderBackButton(
+                            color: const Color(0xFF111827),
                             onPressed: () {
                               if (Navigator.of(context).canPop()) {
                                 Navigator.of(context).pop();

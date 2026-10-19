@@ -1,3 +1,4 @@
+import 'package:medicard/core/widgets/app_header_back_button.dart';
 import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
@@ -135,16 +136,11 @@ class _AllPackagesScreenState extends State<AllPackagesScreen> {
           SafeArea(
             bottom: false,
             child: Padding(
-              padding: EdgeInsets.fromLTRB(8.w, 10.h, 20.w, 6.h),
+              padding: AppHeaderSpacing.padding(top: 10.h, bottom: 6.h),
               child: Row(
                 children: [
-                  IconButton(
-                    visualDensity: VisualDensity.compact,
-                    icon: Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: const Color(0xFF111827),
-                      size: 22.sp,
-                    ),
+                  AppHeaderBackButton(
+                    color: const Color(0xFF111827),
                     onPressed: () {
                       if (Navigator.of(context).canPop()) {
                         Navigator.of(context).pop();

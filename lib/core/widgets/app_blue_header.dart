@@ -1,3 +1,4 @@
+import 'package:medicard/core/widgets/app_header_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -110,8 +111,8 @@ class AppBlueHeader extends StatelessWidget {
           child: Padding(
             padding:
                 padding ??
-                EdgeInsets.fromLTRB(
-                  showBack ? 4.w : 20.w,
+                EdgeInsetsDirectional.fromSTEB(
+                  showBack ? AppHeaderSpacing.start : 20.w,
                   8.h,
                   16.w,
                   bottomChild != null ? 16.h : 20.h,
@@ -123,64 +124,58 @@ class AppBlueHeader extends StatelessWidget {
                   : MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-              // ── Title row ──────────────────────────────────────────────
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  if (showBack)
-                    IconButton(
-                      visualDensity: VisualDensity.compact,
-                      padding: EdgeInsets.only(right: 4.w),
-                      icon: Icon(
-                        Icons.arrow_back_ios_new_rounded,
+                // ── Title row ──────────────────────────────────────────────
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    if (showBack)
+                      AppHeaderBackButton(
                         color: Colors.white,
-                        size: 22.sp,
+                        onPressed: onBack ?? () => Navigator.of(context).pop(),
                       ),
-                      onPressed: onBack ?? () => Navigator.of(context).pop(),
-                    ),
-                  if (title != null)
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            title!,
-                            style: AppTextStyles.of(
-                              fontSize: 22.sp,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          if (subtitle != null) ...[
-                            SizedBox(height: 2.h),
+                    if (title != null)
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
                             Text(
-                              subtitle!,
+                              title!,
                               style: AppTextStyles.of(
-                                fontSize: 13.sp,
-                                color: Colors.white.withValues(alpha: 0.8),
+                                fontSize: 22.sp,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
+                            if (subtitle != null) ...[
+                              SizedBox(height: 2.h),
+                              Text(
+                                subtitle!,
+                                style: AppTextStyles.of(
+                                  fontSize: 13.sp,
+                                  color: Colors.white.withValues(alpha: 0.8),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
                           ],
-                        ],
-                      ),
-                    )
-                  else
-                    const Spacer(),
-                  ...?actions,
-                ],
-              ),
+                        ),
+                      )
+                    else
+                      const Spacer(),
+                    ...?actions,
+                  ],
+                ),
 
-              // ── Optional bottom content ─────────────────────────────────
-              if (bottomChild != null) ...[
-                SizedBox(height: 12.h),
-                bottomChild!,
+                // ── Optional bottom content ─────────────────────────────────
+                if (bottomChild != null) ...[
+                  SizedBox(height: 12.h),
+                  bottomChild!,
+                ],
               ],
-            ],
             ),
           ),
         ),

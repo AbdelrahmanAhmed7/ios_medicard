@@ -1,3 +1,4 @@
+import 'package:medicard/core/widgets/app_header_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -179,28 +180,20 @@ class AuthHeader extends StatelessWidget {
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: EdgeInsets.fromLTRB(8.w, 9.h, 8.w, 9.h),
+          padding: showBackButton
+              ? AppHeaderSpacing.padding(top: 9.h, bottom: 9.h)
+              : EdgeInsets.fromLTRB(8.w, 9.h, 8.w, 9.h),
           child: Row(
             children: [
-              SizedBox(
-                width: 42.r,
-                height: 42.r,
-                child: showBackButton
-                    ? IconButton(
-                        padding: EdgeInsets.zero,
-                        visualDensity: VisualDensity.compact,
-                        onPressed: onBack,
-                        icon: Icon(
-                          Icons.arrow_back_ios_new_rounded,
-                          color: kAuthInk,
-                          size: 20.sp,
-                        ),
-                      )
-                    : null,
-              ),
+              if (showBackButton)
+                AppHeaderBackButton(onPressed: onBack, color: kAuthInk)
+              else
+                SizedBox(width: 42.r, height: 42.r),
               Expanded(
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: showBackButton
+                      ? MainAxisAlignment.start
+                      : MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
@@ -229,7 +222,7 @@ class AuthHeader extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(width: 42.r, height: 42.r),
+              if (!showBackButton) SizedBox(width: 42.r, height: 42.r),
             ],
           ),
         ),

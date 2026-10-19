@@ -1,3 +1,4 @@
+import 'package:medicard/core/widgets/app_header_back_button.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +9,7 @@ import 'package:medicard/core/di/service_locator.dart';
 import 'package:medicard/core/services/location_repository.dart';
 import 'package:medicard/core/services/location_service.dart';
 import 'package:medicard/core/theming/app_text_styles.dart';
+import 'package:medicard/core/widgets/app_dropdown_menu_item.dart';
 import 'package:medicard/core/widgets/auth_shared_widgets.dart';
 import '../../data/models/user_address_model.dart';
 import '../cubit/address_form_cubit.dart';
@@ -203,10 +205,9 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
                                 ? 'common.save'.tr()
                                 : 'common.update'.tr(),
                             isLoading: state.isSaving || _isSubmitting,
-                            onPressed:
-                                (state.isSaving || _isSubmitting)
-                                    ? () {}
-                                    : _submit,
+                            onPressed: (state.isSaving || _isSubmitting)
+                                ? () {}
+                                : _submit,
                           ),
                           SizedBox(height: 24.h),
                         ],
@@ -226,17 +227,12 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
     return SafeArea(
       bottom: false,
       child: Padding(
-        padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 6.h),
+        padding: AppHeaderSpacing.padding(top: 16.h, bottom: 6.h),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            IconButton(
-              visualDensity: VisualDensity.compact,
-              icon: Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: const Color(0xFF111827),
-                size: 22.sp,
-              ),
+            AppHeaderBackButton(
+              color: const Color(0xFF111827),
               onPressed: () {
                 if (Navigator.of(context).canPop()) {
                   Navigator.of(context).pop();
@@ -313,9 +309,9 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
         hintText: 'addresses.select_governorate'.tr(),
       ),
       items: state.governorates.map((governorate) {
-        return DropdownMenuItem<int>(
+        return AppDropdownMenuItem<int>(
           value: governorate.id,
-          child: Text(governorate.name ?? '', overflow: TextOverflow.ellipsis),
+          label: governorate.name ?? '',
         );
       }).toList(),
       onChanged: (value) {
@@ -356,10 +352,7 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
       ),
       decoration: authInputDecoration(hintText: 'addresses.select_city'.tr()),
       items: state.cities.map((city) {
-        return DropdownMenuItem<int>(
-          value: city.id,
-          child: Text(city.name ?? '', overflow: TextOverflow.ellipsis),
-        );
+        return AppDropdownMenuItem<int>(value: city.id, label: city.name ?? '');
       }).toList(),
       onChanged: (value) {
         setState(() => _selectedCityId = value);

@@ -126,6 +126,14 @@ class _UnifiedSearchFieldState extends State<UnifiedSearchField> {
   @override
   Widget build(BuildContext context) {
     final effectiveHint = widget.hintText ?? 'home.search_hint'.tr();
+    final contentPadding =
+        widget.contentPadding ??
+        EdgeInsetsDirectional.only(
+          start: widget.showPrefixIcon ? 0 : 4.w,
+          end: 4.w,
+          top: 12.h,
+          bottom: 12.h,
+        );
     return Container(
       height: widget.height ?? 44.h,
       decoration: BoxDecoration(
@@ -142,95 +150,106 @@ class _UnifiedSearchFieldState extends State<UnifiedSearchField> {
               ]
             : null,
       ),
-      child: Stack(
+      child: Row(
         children: [
-          TextField(
-            controller: _effectiveController,
-            focusNode: _effectiveFocusNode,
-            onChanged: widget.onChanged,
-            onTap: widget.onTap,
-            readOnly: widget.readOnly,
-            enabled: widget.enabled,
-            autofocus: widget.autofocus,
-            keyboardType: widget.keyboardType,
-            style: AppTextStyles.of(
-              fontSize: 14.sp,
-              color: const Color(0xFF1A1A2E),
+          if (widget.showPrefixIcon)
+            Padding(
+              padding: EdgeInsetsDirectional.only(start: 6.w, end: 2.w),
+              child:
+                  widget.prefixIcon ??
+                  Icon(
+                    Icons.search,
+                    color: const Color(0xFF9CA3AF),
+                    size: 20.sp,
+                  ),
             ),
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: widget.transparentBackground
-                  ? Colors.transparent
-                  : widget.backgroundColor,
-              hintText: _showOverlay ? '' : effectiveHint,
-              hintStyle: AppTextStyles.of(
-                color: const Color(0xFF9CA3AF),
-                fontSize: 14.sp,
-              ),
-              prefixIcon: widget.showPrefixIcon
-                  ? (widget.prefixIcon ??
-                        Icon(
-                          Icons.search,
-                          color: const Color(0xFF9CA3AF),
-                          size: 20.sp,
-                        ))
-                  : null,
-              prefixIconConstraints: widget.showPrefixIcon
-                  ? const BoxConstraints(minWidth: 32, minHeight: 0)
-                  : null,
-              suffixIcon: widget.suffixIcon,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(widget.borderRadius),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding:
-                  widget.contentPadding ??
-                  EdgeInsets.symmetric(horizontal: 4.w, vertical: 12.h),
-            ),
-          ),
-          if (_showOverlay && widget.hintWordKeys.isNotEmpty)
-            Positioned.fill(
-              child: IgnorePointer(
-                child: Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: Padding(
-                    padding: EdgeInsetsDirectional.only(start: 40.w),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (widget.searchForPrefixKey != null)
-                          Text(
-                            '${widget.searchForPrefixKey!.tr()} ',
-                            style: AppTextStyles.of(
-                              color: const Color(0xFF9CA3AF),
-                              fontSize: 14.sp,
-                            ),
-                          ),
-                        AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 300),
-                          switchInCurve: Curves.easeOut,
-                          switchOutCurve: Curves.easeIn,
-                          transitionBuilder: (child, animation) {
-                            return FadeTransition(
-                              opacity: animation,
-                              child: child,
-                            );
-                          },
-                          child: Text(
-                            widget.hintWordKeys[_hintIndex].tr(),
-                            key: ValueKey<int>(_hintIndex),
-                            style: AppTextStyles.of(
-                              color: const Color(0xFF9CA3AF),
-                              fontSize: 14.sp,
-                            ),
-                          ),
-                        ),
-                      ],
+          Expanded(
+            child: Stack(
+              children: [
+                TextField(
+                  controller: _effectiveController,
+                  focusNode: _effectiveFocusNode,
+                  onChanged: widget.onChanged,
+                  onTap: widget.onTap,
+                  readOnly: widget.readOnly,
+                  enabled: widget.enabled,
+                  autofocus: widget.autofocus,
+                  keyboardType: widget.keyboardType,
+                  style: AppTextStyles.of(
+                    fontSize: 14.sp,
+                    color: const Color(0xFF1A1A2E),
+                  ),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: widget.transparentBackground
+                        ? Colors.transparent
+                        : widget.backgroundColor,
+                    hintText: _showOverlay ? '' : effectiveHint,
+                    hintStyle: AppTextStyles.of(
+                      color: const Color(0xFF9CA3AF),
+                      fontSize: 14.sp,
                     ),
+                    suffixIcon: widget.suffixIcon,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(widget.borderRadius),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: contentPadding,
                   ),
                 ),
-              ),
+                if (_showOverlay && widget.hintWordKeys.isNotEmpty)
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      child: Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                            left: contentPadding
+                                .resolve(Directionality.of(context))
+                                .left,
+                            right: contentPadding
+                                .resolve(Directionality.of(context))
+                                .right,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (widget.searchForPrefixKey != null)
+                                Text(
+                                  '${widget.searchForPrefixKey!.tr()} ',
+                                  style: AppTextStyles.of(
+                                    color: const Color(0xFF9CA3AF),
+                                    fontSize: 14.sp,
+                                  ),
+                                ),
+                              AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 300),
+                                switchInCurve: Curves.easeOut,
+                                switchOutCurve: Curves.easeIn,
+                                transitionBuilder: (child, animation) {
+                                  return FadeTransition(
+                                    opacity: animation,
+                                    child: child,
+                                  );
+                                },
+                                child: Text(
+                                  widget.hintWordKeys[_hintIndex].tr(),
+                                  key: ValueKey<int>(_hintIndex),
+                                  style: AppTextStyles.of(
+                                    color: const Color(0xFF9CA3AF),
+                                    fontSize: 14.sp,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
+          ),
         ],
       ),
     );
