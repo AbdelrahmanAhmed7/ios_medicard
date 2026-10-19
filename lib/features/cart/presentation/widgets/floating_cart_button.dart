@@ -188,7 +188,6 @@ class _FloatingCartButtonState extends State<FloatingCartButton> {
                   decoration: BoxDecoration(
                     color: const Color(0xFFEF4444),
                     borderRadius: BorderRadius.circular(12.r),
-                    border: Border.all(color: Colors.white, width: 1.5),
                   ),
                   child: Center(
                     child: Text(

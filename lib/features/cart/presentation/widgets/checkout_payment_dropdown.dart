@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
+import '../../../../core/widgets/app_dropdown_menu_item.dart';
 import '../cubit/cart_cubit.dart';
 import '../cubit/cart_state.dart';
 import 'checkout_dropdown_frame.dart';
@@ -30,13 +31,15 @@ class CheckoutPaymentDropdown extends StatelessWidget {
             color: Color(0xFF6B7280),
           ),
           items: [
-            DropdownMenuItem(
+            AppDropdownMenuItem<CartPaymentMethod>(
               value: CartPaymentMethod.cash,
-              child: Text('cart.cash'.tr()),
+              label: 'cart.cash'.tr(),
+              fontSize: 14,
             ),
-            DropdownMenuItem(
+            AppDropdownMenuItem<CartPaymentMethod>(
               value: CartPaymentMethod.visa,
-              child: Text('cart.visa'.tr()),
+              label: 'cart.visa'.tr(),
+              fontSize: 14,
             ),
           ],
           onChanged: (method) {

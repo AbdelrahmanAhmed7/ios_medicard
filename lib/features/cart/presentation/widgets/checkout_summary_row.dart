@@ -37,7 +37,7 @@ class CheckoutSummaryRow extends StatelessWidget {
             ),
           ),
           SizedBox(width: 16.w),
-          Flexible(
+          Expanded(
             child: Text(
               value,
               textAlign: TextAlign.end,

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
+import '../../../../core/widgets/app_dropdown_menu_item.dart';
 import '../../../../features/family_members/data/models/family_member_model.dart';
 import '../cubit/cart_cubit.dart';
 import '../cubit/cart_state.dart';
@@ -17,11 +18,12 @@ class CheckoutPatientDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = <DropdownMenuItem<int>>[
-      DropdownMenuItem(value: 0, child: Text('cart.card_owner'.tr())),
+      AppDropdownMenuItem<int>(value: 0, label: 'cart.card_owner'.tr(), fontSize: 14),
       ...state.familyMembers.map(
-        (member) => DropdownMenuItem(
+        (member) => AppDropdownMenuItem<int>(
           value: member.id ?? -1,
-          child: Text(_memberName(member)),
+          label: _memberName(member),
+          fontSize: 14,
         ),
       ),
     ];

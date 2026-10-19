@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
+import '../../../../core/widgets/app_dropdown_menu_item.dart';
 import '../cubit/cart_cubit.dart';
 import '../cubit/cart_state.dart';
 import 'checkout_map_preview.dart';
@@ -53,9 +54,10 @@ class CheckoutBranchSelector extends StatelessWidget {
                   ),
                   items: state.checkoutBranches
                       .map(
-                        (branch) => DropdownMenuItem(
+                        (branch) => AppDropdownMenuItem(
                           value: branch.branchId,
-                          child: Text(branch.fullAddress ?? branch.branchName),
+                          label: branch.fullAddress ?? branch.branchName,
+                          fontSize: 14,
                         ),
                       )
                       .toList(),
