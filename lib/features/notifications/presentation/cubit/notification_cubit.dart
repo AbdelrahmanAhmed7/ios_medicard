@@ -25,18 +25,24 @@ class NotificationCubit extends Cubit<NotificationState> {
     await getNotifications();
   }
 
-  Future<void> getNotifications() async {
+  /// Loads page 1.
+  ///
+  /// When [silent] is true the already-loaded items stay on screen (the state
+  /// never flips to the loading skeleton) so background re-syncs — pull to
+  /// refresh, a new push message, the post "mark all read" re-sync — never
+  /// blank the list out from under the user.
+  Future<void> getNotifications({bool silent = false}) async {
     if (isClosed) return;
     emit(
       state.copyWith(
-        isLoading: true,
-        items: [],
+        isLoading: !silent,
+        items: silent ? state.items : [],
         hasMore: true,
         currentPage: 1,
         error: null,
       ),
     );
-    await _fetch(page: 1);
+    await _fetch(page: 1, silent: silent);
   }
 
   Future<void> loadMore() async {
@@ -46,7 +52,7 @@ class NotificationCubit extends Cubit<NotificationState> {
     await _fetch(page: state.currentPage + 1);
   }
 
-  Future<void> _fetch({required int page}) async {
+  Future<void> _fetch({required int page, bool silent = false}) async {
     final result = await _getNotificationsUseCase.call(
       pageNumber: page,
       pageSize: _pageSize,
@@ -71,11 +77,13 @@ class NotificationCubit extends Cubit<NotificationState> {
       },
       failure: (message) {
         if (isClosed) return;
+        // A silent re-sync keeps the stale-but-usable list on screen; only a
+        // cold load surfaces the error page.
         emit(
           state.copyWith(
             isLoading: false,
             isLoadingMore: false,
-            error: message,
+            error: silent ? null : message,
           ),
         );
       },
@@ -175,8 +183,9 @@ class NotificationCubit extends Cubit<NotificationState> {
       // update above only covers already-loaded pages; refetching page 1
       // proves the backend actually persisted the read-all (an API can
       // return 200 without persisting for this user/token) and pulls any
-      // not-yet-loaded pages in their new read state.
-      await getNotifications();
+      // not-yet-loaded pages in their new read state. The sync is silent so
+      // the list never collapses into the loading skeleton mid-interaction.
+      await getNotifications(silent: true);
       return;
     }
 

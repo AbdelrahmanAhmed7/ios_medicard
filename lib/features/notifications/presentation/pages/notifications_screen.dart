@@ -1,3 +1,4 @@
+import 'package:medicard/core/widgets/app_simple_header.dart';
 import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
@@ -12,6 +13,10 @@ import '../../push_notification_service.dart';
 import '../cubit/notification_cubit.dart';
 import '../cubit/notification_state.dart';
 import '../widgets/notification_card.dart';
+
+const _brandBlue = Color(0xFF3872B1);
+const _ink = Color(0xFF111827);
+const _inkFaint = Color(0xFF9CA3AF);
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -34,7 +39,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         .listen((_) {
           if (!mounted) return;
           final cubit = context.read<NotificationCubit>();
-          if (!cubit.state.isLoading) cubit.getNotifications();
+          // Silent: a push arriving while the user reads the list must not
+          // collapse it into the loading skeleton.
+          if (!cubit.state.isLoading) cubit.getNotifications(silent: true);
         });
   }
 
@@ -58,7 +65,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     // The backend localizes notification titles and bodies through the
     // Accept-Language header, so changing locale requires a fresh request.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) context.read<NotificationCubit>().getNotifications();
+      if (mounted) {
+        context.read<NotificationCubit>().getNotifications(silent: true);
+      }
     });
   }
 
@@ -130,51 +139,88 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       },
       child: Scaffold(
         backgroundColor: Colors.white,
-        body: BlocBuilder<NotificationCubit, NotificationState>(
-          builder: (context, state) {
-            final unreadCount = state.items
-                .where((notification) => !notification.isRead)
-                .length;
-            final visibleItems = _selectedIndex == 0
-                ? state.items
-                : state.items
-                      .where((notification) => !notification.isRead)
-                      .toList(growable: false);
-
-            return Column(
-              children: [
-                // Local header matching the other list screens (back +
-                // title + action) instead of the shared wide header.
-                _NotificationsHeader(
-                  unreadCount: unreadCount,
-                  onMarkAllRead: () =>
-                      context.read<NotificationCubit>().markAllAsRead(),
-                ),
-                _NotificationSegments(
-                  selectedIndex: _selectedIndex,
-                  unreadCount: unreadCount,
-                  onTabSelected: (index) {
-                    if (_selectedIndex == index) return;
-                    setState(() => _selectedIndex = index);
-                  },
-                ),
-                Expanded(
-                  child: AnimatedSwitcher(
+        body: Column(
+          children: [
+            // Toolbar only depends on the unread count, so it is insulated
+            // from the list rebuilds caused by paging / mark-as-read.
+            BlocSelector<NotificationCubit, NotificationState, int>(
+              selector: (state) => state.items
+                  .where((notification) => !notification.isRead)
+                  .length,
+              builder: (context, unreadCount) => _NotificationsToolbar(
+                unreadCount: unreadCount,
+                selectedFilter: _selectedIndex,
+                onFilterSelected: _onFilterSelected,
+                onMarkAllRead: _markAllAsRead,
+              ),
+            ),
+            Expanded(
+              child: BlocBuilder<NotificationCubit, NotificationState>(
+                builder: (context, state) {
+                  final visibleItems = _selectedIndex == 0
+                      ? state.items
+                      : state.items
+                            .where((notification) => !notification.isRead)
+                            .toList(growable: false);
+                  return AnimatedSwitcher(
                     duration: const Duration(milliseconds: 180),
+                    // Keyed on the *status* only — never on the item count.
+                    // Keying on length tore down and cross-faded the whole
+                    // scroll view on every mark-as-read and every page load,
+                    // which is what made switching filters and "mark all
+                    // read" visibly lag.
                     child: _buildBody(
                       context,
                       state,
                       visibleItems,
-                      key: ValueKey(
-                        '${_selectedIndex}_${state.isLoading}_${state.error != null}_${visibleItems.length}',
-                      ),
+                      key: ValueKey(_bodyStatus(state, visibleItems)),
                     ),
-                  ),
-                ),
-              ],
-            );
-          },
+                  );
+                },
+              ),
+            ),
+          ],
         ),
+      ),
+    );
+  }
+
+  /// Coarse status of the list — the only thing the body swap should react to.
+  String _bodyStatus(
+    NotificationState state,
+    List<NotificationModel> visibleItems,
+  ) {
+    if (state.isLoading && state.items.isEmpty) return 'loading';
+    if (state.error != null && state.items.isEmpty) return 'error';
+    if (visibleItems.isEmpty) return 'empty_$_selectedIndex';
+    return 'list_$_selectedIndex';
+  }
+
+  void _onFilterSelected(int index) {
+    if (_selectedIndex == index) return;
+    setState(() => _selectedIndex = index);
+  }
+
+  Future<void> _markAllAsRead() async {
+    final unreadCount = context
+        .read<NotificationCubit>()
+        .state
+        .items
+        .where((notification) => !notification.isRead)
+        .length;
+    if (unreadCount == 0) return;
+
+    final messenger = ScaffoldMessenger.of(context);
+    await context.read<NotificationCubit>().markAllAsRead();
+    if (!mounted) return;
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          context.tr('notifications.all_marked_read'),
+          style: const TextStyle(color: Colors.white),
+        ),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -217,8 +263,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
     return RefreshIndicator(
       key: key,
-      color: const Color(0xFF3872B1),
-      onRefresh: context.read<NotificationCubit>().getNotifications,
+      color: _brandBlue,
+      // Silent: the indicator already reports progress, so clearing the list
+      // to the skeleton underneath it is pure jank.
+      onRefresh: () =>
+          context.read<NotificationCubit>().getNotifications(silent: true),
       child: ListView.builder(
         controller: _scrollController,
         physics: const AlwaysScrollableScrollPhysics(
@@ -235,7 +284,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   dimension: 24,
                   child: CircularProgressIndicator(
                     strokeWidth: 2.4,
-                    color: Color(0xFF3872B1),
+                    color: _brandBlue,
                   ),
                 ),
               ),
@@ -243,14 +292,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           }
 
           final notification = visibleItems[index];
-          return NotificationCard(
-            notification: notification,
-            onTap: () => _openNotification(context, notification),
-            onMarkAsRead: notification.isRead
-                ? null
-                : () => context.read<NotificationCubit>().markAsRead(
-                    notification.id,
-                  ),
+          // Per-tile repaint isolation: marking one item read repaints only
+          // that card instead of the whole viewport.
+          return RepaintBoundary(
+            child: NotificationCard(
+              notification: notification,
+              onTap: () => _openNotification(context, notification),
+              onMarkAsRead: notification.isRead
+                  ? null
+                  : () => context.read<NotificationCubit>().markAsRead(
+                      notification.id,
+                    ),
+            ),
           );
         },
       ),
@@ -258,137 +311,148 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 }
 
-/// Header matching the other list screens: back + bold title + a round
-/// "mark all read" action.
-class _NotificationsHeader extends StatelessWidget {
+/// Header + filter row. Split out of the list so the (cheap) toolbar is not
+/// rebuilt by every list-state change.
+class _NotificationsToolbar extends StatelessWidget {
   final int unreadCount;
+  final int selectedFilter;
+  final ValueChanged<int> onFilterSelected;
   final VoidCallback onMarkAllRead;
 
-  const _NotificationsHeader({
+  const _NotificationsToolbar({
     required this.unreadCount,
+    required this.selectedFilter,
+    required this.onFilterSelected,
     required this.onMarkAllRead,
   });
 
   @override
   Widget build(BuildContext context) {
-    final hasUnread = unreadCount > 0;
-    return SafeArea(
-      bottom: false,
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(8.w, 16.h, 8.w, 6.h),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            IconButton(
-              visualDensity: VisualDensity.compact,
-              icon: Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: const Color(0xFF111827),
-                size: 22.sp,
-              ),
-              onPressed: () {
-                if (Navigator.of(context).canPop()) {
-                  Navigator.of(context).pop();
-                }
-              },
+    return AppSimpleHeader(
+      title: context.tr('notifications.title'),
+      subtitle: unreadCount == 0
+          ? context.tr('notifications.all_caught_up')
+          : context.tr('notifications.unread_count', args: ['$unreadCount']),
+      subtitleColor: unreadCount == 0 ? _inkFaint : _brandBlue,
+      actions: [
+        _MarkAllReadAction(enabled: unreadCount > 0, onPressed: onMarkAllRead),
+      ],
+      bottomChild: _NotificationFilters(
+        selectedIndex: selectedFilter,
+        unreadCount: unreadCount,
+        onSelected: onFilterSelected,
+      ),
+    );
+  }
+}
+
+/// Labelled "mark all read" pill — an icon-only round button gave no clue what
+/// it did and was a 40pt target with no affordance for its state.
+class _MarkAllReadAction extends StatelessWidget {
+  final bool enabled;
+  final VoidCallback onPressed;
+
+  const _MarkAllReadAction({required this.enabled, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      label: context.tr('notifications.mark_all_read'),
+      child: GestureDetector(
+        onTap: enabled ? onPressed : null,
+        behavior: HitTestBehavior.opaque,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 9.h),
+          decoration: BoxDecoration(
+            color: enabled ? const Color(0xFFEAF1F9) : const Color(0xFFF1F5F9),
+            borderRadius: BorderRadius.circular(999.r),
+            border: Border.all(
+              color: enabled
+                  ? _brandBlue.withValues(alpha: 0.25)
+                  : const Color(0xFFE2E8F0),
             ),
-            Expanded(
-              child: Text(
-                context.tr('notifications.title'),
-                style: AppTextStyles.of(
-                  fontSize: 26.sp,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF111827),
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.done_all_rounded,
+                size: 15.sp,
+                color: enabled ? _brandBlue : _inkFaint,
               ),
-            ),
-            Tooltip(
-              message: context.tr('notifications.mark_all_read'),
-              child: GestureDetector(
-                onTap: hasUnread ? onMarkAllRead : null,
-                child: Container(
-                  width: 40.r,
-                  height: 40.r,
-                  decoration: BoxDecoration(
-                    color: hasUnread
-                        ? const Color(0xFFEAF1F9)
-                        : const Color(0xFFF1F5F9),
-                    shape: BoxShape.circle,
+              SizedBox(width: 5.w),
+              Flexible(
+                child: Text(
+                  context.tr('notifications.mark_all_read_short'),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.of(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w700,
+                    color: enabled ? _brandBlue : _inkFaint,
+                    height: 1.2,
                   ),
-                  child: Icon(
-                    Icons.done_all_rounded,
-                    size: 20.sp,
-                    color: hasUnread
-                        ? const Color(0xFF3872B1)
-                        : const Color(0xFF9CA3AF),
-                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-/// Single segmented control (All | Unread) replacing the old floating
-/// chips with an overlapping badge.
-class _NotificationSegments extends StatelessWidget {
+/// All / Unread filter chips. Replaces the segmented control, which reserved
+/// a full-width bar for two short labels and clipped them at large text
+/// scales.
+class _NotificationFilters extends StatelessWidget {
   final int selectedIndex;
   final int unreadCount;
-  final ValueChanged<int> onTabSelected;
+  final ValueChanged<int> onSelected;
 
-  const _NotificationSegments({
+  const _NotificationFilters({
     required this.selectedIndex,
     required this.unreadCount,
-    required this.onTabSelected,
+    required this.onSelected,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(8.w, 4.h, 8.w, 2.h),
-      child: Container(
-        padding: EdgeInsets.all(4.r),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF1F5F9),
-          borderRadius: BorderRadius.circular(14.r),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: _SegmentTab(
-                label: context.tr('notifications.all'),
-                isSelected: selectedIndex == 0,
-                onTap: () => onTabSelected(0),
-              ),
-            ),
-            SizedBox(width: 4.w),
-            Expanded(
-              child: _SegmentTab(
-                label: context.tr('notifications.unread'),
-                isSelected: selectedIndex == 1,
-                count: unreadCount,
-                onTap: () => onTabSelected(1),
-              ),
-            ),
-          ],
-        ),
+    return SizedBox(
+      height: 40.h,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        padding: EdgeInsetsDirectional.fromSTEB(8.w, 4.h, 8.w, 6.h),
+        children: [
+          _FilterChip(
+            label: context.tr('notifications.all'),
+            isSelected: selectedIndex == 0,
+            onTap: () => onSelected(0),
+          ),
+          SizedBox(width: 8.w),
+          _FilterChip(
+            label: context.tr('notifications.unread'),
+            isSelected: selectedIndex == 1,
+            count: unreadCount,
+            onTap: () => onSelected(1),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _SegmentTab extends StatelessWidget {
+class _FilterChip extends StatelessWidget {
   final String label;
   final bool isSelected;
   final int? count;
   final VoidCallback onTap;
 
-  const _SegmentTab({
+  const _FilterChip({
     required this.label,
     required this.isSelected,
     this.count,
@@ -397,67 +461,61 @@ class _SegmentTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const brandBlue = Color(0xFF3872B1);
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: EdgeInsets.symmetric(vertical: 10.h),
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.white : Colors.transparent,
-          borderRadius: BorderRadius.circular(10.r),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: const Color(
-                      0xFF0F172A,
-                    ).withValues(alpha: 0.06),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Flexible(
-              child: Text(
+    final foreground = isSelected ? Colors.white : _ink;
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          alignment: Alignment.center,
+          padding: EdgeInsets.symmetric(horizontal: 14.w),
+          decoration: BoxDecoration(
+            color: isSelected ? _brandBlue : Colors.white,
+            borderRadius: BorderRadius.circular(999.r),
+            border: Border.all(
+              color: isSelected ? _brandBlue : const Color(0xFFE2E8F0),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
                 label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.of(
-                  fontSize: 13.5.sp,
+                  fontSize: 13.sp,
                   fontWeight: FontWeight.w700,
-                  color: isSelected ? brandBlue : const Color(0xFF64748B),
+                  color: foreground,
+                  height: 1.2,
                 ),
               ),
-            ),
-            if (count != null && count! > 0) ...[
-              SizedBox(width: 6.w),
-              Container(
-                constraints: BoxConstraints(minWidth: 20.r, minHeight: 20.r),
-                padding: EdgeInsets.symmetric(horizontal: 6.w),
-                decoration: BoxDecoration(
-                  color: isSelected ? brandBlue : const Color(0xFFCBD5E1),
-                  borderRadius: BorderRadius.circular(10.r),
-                ),
-                child: Center(
+              if (count != null && count! > 0) ...[
+                SizedBox(width: 6.w),
+                Container(
+                  constraints: BoxConstraints(minWidth: 18.r, minHeight: 18.r),
+                  padding: EdgeInsets.symmetric(horizontal: 5.w),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? Colors.white.withValues(alpha: 0.22)
+                        : const Color(0xFFEAF1F9),
+                    borderRadius: BorderRadius.circular(999.r),
+                  ),
                   child: Text(
                     count! > 99 ? '99+' : '$count',
                     style: AppTextStyles.of(
-                      color: Colors.white,
                       fontSize: 10.5.sp,
                       fontWeight: FontWeight.w700,
+                      color: foreground,
                       height: 1,
                     ),
                   ),
                 ),
-              ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -484,7 +542,7 @@ class _NotificationSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 116.h,
+      height: 132.h,
       margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 5.h),
       padding: EdgeInsets.all(14.r),
       decoration: BoxDecoration(
@@ -495,19 +553,27 @@ class _NotificationSkeleton extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _SkeletonBlock(width: 50, height: 50, radius: 14),
+          const _SkeletonBlock(width: 52, height: 52, radius: 14),
           SizedBox(width: 12.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const _SkeletonBlock(width: 150, height: 13, radius: 5),
-                SizedBox(height: 12.h),
+                SizedBox(height: 5.h),
                 const _SkeletonBlock(height: 10, radius: 5),
                 SizedBox(height: 8.h),
                 const _SkeletonBlock(width: 190, height: 10, radius: 5),
                 const Spacer(),
-                const _SkeletonBlock(width: 58, height: 9, radius: 5),
+                Row(
+                  children: [
+                    const _SkeletonBlock(width: 8, height: 8, radius: 4),
+                    SizedBox(width: 8.w),
+                    const _SkeletonBlock(width: 34, height: 9, radius: 5),
+                    const Spacer(),
+                    const _SkeletonBlock(width: 84, height: 22, radius: 11),
+                  ],
+                ),
               ],
             ),
           ),

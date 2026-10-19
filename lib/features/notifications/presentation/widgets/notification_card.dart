@@ -11,6 +11,9 @@ import '../../data/model/notification_model.dart';
 /// Flat bordered card matching the rest of the app (addresses, family
 /// members, invoices): 8.w side margin, 14.r radius, no heavy shadows.
 /// Unread items get a tinted background, a brand-colored border and a dot.
+///
+/// The timestamp sits on the title row so read items (which carry no action)
+/// stay two lines tall instead of reserving a third row for an empty footer.
 class NotificationCard extends StatelessWidget {
   final NotificationModel notification;
   final VoidCallback? onTap;
@@ -32,55 +35,105 @@ class NotificationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isUnread = !notification.isRead;
+    final showAction = isUnread && onMarkAsRead != null;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 5.h),
-      child: GestureDetector(
-        onTap: onTap,
-        behavior: HitTestBehavior.opaque,
-        child: Container(
-          padding: EdgeInsets.all(14.r),
-          decoration: BoxDecoration(
-            color: isUnread ? const Color(0xFFF2F7FD) : Colors.white,
-            borderRadius: BorderRadius.circular(14.r),
-            border: Border.all(
-              color: isUnread
-                  ? _brandBlue.withValues(alpha: 0.4)
-                  : _cardBorder,
+      child: Semantics(
+        button: onTap != null,
+        child: GestureDetector(
+          onTap: onTap,
+          behavior: HitTestBehavior.opaque,
+          child: Container(
+            padding: EdgeInsets.all(14.r),
+            decoration: BoxDecoration(
+              color: isUnread ? const Color(0xFFF2F7FD) : Colors.white,
+              borderRadius: BorderRadius.circular(14.r),
+              border: Border.all(
+                color: isUnread
+                    ? _brandBlue.withValues(alpha: 0.4)
+                    : _cardBorder,
+              ),
             ),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _NotificationThumbnail(notification: notification),
-              SizedBox(width: 12.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            notification.title,
-                            style: AppTextStyles.of(
-                              fontWeight: isUnread
-                                  ? FontWeight.w700
-                                  : FontWeight.w600,
-                              fontSize: 14.sp,
-                              color: _ink,
-                              height: 1.3,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _NotificationThumbnail(notification: notification),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              notification.title,
+                              style: AppTextStyles.of(
+                                fontWeight: isUnread
+                                    ? FontWeight.w700
+                                    : FontWeight.w600,
+                                fontSize: 14.sp,
+                                color: _ink,
+                                height: 1.3,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                        if (isUnread) ...[
                           SizedBox(width: 8.w),
-                          Padding(
-                            padding: EdgeInsets.only(top: 6.h),
-                            child: Container(
+                          Flexible(
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 3.h),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.schedule_rounded,
+                                    size: 12.sp,
+                                    color: _faintText,
+                                  ),
+                                  SizedBox(width: 3.w),
+                                  Flexible(
+                                    child: Text(
+                                      _formatRelativeTime(
+                                        context,
+                                        notification.createdAt,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: AppTextStyles.of(
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 11.sp,
+                                        color: _faintText,
+                                        height: 1.3,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 5.h),
+                      Text(
+                        notification.body,
+                        style: AppTextStyles.of(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 13.sp,
+                          color: _subtleText,
+                          height: 1.45,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (isUnread) ...[
+                        SizedBox(height: 10.h),
+                        Row(
+                          children: [
+                            Container(
                               width: 8.r,
                               height: 8.r,
                               decoration: const BoxDecoration(
@@ -88,48 +141,36 @@ class NotificationCard extends StatelessWidget {
                                 shape: BoxShape.circle,
                               ),
                             ),
-                          ),
-                        ],
-                      ],
-                    ),
-                    SizedBox(height: 4.h),
-                    Text(
-                      notification.body,
-                      style: AppTextStyles.of(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 13.sp,
-                        color: _subtleText,
-                        height: 1.45,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: 10.h),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.schedule_rounded,
-                          size: 13.sp,
-                          color: _faintText,
+                            SizedBox(width: 8.w),
+                            Expanded(
+                              child: Text(
+                                context.tr('notifications.unread_label'),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyles.of(
+                                  fontSize: 11.5.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: _brandBlue,
+                                  height: 1.3,
+                                ),
+                              ),
+                            ),
+                            if (showAction) ...[
+                              SizedBox(width: 8.w),
+                              Flexible(
+                                child: _MarkReadAction(
+                                  onPressed: onMarkAsRead!,
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
-                        SizedBox(width: 4.w),
-                        Text(
-                          _formatRelativeTime(context, notification.createdAt),
-                          style: AppTextStyles.of(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 11.sp,
-                            color: _faintText,
-                          ),
-                        ),
-                        const Spacer(),
-                        if (isUnread && onMarkAsRead != null)
-                          _MarkReadAction(onPressed: onMarkAsRead!),
                       ],
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -178,7 +219,7 @@ class NotificationCard extends StatelessWidget {
   }
 }
 
-/// Subtle text action instead of a filled pill — less visual noise.
+/// Pill action on the unread footer.
 class _MarkReadAction extends StatelessWidget {
   final VoidCallback onPressed;
 
@@ -192,23 +233,35 @@ class _MarkReadAction extends StatelessWidget {
       child: GestureDetector(
         onTap: onPressed,
         behavior: HitTestBehavior.opaque,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(999.r),
+            border: Border.all(
+              color: NotificationCard._brandBlue.withValues(alpha: 0.35),
+            ),
+          ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 Icons.done_all_rounded,
-                size: 15.sp,
+                size: 14.sp,
                 color: NotificationCard._brandBlue,
               ),
               SizedBox(width: 4.w),
-              Text(
-                context.tr('notifications.mark_read'),
-                style: AppTextStyles.of(
-                  fontSize: 11.5.sp,
-                  fontWeight: FontWeight.w700,
-                  color: NotificationCard._brandBlue,
+              Flexible(
+                child: Text(
+                  context.tr('notifications.mark_read'),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.of(
+                    fontSize: 11.5.sp,
+                    fontWeight: FontWeight.w700,
+                    color: NotificationCard._brandBlue,
+                    height: 1.2,
+                  ),
                 ),
               ),
             ],
@@ -227,11 +280,11 @@ class _NotificationThumbnail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 48.r,
-      height: 48.r,
+      width: 52.r,
+      height: 52.r,
       decoration: BoxDecoration(
         color: const Color(0xFFEAF2FB),
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(14.r),
       ),
       clipBehavior: Clip.antiAlias,
       child: _NotificationImage(
