@@ -59,7 +59,6 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
         children: [
           AppSimpleHeader(
             title: 'provider_page.reviews'.tr(),
-            inlineTitleWithSubtitle: true,
             subtitle: (widget.providerName ?? '').isNotEmpty
                 ? widget.providerName
                 : null,

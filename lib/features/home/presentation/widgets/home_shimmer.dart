@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/utils/shimmer_card.dart';
+import 'home_horizontal_card_style.dart';
 
 /// Shimmer skeleton that mimics the real HomeScreen layout sections.
 /// Wrap it inside a parent scroll (e.g. SingleChildScrollView or SliverToBoxAdapter).
@@ -59,21 +60,21 @@ class HomeShimmer extends StatelessWidget {
 
           // ── Nearest providers horizontal scroll (w=270, h=274) ─────────────
           SizedBox(
-            height: 274,
+            height: HomeHorizontalCardStyle.height,
             child: ListView(
               scrollDirection: Axis.horizontal,
               physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: HomeHorizontalCardStyle.listPadding,
               children: const [
                 ShimmerCard(
-                  width: 270,
-                  height: 274,
+                  width: HomeHorizontalCardStyle.width,
+                  height: HomeHorizontalCardStyle.height,
                   borderRadius: BorderRadius.all(Radius.circular(16)),
                 ),
-                SizedBox(width: 12),
+                SizedBox(width: HomeHorizontalCardStyle.cardGap),
                 ShimmerCard(
-                  width: 270,
-                  height: 274,
+                  width: HomeHorizontalCardStyle.width,
+                  height: HomeHorizontalCardStyle.height,
                   borderRadius: BorderRadius.all(Radius.circular(16)),
                 ),
               ],
@@ -86,23 +87,23 @@ class HomeShimmer extends StatelessWidget {
           _SectionTitleShimmer(),
           const SizedBox(height: 12),
 
-          // ── Featured services horizontal scroll (w=280, h=238) ─────────────
+          // ── Featured services horizontal scroll ────────────────────────────
           SizedBox(
-            height: 238,
+            height: HomeHorizontalCardStyle.height,
             child: ListView(
               scrollDirection: Axis.horizontal,
               physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: HomeHorizontalCardStyle.listPadding,
               children: const [
                 ShimmerCard(
-                  width: 280,
-                  height: 238,
+                  width: HomeHorizontalCardStyle.width,
+                  height: HomeHorizontalCardStyle.height,
                   borderRadius: BorderRadius.all(Radius.circular(16)),
                 ),
-                SizedBox(width: 12),
+                SizedBox(width: HomeHorizontalCardStyle.cardGap),
                 ShimmerCard(
-                  width: 280,
-                  height: 238,
+                  width: HomeHorizontalCardStyle.width,
+                  height: HomeHorizontalCardStyle.height,
                   borderRadius: BorderRadius.all(Radius.circular(16)),
                 ),
               ],

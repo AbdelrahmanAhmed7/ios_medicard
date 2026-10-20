@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import '../../domain/models/provider_model.dart';
 
 import '../../../../core/services/url_launcher_service.dart';
 import '../../../../core/theming/app_text_styles.dart';
+import 'home_horizontal_card_style.dart';
 
 class NearestProviderCard extends StatelessWidget {
   final ProviderModel provider;
@@ -22,37 +22,39 @@ class NearestProviderCard extends StatelessWidget {
         }
       },
       child: Container(
-        width: 270,
+        width: HomeHorizontalCardStyle.width,
         decoration: BoxDecoration(
           color: Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+          borderRadius: BorderRadius.circular(HomeHorizontalCardStyle.radius),
+          border: Border.all(color: HomeHorizontalCardStyle.line, width: 1),
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(15), // حل مشكلة الحواف البيضاء
+          borderRadius: BorderRadius.circular(
+            HomeHorizontalCardStyle.clippedRadius,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Stack(
                 children: [
                   Container(
-                    color: const Color(0xFFEEF3FB),
-                    height: 148,
+                    color: HomeHorizontalCardStyle.imageBackground,
+                    height: HomeHorizontalCardStyle.imageHeight,
                     width: double.infinity,
                     child: CachedNetworkImage(
                       imageUrl: provider.imageUrl,
-                      height: 148,
+                      height: HomeHorizontalCardStyle.imageHeight,
                       width: double.infinity,
                       fit: BoxFit.cover,
                       alignment: Alignment.center,
                       placeholder: (context, url) => Container(
-                        color: const Color(0xFFEEF3FB),
-                        height: 148,
+                        color: HomeHorizontalCardStyle.imageBackground,
+                        height: HomeHorizontalCardStyle.imageHeight,
                         width: double.infinity,
                       ),
                       errorWidget: (context, url, error) => Container(
-                        color: const Color(0xFFEEF3FB),
-                        height: 148,
+                        color: HomeHorizontalCardStyle.imageBackground,
+                        height: HomeHorizontalCardStyle.imageHeight,
                         width: double.infinity,
                         child: const Icon(
                           Icons.broken_image,
@@ -63,13 +65,10 @@ class NearestProviderCard extends StatelessWidget {
                   ),
                   if (provider.rating > 0 || provider.reviewCount > 0)
                     Positioned(
-                      top: 10,
-                      right: 10,
+                      top: 8,
+                      right: 8,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
+                        padding: HomeHorizontalCardStyle.ratingPadding,
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.92),
                           borderRadius: BorderRadius.circular(20),
@@ -80,16 +79,12 @@ class NearestProviderCard extends StatelessWidget {
                             const Icon(
                               Icons.star,
                               color: Color(0xFFF5A623),
-                              size: 13,
+                              size: 12,
                             ),
                             const SizedBox(width: 3),
                             Text(
                               '${provider.rating} (${provider.reviewCount})',
-                              style: AppTextStyles.of(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF1A1A2E),
-                              ),
+                              style: HomeHorizontalCardStyle.ratingText,
                             ),
                           ],
                         ),
@@ -98,9 +93,13 @@ class NearestProviderCard extends StatelessWidget {
                 ],
               ),
               // الفاصل بين الصورة والبيانات
-              const Divider(height: 1, thickness: 1, color: Color(0xFFE5E7EB)),
+              const Divider(
+                height: 1,
+                thickness: 1,
+                color: HomeHorizontalCardStyle.line,
+              ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
+                padding: HomeHorizontalCardStyle.contentPadding,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
@@ -140,11 +139,7 @@ class NearestProviderCard extends StatelessWidget {
                     ],
                     Text(
                       provider.name,
-                      style: AppTextStyles.of(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF1A1A2E),
-                      ),
+                      style: HomeHorizontalCardStyle.titleText,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -152,11 +147,7 @@ class NearestProviderCard extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         provider.type,
-                        style: AppTextStyles.of(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w400,
-                          color: Color(0xFF6B7280),
-                        ),
+                        style: HomeHorizontalCardStyle.supportingText,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -174,11 +165,7 @@ class NearestProviderCard extends StatelessWidget {
                           Expanded(
                             child: Text(
                               provider.location,
-                              style: AppTextStyles.of(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w400,
-                                color: Color(0xFF6B7280),
-                              ),
+                              style: HomeHorizontalCardStyle.supportingText,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -188,35 +175,31 @@ class NearestProviderCard extends StatelessWidget {
                     ],
                     if (provider.distanceKm != null ||
                         provider.mapUrl.isNotEmpty) ...[
-                      SizedBox(height: 8.h),
+                      const SizedBox(height: HomeHorizontalCardStyle.footerGap),
                       Row(
                         children: [
                           if (provider.distanceKm != null)
                             Container(
                               padding: EdgeInsets.symmetric(
-                                horizontal: 9.w,
-                                vertical: 5.h,
+                                horizontal: 9,
+                                vertical: 5,
                               ),
                               decoration: BoxDecoration(
                                 color: const Color(0xFFEFF6FF),
-                                borderRadius: BorderRadius.circular(20.r),
+                                borderRadius: BorderRadius.circular(20),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Icon(
                                     Icons.navigation_outlined,
-                                    size: 12.sp,
+                                    size: 12,
                                     color: const Color(0xFF3872B1),
                                   ),
-                                  SizedBox(width: 4.w),
+                                  const SizedBox(width: 4),
                                   Text(
                                     '${provider.distanceKm!.toStringAsFixed(1)} km',
-                                    style: AppTextStyles.of(
-                                      fontSize: 11.sp,
-                                      fontWeight: FontWeight.w600,
-                                      color: const Color(0xFF3872B1),
-                                    ),
+                                    style: HomeHorizontalCardStyle.actionText,
                                   ),
                                 ],
                               ),
@@ -229,21 +212,17 @@ class NearestProviderCard extends StatelessWidget {
                               ),
                               icon: Icon(
                                 Icons.map_outlined,
-                                size: 14.sp,
+                                size: 14,
                                 color: const Color(0xFF3872B1),
                               ),
                               label: Text(
                                 'provider_page.open_map'.tr(),
-                                style: AppTextStyles.of(
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: const Color(0xFF3872B1),
-                                ),
+                                style: HomeHorizontalCardStyle.actionText,
                               ),
                               style: TextButton.styleFrom(
                                 padding: EdgeInsets.symmetric(
-                                  horizontal: 6.w,
-                                  vertical: 2.h,
+                                  horizontal: 6,
+                                  vertical: 2,
                                 ),
                                 minimumSize: Size.zero,
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,

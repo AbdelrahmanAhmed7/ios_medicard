@@ -87,7 +87,7 @@ void main() {
   }
 
   for (final direction in TextDirection.values) {
-    testWidgets('title + subtitle start on the back arrow edge in $direction', (
+    testWidgets('title is inline and subtitle aligns with it in $direction', (
       tester,
     ) async {
       tester.view.devicePixelRatio = 1;
@@ -120,16 +120,11 @@ void main() {
       final title = tester.getRect(find.text('Reviews'));
       final subtitle = tester.getRect(find.text('Clinic name'));
 
-      expect(
-        rtl ? title.right : title.left,
-        closeTo(rtl ? arrow.right : arrow.left, 0.01),
-      );
-      expect(
-        rtl ? subtitle.right : subtitle.left,
-        closeTo(rtl ? arrow.right : arrow.left, 0.01),
-      );
-      expect(title.top, greaterThan(arrow.bottom));
-      expect(subtitle.top, greaterThan(title.bottom));
+      expect(rtl ? 375 - title.right : title.left, closeTo(52, 0.01));
+      expect(rtl ? 375 - subtitle.right : subtitle.left, closeTo(52, 0.01));
+      expect(title.top, lessThan(arrow.bottom));
+      expect(title.bottom, greaterThan(arrow.top));
+      expect(subtitle.top, greaterThan(arrow.bottom));
     });
   }
 }

@@ -339,7 +339,7 @@ class _DetailRow extends StatelessWidget {
             ),
           ),
           SizedBox(width: 12.w),
-          Flexible(
+          Expanded(
             child: Text(
               value,
               textAlign: TextAlign.end,

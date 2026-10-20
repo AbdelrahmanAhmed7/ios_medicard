@@ -1,19 +1,18 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/auth/auth_session_storage.dart';
 import '../../../../core/constants/api_result.dart';
 import '../../../../core/di/service_locator.dart';
-import '../../../../core/theming/app_text_styles.dart';
 import '../../../../core/theming/app_toast.dart';
 import '../../../../medicard_network/domain/usecases/get_package_details_usecase.dart';
 import '../../../../medicard_network/presentation/widgets/package_details_sheet.dart';
 import '../../../../medicard_network/presentation/widgets/provider_shared_widgets.dart';
 import '../../../../network/data/provider_page_response_model.dart';
 import '../../domain/models/featured_service_model.dart';
+import 'home_horizontal_card_style.dart';
 
 class FeaturedServiceCard extends StatefulWidget {
   final FeaturedServiceModel service;
@@ -37,14 +36,16 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
     return GestureDetector(
       onTap: () => _openPackageDetails(context),
       child: Container(
-        width: 270,
+        width: HomeHorizontalCardStyle.width,
         decoration: BoxDecoration(
           color: Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+          borderRadius: BorderRadius.circular(HomeHorizontalCardStyle.radius),
+          border: Border.all(color: HomeHorizontalCardStyle.line, width: 1),
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(
+            HomeHorizontalCardStyle.clippedRadius,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -52,22 +53,22 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
               Stack(
                 children: [
                   Container(
-                    color: const Color(0xFFEEF3FB),
-                    height: 148,
+                    color: HomeHorizontalCardStyle.imageBackground,
+                    height: HomeHorizontalCardStyle.imageHeight,
                     width: double.infinity,
                     child: CachedNetworkImage(
                       imageUrl: service.imageUrl,
-                      height: 148,
+                      height: HomeHorizontalCardStyle.imageHeight,
                       width: double.infinity,
                       fit: BoxFit.cover,
                       placeholder: (context, url) => Container(
-                        color: const Color(0xFFEEF3FB),
-                        height: 148,
+                        color: HomeHorizontalCardStyle.imageBackground,
+                        height: HomeHorizontalCardStyle.imageHeight,
                         width: double.infinity,
                       ),
                       errorWidget: (context, url, error) => Container(
-                        color: const Color(0xFFEEF3FB),
-                        height: 148,
+                        color: HomeHorizontalCardStyle.imageBackground,
+                        height: HomeHorizontalCardStyle.imageHeight,
                         child: const Icon(
                           Icons.broken_image,
                           color: Color(0xFF9CA3AF),
@@ -88,8 +89,9 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                             width: 36,
                             height: 36,
                             fit: BoxFit.cover,
-                            placeholder: (context, url) =>
-                                Container(color: const Color(0xFFEEF3FB)),
+                            placeholder: (context, url) => Container(
+                              color: HomeHorizontalCardStyle.imageBackground,
+                            ),
                             errorWidget: (context, url, error) =>
                                 const Icon(Icons.broken_image, size: 16),
                           ),
@@ -101,10 +103,7 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                       top: 8,
                       right: 8,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 7,
-                          vertical: 3,
-                        ),
+                        padding: HomeHorizontalCardStyle.ratingPadding,
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.92),
                           borderRadius: BorderRadius.circular(20),
@@ -120,11 +119,7 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                             const SizedBox(width: 3),
                             Text(
                               '${service.rating} (${service.reviewCount})',
-                              style: AppTextStyles.of(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF1A1A2E),
-                              ),
+                              style: HomeHorizontalCardStyle.ratingText,
                             ),
                           ],
                         ),
@@ -133,35 +128,31 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                 ],
               ),
               // الفاصل بين الصورة والوصف
-              const Divider(height: 1, thickness: 1, color: Color(0xFFE5E7EB)),
+              const Divider(
+                height: 1,
+                thickness: 1,
+                color: HomeHorizontalCardStyle.line,
+              ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+                padding: HomeHorizontalCardStyle.contentPadding,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       service.serviceName,
-                      style: AppTextStyles.of(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF1A1A2E),
-                      ),
+                      style: HomeHorizontalCardStyle.titleText,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 3),
+                    const SizedBox(height: HomeHorizontalCardStyle.textGap),
                     Text(
                       service.providerName,
-                      style: AppTextStyles.of(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w400,
-                        color: Color(0xFF6B7280),
-                      ),
+                      style: HomeHorizontalCardStyle.supportingText,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 3),
+                    const SizedBox(height: HomeHorizontalCardStyle.textGap),
                     Row(
                       children: [
                         const Icon(
@@ -173,18 +164,14 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                         Expanded(
                           child: Text(
                             service.location,
-                            style: AppTextStyles.of(
-                              fontSize: 11.5.sp,
-                              fontWeight: FontWeight.w400,
-                              color: Color(0xFF6B7280),
-                            ),
+                            style: HomeHorizontalCardStyle.supportingText,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: HomeHorizontalCardStyle.footerGap),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -192,23 +179,14 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                           'cart.egp_amount'.tr(
                             args: ['${service.originalPrice.toInt()}'],
                           ),
-                          style: AppTextStyles.of(
-                            fontSize: 11.5.sp,
-                            fontWeight: FontWeight.w400,
-                            color: Color(0xFF9CA3AF),
-                            decoration: TextDecoration.lineThrough,
-                          ),
+                          style: HomeHorizontalCardStyle.priceBeforeText,
                         ),
                         const SizedBox(width: 6),
                         Text(
                           'cart.egp_amount'.tr(
                             args: ['${service.discountedPrice.toInt()}'],
                           ),
-                          style: AppTextStyles.of(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF3872B1),
-                          ),
+                          style: HomeHorizontalCardStyle.priceAfterText,
                         ),
                         const Spacer(),
                         SizedBox(
@@ -234,11 +212,8 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                             ),
                             child: Text(
                               'activity.book'.tr(),
-                              style: AppTextStyles.of(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFFFFFFFF),
-                              ),
+                              style: HomeHorizontalCardStyle.actionText
+                                  .copyWith(color: Colors.white),
                             ),
                           ),
                         ),

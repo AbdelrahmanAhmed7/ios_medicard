@@ -9,21 +9,14 @@ import '../theming/app_text_styles.dart';
 /// screens. White background, guarded back button, start-aligned dark title and
 /// optional bottom content. The home tab headers stay blue.
 ///
-/// When a [subtitle] is provided the back button sits on its own row and the
-/// title/subtitle block is rendered underneath it, starting on the same edge as
-/// the back arrow (large-title layout). Headers with a title only keep the
-/// title inline with the back button. Set [inlineTitleWithSubtitle] to keep
-/// the title/subtitle block beside the back button too.
+/// The back button and title always share the first row. When a [subtitle] is
+/// provided it is rendered underneath, aligned with the title.
 class AppSimpleHeader extends StatelessWidget {
   /// Start-aligned title. Pass null to omit.
   final String? title;
 
-  /// Optional subtitle below the title. When set, the title moves below the
-  /// back button so it starts on the back arrow's edge.
+  /// Optional subtitle below the title row, aligned with the title.
   final String? subtitle;
-
-  /// Keeps the title and subtitle beside the back button in the same row.
-  final bool inlineTitleWithSubtitle;
 
   /// Whether to show the back button. Defaults to `true`.
   final bool showBack;
@@ -50,7 +43,6 @@ class AppSimpleHeader extends StatelessWidget {
     super.key,
     this.title,
     this.subtitle,
-    this.inlineTitleWithSubtitle = false,
     this.showBack = true,
     this.onBack,
     this.actions,
@@ -70,40 +62,32 @@ class AppSimpleHeader extends StatelessWidget {
     if (Navigator.of(context).canPop()) Navigator.of(context).pop();
   }
 
-  Widget _titleBlock() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (title != null)
-          Text(
-            title!,
-            textAlign: TextAlign.start,
-            style: AppTextStyles.of(
-              fontSize: 26.sp,
-              fontWeight: FontWeight.w700,
-              color: titleColor,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        if (subtitle != null) ...[
-          SizedBox(height: 2.h),
-          Text(
-            subtitle!,
-            textAlign: TextAlign.start,
-            style: AppTextStyles.of(fontSize: 13.sp, color: subtitleColor),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ],
+  Widget _titleText() {
+    return Text(
+      title!,
+      textAlign: TextAlign.start,
+      style: AppTextStyles.of(
+        fontSize: 26.sp,
+        fontWeight: FontWeight.w700,
+        color: titleColor,
+      ),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  Widget _subtitleText() {
+    return Text(
+      subtitle!,
+      textAlign: TextAlign.start,
+      style: AppTextStyles.of(fontSize: 13.sp, color: subtitleColor),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final useLargeTitle = subtitle != null && !inlineTitleWithSubtitle;
     final backButton = showBack
         ? AppHeaderBackButton(
             color: backColor,
@@ -127,33 +111,26 @@ class AppSimpleHeader extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (useLargeTitle) ...[
-              if (backButton != null || trailing != null)
-                Row(
-                  children: [
-                    if (backButton != null) backButton else const Spacer(),
-                    ?trailing,
-                  ],
-                ),
-              if (backButton != null || trailing != null) SizedBox(height: 4.h),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                ?backButton,
+                if (title != null)
+                  Expanded(child: _titleText())
+                else
+                  const Spacer(),
+                ?trailing,
+              ],
+            ),
+            if (subtitle != null) ...[
+              SizedBox(height: 2.h),
               Padding(
                 padding: EdgeInsetsDirectional.only(
-                  start: showBack ? AppHeaderSpacing.titleInset : 0,
+                  start: showBack ? AppHeaderSpacing.buttonWidth : 0,
                 ),
-                child: _titleBlock(),
+                child: _subtitleText(),
               ),
-            ] else
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  ?backButton,
-                  if (title != null)
-                    Expanded(child: _titleBlock())
-                  else
-                    const Spacer(),
-                  ?trailing,
-                ],
-              ),
+            ],
             if (bottomChild != null) ...[SizedBox(height: 8.h), bottomChild!],
           ],
         ),

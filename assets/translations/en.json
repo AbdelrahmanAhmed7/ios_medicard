@@ -318,7 +318,7 @@
     "location_required": "Please allow access to your location to sort by nearest.",
     "location_permanently_denied": "Location access is turned off. Enable it in Settings to sort by nearest.",
     "location_service_disabled": "Please enable GPS to sort by nearest.",
-    "location_unavailable": "We couldn\u2019t get your current location. Please try again."
+    "location_unavailable": "We couldn’t get your current location. Please try again."
   },
   "family_members": {
     "title": "Family",
@@ -515,6 +515,19 @@
     "services_title": "Services",
     "price_before": "Before",
     "price_after": "After",
+    "discount_percentage": "Discount percentage",
+    "points": "Points",
+    "status": "Status",
+    "from_package": "From package",
+    "reviewed": "Review",
+    "yes": "Yes",
+    "no": "No",
+    "family_id": "Family member ID {}",
+    "family_data": "Family data",
+    "family_id_label": "Family member ID",
+    "family_first_name": "First name",
+    "family_last_name": "Last name",
+    "invoice_short": "#{}",
     "services_more": "{} +{} more",
     "leave_review": "Leave Review",
     "review_requires_used_invoice": "You need to use this invoice before leaving a review.",
@@ -527,7 +540,9 @@
     "cancel_invoice_confirm_title": "Cancel Invoice",
     "cancel_invoice_confirm_message": "Are you sure you want to cancel this invoice? This action cannot be undone.",
     "cancel_invoice_success": "Invoice canceled successfully.",
-    "invoice_already_used": "This invoice has already been used and cannot be canceled."
+    "invoice_already_used": "This invoice has already been used and cannot be canceled.",
+    "reviewed_done": "Reviewed",
+    "reviewed_pending": "Not reviewed"
   },
   "notifications": {
     "title": "Notifications",

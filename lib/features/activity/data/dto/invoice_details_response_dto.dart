@@ -92,6 +92,7 @@ class InvoiceServiceItemsPageDto {
 class InvoiceServiceItemDto {
   final int? id;
   final String? serviceName;
+  final String? serviceNameAr;
   final String? serviceNameEn;
   final double? priceBefore;
   final double? priceAfter;
@@ -100,6 +101,7 @@ class InvoiceServiceItemDto {
   const InvoiceServiceItemDto({
     this.id,
     this.serviceName,
+    this.serviceNameAr,
     this.serviceNameEn,
     this.priceBefore,
     this.priceAfter,
@@ -110,6 +112,7 @@ class InvoiceServiceItemDto {
     return InvoiceServiceItemDto(
       id: (json['id'] as num?)?.toInt(),
       serviceName: json['serviceName'] as String?,
+      serviceNameAr: json['serviceNameAr'] as String?,
       serviceNameEn: json['serviceNameEn'] as String?,
       priceBefore: (json['priceBefore'] as num?)?.toDouble(),
       priceAfter: (json['priceAfter'] as num?)?.toDouble(),

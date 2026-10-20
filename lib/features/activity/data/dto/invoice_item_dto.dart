@@ -11,9 +11,11 @@ class InvoiceItemDto {
   final String? date;
   final String? providerImageUrl;
   final bool? isReviewed;
+  final int? points;
   final bool? isFromPackage;
   final double? priceAfter;
-  final double? packagePrice;
+  final double? priceBefore;
+  final double? discountPercentage;
   final int? familyId;
   final String? familyFirstName;
   final String? familyLastName;
@@ -26,9 +28,11 @@ class InvoiceItemDto {
     this.date,
     this.providerImageUrl,
     this.isReviewed,
+    this.points,
     this.isFromPackage,
     this.priceAfter,
-    this.packagePrice,
+    this.priceBefore,
+    this.discountPercentage,
     this.familyId,
     this.familyFirstName,
     this.familyLastName,

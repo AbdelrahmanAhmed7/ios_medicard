@@ -6,9 +6,12 @@ class InvoiceItem {
   final DateTime date;
   final String? providerImageUrl;
   final bool isReviewed;
+  final int? points;
   final bool isFromPackage;
   final double? priceAfter;
-  final double? packagePrice;
+  final double? priceBefore;
+  final double? discountPercentage;
+  final int? familyId;
   final String? beneficiaryName;
 
   bool get isPending {
@@ -39,9 +42,12 @@ class InvoiceItem {
     required this.date,
     this.providerImageUrl,
     this.isReviewed = false,
+    this.points,
     this.isFromPackage = false,
     this.priceAfter,
-    this.packagePrice,
+    this.priceBefore,
+    this.discountPercentage,
+    this.familyId,
     this.beneficiaryName,
   });
 }

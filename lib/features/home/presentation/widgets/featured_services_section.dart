@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 
-import '../../../../core/theming/app_spacing.dart';
 import '../../domain/models/featured_service_model.dart';
 import 'featured_service_card.dart';
+import 'home_horizontal_card_style.dart';
 import 'home_section_header.dart';
 
 class FeaturedServicesSection extends StatelessWidget {
@@ -22,14 +22,15 @@ class FeaturedServicesSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         HomeSectionHeader(title: 'home.packages'.tr(), onViewAll: onViewAll),
-        const SizedBox(height: 12),
+        const SizedBox(height: HomeHorizontalCardStyle.sectionGap),
         SizedBox(
-          height: 274,
+          height: HomeHorizontalCardStyle.height,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            padding: AppSpacing.pageHorizontalInsets,
+            padding: HomeHorizontalCardStyle.listPadding,
             itemCount: services.length,
-            separatorBuilder: (_, _) => const SizedBox(width: 12),
+            separatorBuilder: (_, _) =>
+                const SizedBox(width: HomeHorizontalCardStyle.cardGap),
             itemBuilder: (_, i) => FeaturedServiceCard(service: services[i]),
           ),
         ),

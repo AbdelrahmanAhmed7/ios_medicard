@@ -20,7 +20,7 @@ class InvoiceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final formattedDate = DateFormat('dd MMM yyyy').format(item.date);
+    final formattedDate = DateFormat('dd MMM yyyy, HH:mm:ss').format(item.date);
     final imageUrl = resolveImageUrl(item.providerImageUrl);
 
     return InkWell(
@@ -135,7 +135,8 @@ class InvoiceCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      if (item.beneficiaryName != null) ...[
+                      if (item.beneficiaryName != null ||
+                          item.familyId != null) ...[
                         SizedBox(height: 3.h),
                         Row(
                           children: [
@@ -147,7 +148,14 @@ class InvoiceCard extends StatelessWidget {
                             SizedBox(width: 4.w),
                             Expanded(
                               child: Text(
-                                item.beneficiaryName!,
+                                [
+                                  if (item.beneficiaryName != null)
+                                    item.beneficiaryName!,
+                                  if (item.familyId != null)
+                                    'activity.family_id'.tr(
+                                      args: ['${item.familyId}'],
+                                    ),
+                                ].join(' · '),
                                 style: AppTextStyles.of(
                                   fontSize: 12.5.sp,
                                   fontWeight: FontWeight.w500,
@@ -163,17 +171,66 @@ class InvoiceCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (_amount(item) != null) ...[
+                if (item.priceAfter != null) ...[
                   SizedBox(width: 10.w),
-                  Text(
-                    'cart.egp_amount'.tr(args: ['${_amount(item)!.toInt()}']),
-                    style: AppTextStyles.of(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF3872B1),
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        'activity.price_after'.tr(),
+                        style: AppTextStyles.of(
+                          fontSize: 10.5.sp,
+                          color: const Color(0xFF6B7280),
+                        ),
+                      ),
+                      Text(
+                        'cart.egp_amount'.tr(
+                          args: [_apiNumber(item.priceAfter!)],
+                        ),
+                        style: AppTextStyles.of(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF3872B1),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
+              ],
+            ),
+            SizedBox(height: 12.h),
+            Wrap(
+              spacing: 8.w,
+              runSpacing: 8.h,
+              children: [
+                if (item.priceBefore != null)
+                  _InvoiceFact(
+                    label: 'activity.price_before'.tr(),
+                    value: 'cart.egp_amount'.tr(
+                      args: [_apiNumber(item.priceBefore!)],
+                    ),
+                  ),
+                if (item.discountPercentage != null)
+                  _InvoiceFact(
+                    label: 'activity.discount_percentage'.tr(),
+                    value: '${_apiNumber(item.discountPercentage!)}%',
+                  ),
+                if (item.points != null)
+                  _InvoiceFact(
+                    label: 'activity.points'.tr(),
+                    value: '${item.points}',
+                  ),
+                if (item.isFromPackage)
+                  _InvoiceFact(
+                    label: 'activity.from_package'.tr(),
+                    value: 'activity.yes'.tr(),
+                  ),
+                _InvoiceFact(
+                  label: 'activity.reviewed'.tr(),
+                  value: item.isReviewed
+                      ? 'activity.reviewed_done'.tr()
+                      : 'activity.reviewed_pending'.tr(),
+                ),
               ],
             ),
             SizedBox(height: 12.h),
@@ -181,6 +238,15 @@ class InvoiceCard extends StatelessWidget {
             SizedBox(height: 10.h),
             Row(
               children: [
+                Text(
+                  'activity.invoice_short'.tr(args: ['${item.invoiceId}']),
+                  style: AppTextStyles.of(
+                    fontSize: 12.5.sp,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF4B5563),
+                  ),
+                ),
+                SizedBox(width: 10.w),
                 Icon(
                   Icons.calendar_today_outlined,
                   size: 14.sp,
@@ -195,6 +261,8 @@ class InvoiceCard extends StatelessWidget {
                       fontWeight: FontWeight.w400,
                       color: const Color(0xFF6B7280),
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 InvoiceActionButton(item: item),
@@ -214,4 +282,44 @@ class InvoiceCard extends StatelessWidget {
   }
 }
 
-double? _amount(InvoiceItem item) => item.priceAfter ?? item.packagePrice;
+class _InvoiceFact extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _InvoiceFact({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 6.h),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(8.r),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
+      child: Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(text: '$label: '),
+            TextSpan(
+              text: value,
+              style: AppTextStyles.of(
+                fontSize: 11.5.sp,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF111827),
+              ),
+            ),
+          ],
+        ),
+        style: AppTextStyles.of(
+          fontSize: 11.5.sp,
+          color: const Color(0xFF6B7280),
+        ),
+      ),
+    );
+  }
+}
+
+/// Keeps the numeric value returned by the API; it never rounds, truncates,
+/// derives, or recalculates it for presentation.
+String _apiNumber(num value) => value.toString();

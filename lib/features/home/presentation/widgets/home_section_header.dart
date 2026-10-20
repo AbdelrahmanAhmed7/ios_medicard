@@ -1,9 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../../../core/theming/app_spacing.dart';
 import '../../../../core/theming/app_text_styles.dart';
+import 'home_horizontal_card_style.dart';
 
 /// Reusable section header: "Title  View all ›"
 /// Used by Pending Appointments, Nearest Providers, Featured Services.
@@ -16,7 +15,7 @@ class HomeSectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: AppSpacing.pageHorizontalInsets,
+      padding: HomeHorizontalCardStyle.listPadding,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -24,7 +23,7 @@ class HomeSectionHeader extends StatelessWidget {
             child: Text(
               title,
               style: AppTextStyles.of(
-                fontSize: 17.sp,
+                fontSize: 17,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFF111827),
               ),

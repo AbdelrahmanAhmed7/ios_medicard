@@ -93,9 +93,12 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
                 date: DateTime.tryParse(dto.date ?? '') ?? DateTime.now(),
                 providerImageUrl: dto.providerImageUrl,
                 isReviewed: dto.isReviewed ?? false,
+                points: dto.points,
                 isFromPackage: dto.isFromPackage ?? false,
                 priceAfter: dto.priceAfter,
-                packagePrice: dto.packagePrice,
+                priceBefore: dto.priceBefore,
+                discountPercentage: dto.discountPercentage,
+                familyId: dto.familyId,
                 beneficiaryName: _beneficiaryName(
                   firstName: dto.familyFirstName,
                   lastName: dto.familyLastName,
@@ -274,12 +277,16 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
       if (response.succeeded == true && data != null) {
         return ApiResult.success(
           InvoiceDetails(
-            invoiceId: data.invoiceId ?? invoiceId,
-            status: data.status ?? '',
-            date: DateTime.tryParse(data.date ?? '') ?? DateTime.now(),
-            totalBefore: data.totalBefore ?? 0,
-            totalAfter: data.totalAfter ?? 0,
-            discountPercentage: data.discountPercentage ?? 0,
+            invoiceId: data.invoiceId,
+            status: data.status,
+            date: data.date == null ? null : DateTime.tryParse(data.date!),
+            apiDate: data.date,
+            totalBefore: data.totalBefore,
+            totalAfter: data.totalAfter,
+            discountPercentage: data.discountPercentage,
+            familyId: data.familyId,
+            familyFirstName: data.familyFirstName,
+            familyLastName: data.familyLastName,
             beneficiaryName: _beneficiaryName(
               firstName: data.familyFirstName,
               lastName: data.familyLastName,
@@ -287,11 +294,13 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
             services: (data.items?.items ?? const [])
                 .map(
                   (item) => InvoiceServiceItem(
-                    id: item.id ?? 0,
-                    serviceName: item.serviceNameEn ?? item.serviceName ?? '',
-                    priceBefore: item.priceBefore ?? 0,
-                    priceAfter: item.priceAfter ?? 0,
-                    discountPercentage: item.discountPercentage ?? 0,
+                    id: item.id,
+                    serviceName: item.serviceName,
+                    serviceNameAr: item.serviceNameAr,
+                    serviceNameEn: item.serviceNameEn,
+                    priceBefore: item.priceBefore,
+                    priceAfter: item.priceAfter,
+                    discountPercentage: item.discountPercentage,
                   ),
                 )
                 .toList(),

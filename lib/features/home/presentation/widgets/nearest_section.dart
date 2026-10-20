@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 
-import '../../../../core/theming/app_spacing.dart';
 import '../../domain/models/provider_model.dart';
+import 'home_horizontal_card_style.dart';
 import 'home_section_header.dart';
 import 'nearest_provider_card.dart';
 
@@ -21,14 +21,15 @@ class NearestSection extends StatelessWidget {
           title: 'home.nearest_providers'.tr(),
           onViewAll: onViewAll,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: HomeHorizontalCardStyle.sectionGap),
         SizedBox(
-          height: 274,
+          height: HomeHorizontalCardStyle.height,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            padding: AppSpacing.pageHorizontalInsets,
+            padding: HomeHorizontalCardStyle.listPadding,
             itemCount: providers.length,
-            separatorBuilder: (_, _) => const SizedBox(width: 12),
+            separatorBuilder: (_, _) =>
+                const SizedBox(width: HomeHorizontalCardStyle.cardGap),
             itemBuilder: (_, i) => NearestProviderCard(provider: providers[i]),
           ),
         ),

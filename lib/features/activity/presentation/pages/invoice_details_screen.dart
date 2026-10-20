@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/theming/app_spacing.dart';
 import '../../../../core/theming/app_toast.dart';
+import '../../../../core/utils/app_date_formatter.dart';
 import '../../domain/models/invoice_details.dart';
 import '../../domain/models/invoice_item.dart';
 import '../cubit/invoice_details_cubit.dart';
@@ -27,7 +28,7 @@ class InvoiceDetailsScreen extends StatelessWidget {
     return BlocProvider(
       create: (_) => sl<InvoiceDetailsCubit>()..loadDetails(invoice.invoiceId),
       child: Scaffold(
-        backgroundColor: const Color(0xFFF8FAFC),
+        backgroundColor: Colors.white,
         body: Column(
           children: [
             SafeArea(
@@ -110,16 +111,10 @@ class _DetailsBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final formattedDate = DateFormat(
-      'dd MMM yyyy',
-      context.locale.toString(),
-    ).format(details.date);
-    final discountPct = _discountPercent(details);
-    final saved = (details.totalBefore - details.totalAfter).clamp(
-      0,
-      double.infinity,
+    final displayedDate = AppDateFormatter.formatDateTime(
+      details.apiDate ?? details.date?.toIso8601String(),
+      context.locale.languageCode,
     );
-
     return ListView(
       padding: EdgeInsets.fromLTRB(
         AppSpacing.pageHorizontal,
@@ -139,7 +134,9 @@ class _DetailsBody extends StatelessWidget {
             SizedBox(width: 6.w),
             Expanded(
               child: Text(
-                'activity.invoice_number'.tr(args: ['${details.invoiceId}']),
+                'activity.invoice_number'.tr(
+                  args: [_apiValue(details.invoiceId)],
+                ),
                 style: AppTextStyles.of(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
@@ -165,21 +162,24 @@ class _DetailsBody extends StatelessWidget {
         ),
         SizedBox(height: 14.h),
         // ── Date + branch ────────────────────────────────────────────
-        _MetaRow(date: formattedDate, branch: invoice.branchName),
+        _MetaRow(date: displayedDate, branch: invoice.branchName),
         SizedBox(height: 12.h),
         // ── Provider ─────────────────────────────────────────────────
         _ProviderCard(
           invoice: invoice,
           beneficiaryName: details.beneficiaryName,
         ),
+        if (_hasFamilyData(details)) ...[
+          SizedBox(height: 12.h),
+          _FamilyDataCard(details: details),
+        ],
         SizedBox(height: 12.h),
         // ── Services table ───────────────────────────────────────────
         _ServicesCard(
           services: details.services,
           totalBefore: details.totalBefore,
           totalAfter: details.totalAfter,
-          discountPct: discountPct,
-          saved: saved.toDouble(),
+          discountPct: details.discountPercentage,
         ),
         SizedBox(height: 20.h),
         _DetailsActions(invoice: invoice, details: details, tab: tab),
@@ -188,7 +188,7 @@ class _DetailsBody extends StatelessWidget {
   }
 }
 
-/// Compact date + branch row.
+/// Date and branch metadata without surrounding cards.
 class _MetaRow extends StatelessWidget {
   final String date;
   final String branch;
@@ -197,22 +197,18 @@ class _MetaRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: _MetaItem(
-            icon: Icons.calendar_month_outlined,
-            label: 'activity.date'.tr(),
-            value: date,
-          ),
+        _MetaItem(
+          icon: Icons.calendar_month_outlined,
+          label: 'activity.date'.tr(),
+          value: date,
         ),
-        SizedBox(width: 8.w),
-        Expanded(
-          child: _MetaItem(
-            icon: Icons.location_on_outlined,
-            label: 'activity.branch'.tr(),
-            value: branch,
-          ),
+        SizedBox(height: 10.h),
+        _MetaItem(
+          icon: Icons.location_on_outlined,
+          label: 'activity.branch'.tr(),
+          value: branch,
         ),
       ],
     );
@@ -232,47 +228,34 @@ class _MetaItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 18.sp, color: const Color(0xFF3872B1)),
-          SizedBox(width: 8.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  label,
-                  style: AppTextStyles.of(
-                    fontSize: 11.sp,
-                    color: const Color(0xFF6B7280),
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: 2.h),
-                Text(
-                  value,
-                  style: AppTextStyles.of(
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF111827),
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(top: 1.h),
+          child: Icon(icon, size: 19.sp, color: const Color(0xFF3872B1)),
+        ),
+        SizedBox(width: 9.w),
+        Text(
+          '$label: ',
+          style: AppTextStyles.of(
+            fontSize: 13.sp,
+            color: const Color(0xFF6B7280),
           ),
-        ],
-      ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: AppTextStyles.of(
+              fontSize: 13.5.sp,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF111827),
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -287,6 +270,10 @@ class _ProviderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final imageUrl = resolveImageUrl(invoice.providerImageUrl);
+    final beneficiary = beneficiaryName?.trim();
+    final displayBeneficiary = beneficiary != null && beneficiary.isNotEmpty
+        ? beneficiary
+        : 'cart.card_owner'.tr();
 
     return Container(
       padding: EdgeInsets.all(12.r),
@@ -350,40 +337,114 @@ class _ProviderCard extends StatelessWidget {
               ),
             ],
           ),
-          if (beneficiaryName != null &&
-              beneficiaryName!.trim().isNotEmpty) ...[
-            const Divider(height: 20, color: Color(0xFFEEF1F5)),
-            Row(
-              children: [
-                Icon(
-                  Icons.person_outline_rounded,
-                  size: 18.sp,
-                  color: const Color(0xFF3872B1),
-                ),
-                SizedBox(width: 8.w),
-                Expanded(
-                  child: Text(
-                    'activity.beneficiary'.tr(),
-                    style: AppTextStyles.of(
-                      fontSize: 13.sp,
-                      color: const Color(0xFF6B7280),
-                    ),
+          const Divider(height: 20, color: Color(0xFFEEF1F5)),
+          Row(
+            children: [
+              Icon(
+                Icons.person_outline_rounded,
+                size: 18.sp,
+                color: const Color(0xFF3872B1),
+              ),
+              SizedBox(width: 8.w),
+              Expanded(
+                child: Text(
+                  'activity.beneficiary'.tr(),
+                  style: AppTextStyles.of(
+                    fontSize: 13.sp,
+                    color: const Color(0xFF6B7280),
                   ),
                 ),
-                SizedBox(width: 12.w),
-                Flexible(
-                  child: Text(
-                    beneficiaryName!,
-                    textAlign: TextAlign.end,
-                    style: AppTextStyles.of(
-                      fontSize: 13.5.sp,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF111827),
-                    ),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: Text(
+                  displayBeneficiary,
+                  textAlign: TextAlign.end,
+                  style: AppTextStyles.of(
+                    fontSize: 13.5.sp,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF111827),
                   ),
                 ),
-              ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FamilyDataCard extends StatelessWidget {
+  final InvoiceDetails details;
+
+  const _FamilyDataCard({required this.details});
+
+  @override
+  Widget build(BuildContext context) {
+    final rows = <_ApiDataEntry>[
+      if (details.familyId != null)
+        _ApiDataEntry(
+          label: 'activity.family_id_label'.tr(),
+          value: _apiValue(details.familyId),
+        ),
+      if (_hasText(details.familyFirstName))
+        _ApiDataEntry(
+          label: 'activity.family_first_name'.tr(),
+          value: details.familyFirstName!,
+        ),
+      if (_hasText(details.familyLastName))
+        _ApiDataEntry(
+          label: 'activity.family_last_name'.tr(),
+          value: details.familyLastName!,
+        ),
+    ];
+
+    if (rows.isEmpty) return const SizedBox.shrink();
+
+    return _ApiDataCard(title: 'activity.family_data'.tr(), rows: rows);
+  }
+}
+
+class _ApiDataEntry {
+  final String label;
+  final String value;
+
+  const _ApiDataEntry({required this.label, required this.value});
+}
+
+class _ApiDataCard extends StatelessWidget {
+  final String title;
+  final List<_ApiDataEntry> rows;
+
+  const _ApiDataCard({required this.title, required this.rows});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(12.r),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: AppTextStyles.of(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF111827),
             ),
+          ),
+          SizedBox(height: 10.h),
+          for (var index = 0; index < rows.length; index++) ...[
+            _ApiDataRow(entry: rows[index]),
+            if (index < rows.length - 1)
+              const Divider(height: 16, color: Color(0xFFEEF1F5)),
           ],
         ],
       ),
@@ -391,21 +452,54 @@ class _ProviderCard extends StatelessWidget {
   }
 }
 
-/// Services table: header + per-service prices + totals footer.
-/// Row order mirrors automatically in RTL.
+class _ApiDataRow extends StatelessWidget {
+  final _ApiDataEntry entry;
+
+  const _ApiDataRow({required this.entry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Text(
+            entry.label,
+            style: AppTextStyles.of(
+              fontSize: 12.5.sp,
+              color: const Color(0xFF6B7280),
+            ),
+          ),
+        ),
+        SizedBox(width: 12.w),
+        Flexible(
+          child: Text(
+            entry.value,
+            textAlign: TextAlign.end,
+            style: AppTextStyles.of(
+              fontSize: 12.5.sp,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF111827),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Services with clearly labelled backend values and a totals footer.
 class _ServicesCard extends StatelessWidget {
   final List<InvoiceServiceItem> services;
-  final double totalBefore;
-  final double totalAfter;
-  final double discountPct;
-  final double saved;
+  final double? totalBefore;
+  final double? totalAfter;
+  final double? discountPct;
 
   const _ServicesCard({
     required this.services,
     required this.totalBefore,
     required this.totalAfter,
     required this.discountPct,
-    required this.saved,
   });
 
   @override
@@ -430,7 +524,7 @@ class _ServicesCard extends StatelessWidget {
             ),
           ),
           SizedBox(height: 10.h),
-          _TableHeaderRow(),
+          const _TableHeaderRow(),
           const Divider(height: 16, color: Color(0xFFEEF1F5)),
           if (services.isEmpty)
             Padding(
@@ -454,14 +548,12 @@ class _ServicesCard extends StatelessWidget {
             value: 'cart.egp_amount'.tr(args: [_money(totalBefore)]),
           ),
           SizedBox(height: 8.h),
-          if (saved > 0)
-            _TotalRow(
-              label: 'cart.discount'.tr(),
-              value:
-                  '-${'cart.egp_amount'.tr(args: [_money(saved)])} (${discountPct.toStringAsFixed(0)}%)',
-              valueColor: const Color(0xFF10A75A),
-            ),
-          if (saved > 0) SizedBox(height: 8.h),
+          _TotalRow(
+            label: 'activity.discount_percentage'.tr(),
+            value: '${_apiValue(discountPct)}%',
+            valueColor: const Color(0xFF3872B1),
+          ),
+          SizedBox(height: 8.h),
           _TotalRow(
             label: 'cart.total_amount'.tr(),
             value: 'cart.egp_amount'.tr(args: [_money(totalAfter)]),
@@ -474,6 +566,8 @@ class _ServicesCard extends StatelessWidget {
 }
 
 class _TableHeaderRow extends StatelessWidget {
+  const _TableHeaderRow();
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -493,7 +587,7 @@ class _TableHeaderRow extends StatelessWidget {
           flex: 4,
           child: Text(
             'activity.price_before'.tr(),
-            textAlign: TextAlign.end,
+            textAlign: TextAlign.center,
             style: AppTextStyles.of(
               fontSize: 11.5.sp,
               fontWeight: FontWeight.w600,
@@ -525,33 +619,45 @@ class _ServiceTableRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasDiscount = service.priceBefore > service.priceAfter;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           flex: 8,
-          child: Text(
-            service.serviceName,
-            style: AppTextStyles.of(
-              fontSize: 13.5.sp,
-              fontWeight: FontWeight.w500,
-              color: const Color(0xFF111827),
-              height: 1.35,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _localizedServiceName(context, service),
+                style: AppTextStyles.of(
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF111827),
+                  height: 1.35,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(height: 3.h),
+              Text(
+                '${'activity.discount_percentage'.tr()}: '
+                '${_apiValue(service.displayedDiscountPercentage)}%',
+                style: AppTextStyles.of(
+                  fontSize: 10.5.sp,
+                  color: const Color(0xFF6B7280),
+                ),
+              ),
+            ],
           ),
         ),
         Expanded(
           flex: 4,
           child: Text(
-            hasDiscount ? _money(service.priceBefore) : '',
-            textAlign: TextAlign.end,
+            _money(service.priceBefore),
+            textAlign: TextAlign.center,
             style: AppTextStyles.of(
               fontSize: 12.sp,
-              color: const Color(0xFF94A3B8),
-              decoration: TextDecoration.lineThrough,
+              color: const Color(0xFF6B7280),
             ),
           ),
         ),
@@ -608,7 +714,9 @@ class _TotalRow extends StatelessWidget {
           style: AppTextStyles.of(
             fontSize: isTotal ? 17.sp : 13.5.sp,
             fontWeight: FontWeight.w700,
-            color: valueColor ?? const Color(0xFF111827),
+            color:
+                valueColor ??
+                (isTotal ? const Color(0xFF3872B1) : const Color(0xFF111827)),
           ),
         ),
       ],
@@ -617,13 +725,13 @@ class _TotalRow extends StatelessWidget {
 }
 
 class _StatusBadge extends StatelessWidget {
-  final String status;
+  final String? status;
 
   const _StatusBadge({required this.status});
 
   @override
   Widget build(BuildContext context) {
-    final normalized = status.toLowerCase();
+    final normalized = status?.toLowerCase() ?? '';
     final isCancelled = normalized == 'canceled' || normalized == 'cancelled';
     final isCompleted = normalized == 'used' || normalized == 'completed';
     final color = isCancelled
@@ -639,11 +747,7 @@ class _StatusBadge extends StatelessWidget {
         border: Border.all(color: color.withAlpha(120)),
       ),
       child: Text(
-        isCancelled
-            ? 'activity.status_cancelled'.tr()
-            : isCompleted
-            ? 'home.completed'.tr()
-            : _localizedStatus(status),
+        _apiValue(status),
         style: AppTextStyles.of(fontSize: 13.sp, color: color),
       ),
     );
@@ -793,31 +897,50 @@ class _DetailsActionsState extends State<_DetailsActions> {
         if (_canCancel)
           SizedBox(
             width: double.infinity,
-            height: 50.h,
+            height: 54.h,
             child: OutlinedButton(
               onPressed: _isCanceling ? null : _onCancelTapped,
               style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.red,
-                side: const BorderSide(color: Colors.red),
+                foregroundColor: const Color(0xFFC83C3C),
+                backgroundColor: const Color(0xFFFFF7F7),
+                disabledForegroundColor: const Color(0xFFDC8A8A),
+                disabledBackgroundColor: const Color(0xFFFFFAFA),
+                side: const BorderSide(color: Color(0xFFF0B7B7)),
+                padding: EdgeInsets.symmetric(horizontal: 18.w),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
+                  borderRadius: BorderRadius.circular(14.r),
                 ),
                 textStyle: AppTextStyles.of(
                   fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               child: _isCanceling
-                  ? const CircularProgressIndicator(color: Colors.red)
-                  : Text('activity.cancel_invoice'.tr()),
+                  ? SizedBox(
+                      width: 21.r,
+                      height: 21.r,
+                      child: const CircularProgressIndicator(
+                        strokeWidth: 2.2,
+                        color: Color(0xFFC83C3C),
+                      ),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.close_rounded, size: 21.sp),
+                        SizedBox(width: 8.w),
+                        Text('activity.cancel_invoice'.tr()),
+                      ],
+                    ),
             ),
           ),
         if (_canCancel) SizedBox(height: 12.h),
         if (_canReview)
           SizedBox(
             width: double.infinity,
-            height: 52.h,
-            child: ElevatedButton(
+            height: 54.h,
+            child: ElevatedButton.icon(
               onPressed: () async {
                 // The dialog builds above this page's provider scope, so
                 // hand the cubit over explicitly.
@@ -839,16 +962,20 @@ class _DetailsActionsState extends State<_DetailsActions> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF3872B1),
                 foregroundColor: Colors.white,
+                disabledBackgroundColor: const Color(0xFF9DB7D3),
+                disabledForegroundColor: Colors.white,
                 elevation: 0,
+                padding: EdgeInsets.symmetric(horizontal: 18.w),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
+                  borderRadius: BorderRadius.circular(14.r),
                 ),
                 textStyle: AppTextStyles.of(
                   fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
-              child: Text('activity.leave_review'.tr()),
+              icon: Icon(Icons.star_outline_rounded, size: 22.sp),
+              label: Text('activity.leave_review'.tr()),
             ),
           ),
       ],
@@ -998,27 +1125,22 @@ class _ReviewDialogState extends State<_ReviewDialog> {
   }
 }
 
-String _money(double value) {
-  return value % 1 == 0 ? value.toStringAsFixed(0) : value.toStringAsFixed(2);
+String _apiValue(Object? value) => value?.toString() ?? 'null';
+
+String _money(Object? value) => _apiValue(value);
+
+bool _hasText(String? value) => value != null && value.trim().isNotEmpty;
+
+bool _hasFamilyData(InvoiceDetails details) {
+  return details.familyId != null ||
+      _hasText(details.familyFirstName) ||
+      _hasText(details.familyLastName);
 }
 
-/// Backend quirk: the invoice-level discount often comes back as 0 while the
-/// items carry the real one — derive it from the totals as a fallback.
-double _discountPercent(InvoiceDetails details) {
-  if (details.discountPercentage > 0) return details.discountPercentage;
-  if (details.totalBefore <= 0) return 0;
-  final derived =
-      (details.totalBefore - details.totalAfter) / details.totalBefore * 100;
-  return derived.clamp(0, 100).toDouble();
-}
-
-String _localizedStatus(String status) {
-  final normalized = status.trim().toLowerCase();
-  return switch (normalized) {
-    'pending' => 'activity.status_pending'.tr(),
-    'used' => 'activity.status_used'.tr(),
-    'completed' => 'home.completed'.tr(),
-    'canceled' || 'cancelled' => 'activity.status_cancelled'.tr(),
-    _ => status,
-  };
+String _localizedServiceName(BuildContext context, InvoiceServiceItem service) {
+  final isArabic = context.locale.languageCode.toLowerCase() == 'ar';
+  final value = isArabic
+      ? service.serviceNameAr ?? service.serviceName ?? service.serviceNameEn
+      : service.serviceNameEn ?? service.serviceName ?? service.serviceNameAr;
+  return _apiValue(value);
 }
