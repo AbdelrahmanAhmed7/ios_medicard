@@ -24,6 +24,7 @@ import 'package:medicard/features/cart/domain/repository/cart_repository.dart';
 import 'package:medicard/features/cart/domain/services/cart_sync_service.dart';
 import 'package:medicard/features/cart/presentation/cubit/cart_cubit.dart';
 import 'package:medicard/features/cart/presentation/cubit/cart_state.dart';
+import 'package:medicard/features/cart/presentation/widgets/provider_quick_pick_sheet.dart';
 import 'package:medicard/features/cart/presentation/widgets/provider_selection_summary.dart';
 import 'package:medicard/features/family_members/data/models/family_member_model.dart';
 import 'package:medicard/features/family_members/domain/repository/family_members_repository.dart';
@@ -133,12 +134,26 @@ void main() {
           await tester.tap(find.text('cart.confirm_provider'.tr()));
           await tester.pumpAndSettle();
           expect(find.text('cart.place_saved'.tr()), findsOneWidget);
-          expect(
-            find.byKey(const ValueKey('continue-selected-order')).hitTestable(),
-            findsOneWidget,
+          final continueOrder = find.byKey(
+            const ValueKey('continue-selected-order'),
           );
-          final chooseRest = find.text('cart.choose_remaining_places'.tr());
-          await tester.ensureVisible(chooseRest);
+          await tester.scrollUntilVisible(
+            continueOrder,
+            120,
+            scrollable: find.byType(Scrollable).first,
+          );
+          await tester.pumpAndSettle();
+          expect(continueOrder.hitTestable(), findsOneWidget);
+          final chooseRest = find.byKey(
+            const ValueKey('choose-remaining-places'),
+          );
+          await tester.scrollUntilVisible(
+            chooseRest,
+            120,
+            scrollable: find.byType(Scrollable).first,
+          );
+          await tester.pumpAndSettle();
+          expect(chooseRest.hitTestable(), findsOneWidget);
           await tester.tap(chooseRest);
           await tester.pumpAndSettle();
           expect(find.text('Provider A'), findsNothing);
@@ -220,6 +235,80 @@ void main() {
       fixture.sync.dispose();
     });
 
+    testWidgets('quick pick sheet assigns the tapped provider to one service', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final cart = Cart(
+        items: const [
+          CartItem(
+            cartItemId: 1,
+            serviceId: 10,
+            serviceName: 'A',
+            categoryId: 1,
+          ),
+        ],
+        totalCount: 1,
+        categoryCounters: const [],
+      );
+      final fixture = _Fixture(cart: cart);
+      fixture.cart.chooseProviders = [_providerA(allItems: true)];
+      await fixture.cubit.loadCartAndProviders();
+
+      await tester.pumpWidget(
+        EasyLocalization(
+          supportedLocales: const [Locale('en'), Locale('ar')],
+          path: 'assets/translations',
+          startLocale: const Locale('en'),
+          fallbackLocale: const Locale('en'),
+          saveLocale: false,
+          useOnlyLangCode: true,
+          assetLoader: const _TestTranslationsLoader(),
+          child: Builder(
+            builder: (context) => ScreenUtilInit(
+              designSize: const Size(390, 844),
+              builder: (_, _) => MaterialApp(
+                localizationsDelegates: context.localizationDelegates,
+                supportedLocales: context.supportedLocales,
+                locale: context.locale,
+                home: Scaffold(
+                  body: Builder(
+                    builder: (context) => Center(
+                      child: ElevatedButton(
+                        onPressed: () => showProviderQuickPickSheet(
+                          context,
+                          cubit: fixture.cubit,
+                          onViewAll: () {},
+                        ),
+                        child: const Text('open'),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('quick-pick-sheet')), findsOneWidget);
+      expect(find.byKey(const ValueKey('view-all-providers')), findsOneWidget);
+      await tester.tap(find.text('Provider A'));
+      await tester.pumpAndSettle();
+      expect(fixture.cubit.state.cart!.items.single.providerId, 7);
+      expect(find.byKey(const ValueKey('quick-pick-sheet')), findsNothing);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await fixture.cubit.close();
+      fixture.sync.dispose();
+    });
+
     for (final locale in [const Locale('en'), const Locale('ar')]) {
       testWidgets(
         'selected service and checkout remain visible with three services left (${locale.languageCode})',
@@ -272,21 +361,28 @@ void main() {
           final chooseRest = find.byKey(
             const ValueKey('choose-remaining-places'),
           );
-          expect(pay.hitTestable(), findsOneWidget);
-          expect(chooseRest.hitTestable(), findsOneWidget);
+          expect(pay, findsOneWidget);
+          expect(chooseRest, findsOneWidget);
           expect(
             fixture.cubit.state.cart!.items
                 .where((item) => item.providerId == null)
                 .length,
             3,
           );
-          await tester.drag(
-            find.byKey(const PageStorageKey('provider-selection-summary')),
-            const Offset(0, -400),
+          await tester.scrollUntilVisible(
+            chooseRest,
+            120,
+            scrollable: find.byType(Scrollable).first,
+          );
+          await tester.pumpAndSettle();
+          expect(chooseRest.hitTestable(), findsOneWidget);
+          await tester.scrollUntilVisible(
+            pay,
+            -120,
+            scrollable: find.byType(Scrollable).first,
           );
           await tester.pumpAndSettle();
           expect(pay.hitTestable(), findsOneWidget);
-          expect(chooseRest.hitTestable(), findsOneWidget);
           await tester.tap(pay);
           await tester.pumpAndSettle();
           expect(find.text('Checkout for 7'), findsOneWidget);

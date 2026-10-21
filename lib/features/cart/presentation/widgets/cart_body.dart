@@ -14,6 +14,7 @@ import 'cart_item_card.dart';
 import 'cart_sync_warning.dart';
 import 'checkout_summary_row.dart';
 import 'provider_checkout_notice.dart';
+import 'provider_quick_pick_sheet.dart';
 
 /// Cart grouped by provider: every assigned provider gets its own bordered
 /// section (header + divider-separated items + subtotal + scoped checkout).
@@ -88,7 +89,19 @@ class CartBody extends StatelessWidget {
                 onTap: () {
                   final cubit = context.read<CartCubit>();
                   cubit.loadCartAndProviders();
-                  context.push('/choose-provider', extra: cubit);
+                  if (unassigned.length == 1) {
+                    showProviderQuickPickSheet(
+                      context,
+                      cubit: cubit,
+                      onViewAll: () {
+                        if (context.mounted) {
+                          context.push('/choose-provider', extra: cubit);
+                        }
+                      },
+                    );
+                  } else {
+                    context.push('/choose-provider', extra: cubit);
+                  }
                 },
               ),
               SizedBox(height: 14.h),
@@ -112,10 +125,12 @@ class CartBody extends StatelessWidget {
               SizedBox(height: 10.h),
             ],
 
-            for (final entry in groups.entries) ...[
+            for (final (index, entry) in groups.entries.indexed) ...[
               _ProviderGroupSection(
                 providerId: entry.key,
                 items: entry.value,
+                orderPosition: groups.length > 1 ? index + 1 : null,
+                ordersCount: groups.length,
                 initialBranch: entry.key == initialProviderId
                     ? initialBranch
                     : null,
@@ -412,11 +427,15 @@ class _NeedsProviderBanner extends StatelessWidget {
 class _ProviderGroupSection extends StatelessWidget {
   final int providerId;
   final List<CartItem> items;
+  final int? orderPosition;
+  final int ordersCount;
   final ProviderBranch? initialBranch;
 
   const _ProviderGroupSection({
     required this.providerId,
     required this.items,
+    this.orderPosition,
+    this.ordersCount = 1,
     this.initialBranch,
   });
 
@@ -459,6 +478,20 @@ class _ProviderGroupSection extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      if (orderPosition != null)
+                        Padding(
+                          padding: EdgeInsets.only(bottom: 2.h),
+                          child: Text(
+                            'cart.order_position'.tr(
+                              args: ['$orderPosition', '$ordersCount'],
+                            ),
+                            style: AppTextStyles.of(
+                              fontSize: 11.5.sp,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF64748B),
+                            ),
+                          ),
+                        ),
                       Text(
                         name.isNotEmpty ? name : 'cart.provider'.tr(),
                         style: AppTextStyles.of(

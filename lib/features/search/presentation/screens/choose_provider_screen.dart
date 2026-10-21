@@ -403,28 +403,7 @@ class _ProviderCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        if ((service.discountPercentage ?? 0) > 0) ...[
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 6.w,
-                              vertical: 2.h,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFD1FAE5),
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                            child: Text(
-                              '-${service.discountPercentage!.toStringAsFixed(0)}%',
-                              style: AppTextStyles.of(
-                                fontSize: 10.5.sp,
-                                fontWeight: FontWeight.w700,
-                                color: const Color(0xFF047857),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 6.w),
-                        ],
-                        if (service.priceBefore != null)
+                        if (service.priceBefore != null) ...[
                           Text(
                             'cart.egp_amount'.tr(
                               args: [_money(service.priceBefore!)],
@@ -435,7 +414,8 @@ class _ProviderCard extends StatelessWidget {
                               decoration: TextDecoration.lineThrough,
                             ),
                           ),
-                        SizedBox(width: 5.w),
+                          SizedBox(width: 5.w),
+                        ],
                         Text(
                           service.priceAfter == null &&
                                   service.priceBefore == null
