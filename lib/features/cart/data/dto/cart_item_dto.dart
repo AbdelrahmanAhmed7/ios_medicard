@@ -11,6 +11,7 @@ class CartItemDto {
   final String? categoryName;
   final int? providerId;
   final String? providerName;
+  final String? providerImageUrl;
   final double? priceAfter;
   final double? priceBefore;
   final double? discountPercentage;
@@ -23,6 +24,7 @@ class CartItemDto {
     this.categoryName,
     this.providerId,
     this.providerName,
+    this.providerImageUrl,
     this.priceAfter,
     this.priceBefore,
     this.discountPercentage,

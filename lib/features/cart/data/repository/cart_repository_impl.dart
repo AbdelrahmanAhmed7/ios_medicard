@@ -65,6 +65,7 @@ class CartRepositoryImpl implements CartRepository {
       categoryName: dto.categoryName ?? '',
       providerId: dto.providerId,
       providerName: dto.providerName,
+      providerImageUrl: dto.providerImageUrl,
       priceAfter: dto.priceAfter,
       priceBefore: dto.priceBefore,
       discountPercentage: dto.discountPercentage,
@@ -242,7 +243,9 @@ class CartRepositoryImpl implements CartRepository {
             );
     } catch (error) {
       if (kDebugMode) {
-        debugPrint('[CartRepository] clearCart error: ${error.runtimeType} $error');
+        debugPrint(
+          '[CartRepository] clearCart error: ${error.runtimeType} $error',
+        );
       }
       return ApiResult.failure(parseApiError(error));
     }

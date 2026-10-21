@@ -6,6 +6,7 @@ class CartItem {
   final String categoryName;
   final int? providerId;
   final String? providerName;
+  final String? providerImageUrl;
   final double? priceAfter;
   final double? priceBefore;
   final double? discountPercentage;
@@ -18,6 +19,7 @@ class CartItem {
     this.categoryName = '',
     this.providerId,
     this.providerName,
+    this.providerImageUrl,
     this.priceAfter,
     this.priceBefore,
     this.discountPercentage,
@@ -26,6 +28,7 @@ class CartItem {
   CartItem copyWith({
     int? providerId,
     String? providerName,
+    String? providerImageUrl,
     double? priceAfter,
     double? priceBefore,
     double? discountPercentage,
@@ -38,6 +41,7 @@ class CartItem {
       categoryName: categoryName,
       providerId: providerId ?? this.providerId,
       providerName: providerName ?? this.providerName,
+      providerImageUrl: providerImageUrl ?? this.providerImageUrl,
       priceAfter: priceAfter ?? this.priceAfter,
       priceBefore: priceBefore ?? this.priceBefore,
       discountPercentage: discountPercentage ?? this.discountPercentage,

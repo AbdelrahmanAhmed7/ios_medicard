@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -33,49 +36,29 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
 
       await tester.pumpWidget(_testApp());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
-      final nearest = _outerContainer(tester, find.byType(NearestProviderCard));
-      final package = _outerContainer(tester, find.byType(FeaturedServiceCard));
+      const cardSize = Size(
+        HomeHorizontalCardStyle.width,
+        HomeHorizontalCardStyle.height,
+      );
+      final nearestCard = find.byType(NearestProviderCard);
+      final packageCard = find.byType(FeaturedServiceCard);
 
-      expect(
-        tester.getSize(nearest),
-        const Size(
-          HomeHorizontalCardStyle.width,
-          HomeHorizontalCardStyle.height,
-        ),
-      );
-      expect(
-        tester.getSize(package),
-        const Size(
-          HomeHorizontalCardStyle.width,
-          HomeHorizontalCardStyle.height,
-        ),
-      );
+      expect(tester.getSize(nearestCard), cardSize);
+      expect(tester.getSize(packageCard), cardSize);
 
       final providerTitle = find.text('Nearest provider');
       final packageTitle = find.text('Health package');
       expect(
-        tester.getTopLeft(providerTitle).dy,
-        tester.getTopLeft(packageTitle).dy,
+        tester.getTopLeft(providerTitle).dy - tester.getTopLeft(nearestCard).dy,
+        tester.getTopLeft(packageTitle).dy - tester.getTopLeft(packageCard).dy,
       );
       expect(tester.widget<Text>(providerTitle).style?.fontSize, 13);
       expect(tester.widget<Text>(packageTitle).style?.fontSize, 13);
       expect(tester.takeException(), isNull);
     });
   }
-}
-
-Finder _outerContainer(WidgetTester tester, Finder card) {
-  return find
-      .descendant(of: card, matching: find.byType(Container))
-      .evaluate()
-      .map((element) => find.byWidget(element.widget))
-      .firstWhere(
-        (container) =>
-            tester.getSize(container).width == HomeHorizontalCardStyle.width &&
-            tester.getSize(container).height == HomeHorizontalCardStyle.height,
-      );
 }
 
 Widget _testApp() {
@@ -107,6 +90,7 @@ Widget _testApp() {
   return EasyLocalization(
     supportedLocales: const [Locale('en')],
     path: 'assets/translations',
+    assetLoader: const _TranslationsLoader(),
     fallbackLocale: const Locale('en'),
     useOnlyLangCode: true,
     child: Builder(
@@ -137,4 +121,13 @@ Widget _testApp() {
       ),
     ),
   );
+}
+
+class _TranslationsLoader extends AssetLoader {
+  const _TranslationsLoader();
+
+  @override
+  Future<Map<String, dynamic>> load(String path, Locale locale) async =>
+      jsonDecode(File('$path/${locale.languageCode}.json').readAsStringSync())
+          as Map<String, dynamic>;
 }

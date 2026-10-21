@@ -8,26 +8,34 @@ import '../../../../core/theming/app_text_styles.dart';
 /// carrying the invoice number. Visa (online) payments don't use it because the
 /// payment status can't be verified from the backend on browser return.
 class OrderPlacedDialog {
-  static Future<void> maybeShow(
+  static Future<bool?> maybeShow(
     BuildContext context, {
     required String? orderNumber,
+    int remainingServices = 0,
   }) async {
-    if (orderNumber == null || orderNumber.isEmpty) return;
-    if (!context.mounted) return;
+    if (orderNumber == null || orderNumber.isEmpty) return null;
+    if (!context.mounted) return null;
 
-    await showDialog<void>(
+    return showDialog<bool>(
       context: context,
       barrierColor: Colors.black.withValues(alpha: 0.75),
       barrierDismissible: false,
-      builder: (_) => _OrderPlacedDialog(orderNumber: orderNumber),
+      builder: (_) => _OrderPlacedDialog(
+        orderNumber: orderNumber,
+        remainingServices: remainingServices,
+      ),
     );
   }
 }
 
 class _OrderPlacedDialog extends StatelessWidget {
   final String orderNumber;
+  final int remainingServices;
 
-  const _OrderPlacedDialog({required this.orderNumber});
+  const _OrderPlacedDialog({
+    required this.orderNumber,
+    required this.remainingServices,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -42,113 +50,138 @@ class _OrderPlacedDialog extends StatelessWidget {
             color: Colors.white,
             borderRadius: BorderRadius.circular(24.r),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                width: 68.r,
-                height: 68.r,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Container(
-                      width: 68.r,
-                      height: 68.r,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFEEF3FB),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.receipt_long_rounded,
-                        size: 32.sp,
-                        color: const Color(0xFF3872B1),
-                      ),
-                    ),
-                    PositionedDirectional(
-                      end: -2.w,
-                      bottom: -2.h,
-                      child: Container(
-                        width: 25.r,
-                        height: 25.r,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF159447),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: 68.r,
+                  height: 68.r,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        width: 68.r,
+                        height: 68.r,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFEEF3FB),
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 3),
                         ),
                         child: Icon(
-                          Icons.check_rounded,
-                          size: 15.sp,
-                          color: Colors.white,
+                          Icons.receipt_long_rounded,
+                          size: 32.sp,
+                          color: const Color(0xFF3872B1),
                         ),
                       ),
-                    ),
-                  ],
+                      PositionedDirectional(
+                        end: -2.w,
+                        bottom: -2.h,
+                        child: Container(
+                          width: 25.r,
+                          height: 25.r,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF159447),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 3),
+                          ),
+                          child: Icon(
+                            Icons.check_rounded,
+                            size: 15.sp,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              SizedBox(height: 18.h),
-              Text(
-                'cart.payment_success'.tr(),
-                textAlign: TextAlign.center,
-                style: AppTextStyles.of(
-                  fontSize: AppFontSizes.s20,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF111827),
+                SizedBox(height: 18.h),
+                Text(
+                  'cart.order_confirmed'.tr(),
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.of(
+                    fontSize: AppFontSizes.s20,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF111827),
+                  ),
                 ),
-              ),
-              SizedBox(height: 8.h),
-              Text(
-                'cart.payment_success_message'.tr(),
-                textAlign: TextAlign.center,
-                style: AppTextStyles.of(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w400,
-                  height: 1.45,
-                  color: const Color(0xFF6B7280),
-                ),
-              ),
-              SizedBox(height: 18.h),
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF1F7FF),
-                  borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(color: const Color(0xFFBFD9F7)),
-                ),
-                child: Text(
-                  'activity.invoice_number'.tr(args: [orderNumber]),
+                SizedBox(height: 8.h),
+                Text(
+                  'cart.order_created_message'.tr(),
                   textAlign: TextAlign.center,
                   style: AppTextStyles.of(
                     fontSize: 14.sp,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF2E73BA),
+                    fontWeight: FontWeight.w400,
+                    height: 1.45,
+                    color: const Color(0xFF6B7280),
                   ),
                 ),
-              ),
-              SizedBox(height: 26.h),
-              SizedBox(
-                width: double.infinity,
-                height: 50.h,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF3872B1),
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
+                SizedBox(height: 18.h),
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 14.w,
+                    vertical: 10.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F7FF),
+                    borderRadius: BorderRadius.circular(12.r),
+                    border: Border.all(color: const Color(0xFFBFD9F7)),
                   ),
                   child: Text(
-                    'cart.view_invoices'.tr(),
+                    'activity.invoice_number'.tr(args: [orderNumber]),
+                    textAlign: TextAlign.center,
                     style: AppTextStyles.of(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF2E73BA),
                     ),
                   ),
                 ),
-              ),
-            ],
+                SizedBox(height: 26.h),
+                if (remainingServices > 0) ...[
+                  Text(
+                    'cart.services_still_in_cart'.tr(
+                      args: ['$remainingServices'],
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 10.h),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      child: Text(
+                        'cart.continue_remaining_services'.tr(),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                ],
+                SizedBox(
+                  width: double.infinity,
+                  height: 50.h,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF3872B1),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                    ),
+                    child: Text(
+                      'cart.view_invoices'.tr(),
+                      style: AppTextStyles.of(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

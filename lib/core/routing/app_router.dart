@@ -260,7 +260,13 @@ class AppRouter {
           path: '/medicard-home',
           builder: (context, state) {
             final tab = state.uri.queryParameters['tab'];
-            return HomeScreen(initialIndex: tab == 'activity' ? 1 : 0);
+            return HomeScreen(
+              initialIndex: switch (tab) {
+                'activity' => 1,
+                'profile' => 2,
+                _ => 0,
+              },
+            );
           },
         ),
         GoRoute(

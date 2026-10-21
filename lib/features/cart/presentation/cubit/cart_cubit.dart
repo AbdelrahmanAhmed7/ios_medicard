@@ -46,6 +46,47 @@ class CartCubit extends Cubit<CartState> {
   var _branchRequestGeneration = 0;
   var _invoiceSubmissionInFlight = false;
   var _providerAssignmentInFlight = false;
+  final _confirmedProviderAssignments = <int, CartItem>{};
+
+  /// A successful assignment can precede the cart read model. Keep that
+  /// confirmed choice while the same item is still returned without a provider.
+  /// Removed items and explicit assignments to another provider stay authoritative.
+  Cart _preserveConfirmedProviders(Cart cart) {
+    final presentIds = cart.items.map((item) => item.cartItemId).toSet();
+    _confirmedProviderAssignments.removeWhere(
+      (id, _) => !presentIds.contains(id),
+    );
+    return Cart(
+      items: cart.items.map((item) {
+        final confirmed = _confirmedProviderAssignments[item.cartItemId];
+        if (confirmed == null) return item;
+        if (item.providerId != null &&
+            item.providerId != confirmed.providerId) {
+          _confirmedProviderAssignments.remove(item.cartItemId);
+          return item;
+        }
+        final isUnassigned = item.providerId == null;
+        return item.copyWith(
+          providerId: confirmed.providerId,
+          providerName:
+              isUnassigned || (item.providerName?.trim().isEmpty ?? true)
+              ? confirmed.providerName
+              : item.providerName,
+          priceBefore: isUnassigned
+              ? confirmed.priceBefore
+              : item.priceBefore ?? confirmed.priceBefore,
+          priceAfter: isUnassigned
+              ? confirmed.priceAfter
+              : item.priceAfter ?? confirmed.priceAfter,
+          discountPercentage: isUnassigned
+              ? confirmed.discountPercentage
+              : item.discountPercentage ?? confirmed.discountPercentage,
+        );
+      }).toList(),
+      totalCount: cart.totalCount,
+      categoryCounters: cart.categoryCounters,
+    );
+  }
 
   /// Snapshot taken when an invoice POST outcome turns ambiguous, used by
   /// [reconcileUnknownInvoiceOutcome] to decide whether the server consumed
@@ -107,7 +148,8 @@ class CartCubit extends Cubit<CartState> {
       return;
     }
     result.when(
-      success: (cart) {
+      success: (serverCart) {
+        final cart = _preserveConfirmedProviders(serverCart);
         if (isClosed) return;
         emit(
           state.copyWith(
@@ -224,6 +266,9 @@ class CartCubit extends Cubit<CartState> {
     result.when(
       success: (_) {
         final nextCart = state.cart?.removeService(serviceId);
+        _confirmedProviderAssignments.removeWhere(
+          (_, item) => item.serviceId == serviceId,
+        );
         emit(
           state.copyWith(
             cart: nextCart,
@@ -258,7 +303,8 @@ class CartCubit extends Cubit<CartState> {
       return;
     }
     result.when(
-      success: (cart) {
+      success: (serverCart) {
+        final cart = _preserveConfirmedProviders(serverCart);
         emit(
           state.copyWith(
             cart: cart,
@@ -304,7 +350,8 @@ class CartCubit extends Cubit<CartState> {
         mutationGeneration == _cartMutationGeneration;
     if (cartRequestIsCurrent) {
       cartResult.when(
-        success: (cart) {
+        success: (serverCart) {
+          final cart = _preserveConfirmedProviders(serverCart);
           emit(state.copyWith(cart: cart, isCartLoading: false));
           _broadcastCartSnapshot(cart);
         },
@@ -346,6 +393,7 @@ class CartCubit extends Cubit<CartState> {
     }
     result.when(
       success: (_) {
+        _confirmedProviderAssignments.clear();
         _cartMutationGeneration++;
         emit(
           state.copyWith(
@@ -425,6 +473,9 @@ class CartCubit extends Cubit<CartState> {
       state.copyWith(
         isCheckoutLoading: true,
         isFamilyMembersLoading: true,
+        resetCheckoutProvider: true,
+        resetSelectedBranch: true,
+        checkoutBranches: const [],
         resetCheckoutError: true,
         resetFamilyMembersError: true,
         resetCreateInvoiceError: true,
@@ -449,7 +500,8 @@ class CartCubit extends Cubit<CartState> {
         return;
       }
       final failed = cartResult.when(
-        success: (loadedCart) {
+        success: (serverCart) {
+          final loadedCart = _preserveConfirmedProviders(serverCart);
           cart = loadedCart;
           emit(state.copyWith(cart: loadedCart, isCartLoading: false));
           _broadcastCartSnapshot(loadedCart);
@@ -486,6 +538,25 @@ class CartCubit extends Cubit<CartState> {
         state.copyWith(
           isCheckoutLoading: false,
           checkoutError: 'Please choose a provider first.',
+        ),
+      );
+      await loadFamilyMembers();
+      return;
+    }
+
+    if (packageId == null &&
+        (checkoutProvider.coveredCount == 0 ||
+            !checkoutProvider.coversAll ||
+            checkoutProvider.hasMissingPrices)) {
+      emit(
+        state.copyWith(
+          isCheckoutLoading: false,
+          resetCheckoutProvider: true,
+          checkoutError:
+              (checkoutProvider.hasMissingPrices
+                      ? 'cart.some_prices_missing'
+                      : 'cart.service_not_available')
+                  .tr(),
         ),
       );
       await loadFamilyMembers();
@@ -542,12 +613,19 @@ class CartCubit extends Cubit<CartState> {
   Future<ProviderOption?> _freshProviderOption(int providerId) async {
     final result = await _repository.getChooseProviders();
     if (isClosed) return null;
-    return result.when(
+    return result.when<ProviderOption?>(
       success: (providers) {
         if (isClosed) return null;
         ProviderOption? match;
         for (final p in providers) {
-          if (p.providerId == providerId) match = p;
+          if (p.providerId == providerId) {
+            final orderItems =
+                state.cart?.items
+                    .where((item) => item.providerId == providerId)
+                    .toList() ??
+                <CartItem>[];
+            if (orderItems.isNotEmpty) match = p.forItems(orderItems);
+          }
         }
         emit(
           state.copyWith(
@@ -584,7 +662,7 @@ class CartCubit extends Cubit<CartState> {
       success: (branches) {
         ProviderBranch? selected;
         if (branches.isNotEmpty) {
-          selected = branches.first;
+          if (branches.length == 1) selected = branches.first;
           if (initialBranch != null) {
             for (final branch in branches) {
               if (branch.branchId == initialBranch.branchId) {
@@ -693,12 +771,15 @@ class CartCubit extends Cubit<CartState> {
         familyId: state.selectedFamilyMember?.id,
       );
       if (isClosed) return false;
-      return result.when(
+      return result.when<bool>(
         success: (invoice) {
           _cartMutationGeneration++;
           final remainingCart =
               state.cart?.removeProvider(provider.providerId) ??
               const Cart.empty();
+          _confirmedProviderAssignments.removeWhere(
+            (_, item) => item.providerId == provider.providerId,
+          );
           emit(
             state.copyWith(
               cart: remainingCart,
@@ -890,7 +971,7 @@ class CartCubit extends Cubit<CartState> {
         isCash: state.paymentMethod == CartPaymentMethod.cash,
       );
       if (isClosed) return false;
-      return result.when(
+      return result.when<bool>(
         success: (invoice) {
           emit(
             state.copyWith(
@@ -1000,6 +1081,18 @@ class CartCubit extends Cubit<CartState> {
           success: (_) {
             confirmedServices.add(service);
             _cartMutationGeneration++;
+            final item = state.cart?.items
+                .where((item) => item.cartItemId == service.cartItemId)
+                .firstOrNull;
+            if (item != null) {
+              _confirmedProviderAssignments[item.cartItemId] = item.copyWith(
+                providerId: provider.providerId,
+                providerName: provider.providerName,
+                priceBefore: service.priceBefore,
+                priceAfter: service.priceAfter,
+                discountPercentage: service.discountPercentage,
+              );
+            }
             return null;
           },
           failure: (error) => error,
@@ -1065,7 +1158,7 @@ class CartCubit extends Cubit<CartState> {
       return state.cart;
     }
     return refreshedCart.when(
-      success: (cart) => cart,
+      success: _preserveConfirmedProviders,
       failure: (_) {
         if (confirmedServices.isEmpty) return state.cart;
         return state.cart?.assignProvider(

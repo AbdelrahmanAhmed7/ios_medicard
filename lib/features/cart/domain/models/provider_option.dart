@@ -1,4 +1,5 @@
 import 'provider_covered_service.dart';
+import 'cart_item.dart';
 
 /// One provider row in the "choose providers" screen.
 class ProviderOption {
@@ -35,4 +36,51 @@ class ProviderOption {
   });
 
   bool get coversAll => uncoveredCount == 0;
+
+  bool get hasMissingPrices => coveredServices.any(
+    (service) => service.priceAfter == null && service.priceBefore == null,
+  );
+
+  /// Restrict availability and prices to the services being prepared now.
+  /// The API may include services already assigned to another order.
+  ProviderOption forItems(Iterable<CartItem> items) {
+    final requested = items.toList(growable: false);
+    final available = {
+      for (final service in coveredServices) service.cartItemId: service,
+    };
+    final covered = <ProviderCoveredService>[];
+    final uncovered = <ProviderCoveredService>[];
+    for (final item in requested) {
+      final service = available[item.cartItemId];
+      if (service != null) {
+        covered.add(service);
+      } else {
+        uncovered.add(
+          ProviderCoveredService(
+            cartItemId: item.cartItemId,
+            serviceId: item.serviceId,
+            serviceName: item.serviceName,
+          ),
+        );
+      }
+    }
+    return ProviderOption(
+      providerId: providerId,
+      providerName: providerName,
+      providerImageUrl: providerImageUrl,
+      coveredCount: covered.length,
+      uncoveredCount: uncovered.length,
+      totalCount: requested.length,
+      totalPriceBefore: covered.fold(
+        0.0,
+        (sum, s) => sum + (s.priceBefore ?? s.priceAfter ?? 0),
+      ),
+      totalPriceAfter: covered.fold(
+        0.0,
+        (sum, s) => sum + (s.priceAfter ?? s.priceBefore ?? 0),
+      ),
+      coveredServices: covered,
+      uncoveredServices: uncovered,
+    );
+  }
 }

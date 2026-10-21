@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -13,7 +14,8 @@ import '../../domain/services/cart_sync_service.dart';
 
 /// Floating draggable cart button shown app-wide above all screens.
 ///
-/// - Follows the finger anywhere on screen (tap still opens the cart).
+/// - Follows the finger and docks to the nearest side when released.
+/// - A tap opens the cart.
 /// - Badge count refreshes automatically on every cart change.
 /// - Hidden while the cart is empty.
 class FloatingCartButton extends StatefulWidget {
@@ -25,8 +27,8 @@ class FloatingCartButton extends StatefulWidget {
 
 class _FloatingCartButtonState extends State<FloatingCartButton> {
   Offset? _position;
-  Offset _dragStart = Offset.zero;
-  Offset _origin = Offset.zero;
+  bool _isDragging = false;
+  bool _dockedRight = true;
   int _count = 0;
   StreamSubscription<CartSyncEvent>? _syncSub;
 
@@ -100,6 +102,7 @@ class _FloatingCartButtonState extends State<FloatingCartButton> {
   static const _cartHiddenRoutes = <String>{
     '/cart',
     '/checkout',
+    '/choose-provider',
     '/medicard-login',
     '/medicard-register',
     '/forgot-password',
@@ -124,38 +127,61 @@ class _FloatingCartButtonState extends State<FloatingCartButton> {
     if (_count <= 0) return const SizedBox.shrink();
 
     final size = MediaQuery.sizeOf(context);
+    final padding = MediaQuery.paddingOf(context);
+    final viewInsets = MediaQuery.viewInsetsOf(context);
     final buttonSize = 56.r;
-    // Default dock: bottom-right above the bottom nav.
-    _position ??= Offset(
-      size.width - buttonSize - 16.w,
-      size.height - buttonSize - 120.h,
+    final minX = padding.left + 8;
+    final maxX = math.max(minX, size.width - padding.right - buttonSize - 8);
+    final minY = padding.top + 8;
+    final maxY = math.max(
+      minY,
+      size.height -
+          math.max(padding.bottom, viewInsets.bottom) -
+          buttonSize -
+          8,
     );
-    final pos = Offset(
-      _position!.dx.clamp(8.0, size.width - buttonSize - 8),
-      _position!.dy.clamp(
-        MediaQuery.paddingOf(context).top + 8,
-        size.height - buttonSize - 8,
+    Offset clampPosition(Offset position) =>
+        Offset(position.dx.clamp(minX, maxX), position.dy.clamp(minY, maxY));
+
+    // Default dock: bottom-right above the bottom nav.
+    _position ??= Offset(maxX, size.height - buttonSize - 120.h);
+    final pos = clampPosition(
+      Offset(
+        _isDragging ? _position!.dx : (_dockedRight ? maxX : minX),
+        _position!.dy,
       ),
     );
 
-    return Positioned(
+    void dockToEdge() {
+      final current = clampPosition(_position ?? pos);
+      setState(() {
+        _dockedRight = current.dx >= (minX + maxX) / 2;
+        _position = Offset(_dockedRight ? maxX : minX, current.dy);
+        _isDragging = false;
+      });
+    }
+
+    return AnimatedPositioned(
+      duration: _isDragging ? Duration.zero : const Duration(milliseconds: 240),
+      curve: Curves.easeOutCubic,
       left: pos.dx,
       top: pos.dy,
       child: GestureDetector(
-        onPanStart: (details) {
-          _dragStart = details.globalPosition;
-          _origin = _position ?? pos;
+        // This widget is outside the router subtree in MaterialApp.builder.
+        onTap: () => AppRouter.current?.push('/cart'),
+        onPanStart: (_) {
+          setState(() {
+            _position = pos;
+            _isDragging = true;
+          });
         },
         onPanUpdate: (details) {
-          final delta = details.globalPosition - _dragStart;
-          setState(() => _position = _origin + delta);
+          setState(() {
+            _position = clampPosition(_position! + details.delta);
+          });
         },
-        onPanEnd: (details) {
-          final moved = (_position! - _origin).distance;
-          // This widget lives in MaterialApp.builder, outside the router
-          // subtree, so navigation goes through the static router instance.
-          if (moved < 6) AppRouter.current?.push('/cart');
-        },
+        onPanEnd: (_) => dockToEdge(),
+        onPanCancel: dockToEdge,
         child: Container(
           width: buttonSize,
           height: buttonSize,

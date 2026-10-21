@@ -129,12 +129,18 @@ class _CheckoutScreenState extends State<CheckoutScreen>
               return;
             }
             if (!context.mounted) return;
-            await OrderPlacedDialog.maybeShow(
+            final continueRemaining = await OrderPlacedDialog.maybeShow(
               context,
               orderNumber: state.createdInvoiceId,
+              remainingServices: state.cart?.items.length ?? 0,
             );
             if (context.mounted) {
-              context.go('/medicard-home?tab=activity');
+              if (continueRemaining == true) {
+                context.go('/medicard-home');
+                context.push('/cart');
+              } else {
+                context.go('/medicard-home?tab=activity');
+              }
             }
           }
         },
@@ -188,7 +194,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
       );
     }
 
-    if (state.checkoutError != null && state.checkoutProvider == null) {
+    if (state.checkoutError != null) {
       return CheckoutErrorView(
         message: state.checkoutError!,
         onRetry: () => context.read<CartCubit>().loadCheckout(
@@ -208,11 +214,38 @@ class _CheckoutScreenState extends State<CheckoutScreen>
       padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 24.h),
       children: [
         CheckoutSectionTitle(
+          text: 'cart.order_summary'.tr(),
+          icon: Icons.receipt_long_outlined,
+        ),
+        SizedBox(height: 10.h),
+        CheckoutPaymentSummary(state: state),
+        if (state.checkoutPackageId == null &&
+            (state.cart?.items.any(
+                  (item) =>
+                      item.providerId != state.checkoutProvider?.providerId,
+                ) ??
+                false)) ...[
+          SizedBox(height: 10.h),
+          Text(
+            'cart.other_services_saved'.tr(),
+            style: AppTextStyles.of(
+              fontSize: 13.sp,
+              color: const Color(0xFF64748B),
+            ),
+          ),
+        ],
+        SizedBox(height: 24.h),
+        CheckoutSectionTitle(
           text: 'cart.order_for'.tr(),
           icon: Icons.person_outline_rounded,
         ),
         SizedBox(height: 10.h),
         CheckoutPatientDropdown(state: state),
+        if (state.familyMembersError != null)
+          TextButton(
+            onPressed: () => context.read<CartCubit>().loadFamilyMembers(),
+            child: Text('cart.retry_family_members'.tr()),
+          ),
         SizedBox(height: 24.h),
         CheckoutSectionTitle(
           text: 'cart.branch_location'.tr(),
@@ -220,6 +253,19 @@ class _CheckoutScreenState extends State<CheckoutScreen>
         ),
         SizedBox(height: 10.h),
         CheckoutBranchSelector(state: state),
+        if (!state.isCheckoutLoading && state.selectedBranch == null) ...[
+          SizedBox(height: 8.h),
+          Text(
+            (state.checkoutBranches.isEmpty
+                    ? 'cart.no_branches_for_order'
+                    : 'cart.select_branch_hint')
+                .tr(),
+            style: AppTextStyles.of(
+              fontSize: 13.sp,
+              color: const Color(0xFF64748B),
+            ),
+          ),
+        ],
         SizedBox(height: 24.h),
         CheckoutSectionTitle(
           text: 'cart.payment_method'.tr(),
@@ -227,13 +273,6 @@ class _CheckoutScreenState extends State<CheckoutScreen>
         ),
         SizedBox(height: 10.h),
         CheckoutPaymentDropdown(state: state),
-        SizedBox(height: 24.h),
-        CheckoutSectionTitle(
-          text: 'cart.payment_summary'.tr(),
-          icon: Icons.receipt_long_outlined,
-        ),
-        SizedBox(height: 10.h),
-        CheckoutPaymentSummary(state: state),
       ],
     );
   }

@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
+import '../../../../core/widgets/provider_logo.dart';
 import '../../../../network/data/provider_page_response_model.dart';
 import '../../domain/models/cart_item.dart';
 import '../cubit/cart_cubit.dart';
@@ -47,6 +48,13 @@ class CartBody extends StatelessWidget {
           final pid = item.providerId;
           if (pid != null) groups.putIfAbsent(pid, () => []).add(item);
         }
+        final pricedItems = items
+            .where(
+              (item) =>
+                  item.providerId != null &&
+                  (item.priceAfter != null || item.priceBefore != null),
+            )
+            .toList();
 
         return ListView(
           padding: EdgeInsets.fromLTRB(8.w, 12.h, 8.w, 24.h),
@@ -57,18 +65,26 @@ class CartBody extends StatelessWidget {
             ],
             _CartSummaryCard(
               itemCount: items.length,
-              total: items.fold<double>(
-                0,
-                (sum, i) => sum + (i.priceAfter ?? i.priceBefore ?? 0),
-              ),
+              total: pricedItems.isEmpty
+                  ? null
+                  : pricedItems.fold<double>(
+                      0,
+                      (sum, i) => sum + (i.priceAfter ?? i.priceBefore ?? 0),
+                    ),
+              hasIncompletePrices: pricedItems.length != items.length,
               isBusy: isBusy,
               onClear: () => _showClearCartSheet(context),
             ),
-            SizedBox(height: 12.h),
-            ProviderCheckoutNotice(message: 'cart.provider_checkout_hint'.tr()),
+            if (groups.length > 1) ...[
+              SizedBox(height: 12.h),
+              ProviderCheckoutNotice(
+                message: 'cart.provider_checkout_hint'.tr(),
+              ),
+            ],
             SizedBox(height: 20.h),
             if (unassigned.isNotEmpty) ...[
               _NeedsProviderBanner(
+                count: unassigned.length,
                 onTap: () {
                   final cubit = context.read<CartCubit>();
                   cubit.loadCartAndProviders();
@@ -100,7 +116,9 @@ class CartBody extends StatelessWidget {
               _ProviderGroupSection(
                 providerId: entry.key,
                 items: entry.value,
-                initialBranch: initialBranch,
+                initialBranch: entry.key == initialProviderId
+                    ? initialBranch
+                    : null,
               ),
             ],
           ],
@@ -112,13 +130,15 @@ class CartBody extends StatelessWidget {
 
 class _CartSummaryCard extends StatelessWidget {
   final int itemCount;
-  final double total;
+  final double? total;
+  final bool hasIncompletePrices;
   final bool isBusy;
   final VoidCallback onClear;
 
   const _CartSummaryCard({
     required this.itemCount,
     required this.total,
+    required this.hasIncompletePrices,
     required this.isBusy,
     required this.onClear,
   });
@@ -162,13 +182,25 @@ class _CartSummaryCard extends StatelessWidget {
                 ),
                 SizedBox(height: 3.h),
                 Text(
-                  'cart.egp_amount'.tr(args: [checkoutMoney(total)]),
+                  total == null
+                      ? 'cart.price_after_place'.tr()
+                      : 'cart.egp_amount'.tr(args: [checkoutMoney(total!)]),
                   style: AppTextStyles.of(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w700,
                     color: const Color(0xFF2563EB),
                   ),
                 ),
+                if (total != null && hasIncompletePrices) ...[
+                  SizedBox(height: 4.h),
+                  Text(
+                    'cart.partial_total_hint'.tr(),
+                    style: AppTextStyles.of(
+                      fontSize: 12.sp,
+                      color: const Color(0xFF64748B),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -331,8 +363,9 @@ Future<void> _showClearCartSheet(BuildContext context) async {
 
 class _NeedsProviderBanner extends StatelessWidget {
   final VoidCallback onTap;
+  final int count;
 
-  const _NeedsProviderBanner({required this.onTap});
+  const _NeedsProviderBanner({required this.onTap, required this.count});
 
   @override
   Widget build(BuildContext context) {
@@ -356,7 +389,7 @@ class _NeedsProviderBanner extends StatelessWidget {
             SizedBox(width: 10.w),
             Expanded(
               child: Text(
-                'cart.some_items_need_provider'.tr(),
+                'cart.choose_places_count'.tr(args: ['$count']),
                 style: AppTextStyles.of(
                   fontSize: 13.sp,
                   color: const Color(0xFFC2410C),
@@ -398,6 +431,9 @@ class _ProviderGroupSection extends StatelessWidget {
       0,
       (sum, i) => sum + (i.priceAfter ?? i.priceBefore ?? 0),
     );
+    final hasMissingPrice = items.any(
+      (item) => item.priceAfter == null && item.priceBefore == null,
+    );
     return Container(
       margin: EdgeInsets.only(bottom: 16.h),
       decoration: BoxDecoration(
@@ -412,23 +448,10 @@ class _ProviderGroupSection extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(14.w, 14.h, 14.w, 8.h),
             child: Row(
               children: [
-                Container(
-                  width: 34.r,
-                  height: 34.r,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFEFF6FF),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: Text(
-                      name.isNotEmpty ? name[0].toUpperCase() : '?',
-                      style: AppTextStyles.of(
-                        fontSize: 15.sp,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF2563EB),
-                      ),
-                    ),
-                  ),
+                ProviderLogo(
+                  imageUrl: items.first.providerImageUrl,
+                  name: name,
+                  size: 34.r,
                 ),
                 SizedBox(width: 10.w),
                 Expanded(
@@ -447,7 +470,9 @@ class _ProviderGroupSection extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        'cart.items_in_cart'.tr(args: ['${items.length}']),
+                        'cart.order_services_count'.tr(
+                          args: ['${items.length}'],
+                        ),
                         style: AppTextStyles.of(
                           fontSize: 12.sp,
                           color: const Color(0xFF6B7280),
@@ -473,7 +498,9 @@ class _ProviderGroupSection extends StatelessWidget {
                 ),
                 const Spacer(),
                 Text(
-                  'cart.egp_amount'.tr(args: [checkoutMoney(subtotal)]),
+                  hasMissingPrice
+                      ? 'cart.price_unavailable'.tr()
+                      : 'cart.egp_amount'.tr(args: [checkoutMoney(subtotal)]),
                   style: AppTextStyles.of(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w700,
@@ -485,9 +512,11 @@ class _ProviderGroupSection extends StatelessWidget {
           ),
           Padding(
             padding: EdgeInsets.fromLTRB(14.w, 0, 14.w, 14.h),
-            child: SizedBox(
-              width: double.infinity,
-              height: 48.h,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minWidth: double.infinity,
+                minHeight: 48.h,
+              ),
               child: ElevatedButton(
                 onPressed: () {
                   context.push(
@@ -503,12 +532,19 @@ class _ProviderGroupSection extends StatelessWidget {
                   backgroundColor: const Color(0xFF3872B1),
                   foregroundColor: Colors.white,
                   elevation: 0,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 14.w,
+                    vertical: 12.h,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16.r),
                   ),
                 ),
                 child: Text(
-                  'cart.checkout'.tr(),
+                  'cart.continue_provider_order'.tr(
+                    args: [name.isNotEmpty ? name : 'cart.provider'.tr()],
+                  ),
+                  textAlign: TextAlign.center,
                   style: AppTextStyles.of(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w600,

@@ -47,7 +47,13 @@ class CheckoutPayButton extends StatelessWidget {
       width: double.infinity,
       height: 52.h,
       child: ElevatedButton(
-        onPressed: isBusy
+        onPressed:
+            isBusy ||
+                (!hasPaymentLink &&
+                    (state.isCheckoutLoading ||
+                        state.isFamilyMembersLoading ||
+                        state.checkoutError != null ||
+                        state.selectedBranch == null))
             ? null
             : hasPaymentLink
             ? () async {

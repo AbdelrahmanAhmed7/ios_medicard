@@ -1,7 +1,14 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:convert';
+import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:medicard/core/constants/api_result.dart';
 import 'package:medicard/features/activity/domain/models/created_invoice.dart';
 import 'package:medicard/features/activity/domain/models/invoice_item.dart';
@@ -17,13 +24,282 @@ import 'package:medicard/features/cart/domain/repository/cart_repository.dart';
 import 'package:medicard/features/cart/domain/services/cart_sync_service.dart';
 import 'package:medicard/features/cart/presentation/cubit/cart_cubit.dart';
 import 'package:medicard/features/cart/presentation/cubit/cart_state.dart';
+import 'package:medicard/features/cart/presentation/widgets/provider_selection_summary.dart';
 import 'package:medicard/features/family_members/data/models/family_member_model.dart';
 import 'package:medicard/features/family_members/domain/repository/family_members_repository.dart';
 import 'package:medicard/medicard_network/repository/medicard_network_repository.dart';
 import 'package:medicard/medicard_network/service/medicard_network_api_service.dart';
 import 'package:medicard/network/data/provider_page_response_model.dart';
+import 'package:medicard/features/search/presentation/screens/choose_provider_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  setUpAll(() async {
+    SharedPreferences.setMockInitialValues({});
+    await EasyLocalization.ensureInitialized();
+  });
+
+  group('Cart order preparation', () {
+    test('availability and totals only include the requested services', () {
+      final provider = _providerA(
+        allItems: true,
+      ).forItems(_unassignedCart().items.skip(1));
+      expect(provider.coveredServices.single.cartItemId, 2);
+      expect(provider.totalCount, 1);
+      expect(provider.coveredCount, 1);
+      expect(provider.uncoveredCount, 0);
+      expect(provider.totalPriceAfter, 80);
+
+      final partial = _providerA(
+        allItems: false,
+      ).forItems(_unassignedCart().items);
+      expect(partial.coveredCount, 1);
+      expect(partial.uncoveredServices.single.serviceName, 'B');
+      expect(partial.coversAll, isFalse);
+    });
+
+    test('checkout excludes services belonging to other orders', () async {
+      final fixture = _Fixture(cart: _twoProviderCart());
+      addTearDown(fixture.close);
+      await fixture.prepareCheckout();
+      final provider = fixture.cubit.state.checkoutProvider!;
+      expect(provider.coveredServices.map((service) => service.cartItemId), [
+        1,
+      ]);
+      expect(provider.totalPriceAfter, 80);
+      expect(provider.totalPriceBefore, 100);
+    });
+
+    test('multiple branches require a deliberate selection', () async {
+      final fixture = _Fixture(branches: [_branch(70), _branch(71)]);
+      addTearDown(fixture.close);
+      await fixture.prepareCheckout();
+      expect(fixture.cubit.state.selectedBranch, isNull);
+      expect(await fixture.cubit.createCartInvoice(), isFalse);
+      expect(fixture.invoice.createCartCalls, 0);
+      fixture.cubit.selectCheckoutBranch(_branch(71));
+      expect(await fixture.cubit.createCartInvoice(), isTrue);
+      expect(fixture.invoice.lastBranchId, 71);
+    });
+
+    test(
+      'missing service prices cannot become a zero-priced checkout',
+      () async {
+        final fixture = _Fixture();
+        addTearDown(fixture.close);
+        fixture.cart.chooseProviders = const [
+          ProviderOption(
+            providerId: 7,
+            providerName: 'Provider A',
+            coveredCount: 1,
+            uncoveredCount: 0,
+            totalCount: 1,
+            totalPriceBefore: 0,
+            totalPriceAfter: 0,
+            coveredServices: [
+              ProviderCoveredService(
+                cartItemId: 1,
+                serviceId: 10,
+                serviceName: 'A',
+              ),
+            ],
+            uncoveredServices: [],
+          ),
+        ];
+        await fixture.prepareCheckout();
+        expect(fixture.cubit.state.checkoutProvider, isNull);
+        expect(fixture.cubit.state.checkoutError, isNotNull);
+        expect(await fixture.cubit.createCartInvoice(), isFalse);
+        expect(fixture.invoice.createCartCalls, 0);
+      },
+    );
+
+    for (final locale in [const Locale('en'), const Locale('ar')]) {
+      testWidgets(
+        'partial choice keeps both next steps and filters the rest (${locale.languageCode})',
+        (tester) async {
+          final fixture = _Fixture(cart: _unassignedCart());
+          fixture.cart.chooseProviders = [
+            _providerA(allItems: false),
+            _providerB(),
+          ];
+          final router = await _pumpProviderFlow(
+            tester,
+            fixture,
+            locale: locale,
+          );
+          await tester.tap(find.text('Provider A'));
+          await tester.pumpAndSettle();
+          await tester.tap(find.text('cart.confirm_provider'.tr()));
+          await tester.pumpAndSettle();
+          expect(find.text('cart.place_saved'.tr()), findsOneWidget);
+          expect(
+            find.byKey(const ValueKey('continue-selected-order')).hitTestable(),
+            findsOneWidget,
+          );
+          final chooseRest = find.text('cart.choose_remaining_places'.tr());
+          await tester.ensureVisible(chooseRest);
+          await tester.tap(chooseRest);
+          await tester.pumpAndSettle();
+          expect(find.text('Provider A'), findsNothing);
+          expect(find.text('Provider B'), findsOneWidget);
+          expect(
+            find.text('cart.covers_all_services'.tr(args: ['1'])),
+            findsOneWidget,
+          );
+          expect(fixture.cubit.state.cart!.items.first.providerId, 7);
+          await tester.tap(find.text('Provider B'));
+          await tester.pumpAndSettle();
+          await tester.tap(find.text('cart.confirm_provider'.tr()));
+          await tester.pumpAndSettle();
+          expect(find.text('cart.all_places_selected'.tr()), findsOneWidget);
+          expect(find.text('cart.choose_remaining_places'.tr()), findsNothing);
+          expect(fixture.cart.updateCalls, {1: 1, 2: 1});
+          expect(
+            fixture.cubit.state.cart!.items.map((item) => item.providerId),
+            [7, 8],
+          );
+          expect(tester.takeException(), isNull);
+          await tester.pumpWidget(const SizedBox.shrink());
+          router.dispose();
+          await fixture.cubit.close();
+          fixture.sync.dispose();
+        },
+      );
+    }
+
+    testWidgets(
+      'partial choice can continue checkout and preserves unassigned services',
+      (tester) async {
+        final fixture = _Fixture(cart: _unassignedCart());
+        fixture.cart.chooseProviders = [
+          _providerA(allItems: false),
+          _providerB(),
+        ];
+        final router = await _pumpProviderFlow(tester, fixture);
+        await tester.tap(find.text('Provider A'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('cart.confirm_provider'.tr()));
+        await tester.pumpAndSettle();
+        final continueOrder = find.byKey(
+          const ValueKey('continue-selected-order'),
+        );
+        await tester.tap(continueOrder);
+        await tester.pumpAndSettle();
+        expect(find.text('Checkout for 7'), findsOneWidget);
+        expect(fixture.cubit.state.cart!.items.last.providerId, isNull);
+        router.pop();
+        await tester.pumpAndSettle();
+        expect(find.byType(ProviderSelectionSummary), findsOneWidget);
+        expect(fixture.cubit.isClosed, isFalse);
+        await tester.pumpWidget(const SizedBox.shrink());
+        router.dispose();
+        await fixture.cubit.close();
+        fixture.sync.dispose();
+      },
+    );
+
+    testWidgets('one location for all services goes straight to checkout', (
+      tester,
+    ) async {
+      final fixture = _Fixture(cart: _unassignedCart());
+      final router = await _pumpProviderFlow(tester, fixture);
+      await tester.tap(find.text('Provider A'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('cart.confirm_provider'.tr()));
+      await tester.pumpAndSettle();
+      expect(find.text('Checkout for 7'), findsOneWidget);
+      expect(
+        fixture.cubit.state.cart!.items.every((item) => item.providerId == 7),
+        isTrue,
+      );
+      expect(fixture.cubit.isClosed, isFalse);
+      await tester.pumpWidget(const SizedBox.shrink());
+      router.dispose();
+      await fixture.cubit.close();
+      fixture.sync.dispose();
+    });
+
+    for (final locale in [const Locale('en'), const Locale('ar')]) {
+      testWidgets(
+        'selected service and checkout remain visible with three services left (${locale.languageCode})',
+        (tester) async {
+          final originalCart = Cart(
+            items: [
+              ..._unassignedCart().items,
+              const CartItem(
+                cartItemId: 3,
+                serviceId: 30,
+                serviceName: 'Service C with a long name',
+                categoryId: 2,
+              ),
+              const CartItem(
+                cartItemId: 4,
+                serviceId: 40,
+                serviceName: 'Service D with a long name',
+                categoryId: 2,
+              ),
+            ],
+            totalCount: 4,
+            categoryCounters: const [],
+          );
+          final fixture = _Fixture(cart: originalCart);
+          fixture.cart.chooseProviders = [_providerA(allItems: false)];
+          final router = await _pumpProviderFlow(
+            tester,
+            fixture,
+            locale: locale,
+          );
+          tester.view.physicalSize = const Size(360, 640);
+          await tester.pumpAndSettle();
+          await tester.tap(find.text('Provider A'));
+          await tester.pumpAndSettle();
+          // The write succeeds, but the immediate GET still lacks provider IDs.
+          fixture.cart.getCartResults.add(ApiResult.success(originalCart));
+          await tester.tap(find.text('cart.confirm_provider'.tr()));
+          await tester.pumpAndSettle();
+
+          final order = find.byKey(const ValueKey('selected-provider-order'));
+          expect(
+            find.descendant(of: order, matching: find.text('A')),
+            findsOneWidget,
+          );
+          expect(
+            find.descendant(of: order, matching: find.text('Provider A')),
+            findsOneWidget,
+          );
+          final pay = find.byKey(const ValueKey('continue-selected-order'));
+          final chooseRest = find.byKey(
+            const ValueKey('choose-remaining-places'),
+          );
+          expect(pay.hitTestable(), findsOneWidget);
+          expect(chooseRest.hitTestable(), findsOneWidget);
+          expect(
+            fixture.cubit.state.cart!.items
+                .where((item) => item.providerId == null)
+                .length,
+            3,
+          );
+          await tester.drag(
+            find.byKey(const PageStorageKey('provider-selection-summary')),
+            const Offset(0, -400),
+          );
+          await tester.pumpAndSettle();
+          expect(pay.hitTestable(), findsOneWidget);
+          expect(chooseRest.hitTestable(), findsOneWidget);
+          await tester.tap(pay);
+          await tester.pumpAndSettle();
+          expect(find.text('Checkout for 7'), findsOneWidget);
+          expect(tester.takeException(), isNull);
+          await tester.pumpWidget(const SizedBox.shrink());
+          router.dispose();
+          await fixture.cubit.close();
+          fixture.sync.dispose();
+        },
+      );
+    }
+  });
+
   group('CartCubit checkout reliability', () {
     test('simultaneous invoice calls issue one POST', () async {
       final pending = Completer<ApiResult<CreatedInvoice>>();
@@ -317,6 +593,45 @@ void main() {
 
   group('CartCubit provider assignment reliability', () {
     test(
+      'confirmed provider survives lagging cart reads without resurrecting removed items',
+      () async {
+        final fixture = _Fixture(cart: _unassignedCart());
+        addTearDown(fixture.close);
+        await fixture.cubit.loadCart();
+        fixture.cart.getCartResults.add(ApiResult.success(_unassignedCart()));
+        expect(
+          await fixture.cubit.assignProvider(_providerA(allItems: false)),
+          isTrue,
+        );
+        expect(fixture.cubit.state.cart!.items.first.providerId, 7);
+        expect(fixture.cubit.state.cart!.items.first.priceAfter, 80);
+        expect(fixture.cubit.state.cart!.items.last.providerId, isNull);
+
+        fixture.cart.cart = _unassignedCart();
+        await fixture.cubit.loadCartAndProviders();
+        await fixture.cubit.refreshCart();
+        expect(fixture.cubit.state.cart!.items.first.providerId, 7);
+        await fixture.cubit.loadCheckout(initialProviderId: 7);
+        expect(
+          fixture
+              .cubit
+              .state
+              .checkoutProvider!
+              .coveredServices
+              .single
+              .cartItemId,
+          1,
+        );
+
+        fixture.cart.cart = const Cart.empty();
+        await fixture.cubit.refreshCart();
+        expect(fixture.cubit.state.cart!.items, isEmpty);
+        fixture.cart.cart = _unassignedCart();
+        await fixture.cubit.refreshCart();
+        expect(fixture.cubit.state.cart!.items.first.providerId, isNull);
+      },
+    );
+    test(
       'already-assigned covered items proceed without redundant updates',
       () async {
         // `_mixedProviderCart` was never defined; `_twoProviderCart`
@@ -444,10 +759,9 @@ void main() {
       await fixture.waitForAsyncWork();
 
       // Optimistic update: gone from state without waiting for refresh.
-      expect(
-        fixture.cubit.state.cart!.items.map((item) => item.serviceId),
-        [20],
-      );
+      expect(fixture.cubit.state.cart!.items.map((item) => item.serviceId), [
+        20,
+      ]);
       expect(fixture.cubit.state.cart!.totalCount, 1);
       expect(fixture.cubit.state.pendingServiceIds, isEmpty);
       expect(fixture.cubit.state.cartError, isNull);
@@ -466,18 +780,16 @@ void main() {
 
     test('failure keeps the item and releases the pending flag', () async {
       final fixture = _Fixture(cart: _twoProviderCart());
-      fixture.cart.removeResults[10] = const ApiResult.failure(
-        'remove failed',
-      );
+      fixture.cart.removeResults[10] = const ApiResult.failure('remove failed');
       await fixture.cubit.loadCart();
 
       await fixture.cubit.removeFromCart(serviceId: 10, categoryId: 1);
       await fixture.waitForAsyncWork();
 
-      expect(
-        fixture.cubit.state.cart!.items.map((item) => item.serviceId),
-        [10, 20],
-      );
+      expect(fixture.cubit.state.cart!.items.map((item) => item.serviceId), [
+        10,
+        20,
+      ]);
       expect(fixture.cubit.state.cart!.totalCount, 2);
       expect(fixture.cubit.state.pendingServiceIds, isEmpty);
       await fixture.close();
@@ -629,8 +941,7 @@ class _FakeCartRepository implements CartRepository {
   @override
   Future<ApiResult<void>> removeFromCart(int serviceId) async {
     removeCalls.add(serviceId);
-    final result =
-        removeResults[serviceId] ?? const ApiResult.success(null);
+    final result = removeResults[serviceId] ?? const ApiResult.success(null);
     result.when(
       success: (_) {
         cart = cart.removeService(serviceId);
@@ -660,6 +971,12 @@ class _FakeCartRepository implements CartRepository {
             ));
     result.when(
       success: (_) {
+        final option = chooseProviders
+            .where((p) => p.providerId == providerId)
+            .firstOrNull;
+        final service = option?.coveredServices
+            .where((s) => s.cartItemId == cartId)
+            .firstOrNull;
         cart = Cart(
           items: cart.items
               .map(
@@ -671,7 +988,9 @@ class _FakeCartRepository implements CartRepository {
                         categoryId: item.categoryId,
                         categoryName: item.categoryName,
                         providerId: providerId,
-                        providerName: 'Provider A',
+                        providerName: option?.providerName ?? 'Provider A',
+                        priceBefore: service?.priceBefore,
+                        priceAfter: service?.priceAfter,
                       )
                     : item,
               )
@@ -776,6 +1095,87 @@ ApiResult<CreatedInvoice> _created() =>
 ProviderBranch _branch(int id) =>
     ProviderBranch(branchId: id, branchName: 'Branch $id');
 
+ProviderOption _providerB() => ProviderOption(
+  providerId: 8,
+  providerName: 'Provider B',
+  coveredCount: 2,
+  uncoveredCount: 0,
+  totalCount: 2,
+  totalPriceBefore: 200,
+  totalPriceAfter: 160,
+  coveredServices: _providerA(allItems: true).coveredServices,
+  uncoveredServices: const [],
+);
+
+Future<GoRouter> _pumpProviderFlow(
+  WidgetTester tester,
+  _Fixture fixture, {
+  Locale locale = const Locale('en'),
+}) async {
+  tester.view.physicalSize = const Size(390, 844);
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.resetPhysicalSize);
+  addTearDown(tester.view.resetDevicePixelRatio);
+  await fixture.cubit.loadCartAndProviders();
+  final router = GoRouter(
+    initialLocation: '/choose-provider',
+    routes: [
+      GoRoute(
+        path: '/cart',
+        builder: (_, _) => const Scaffold(body: Text('Cart')),
+      ),
+      GoRoute(
+        path: '/choose-provider',
+        builder: (_, _) => BlocProvider.value(
+          value: fixture.cubit,
+          child: const ChooseProviderScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/checkout',
+        builder: (_, state) {
+          final extra = state.extra! as Map<String, dynamic>;
+          expect(extra['cubit'], same(fixture.cubit));
+          return Scaffold(body: Text('Checkout for ${extra['providerId']}'));
+        },
+      ),
+    ],
+  );
+  await tester.pumpWidget(
+    EasyLocalization(
+      supportedLocales: const [Locale('en'), Locale('ar')],
+      path: 'assets/translations',
+      startLocale: locale,
+      fallbackLocale: const Locale('en'),
+      saveLocale: false,
+      useOnlyLangCode: true,
+      assetLoader: const _TestTranslationsLoader(),
+      child: Builder(
+        builder: (context) => ScreenUtilInit(
+          designSize: const Size(390, 844),
+          builder: (_, _) => MaterialApp.router(
+            routerConfig: router,
+            localizationsDelegates: context.localizationDelegates,
+            supportedLocales: context.supportedLocales,
+            locale: context.locale,
+          ),
+        ),
+      ),
+    ),
+  );
+  await tester.pumpAndSettle();
+  return router;
+}
+
+class _TestTranslationsLoader extends AssetLoader {
+  const _TestTranslationsLoader();
+
+  @override
+  Future<Map<String, dynamic>> load(String path, Locale locale) async =>
+      jsonDecode(File('$path/${locale.languageCode}.json').readAsStringSync())
+          as Map<String, dynamic>;
+}
+
 ProviderOption _providerA({required bool allItems}) => ProviderOption(
   providerId: 7,
   providerName: 'Provider A',
@@ -789,12 +1189,16 @@ ProviderOption _providerA({required bool allItems}) => ProviderOption(
       cartItemId: 1,
       serviceId: 10,
       serviceName: 'A',
+      priceBefore: 100,
+      priceAfter: 80,
     ),
     if (allItems)
       const ProviderCoveredService(
         cartItemId: 2,
         serviceId: 20,
         serviceName: 'B',
+        priceBefore: 100,
+        priceAfter: 80,
       ),
   ],
   uncoveredServices: const [],

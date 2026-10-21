@@ -62,6 +62,26 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
+  void didUpdateWidget(covariant HomeScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // GoRouter reuses this page when checkout returns with a different tab.
+    if (oldWidget.initialIndex != widget.initialIndex) {
+      _currentIndex = widget.initialIndex;
+    }
+  }
+
+  void _selectTab(int index) {
+    if (index != _currentIndex) setState(() => _currentIndex = index);
+    // Keep the URL in sync, including when leaving invoices manually. A later
+    // "View invoices" action must be a new tab request, even on a reused page.
+    context.go(switch (index) {
+      1 => '/medicard-home?tab=activity',
+      2 => '/medicard-home?tab=profile',
+      _ => '/medicard-home',
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
@@ -133,17 +153,14 @@ class _HomeScreenState extends State<HomeScreen> {
               canPop: _currentIndex == 0,
               onPopInvokedWithResult: (didPop, result) {
                 if (didPop || _currentIndex == 0) return;
-                setState(() => _currentIndex = 0);
+                _selectTab(0);
               },
               child: Scaffold(
                 backgroundColor: Colors.white,
                 body: IndexedStack(
                   index: _currentIndex,
                   children: [
-                    _HomeBody(
-                      onNavigateToTab: (index) =>
-                          setState(() => _currentIndex = index),
-                    ),
+                    _HomeBody(onNavigateToTab: _selectTab),
                     // Not const: the parent rebuilds on locale change (router
                     // refreshListenable) and const children would be skipped,
                     // leaving `.tr()` strings stale on these tabs.
@@ -161,9 +178,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         }
                         providerContext.read<ProfileCubit>().loadProfile();
                       }
-                      if (i != _currentIndex) {
-                        setState(() => _currentIndex = i);
-                      }
+                      _selectTab(i);
                     },
                   ),
                 ),

@@ -96,6 +96,7 @@ class Cart {
         return item.copyWith(
           providerId: provider.providerId,
           providerName: provider.providerName,
+          providerImageUrl: provider.providerImageUrl,
           priceBefore: covered.priceBefore,
           priceAfter: covered.priceAfter,
           discountPercentage: covered.discountPercentage,

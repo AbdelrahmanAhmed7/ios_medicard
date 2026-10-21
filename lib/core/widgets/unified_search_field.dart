@@ -222,22 +222,26 @@ class _UnifiedSearchFieldState extends State<UnifiedSearchField> {
                                     fontSize: 14.sp,
                                   ),
                                 ),
-                              AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 300),
-                                switchInCurve: Curves.easeOut,
-                                switchOutCurve: Curves.easeIn,
-                                transitionBuilder: (child, animation) {
-                                  return FadeTransition(
-                                    opacity: animation,
-                                    child: child,
-                                  );
-                                },
-                                child: Text(
-                                  widget.hintWordKeys[_hintIndex].tr(),
-                                  key: ValueKey<int>(_hintIndex),
-                                  style: AppTextStyles.of(
-                                    color: const Color(0xFF9CA3AF),
-                                    fontSize: 14.sp,
+                              Flexible(
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 300),
+                                  switchInCurve: Curves.easeOut,
+                                  switchOutCurve: Curves.easeIn,
+                                  transitionBuilder: (child, animation) {
+                                    return FadeTransition(
+                                      opacity: animation,
+                                      child: child,
+                                    );
+                                  },
+                                  child: Text(
+                                    widget.hintWordKeys[_hintIndex].tr(),
+                                    key: ValueKey<int>(_hintIndex),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AppTextStyles.of(
+                                      color: const Color(0xFF9CA3AF),
+                                      fontSize: 14.sp,
+                                    ),
                                   ),
                                 ),
                               ),

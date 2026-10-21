@@ -104,7 +104,7 @@ class _ServicesTabState extends State<SearchServicesTab> {
                       left: 0,
                       right: 0,
                       bottom: 0,
-                      child: _ChooseProviderBar(count: totalSelected),
+                      child: _ReviewServicesBar(count: totalSelected),
                     ),
                 ],
               ),
@@ -479,9 +479,9 @@ class _ServiceCard extends StatelessWidget {
   }
 }
 
-class _ChooseProviderBar extends StatelessWidget {
+class _ReviewServicesBar extends StatelessWidget {
   final int count;
-  const _ChooseProviderBar({required this.count});
+  const _ReviewServicesBar({required this.count});
 
   @override
   Widget build(BuildContext context) {
@@ -493,7 +493,7 @@ class _ChooseProviderBar extends StatelessWidget {
         MediaQuery.of(context).padding.bottom + 14.h,
       ),
       child: GestureDetector(
-        onTap: () => context.push('/choose-provider'),
+        onTap: () => context.push('/cart'),
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 12.h),
           decoration: BoxDecoration(
@@ -530,7 +530,7 @@ class _ChooseProviderBar extends StatelessWidget {
               ),
               SizedBox(width: 10.w),
               Text(
-                'cart.choose_provider'.tr(),
+                'cart.review_services'.tr(),
                 style: AppTextStyles.of(
                   color: Colors.white,
                   fontSize: 15.sp,
