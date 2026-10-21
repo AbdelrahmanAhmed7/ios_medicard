@@ -332,6 +332,7 @@
     "last_name": "الاسم الأخير",
     "relation": "العلاقة",
     "select_relation": "اختر العلاقة",
+    "photo_hint": "صورة العضو (اختياري)",
     "relation_father": "أب",
     "relation_mother": "أم",
     "relation_son": "ابن",

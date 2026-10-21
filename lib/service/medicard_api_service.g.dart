@@ -698,15 +698,28 @@ class _MedicardApiService implements MedicardApiService {
 
   @override
   Future<FamilyMemberOperationResponseModel> createFamilyMember(
-    CreateFamilyMemberRequestModel request,
+    String firstName,
+    String lastName,
+    int relation,
+    MultipartFile? image,
   ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(request.toJson());
+    final _data = FormData();
+    _data.fields.add(MapEntry('FirstName', firstName));
+    _data.fields.add(MapEntry('LastName', lastName));
+    _data.fields.add(MapEntry('Relation', relation.toString()));
+    if (image != null) {
+      _data.files.add(MapEntry('ImageUrl', image));
+    }
     final _options = _setStreamType<FamilyMemberOperationResponseModel>(
-      Options(method: 'POST', headers: _headers, extra: _extra)
+      Options(
+            method: 'POST',
+            headers: _headers,
+            extra: _extra,
+            contentType: 'multipart/form-data',
+          )
           .compose(
             _dio.options,
             '/FamilyMembers',
@@ -729,15 +742,28 @@ class _MedicardApiService implements MedicardApiService {
   @override
   Future<FamilyMemberOperationResponseModel> updateFamilyMember(
     int id,
-    CreateFamilyMemberRequestModel request,
+    String firstName,
+    String lastName,
+    int relation,
+    MultipartFile? image,
   ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(request.toJson());
+    final _data = FormData();
+    _data.fields.add(MapEntry('FirstName', firstName));
+    _data.fields.add(MapEntry('LastName', lastName));
+    _data.fields.add(MapEntry('Relation', relation.toString()));
+    if (image != null) {
+      _data.files.add(MapEntry('ImageUrl', image));
+    }
     final _options = _setStreamType<FamilyMemberOperationResponseModel>(
-      Options(method: 'PUT', headers: _headers, extra: _extra)
+      Options(
+            method: 'PUT',
+            headers: _headers,
+            extra: _extra,
+            contentType: 'multipart/form-data',
+          )
           .compose(
             _dio.options,
             '/FamilyMembers/${id}',

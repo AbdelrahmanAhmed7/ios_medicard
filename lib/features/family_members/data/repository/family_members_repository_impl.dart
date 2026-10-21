@@ -1,7 +1,10 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
+import 'package:http_parser/http_parser.dart' show MediaType;
 import 'package:medicard/features/family_members/data/models/family_member_model.dart';
 import 'package:medicard/service/medicard_api_service.dart';
 import '../../domain/repository/family_members_repository.dart';
-import '../models/create_family_member_request_model.dart';
 import '../models/get_family_members_response_model.dart';
 import '../models/get_family_member_response_model.dart';
 import '../models/family_member_operation_response_model.dart';
@@ -10,6 +13,24 @@ class FamilyMembersRepositoryImpl implements FamilyMembersRepository {
   final MedicardApiService apiService;
 
   FamilyMembersRepositoryImpl(this.apiService);
+
+  Future<MultipartFile?> _imagePart(String? imagePath) async {
+    if (imagePath == null ||
+        imagePath.trim().isEmpty ||
+        imagePath.startsWith('http')) {
+      return null;
+    }
+    final file = File(imagePath);
+    if (!await file.exists()) return null;
+    final bytes = await file.readAsBytes();
+    if (bytes.isEmpty) return null;
+    // image_picker compresses to JPEG regardless of the source extension.
+    return MultipartFile.fromBytes(
+      bytes,
+      filename: 'family_member_image.jpg',
+      contentType: MediaType('image', 'jpeg'),
+    );
+  }
 
   @override
   Future<List<FamilyMemberModel>> getFamilyMembers() async {
@@ -44,17 +65,11 @@ class FamilyMembersRepositoryImpl implements FamilyMembersRepository {
     String firstName,
     String lastName,
     int relation,
-    String? imageUrl,
+    String? imagePath,
   ) async {
-    final CreateFamilyMemberRequestModel request =
-        CreateFamilyMemberRequestModel(
-          firstName: firstName,
-          lastName: lastName,
-          relation: relation,
-          imageUrl: imageUrl,
-        );
+    final image = await _imagePart(imagePath);
     final FamilyMemberOperationResponseModel response = await apiService
-        .createFamilyMember(request);
+        .createFamilyMember(firstName, lastName, relation, image);
     if (response.succeeded != true) {
       throw Exception(
         response.errors?.join(', ') ?? 'Failed to create family member',
@@ -68,17 +83,11 @@ class FamilyMembersRepositoryImpl implements FamilyMembersRepository {
     String firstName,
     String lastName,
     int relation,
-    String? imageUrl,
+    String? imagePath,
   ) async {
-    final CreateFamilyMemberRequestModel request =
-        CreateFamilyMemberRequestModel(
-          firstName: firstName,
-          lastName: lastName,
-          relation: relation,
-          imageUrl: imageUrl,
-        );
+    final image = await _imagePart(imagePath);
     final FamilyMemberOperationResponseModel response = await apiService
-        .updateFamilyMember(id, request);
+        .updateFamilyMember(id, firstName, lastName, relation, image);
     if (response.succeeded != true) {
       throw Exception(
         response.errors?.join(', ') ?? 'Failed to update family member',

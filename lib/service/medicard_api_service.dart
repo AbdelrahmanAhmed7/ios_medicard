@@ -22,7 +22,6 @@ import '../features/ecard/data/models/card_data_response_model.dart';
 import '../features/content/data/models/content_response_model.dart';
 import '../features/family_members/data/models/get_family_members_response_model.dart';
 import '../features/family_members/data/models/get_family_member_response_model.dart';
-import '../features/family_members/data/models/create_family_member_request_model.dart';
 import '../features/family_members/data/models/family_member_operation_response_model.dart';
 import '../features/addresses/data/models/get_user_addresses_response_model.dart';
 import '../features/addresses/data/models/get_user_address_response_model.dart';
@@ -150,19 +149,25 @@ abstract class MedicardApiService {
   Future<GetFamilyMembersResponseModel> getFamilyMembers();
 
   @GET('/FamilyMembers/{id}')
-  Future<GetFamilyMemberResponseModel> getFamilyMember(
-    @Path('id') int id,
-  );
+  Future<GetFamilyMemberResponseModel> getFamilyMember(@Path('id') int id);
 
   @POST('/FamilyMembers')
+  @MultiPart()
   Future<FamilyMemberOperationResponseModel> createFamilyMember(
-    @Body() CreateFamilyMemberRequestModel request,
+    @Part(name: 'FirstName') String firstName,
+    @Part(name: 'LastName') String lastName,
+    @Part(name: 'Relation') int relation,
+    @Part(name: 'ImageUrl') MultipartFile? image,
   );
 
   @PUT('/FamilyMembers/{id}')
+  @MultiPart()
   Future<FamilyMemberOperationResponseModel> updateFamilyMember(
     @Path('id') int id,
-    @Body() CreateFamilyMemberRequestModel request,
+    @Part(name: 'FirstName') String firstName,
+    @Part(name: 'LastName') String lastName,
+    @Part(name: 'Relation') int relation,
+    @Part(name: 'ImageUrl') MultipartFile? image,
   );
 
   @DELETE('/FamilyMembers/{id}')
@@ -200,7 +205,9 @@ abstract class MedicardApiService {
   Future<LookupResponseModel> getGovernorates();
 
   @GET('/Lookups/cities')
-  Future<LookupResponseModel> getCities(@Query('governorateId') int governorateId);
+  Future<LookupResponseModel> getCities(
+    @Query('governorateId') int governorateId,
+  );
 
   // ── Guest Home ────────────────────────────────────────────────────────────
 

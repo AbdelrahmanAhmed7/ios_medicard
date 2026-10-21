@@ -7,14 +7,14 @@ abstract class FamilyMembersRepository {
     String firstName,
     String lastName,
     int relation,
-    String? imageUrl,
+    String? imagePath,
   );
   Future<void> updateFamilyMember(
     int id,
     String firstName,
     String lastName,
     int relation,
-    String? imageUrl,
+    String? imagePath,
   );
   Future<void> deleteFamilyMember(int id);
 }

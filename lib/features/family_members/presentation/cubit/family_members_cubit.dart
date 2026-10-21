@@ -33,7 +33,7 @@ class FamilyMembersCubit extends Cubit<FamilyMembersState> {
     required String firstName,
     required String lastName,
     required int relation,
-    String? imageUrl,
+    String? imagePath,
   }) async {
     if (isClosed) return;
 
@@ -55,7 +55,7 @@ class FamilyMembersCubit extends Cubit<FamilyMembersState> {
         firstName,
         lastName,
         relation,
-        imageUrl,
+        imagePath,
       );
       if (isClosed) return;
       showSuccessToast('family_members.member_added_successfully'.tr());
@@ -78,7 +78,7 @@ class FamilyMembersCubit extends Cubit<FamilyMembersState> {
     required String firstName,
     required String lastName,
     required int relation,
-    String? imageUrl,
+    String? imagePath,
   }) async {
     if (isClosed) return;
 
@@ -94,7 +94,7 @@ class FamilyMembersCubit extends Cubit<FamilyMembersState> {
         firstName,
         lastName,
         relation,
-        imageUrl,
+        imagePath,
       );
       if (isClosed) return;
       showSuccessToast('family_members.member_updated_successfully'.tr());

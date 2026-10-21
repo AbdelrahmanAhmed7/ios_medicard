@@ -332,6 +332,7 @@
     "last_name": "Last Name",
     "relation": "Relation",
     "select_relation": "Select Relation",
+    "photo_hint": "Member photo (optional)",
     "relation_father": "Father",
     "relation_mother": "Mother",
     "relation_son": "Son",

@@ -1,4 +1,5 @@
 import 'package:medicard/core/widgets/app_simple_header.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicard/core/constants/constants.dart';
 import 'package:medicard/core/theming/app_toast.dart';
+import 'package:medicard/core/utils/image_url_resolver.dart';
 import 'package:medicard/core/utils/relation_helper.dart';
 import '../../../../core/widgets/auth_shared_widgets.dart';
 import '../../../../core/utils/error_state_widget.dart';
@@ -180,7 +182,7 @@ class _FamilyMemberListItem extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _buildAvatar(member.imageUrl),
+          _buildAvatar(member),
           SizedBox(width: 10.w),
           Expanded(
             child: Column(
@@ -273,28 +275,41 @@ class _FamilyMemberListItem extends StatelessWidget {
     );
   }
 
-  Widget _buildAvatar(String? imageUrl) {
-    if (imageUrl != null && imageUrl.isNotEmpty) {
-      return ClipOval(
-        child: Image.network(
-          imageUrl,
-          width: 42.r,
-          height: 42.r,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) =>
-              _buildPlaceholderAvatar(),
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) return child;
-            return _buildPlaceholderAvatar();
-          },
-        ),
-      );
-    }
-    return _buildPlaceholderAvatar();
+  Widget _buildAvatar(FamilyMemberModel member) {
+    final imageUrl = resolveImageUrl(member.imageUrl);
+    final size = 42.r;
+    return Container(
+      width: size,
+      height: size,
+      decoration: const BoxDecoration(
+        color: Color(0xFFF0F7FF),
+        shape: BoxShape.circle,
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: imageUrl == null
+          ? _buildInitials(member)
+          : CachedNetworkImage(
+              imageUrl: imageUrl,
+              fit: BoxFit.cover,
+              placeholder: (_, _) => _buildInitials(member),
+              errorWidget: (_, _, _) => _buildInitials(member),
+            ),
+    );
   }
 
-  Widget _buildPlaceholderAvatar() {
-    return CircleAvatar(radius: 21.r, backgroundColor: const Color(0xFFD9D9D9));
+  Widget _buildInitials(FamilyMemberModel member) {
+    final name = (member.firstName ?? member.fullName ?? '').trim();
+    final initial = name.isNotEmpty ? name[0].toUpperCase() : '?';
+    return Center(
+      child: Text(
+        initial,
+        style: AppTextStyles.of(
+          fontSize: 16.sp,
+          fontWeight: FontWeight.w700,
+          color: const Color(0xFF3872B1),
+        ),
+      ),
+    );
   }
 }
 
