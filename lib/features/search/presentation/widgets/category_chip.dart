@@ -1,16 +1,17 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../data/models/category_model.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
-
 class CategoryChip extends StatelessWidget {
   final CategoryModel? category;
   final bool isSelected;
   final VoidCallback onTap;
   final int? badgeCount;
+  final int? serviceCount;
 
   const CategoryChip({
     super.key,
@@ -18,6 +19,7 @@ class CategoryChip extends StatelessWidget {
     required this.isSelected,
     required this.onTap,
     this.badgeCount,
+    this.serviceCount,
   });
 
   @override
@@ -36,16 +38,14 @@ class CategoryChip extends StatelessWidget {
             padding: EdgeInsetsDirectional.only(
               start: 6.w,
               end: 14.w,
-              top: 6.h,
-              bottom: 6.h,
+              top: 7.h,
+              bottom: 7.h,
             ),
             decoration: BoxDecoration(
               color: isSelected ? activeColor : Colors.white,
               borderRadius: BorderRadius.circular(22.r),
               border: Border.all(
-                color: isSelected
-                    ? activeColor
-                    : const Color(0xFFE5E9F0),
+                color: isSelected ? activeColor : const Color(0xFFE5E9F0),
                 width: 1.2,
               ),
             ),
@@ -54,17 +54,40 @@ class CategoryChip extends StatelessWidget {
               children: [
                 _chipImage(isSelected: isSelected),
                 SizedBox(width: 8.w),
-                Text(
-                  label,
-                  style: AppTextStyles.of(
-                    fontSize: 13.sp,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    color: isSelected
-                        ? Colors.white
-                        : const Color(0xFF1E3A5F),
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: AppTextStyles.of(
+                        fontSize: 13.sp,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.w500,
+                        color: isSelected
+                            ? Colors.white
+                            : const Color(0xFF1E3A5F),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (serviceCount != null && serviceCount! > 0) ...[
+                      SizedBox(height: 2.h),
+                      Text(
+                        'search.services_count'.tr(args: ['$serviceCount']),
+                        style: AppTextStyles.of(
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w500,
+                          color: isSelected
+                              ? Colors.white.withValues(alpha: 0.75)
+                              : const Color(0xFF8A94A6),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ],
                 ),
               ],
             ),
@@ -131,8 +154,12 @@ class CategoryChip extends StatelessWidget {
       child: Container(
         width: 30.r,
         height: 30.r,
-        color: isSelected ? Colors.white.withValues(alpha: 0.2) : const Color(0xFFEFF6FF),
-        child: Center(child: SizedBox(width: 26.r, height: 26.r, child: content)),
+        color: isSelected
+            ? Colors.white.withValues(alpha: 0.2)
+            : const Color(0xFFEFF6FF),
+        child: Center(
+          child: SizedBox(width: 26.r, height: 26.r, child: content),
+        ),
       ),
     );
   }

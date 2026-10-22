@@ -147,6 +147,8 @@
     "search_packages_hint": "ابحث عن الباقات...",
     "up_to_discount": "حتى {}% خصم",
     "no_services_found": "لا توجد خدمات",
+    "services_count": "{} خدمة",
+    "choose_services": "اختر الخدمات التي تحتاجها",
     "no_providers_found": "لا يوجد مقدمو خدمة",
     "try_different_keyword": "جرّب كلمة بحث مختلفة أو امسح الفلتر."
   },

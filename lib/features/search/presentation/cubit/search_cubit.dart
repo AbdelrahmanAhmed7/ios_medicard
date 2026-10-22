@@ -9,6 +9,7 @@ import '../../../../core/services/location_repository.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../cart/domain/repository/cart_repository.dart';
 import '../../../cart/domain/services/cart_sync_service.dart';
+import '../../data/models/category_model.dart';
 import '../../data/models/category_services_response_model.dart';
 import '../../data/models/search_provider_model.dart';
 import '../../domain/use_cases/get_categories_use_case.dart';
@@ -96,14 +97,55 @@ class SearchCubit extends Cubit<SearchState> {
     final result = await _getCategoriesUseCase.call();
     if (isClosed) return;
     result.when(
-      success: (categories) => emit(
-        state.copyWith(categories: categories, clearCategoriesError: true),
-      ),
+      success: (categories) {
+        emit(
+          state.copyWith(categories: categories, clearCategoriesError: true),
+        );
+        unawaited(_loadProviderCategoryCounts(categories));
+      },
       failure: (message) {
         if (kDebugMode) debugPrint('[SearchCubit] load categories: $message');
         emit(state.copyWith(categoriesError: message));
       },
     );
+  }
+
+  /// Fetches the total provider count for every provider category so the
+  /// provider-tab chips can show how many providers each one contains.
+  /// Failures are ignored — the chips simply omit the count.
+  Future<void> _loadProviderCategoryCounts(
+    List<CategoryModel> categories,
+  ) async {
+    final targets = categories.where((category) => category.id != null);
+    if (targets.isEmpty) return;
+
+    final entries = await Future.wait(
+      targets.map((category) async {
+        final categoryId = category.id!;
+        final result = await _searchProvidersUseCase.call(
+          categoryId: categoryId,
+          pageNumber: 1,
+          pageSize: 1,
+        );
+        return result.when(
+          success: (data) => MapEntry(categoryId, data.totalCount ?? 0),
+          failure: (_) => MapEntry(categoryId, 0),
+        );
+      }),
+    );
+    if (isClosed) return;
+
+    final counts = Map<int, int>.from(state.providerCategoryCounts);
+    var changed = false;
+    for (final entry in entries) {
+      if (entry.value > 0 && counts[entry.key] != entry.value) {
+        counts[entry.key] = entry.value;
+        changed = true;
+      }
+    }
+    if (changed) {
+      emit(state.copyWith(providerCategoryCounts: counts));
+    }
   }
 
   Future<void> _loadServiceCategories() async {
@@ -120,6 +162,7 @@ class SearchCubit extends Cubit<SearchState> {
             clearServiceCategoriesError: true,
           ),
         );
+        unawaited(_loadServiceCategoryCounts(categories));
       },
       failure: (message) {
         if (kDebugMode) {
@@ -133,6 +176,51 @@ class SearchCubit extends Cubit<SearchState> {
         );
       },
     );
+  }
+
+  /// Fetches the total service count for every category so the filter chips
+  /// can show how many services each one contains. Failures are ignored — the
+  /// chips simply omit the count.
+  Future<void> _loadServiceCategoryCounts(
+    List<CategoryModel> categories,
+  ) async {
+    final targets = categories.where((category) => category.id != null);
+    if (targets.isEmpty) return;
+
+    final entries = await Future.wait(
+      targets.map((category) async {
+        final categoryId = category.id!;
+        final result = _enableCartFeatures
+            ? await _getCategoryServicesUseCase.call(
+                categoryId,
+                pageNumber: 1,
+                pageSize: 1,
+              )
+            : await _getCategoryServicesUseCase.callGuestServices(
+                categoryId,
+                pageNumber: 1,
+                pageSize: 1,
+              );
+        return result.when(
+          success: (data) =>
+              MapEntry(categoryId, data.services?.totalCount ?? 0),
+          failure: (_) => MapEntry(categoryId, 0),
+        );
+      }),
+    );
+    if (isClosed) return;
+
+    final counts = Map<int, int>.from(state.categoryServiceCounts);
+    var changed = false;
+    for (final entry in entries) {
+      if (entry.value > 0 && counts[entry.key] != entry.value) {
+        counts[entry.key] = entry.value;
+        changed = true;
+      }
+    }
+    if (changed) {
+      emit(state.copyWith(categoryServiceCounts: counts));
+    }
   }
 
   Future<void> _loadCartCounters() async {
@@ -232,6 +320,11 @@ class SearchCubit extends Cubit<SearchState> {
         _guestServicesKeyword[categoryId] = search;
         final counts = Map<int, int>.from(state.categorySelectedCounts);
         counts[categoryId] = data.totalSelectedCount ?? 0;
+        final serviceCounts = Map<int, int>.from(state.categoryServiceCounts);
+        final totalCount = data.services?.totalCount;
+        if (totalCount != null && totalCount > 0) {
+          serviceCounts[categoryId] = totalCount;
+        }
         final cachedCategories = Map<int, CategoryServicesDataModel>.from(
           state.servicesByCategoryId,
         )..[categoryId] = data;
@@ -248,6 +341,7 @@ class SearchCubit extends Cubit<SearchState> {
                 : state.services,
             clearServicesError: isLatest,
             categorySelectedCounts: counts,
+            categoryServiceCounts: serviceCounts,
           ),
         );
         return (data.services?.items ?? const []).isNotEmpty;
@@ -688,9 +782,17 @@ class SearchCubit extends Cubit<SearchState> {
       success: (data) {
         final newItems = data.items ?? const <SearchProviderModel>[];
         final merged = page == 1 ? newItems : [...state.items, ...newItems];
+        final totalCount = data.totalCount;
+        final providerCounts = Map<int, int>.from(state.providerCategoryCounts);
+        if (state.selectedCategoryId != null &&
+            totalCount != null &&
+            totalCount > 0) {
+          providerCounts[state.selectedCategoryId!] = totalCount;
+        }
         emit(
           state.copyWith(
             items: merged,
+            providerCategoryCounts: providerCounts,
             isLoading: false,
             isLoadingMore: false,
             hasMore: _hasMoreProviders(

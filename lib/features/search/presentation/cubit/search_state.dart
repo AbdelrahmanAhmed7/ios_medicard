@@ -17,6 +17,12 @@ class SearchState {
   /// Updated after every add/remove action.
   final Map<int, int> categorySelectedCounts;
 
+  /// Maps categoryId → total number of services available in that category.
+  final Map<int, int> categoryServiceCounts;
+
+  /// Maps provider-category id → total providers in that category.
+  final Map<int, int> providerCategoryCounts;
+
   final bool isLoading;
   final bool isLoadingMore;
   final String? error;
@@ -57,6 +63,8 @@ class SearchState {
     this.serviceCategories = const [],
     this.isLoadingServiceCategories = false,
     this.categorySelectedCounts = const {},
+    this.categoryServiceCounts = const {},
+    this.providerCategoryCounts = const {},
     this.isLoading = false,
     this.isLoadingMore = false,
     this.error,
@@ -86,6 +94,8 @@ class SearchState {
     List<CategoryModel>? serviceCategories,
     bool? isLoadingServiceCategories,
     Map<int, int>? categorySelectedCounts,
+    Map<int, int>? categoryServiceCounts,
+    Map<int, int>? providerCategoryCounts,
     bool? isLoading,
     bool? isLoadingMore,
     String? error,
@@ -123,6 +133,8 @@ class SearchState {
           isLoadingServiceCategories ?? this.isLoadingServiceCategories,
       categorySelectedCounts:
           categorySelectedCounts ?? this.categorySelectedCounts,
+      categoryServiceCounts:
+          categoryServiceCounts ?? this.categoryServiceCounts,
       isLoading: isLoading ?? this.isLoading,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       error: clearError ? null : (error ?? this.error),
@@ -155,9 +167,7 @@ class SearchState {
       serviceCategoriesError: clearServiceCategoriesError
           ? null
           : (serviceCategoriesError ?? this.serviceCategoriesError),
-      filterError: clearFilterError
-          ? null
-          : (filterError ?? this.filterError),
+      filterError: clearFilterError ? null : (filterError ?? this.filterError),
     );
   }
 }

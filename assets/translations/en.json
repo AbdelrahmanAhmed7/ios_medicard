@@ -147,6 +147,8 @@
     "search_packages_hint": "Search packages...",
     "up_to_discount": "Up to {}% off",
     "no_services_found": "No services found",
+    "services_count": "{} services",
+    "choose_services": "Choose the services you need",
     "no_providers_found": "No providers found",
     "try_different_keyword": "Try a different keyword or clear filters."
   },

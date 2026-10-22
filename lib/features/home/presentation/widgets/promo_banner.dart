@@ -67,7 +67,7 @@ class _PromoBannerWidgetState extends State<PromoBannerWidget> {
         Padding(
           padding: EdgeInsets.fromLTRB(
             AppSpacing.pageHorizontal,
-            0,
+            8.h,
             AppSpacing.pageHorizontal,
             8.h,
           ),
@@ -104,7 +104,6 @@ class _PromoBannerWidgetState extends State<PromoBannerWidget> {
                     decoration: BoxDecoration(
                       color: const Color(0xFFF8FAFC),
                       borderRadius: BorderRadius.circular(16.r),
-                      border: Border.all(color: const Color(0xFFE5E7EB)),
                     ),
                     child: CachedNetworkImage(
                       imageUrl: banner.imageUrl,

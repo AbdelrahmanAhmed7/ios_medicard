@@ -34,6 +34,7 @@ class _ServicesTabState extends State<SearchServicesTab> {
           previous.isLoadingServiceCategories !=
               current.isLoadingServiceCategories ||
           previous.categorySelectedCounts != current.categorySelectedCounts ||
+          previous.categoryServiceCounts != current.categoryServiceCounts ||
           previous.isLoadingServices != current.isLoadingServices ||
           previous.loadingServiceCategoryIds !=
               current.loadingServiceCategoryIds ||
@@ -48,6 +49,13 @@ class _ServicesTabState extends State<SearchServicesTab> {
           0,
           (sum, c) => sum + c,
         );
+        final selectedCategoryTitle =
+            state.serviceCategories
+                .where((cat) => cat.id == _selectedCategoryId)
+                .firstOrNull
+                ?.name ??
+            state.servicesData?.categoryName ??
+            '';
 
         return Column(
           children: [
@@ -82,6 +90,7 @@ class _ServicesTabState extends State<SearchServicesTab> {
                           category: cat,
                           isSelected: _selectedCategoryId == cat.id,
                           badgeCount: count > 0 ? count : null,
+                          serviceCount: state.categoryServiceCounts[cat.id],
                           onTap: () {
                             setState(() => _selectedCategoryId = cat.id);
                             context.read<SearchCubit>().loadCategoryServices(
@@ -95,6 +104,8 @@ class _ServicesTabState extends State<SearchServicesTab> {
                   ),
                 ),
               ),
+            if (selectedCategoryTitle.isNotEmpty)
+              _ServicesHeader(title: selectedCategoryTitle),
             Expanded(
               child: Stack(
                 children: [
@@ -313,7 +324,8 @@ class _ServicesTabState extends State<SearchServicesTab> {
         return _ServiceCardConnector(
           serviceId: serviceId,
           categoryId: categoryId,
-          serviceName: service.serviceName ?? '',
+          serviceNameAr: service.serviceNameAr,
+          serviceNameEn: service.serviceNameEn,
           isSelected: isSelected,
         );
       },
@@ -321,16 +333,59 @@ class _ServicesTabState extends State<SearchServicesTab> {
   }
 }
 
+class _ServicesHeader extends StatelessWidget {
+  final String title;
+
+  const _ServicesHeader({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 2.h),
+      child: Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.of(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF111827),
+              ),
+            ),
+            SizedBox(height: 2.h),
+            Text(
+              'search.choose_services'.tr(),
+              style: AppTextStyles.of(
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w400,
+                color: const Color(0xFF8A94A6),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _ServiceCardConnector extends StatelessWidget {
   final int serviceId;
   final int categoryId;
-  final String serviceName;
+  final String? serviceNameAr;
+  final String? serviceNameEn;
   final bool isSelected;
 
   const _ServiceCardConnector({
     required this.serviceId,
     required this.categoryId,
-    required this.serviceName,
+    required this.serviceNameAr,
+    required this.serviceNameEn,
     required this.isSelected,
   });
 
@@ -340,7 +395,9 @@ class _ServiceCardConnector extends StatelessWidget {
       selector: (state) => state.pendingServiceIds.contains(serviceId),
       builder: (context, isPending) {
         return _ServiceCard(
-          serviceName: serviceName,
+          serviceId: serviceId,
+          serviceNameAr: serviceNameAr,
+          serviceNameEn: serviceNameEn,
           isSelected: isSelected,
           isPending: isPending,
           onToggle: () {
@@ -367,23 +424,54 @@ class _ServiceCardConnector extends StatelessWidget {
 }
 
 class _ServiceCard extends StatelessWidget {
-  final String serviceName;
+  final int serviceId;
+  final String? serviceNameAr;
+  final String? serviceNameEn;
   final bool isSelected;
   final bool isPending;
   final VoidCallback onToggle;
 
   const _ServiceCard({
-    required this.serviceName,
+    required this.serviceId,
+    required this.serviceNameAr,
+    required this.serviceNameEn,
     required this.isSelected,
     required this.isPending,
     required this.onToggle,
   });
 
+  static const _iconBackgrounds = [
+    Color(0xFFFDECEC),
+    Color(0xFFE8F0FB),
+    Color(0xFFF3EDFB),
+    Color(0xFFE6F6EE),
+    Color(0xFFFEF4E2),
+  ];
+
+  static const _iconForegrounds = [
+    Color(0xFFE05B5B),
+    Color(0xFF3872B1),
+    Color(0xFF8A5BD6),
+    Color(0xFF16A374),
+    Color(0xFFD99A28),
+  ];
+
   @override
   Widget build(BuildContext context) {
+    final tone = serviceId.abs() % _iconBackgrounds.length;
+    final isArabic = context.locale.languageCode == 'ar';
+    final primaryName =
+        (isArabic ? serviceNameAr : serviceNameEn)?.trim() ?? '';
+    final secondaryName =
+        (isArabic ? serviceNameEn : serviceNameAr)?.trim() ?? '';
+    final title = primaryName.isNotEmpty ? primaryName : secondaryName;
+    final showSecondary =
+        primaryName.isNotEmpty &&
+        secondaryName.isNotEmpty &&
+        secondaryName.toLowerCase() != primaryName.toLowerCase();
     return Container(
       margin: EdgeInsets.only(bottom: 10.h),
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14.r),
@@ -395,18 +483,47 @@ class _ServiceCard extends StatelessWidget {
       ),
       child: Row(
         children: [
+          Container(
+            width: 44.r,
+            height: 44.r,
+            decoration: BoxDecoration(
+              color: _iconBackgrounds[tone],
+              borderRadius: BorderRadius.circular(14.r),
+            ),
+            child: Icon(
+              Icons.medical_services_rounded,
+              size: 22.sp,
+              color: _iconForegrounds[tone],
+            ),
+          ),
+          SizedBox(width: 12.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  serviceName,
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.of(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w600,
                     color: const Color(0xFF111827),
                   ),
                 ),
+                if (showSecondary) ...[
+                  SizedBox(height: 4.h),
+                  Text(
+                    secondaryName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.of(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF111827),
+                    ),
+                  ),
+                ],
                 // Container(
                 //   padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 4.h),
                 //   decoration: BoxDecoration(

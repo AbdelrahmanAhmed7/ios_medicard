@@ -20,6 +20,7 @@ class SearchProvidersTab extends StatelessWidget {
       buildWhen: (p, c) =>
           p.categories != c.categories ||
           p.selectedCategoryId != c.selectedCategoryId ||
+          p.providerCategoryCounts != c.providerCategoryCounts ||
           p.items != c.items ||
           p.isLoading != c.isLoading ||
           p.isLoadingMore != c.isLoadingMore ||
@@ -115,6 +116,7 @@ class _ResultsBody extends StatelessWidget {
     );
   }
 }
+
 class _EmptyView extends StatelessWidget {
   const _EmptyView();
 

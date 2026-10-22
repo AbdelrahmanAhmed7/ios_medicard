@@ -431,37 +431,35 @@ class _NotificationControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Row(
       children: [
-        Align(
-          alignment: AlignmentDirectional.centerEnd,
-          child: _MarkAllReadAction(
-            enabled: unreadCount > 0,
-            onPressed: onMarkAllRead,
+        Expanded(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            padding: EdgeInsetsDirectional.fromSTEB(8.w, 4.h, 8.w, 4.h),
+            child: Row(
+              children: [
+                _FilterChip(
+                  label: context.tr('notifications.all'),
+                  isSelected: selectedIndex == 0,
+                  onTap: () => onSelected(0),
+                ),
+                SizedBox(width: 8.w),
+                _FilterChip(
+                  label: context.tr('notifications.unread'),
+                  isSelected: selectedIndex == 1,
+                  count: unreadCount,
+                  onTap: () => onSelected(1),
+                ),
+              ],
+            ),
           ),
         ),
-        SizedBox(height: 4.h),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          physics: const BouncingScrollPhysics(),
-          padding: EdgeInsetsDirectional.fromSTEB(8.w, 4.h, 8.w, 4.h),
-          child: Row(
-            children: [
-              _FilterChip(
-                label: context.tr('notifications.all'),
-                isSelected: selectedIndex == 0,
-                onTap: () => onSelected(0),
-              ),
-              SizedBox(width: 8.w),
-              _FilterChip(
-                label: context.tr('notifications.unread'),
-                isSelected: selectedIndex == 1,
-                count: unreadCount,
-                onTap: () => onSelected(1),
-              ),
-            ],
-          ),
+        SizedBox(width: 16.w),
+        _MarkAllReadAction(
+          enabled: unreadCount > 0,
+          onPressed: onMarkAllRead,
         ),
       ],
     );
