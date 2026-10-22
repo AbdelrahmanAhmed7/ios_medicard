@@ -8,6 +8,9 @@ class SharedPrefKeys {
   static const String hasSeenOnboarding = 'hasSeenOnboarding';
   static const String medicardCardNo = 'medicardCardNo';
   static const String appLanguage = 'appLanguage';
+  static const String cartFabPositionSaved = 'cartFabPositionSaved';
+  static const String cartFabDockedRight = 'cartFabDockedRight';
+  static const String cartFabVerticalRatio = 'cartFabVerticalRatio';
 
   // ── Auth session (secure storage) ──────────────────────────────────────────
   static const String accessToken = 'access_token';

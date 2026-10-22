@@ -396,39 +396,41 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
   }
 
   Widget _buildRelationDropdown() {
-    return DropdownButtonFormField<int>(
-      initialValue: _selectedRelation,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      validator: (value) {
-        if (value == null) {
-          return 'common.required'.tr();
-        }
-        return null;
-      },
-      style: AppTextStyles.of(
-        fontSize: 15.sp,
-        color: Colors.black,
-        fontWeight: FontWeight.w500,
+    return AppDropdownTheme(
+      child: DropdownButtonFormField<int>(
+        initialValue: _selectedRelation,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        validator: (value) {
+          if (value == null) {
+            return 'common.required'.tr();
+          }
+          return null;
+        },
+        style: AppTextStyles.of(
+          fontSize: 15.sp,
+          color: Colors.black,
+          fontWeight: FontWeight.w500,
+        ),
+        icon: Icon(
+          Icons.keyboard_arrow_down_rounded,
+          color: Colors.grey.shade500,
+          size: 20.sp,
+        ),
+        decoration: authInputDecoration(
+          hintText: 'family_members.select_relation'.tr(),
+        ),
+        items: RelationHelper.getRelationsList().map((relation) {
+          return AppDropdownMenuItem<int>(
+            value: relation['id'] as int,
+            label: relation['name'] as String,
+          );
+        }).toList(),
+        onChanged: (value) {
+          setState(() {
+            _selectedRelation = value;
+          });
+        },
       ),
-      icon: Icon(
-        Icons.keyboard_arrow_down_rounded,
-        color: Colors.grey.shade500,
-        size: 20.sp,
-      ),
-      decoration: authInputDecoration(
-        hintText: 'family_members.select_relation'.tr(),
-      ),
-      items: RelationHelper.getRelationsList().map((relation) {
-        return AppDropdownMenuItem<int>(
-          value: relation['id'] as int,
-          label: relation['name'] as String,
-        );
-      }).toList(),
-      onChanged: (value) {
-        setState(() {
-          _selectedRelation = value;
-        });
-      },
     );
   }
 }

@@ -8,14 +8,19 @@ import '../../../../core/theming/app_text_styles.dart';
 
 class QuickActionsRow extends StatelessWidget {
   final List<QuickAction> actions;
+  final double verticalPadding;
 
-  const QuickActionsRow({super.key, required this.actions});
+  const QuickActionsRow({
+    super.key,
+    required this.actions,
+    this.verticalPadding = 16,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(
-        vertical: 16,
+        vertical: verticalPadding,
         horizontal: AppSpacing.pageHorizontal,
       ),
       child: Row(

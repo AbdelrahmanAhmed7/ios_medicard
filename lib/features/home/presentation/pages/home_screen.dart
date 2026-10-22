@@ -11,6 +11,7 @@ import '../../../../core/theming/app_snack_bar.dart';
 import '../../../../core/theming/app_toast.dart';
 import '../../../../features/activity/presentation/cubit/activity_cubit.dart';
 import '../../../../features/ecard/presentation/cubit/ecard_cubit.dart';
+import '../../../../features/notifications/presentation/cubit/notification_cubit.dart';
 import '../../../../features/profile/presentation/cubit/profile_cubit.dart';
 import '../../../../features/profile/presentation/cubit/profile_state.dart';
 import '../../../../features/profile/presentation/widgets/profile_content.dart';
@@ -99,6 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
           create: (context) => sl<ActivityCubit>()..loadInvoices(),
         ),
         BlocProvider<ECardCubit>(create: (context) => sl<ECardCubit>()),
+        BlocProvider<NotificationCubit>.value(value: sl<NotificationCubit>()),
         BlocProvider<AppRefreshCubit>.value(value: sl<AppRefreshCubit>()),
       ],
       child: MultiBlocListener(
@@ -278,7 +280,7 @@ class _HomeBody extends StatelessWidget {
                   onViewAll: () => onNavigateToTab(1),
                 ),
               ),
-              const SliverToBoxAdapter(child: SizedBox(height: 24)),
+              const SliverToBoxAdapter(child: SizedBox(height: 16)),
             ],
             if (providers.isNotEmpty) ...[
               SliverToBoxAdapter(
@@ -287,7 +289,7 @@ class _HomeBody extends StatelessWidget {
                   onViewAll: () => _openAllProviders(context),
                 ),
               ),
-              const SliverToBoxAdapter(child: SizedBox(height: 24)),
+              const SliverToBoxAdapter(child: SizedBox(height: 16)),
             ],
             if (services.isNotEmpty)
               SliverToBoxAdapter(
@@ -319,24 +321,26 @@ class _HomeBody extends StatelessWidget {
             child: LinearProgressIndicator(minHeight: 2),
           ),
 
-        const SliverToBoxAdapter(child: SizedBox(height: 16)),
+        const SliverToBoxAdapter(child: SizedBox(height: 6)),
         const SliverToBoxAdapter(child: ECardPreviewCard()),
-        const SliverToBoxAdapter(child: SizedBox(height: 8)),
+        const SliverToBoxAdapter(child: SizedBox(height: 6)),
 
         if (showQuickActions) ...[
           SliverToBoxAdapter(
-            child: QuickActionsRow(actions: HomeMockData.quickActions),
+            child: QuickActionsRow(
+              actions: HomeMockData.quickActions,
+              verticalPadding: 8,
+            ),
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 4)),
         ],
 
         if (banners.isNotEmpty) ...[
           SliverToBoxAdapter(child: PromoBannerWidget(banners: banners)),
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
         ],
 
         ...slivers,
-        const SliverToBoxAdapter(child: SizedBox(height: 40)),
+        const SliverToBoxAdapter(child: SizedBox(height: 32)),
       ],
     );
   }

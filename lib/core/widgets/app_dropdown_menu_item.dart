@@ -4,6 +4,47 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../theming/app_colors.dart';
 import '../theming/app_text_styles.dart';
 
+/// Keeps hover and keyboard-focus feedback consistent across every app
+/// dropdown without changing the hover treatment of unrelated controls.
+class AppDropdownTheme extends StatelessWidget {
+  final Widget child;
+
+  const AppDropdownTheme({super.key, required this.child});
+
+  /// Explicit state colors for Material 3 menu entries such as
+  /// [MenuItemButton]. Unlike an ambient theme, this style travels with the
+  /// menu entry when Flutter renders the menu in an overlay.
+  static ButtonStyle menuItemButtonStyle({bool isSelected = false}) =>
+      ButtonStyle(
+        backgroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
+          if (states.contains(WidgetState.disabled)) return null;
+          if (states.contains(WidgetState.pressed) ||
+              states.contains(WidgetState.focused)) {
+            return AppColors.dropdownFocusClr;
+          }
+          if (states.contains(WidgetState.hovered)) {
+            return isSelected
+                ? AppColors.dropdownFocusClr
+                : AppColors.dropdownHoverClr;
+          }
+          return isSelected ? AppColors.dropdownHoverClr : Colors.transparent;
+        }),
+        overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Theme(
+      data: theme.copyWith(
+        hoverColor: AppColors.dropdownHoverClr,
+        focusColor: AppColors.dropdownFocusClr,
+      ),
+      child: child,
+    );
+  }
+}
+
 /// Dropdown option with the app's option typography.
 ///
 /// A bare `DropdownMenuItem(child: Text(...))` inherits the ambient

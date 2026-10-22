@@ -22,10 +22,10 @@ class SearchBarWidget extends StatelessWidget {
       child: AbsorbPointer(
         child: UnifiedSearchField(
           readOnly: true,
-          borderRadius: 24.r,
-          borderColor: const Color(0xFFE5E9F0),
-          backgroundColor: Colors.white,
-          useShadow: true,
+          borderRadius: 14.r,
+          borderColor: const Color(0xFFE2E8F0),
+          backgroundColor: const Color(0xFFF8FAFC),
+          useShadow: false,
           transparentBackground: true,
           showAnimatedHint: true,
           hintWordKeys: const [

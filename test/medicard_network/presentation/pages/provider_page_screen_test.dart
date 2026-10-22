@@ -5,6 +5,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medicard/core/constants/api_result.dart';
 import 'package:medicard/core/di/service_locator.dart';
+import 'package:medicard/core/theming/app_colors.dart';
+import 'package:medicard/core/widgets/app_dropdown_menu_item.dart';
 import 'package:medicard/features/activity/domain/repositories/invoice_repository.dart';
 import 'package:medicard/features/cart/domain/repository/cart_repository.dart';
 import 'package:medicard/features/cart/domain/services/cart_sync_service.dart';
@@ -188,6 +190,33 @@ void main() {
             .focusNode
             .hasFocus,
         isTrue,
+      );
+    });
+
+    test('view dropdown style resolves the brand interaction colors', () {
+      final backgroundColor =
+          AppDropdownTheme.menuItemButtonStyle().backgroundColor!;
+
+      expect(
+        backgroundColor.resolve({WidgetState.hovered}),
+        AppColors.dropdownHoverClr,
+      );
+      expect(
+        backgroundColor.resolve({WidgetState.focused}),
+        AppColors.dropdownFocusClr,
+      );
+      expect(
+        backgroundColor.resolve({WidgetState.pressed}),
+        AppColors.dropdownFocusClr,
+      );
+
+      final selectedBackgroundColor = AppDropdownTheme.menuItemButtonStyle(
+        isSelected: true,
+      ).backgroundColor!;
+      expect(selectedBackgroundColor.resolve({}), AppColors.dropdownHoverClr);
+      expect(
+        selectedBackgroundColor.resolve({WidgetState.hovered}),
+        AppColors.dropdownFocusClr,
       );
     });
   });

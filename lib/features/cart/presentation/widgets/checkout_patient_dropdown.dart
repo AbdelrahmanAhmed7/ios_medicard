@@ -18,7 +18,11 @@ class CheckoutPatientDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = <DropdownMenuItem<int>>[
-      AppDropdownMenuItem<int>(value: 0, label: 'cart.card_owner'.tr(), fontSize: 14),
+      AppDropdownMenuItem<int>(
+        value: 0,
+        label: 'cart.card_owner'.tr(),
+        fontSize: 14,
+      ),
       ...state.familyMembers.map(
         (member) => AppDropdownMenuItem<int>(
           value: member.id ?? -1,
@@ -29,45 +33,47 @@ class CheckoutPatientDropdown extends StatelessWidget {
     ];
 
     return CheckoutDropdownFrame(
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<int>(
-          value: state.selectedFamilyMember?.id ?? 0,
-          isExpanded: true,
-          style: AppTextStyles.of(
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w500,
-            color: const Color(0xFF111827),
-          ),
-          icon: const Icon(
-            Icons.keyboard_arrow_down_rounded,
-            color: Color(0xFF6B7280),
-          ),
-          items: items,
-          hint: Text(
-            state.isFamilyMembersLoading
-                ? 'cart.loading_patients'.tr()
-                : 'cart.select_patient'.tr(),
+      child: AppDropdownTheme(
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<int>(
+            value: state.selectedFamilyMember?.id ?? 0,
+            isExpanded: true,
             style: AppTextStyles.of(
               fontSize: 14.sp,
-              color: const Color(0xFF9CA3AF),
+              fontWeight: FontWeight.w500,
+              color: const Color(0xFF111827),
             ),
-          ),
-          onChanged: state.isFamilyMembersLoading
-              ? null
-              : (id) {
-                  if (id == null || id == 0) {
-                    context.read<CartCubit>().selectFamilyMember(null);
-                    return;
-                  }
-                  FamilyMemberModel? selected;
-                  for (final member in state.familyMembers) {
-                    if (member.id == id) {
-                      selected = member;
-                      break;
+            icon: const Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: Color(0xFF6B7280),
+            ),
+            items: items,
+            hint: Text(
+              state.isFamilyMembersLoading
+                  ? 'cart.loading_patients'.tr()
+                  : 'cart.select_patient'.tr(),
+              style: AppTextStyles.of(
+                fontSize: 14.sp,
+                color: const Color(0xFF9CA3AF),
+              ),
+            ),
+            onChanged: state.isFamilyMembersLoading
+                ? null
+                : (id) {
+                    if (id == null || id == 0) {
+                      context.read<CartCubit>().selectFamilyMember(null);
+                      return;
                     }
-                  }
-                  context.read<CartCubit>().selectFamilyMember(selected);
-                },
+                    FamilyMemberModel? selected;
+                    for (final member in state.familyMembers) {
+                      if (member.id == id) {
+                        selected = member;
+                        break;
+                      }
+                    }
+                    context.read<CartCubit>().selectFamilyMember(selected);
+                  },
+          ),
         ),
       ),
     );

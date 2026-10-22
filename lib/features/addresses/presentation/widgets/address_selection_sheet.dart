@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:medicard/core/di/service_locator.dart';
 import 'package:medicard/core/theming/app_text_styles.dart';
 import 'package:medicard/core/widgets/auth_shared_widgets.dart';
+
 import '../../data/models/user_address_model.dart';
 import '../cubit/addresses_cubit.dart';
 import '../cubit/addresses_state.dart';
@@ -32,6 +33,7 @@ class AddressSelectionSheet extends StatefulWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
+      clipBehavior: Clip.antiAlias,
       builder: (_) => AddressSelectionSheet(
         onSelect: onSelect,
         onUseCurrentLocation: onUseCurrentLocation,
@@ -60,27 +62,26 @@ class _AddressSelectionSheetState extends State<AddressSelectionSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final maxHeight = MediaQuery.of(context).size.height * 0.7;
-
     return SafeArea(
       top: false,
       child: ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: maxHeight),
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.sizeOf(context).height * 0.68,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(height: 12.h),
+            SizedBox(height: 10.h),
             Container(
-              width: 42.w,
+              width: 40.w,
               height: 4.h,
               decoration: BoxDecoration(
-                color: const Color(0xFFE5E7EB),
+                color: const Color(0xFFD1D5DB),
                 borderRadius: BorderRadius.circular(4.r),
               ),
             ),
-            SizedBox(height: 16.h),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.w),
+              padding: EdgeInsets.fromLTRB(20.w, 18.h, 20.w, 12.h),
               child: Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: Text(
@@ -93,8 +94,9 @@ class _AddressSelectionSheetState extends State<AddressSelectionSheet> {
                 ),
               ),
             ),
-            SizedBox(height: 8.h),
+            const Divider(height: 1, color: Color(0xFFE5E7EB)),
             Flexible(child: _buildBody()),
+            const Divider(height: 1, color: Color(0xFFE5E7EB)),
             _buildFooter(context),
           ],
         ),
@@ -107,97 +109,84 @@ class _AddressSelectionSheetState extends State<AddressSelectionSheet> {
       bloc: _cubit,
       builder: (context, state) {
         return state.when(
-          initial: () => const Padding(
-            padding: EdgeInsets.all(32),
-            child: Center(child: CircularProgressIndicator()),
-          ),
-          loading: () => const Padding(
-            padding: EdgeInsets.all(32),
-            child: Center(child: CircularProgressIndicator()),
-          ),
-          failed: (error) => Padding(
-            padding: EdgeInsets.all(24.w),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  error,
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.of(
-                    fontSize: 14.sp,
-                    color: const Color(0xFF6B7280),
-                  ),
-                ),
-                SizedBox(height: 12.h),
-                TextButton(
-                  onPressed: _cubit.loadAddresses,
-                  child: Text('common.retry'.tr()),
-                ),
-              ],
-            ),
-          ),
-          deleting: () => const Padding(
-            padding: EdgeInsets.all(32),
-            child: Center(child: CircularProgressIndicator()),
-          ),
+          initial: _buildLoading,
+          loading: _buildLoading,
+          deleting: _buildLoading,
           deleted: () => const SizedBox.shrink(),
-          success: (addresses) => ListView(
+          failed: (error) =>
+              _ErrorState(error: error, onRetry: _cubit.loadAddresses),
+          success: (addresses) => ListView.separated(
             shrinkWrap: true,
-            padding: EdgeInsets.only(top: 4.h, bottom: 8.h),
-            children: [
-              _CurrentLocationTile(onTap: _handleUseCurrentLocation),
-              const Divider(height: 1, color: Color(0xFFEEF1F5)),
-              if (addresses.isEmpty)
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 28.h),
-                  child: Center(
-                    child: Text(
-                      'addresses.no_addresses'.tr(),
-                      style: AppTextStyles.of(
-                        fontSize: 14.sp,
-                        color: const Color(0xFF6B7280),
-                      ),
+            padding: EdgeInsets.zero,
+            itemCount: addresses.isEmpty ? 2 : addresses.length + 1,
+            separatorBuilder: (_, _) => Divider(
+              height: 1,
+              indent: 20.w,
+              endIndent: 20.w,
+              color: const Color(0xFFEEF1F5),
+            ),
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return _CurrentLocationTile(onTap: _handleUseCurrentLocation);
+              }
+
+              if (addresses.isEmpty) {
+                return Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24.h),
+                  child: Text(
+                    'addresses.no_addresses'.tr(),
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.of(
+                      fontSize: 13.sp,
+                      color: const Color(0xFF6B7280),
                     ),
                   ),
-                )
-              else
-                ...addresses.map(
-                  (address) => _AddressTile(
-                    address: address,
-                    onTap: () => _handleSelect(address),
-                  ),
-                ),
-            ],
+                );
+              }
+
+              final address = addresses[index - 1];
+              return _AddressTile(
+                address: address,
+                onTap: () => _handleSelect(address),
+              );
+            },
           ),
         );
       },
     );
   }
 
+  Widget _buildLoading() {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 36.h),
+      child: const Center(child: CircularProgressIndicator(color: kAuthBlue)),
+    );
+  }
+
   Widget _buildFooter(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 16.h),
+      padding: EdgeInsets.fromLTRB(20.w, 10.h, 20.w, 14.h),
       child: SizedBox(
         width: double.infinity,
-        child: OutlinedButton.icon(
+        child: OutlinedButton(
           onPressed: () {
             Navigator.of(context).pop();
             context.push('/addresses');
           },
-          icon: Icon(Icons.settings_outlined, size: 18.sp, color: kAuthBlue),
-          label: Text(
-            'addresses.manage_addresses'.tr(),
-            style: AppTextStyles.of(
-              fontSize: 15.sp,
-              fontWeight: FontWeight.w600,
-              color: kAuthBlue,
-            ),
-          ),
           style: OutlinedButton.styleFrom(
-            side: const BorderSide(color: kAuthBorderColor),
-            minimumSize: Size.fromHeight(48.h),
+            foregroundColor: kAuthBlue,
+            side: const BorderSide(color: kAuthBlue),
+            minimumSize: Size.fromHeight(46.h),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12.r),
+            ),
+          ),
+          child: Text(
+            'addresses.manage_addresses'.tr(),
+            style: AppTextStyles.of(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w600,
+              color: kAuthBlue,
             ),
           ),
         ),
@@ -226,20 +215,25 @@ class _CurrentLocationTile extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 15.h),
         child: Row(
           children: [
-            Icon(Icons.my_location_rounded, color: kAuthBlue, size: 22.sp),
+            Icon(Icons.my_location_rounded, color: kAuthBlue, size: 21.sp),
             SizedBox(width: 14.w),
             Expanded(
               child: Text(
                 'addresses.use_current_location'.tr(),
                 style: AppTextStyles.of(
-                  fontSize: 15.sp,
+                  fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF111827),
+                  color: kAuthBlue,
                 ),
               ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: const Color(0xFF9CA3AF),
+              size: 15.sp,
             ),
           ],
         ),
@@ -260,7 +254,7 @@ class _AddressTile extends StatelessWidget {
     final region = [
       address.localizedGovernorate(isArabic),
       address.localizedCity(isArabic),
-    ].where((part) => part.isNotEmpty).join(', ');
+    ].where((part) => part.isNotEmpty).join(isArabic ? '، ' : ', ');
 
     return InkWell(
       onTap: onTap,
@@ -270,33 +264,37 @@ class _AddressTile extends StatelessWidget {
           children: [
             Icon(
               address.isWork ? Icons.work_outline_rounded : Icons.home_outlined,
-              color: const Color(0xFF475569),
-              size: 22.sp,
+              color: const Color(0xFF4B5563),
+              size: 21.sp,
             ),
             SizedBox(width: 14.w),
             Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      Text(
-                        address.isWork
-                            ? 'addresses.work'.tr()
-                            : 'addresses.home'.tr(),
-                        style: AppTextStyles.of(
-                          fontSize: 15.sp,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF111827),
+                      Flexible(
+                        child: Text(
+                          address.isWork
+                              ? 'addresses.work'.tr()
+                              : 'addresses.home'.tr(),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.of(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF111827),
+                          ),
                         ),
                       ),
                       if (address.isDefault == true) ...[
-                        SizedBox(width: 8.w),
+                        SizedBox(width: 6.w),
                         Text(
                           '• ${'addresses.default'.tr()}',
                           style: AppTextStyles.of(
-                            fontSize: 12.sp,
+                            fontSize: 11.sp,
                             fontWeight: FontWeight.w600,
                             color: kAuthBlue,
                           ),
@@ -305,27 +303,56 @@ class _AddressTile extends StatelessWidget {
                     ],
                   ),
                   if (region.isNotEmpty) ...[
-                    SizedBox(height: 2.h),
+                    SizedBox(height: 3.h),
                     Text(
                       region,
-                      style: AppTextStyles.of(
-                        fontSize: 13.sp,
-                        color: const Color(0xFF6B7280),
-                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.of(
+                        fontSize: 12.5.sp,
+                        color: const Color(0xFF6B7280),
+                      ),
                     ),
                   ],
                 ],
               ),
             ),
             Icon(
-              Icons.chevron_right_rounded,
-              color: Colors.black38,
-              size: 20.sp,
+              Icons.arrow_forward_ios_rounded,
+              color: const Color(0xFF9CA3AF),
+              size: 15.sp,
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ErrorState extends StatelessWidget {
+  final String error;
+  final VoidCallback onRetry;
+
+  const _ErrorState({required this.error, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 28.h),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            error,
+            textAlign: TextAlign.center,
+            style: AppTextStyles.of(
+              fontSize: 13.sp,
+              color: const Color(0xFF6B7280),
+            ),
+          ),
+          SizedBox(height: 8.h),
+          TextButton(onPressed: onRetry, child: Text('common.retry'.tr())),
+        ],
       ),
     );
   }

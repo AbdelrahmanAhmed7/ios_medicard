@@ -6,14 +6,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/theming/app_text_styles.dart';
 import '../../data/model/notification_model.dart';
 
-/// Notification list item.
-///
-/// Flat bordered card matching the rest of the app (addresses, family
-/// members, invoices): 8.w side margin, 14.r radius, no heavy shadows.
-/// Unread items get a tinted background, a brand-colored border and a dot.
-///
-/// The timestamp sits on the title row so read items (which carry no action)
-/// stay two lines tall instead of reserving a third row for an empty footer.
+/// Compact notification row matching the flat list treatment used by family
+/// members. Unread state is communicated by a light tint, stronger title and
+/// blue dot; marking as read stays an explicit trailing icon action.
 class NotificationCard extends StatelessWidget {
   final NotificationModel notification;
   final VoidCallback? onTap;
@@ -27,148 +22,114 @@ class NotificationCard extends StatelessWidget {
   });
 
   static const _brandBlue = Color(0xFF3872B1);
-  static const _ink = Color(0xFF111827);
-  static const _subtleText = Color(0xFF6B7280);
-  static const _faintText = Color(0xFF98A2B3);
-  static const _cardBorder = Color(0xFFE2E8F0);
+  static const _ink = Color(0xFF0B1435);
+  static const _subtleText = Color(0xFF7481A1);
 
   @override
   Widget build(BuildContext context) {
     final isUnread = !notification.isRead;
-    final showAction = isUnread && onMarkAsRead != null;
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 5.h),
-      child: Semantics(
-        button: onTap != null,
-        child: GestureDetector(
+    return Semantics(
+      button: onTap != null,
+      child: Material(
+        color: isUnread ? const Color(0xFFF4F8FD) : Colors.white,
+        child: InkWell(
           onTap: onTap,
-          behavior: HitTestBehavior.opaque,
           child: Container(
-            padding: EdgeInsets.all(14.r),
-            decoration: BoxDecoration(
-              color: isUnread ? const Color(0xFFF2F7FD) : Colors.white,
-              borderRadius: BorderRadius.circular(14.r),
-              border: Border.all(
-                color: isUnread
-                    ? _brandBlue.withValues(alpha: 0.4)
-                    : _cardBorder,
-              ),
+            constraints: BoxConstraints(minHeight: 78.h),
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+            decoration: const BoxDecoration(
+              border: Border(bottom: BorderSide(color: Color(0xFFE9ECF2))),
             ),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 _NotificationThumbnail(notification: notification),
-                SizedBox(width: 12.w),
+                SizedBox(width: 10.w),
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Text(
-                              notification.title,
-                              style: AppTextStyles.of(
-                                fontWeight: isUnread
-                                    ? FontWeight.w700
-                                    : FontWeight.w600,
-                                fontSize: 14.sp,
-                                color: _ink,
-                                height: 1.3,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          SizedBox(width: 8.w),
-                          Flexible(
-                            child: Padding(
-                              padding: EdgeInsets.only(top: 3.h),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.schedule_rounded,
-                                    size: 12.sp,
-                                    color: _faintText,
-                                  ),
-                                  SizedBox(width: 3.w),
-                                  Flexible(
-                                    child: Text(
-                                      _formatRelativeTime(
-                                        context,
-                                        notification.createdAt,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: AppTextStyles.of(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 11.sp,
-                                        color: _faintText,
-                                        height: 1.3,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 5.h),
-                      Text(
-                        notification.body,
-                        style: AppTextStyles.of(
-                          fontWeight: FontWeight.w400,
-                          fontSize: 13.sp,
-                          color: _subtleText,
-                          height: 1.45,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (isUnread) ...[
-                        SizedBox(height: 10.h),
-                        Row(
-                          children: [
+                          if (isUnread) ...[
                             Container(
-                              width: 8.r,
-                              height: 8.r,
+                              width: 7.r,
+                              height: 7.r,
                               decoration: const BoxDecoration(
                                 color: _brandBlue,
                                 shape: BoxShape.circle,
                               ),
                             ),
-                            SizedBox(width: 8.w),
-                            Expanded(
-                              child: Text(
-                                context.tr('notifications.unread_label'),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: AppTextStyles.of(
-                                  fontSize: 11.5.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: _brandBlue,
-                                  height: 1.3,
-                                ),
+                            SizedBox(width: 7.w),
+                          ],
+                          Expanded(
+                            child: Text(
+                              notification.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.of(
+                                fontSize: 13.5.sp,
+                                fontWeight: isUnread
+                                    ? FontWeight.w700
+                                    : FontWeight.w600,
+                                color: _ink,
+                                height: 1.25,
                               ),
                             ),
-                            if (showAction) ...[
-                              SizedBox(width: 8.w),
-                              Flexible(
-                                child: _MarkReadAction(
-                                  onPressed: onMarkAsRead!,
-                                ),
-                              ),
-                            ],
-                          ],
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 3.h),
+                      Text(
+                        notification.body,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.of(
+                          fontSize: 11.5.sp,
+                          fontWeight: FontWeight.w400,
+                          color: _subtleText,
+                          height: 1.35,
                         ),
-                      ],
+                      ),
+                      SizedBox(height: 4.h),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.schedule_rounded,
+                            size: 11.5.sp,
+                            color: const Color(0xFF98A2B3),
+                          ),
+                          SizedBox(width: 3.w),
+                          Flexible(
+                            child: Text(
+                              _formatRelativeTime(
+                                context,
+                                notification.createdAt,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.of(
+                                fontSize: 10.5.sp,
+                                fontWeight: FontWeight.w500,
+                                color: const Color(0xFF98A2B3),
+                                height: 1.2,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
+                if (isUnread && onMarkAsRead != null) ...[
+                  SizedBox(width: 6.w),
+                  _MarkReadIconAction(
+                    notificationId: notification.id,
+                    onPressed: onMarkAsRead!,
+                  ),
+                ],
               ],
             ),
           ),
@@ -219,53 +180,34 @@ class NotificationCard extends StatelessWidget {
   }
 }
 
-/// Pill action on the unread footer.
-class _MarkReadAction extends StatelessWidget {
+class _MarkReadIconAction extends StatelessWidget {
+  final int notificationId;
   final VoidCallback onPressed;
 
-  const _MarkReadAction({required this.onPressed});
+  const _MarkReadIconAction({
+    required this.notificationId,
+    required this.onPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      label: context.tr('notifications.mark_read'),
-      child: GestureDetector(
-        onTap: onPressed,
-        behavior: HitTestBehavior.opaque,
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(999.r),
-            border: Border.all(
-              color: NotificationCard._brandBlue.withValues(alpha: 0.35),
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.done_all_rounded,
-                size: 14.sp,
-                color: NotificationCard._brandBlue,
-              ),
-              SizedBox(width: 4.w),
-              Flexible(
-                child: Text(
-                  context.tr('notifications.mark_read'),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.of(
-                    fontSize: 11.5.sp,
-                    fontWeight: FontWeight.w700,
-                    color: NotificationCard._brandBlue,
-                    height: 1.2,
-                  ),
-                ),
-              ),
-            ],
-          ),
+    return IconButton(
+      key: ValueKey('mark-notification-read-$notificationId'),
+      tooltip: context.tr('notifications.mark_read'),
+      onPressed: onPressed,
+      padding: EdgeInsets.zero,
+      constraints: BoxConstraints(minWidth: 40.r, minHeight: 48.r),
+      icon: Container(
+        width: 32.r,
+        height: 32.r,
+        decoration: const BoxDecoration(
+          color: Color(0xFFEAF1F9),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          Icons.done_rounded,
+          color: NotificationCard._brandBlue,
+          size: 19.sp,
         ),
       ),
     );
@@ -279,12 +221,13 @@ class _NotificationThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = 42.r;
     return Container(
-      width: 52.r,
-      height: 52.r,
-      decoration: BoxDecoration(
-        color: const Color(0xFFEAF2FB),
-        borderRadius: BorderRadius.circular(14.r),
+      width: size,
+      height: size,
+      decoration: const BoxDecoration(
+        color: Color(0xFFEAF2FB),
+        shape: BoxShape.circle,
       ),
       clipBehavior: Clip.antiAlias,
       child: _NotificationImage(
@@ -338,11 +281,7 @@ class _NotificationFallbackIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Icon(
-        icon,
-        color: NotificationCard._brandBlue,
-        size: 22.sp,
-      ),
+      child: Icon(icon, color: NotificationCard._brandBlue, size: 20.sp),
     );
   }
 }

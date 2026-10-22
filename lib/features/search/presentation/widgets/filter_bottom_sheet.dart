@@ -34,7 +34,8 @@ class FilterBottomSheet extends StatelessWidget {
         left: 20.w,
         right: 20.w,
         top: 16.h,
-        bottom: MediaQuery.of(context).viewInsets.bottom +
+        bottom:
+            MediaQuery.of(context).viewInsets.bottom +
             MediaQuery.of(context).padding.bottom +
             24.h,
       ),
@@ -236,9 +237,7 @@ class _SortOptionTile extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
         decoration: BoxDecoration(
-          color: isSelected
-              ? const Color(0xFFEFF6FF)
-              : const Color(0xFFF9FAFB),
+          color: isSelected ? const Color(0xFFEFF6FF) : const Color(0xFFF9FAFB),
           borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
             color: isSelected
@@ -332,27 +331,29 @@ class _LookupDropdown extends StatelessWidget {
                 ),
               ),
             )
-          : DropdownButtonHideUnderline(
-              child: DropdownButton<int?>(
-                isExpanded: true,
-                hint: Text(
-                  hint,
+          : AppDropdownTheme(
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<int?>(
+                  isExpanded: true,
+                  hint: Text(
+                    hint,
+                    style: AppTextStyles.of(
+                      fontSize: 13.sp,
+                      color: const Color(0xFF9CA3AF),
+                    ),
+                  ),
+                  value: value,
+                  items: items,
+                  onChanged: isDisabled ? null : onChanged,
                   style: AppTextStyles.of(
                     fontSize: 13.sp,
-                    color: const Color(0xFF9CA3AF),
+                    color: const Color(0xFF1A1A2E),
                   ),
-                ),
-                value: value,
-                items: items,
-                onChanged: isDisabled ? null : onChanged,
-                style: AppTextStyles.of(
-                  fontSize: 13.sp,
-                  color: const Color(0xFF1A1A2E),
-                ),
-                icon: Icon(
-                  Icons.keyboard_arrow_down_rounded,
-                  color: const Color(0xFF9CA3AF),
-                  size: 22.sp,
+                  icon: Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: const Color(0xFF9CA3AF),
+                    size: 22.sp,
+                  ),
                 ),
               ),
             ),

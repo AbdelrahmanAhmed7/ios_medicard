@@ -20,42 +20,44 @@ class EditProfileGenderDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButtonFormField<bool>(
-      initialValue: isMale,
-      isExpanded: true,
-      hint: Text(
-        'edit_profile.select_an_option'.tr(),
+    return AppDropdownTheme(
+      child: DropdownButtonFormField<bool>(
+        initialValue: isMale,
+        isExpanded: true,
+        hint: Text(
+          'edit_profile.select_an_option'.tr(),
+          style: AppTextStyles.of(
+            fontSize: 14.sp,
+            color: const Color(0xFFB0B8C1),
+            fontWeight: FontWeight.w400,
+          ),
+        ),
         style: AppTextStyles.of(
-          fontSize: 14.sp,
-          color: const Color(0xFFB0B8C1),
-          fontWeight: FontWeight.w400,
+          fontSize: 15.sp,
+          color: AppColors.inkClr,
+          fontWeight: FontWeight.w500,
+          height: 1.3,
         ),
-      ),
-      style: AppTextStyles.of(
-        fontSize: 15.sp,
-        color: AppColors.inkClr,
-        fontWeight: FontWeight.w500,
-        height: 1.3,
-      ),
-      icon: const Icon(
-        Icons.keyboard_arrow_down_rounded,
-        color: Color(0xFF64748B),
-        size: 20,
-      ),
-      decoration: authInputDecoration(
-        hintText: 'edit_profile.select_an_option'.tr(),
-      ),
-      items: [
-        AppDropdownMenuItem<bool>(
-          value: true,
-          label: 'edit_profile.male'.tr(),
+        icon: const Icon(
+          Icons.keyboard_arrow_down_rounded,
+          color: Color(0xFF64748B),
+          size: 20,
         ),
-        AppDropdownMenuItem<bool>(
-          value: false,
-          label: 'edit_profile.female'.tr(),
+        decoration: authInputDecoration(
+          hintText: 'edit_profile.select_an_option'.tr(),
         ),
-      ],
-      onChanged: onChanged,
+        items: [
+          AppDropdownMenuItem<bool>(
+            value: true,
+            label: 'edit_profile.male'.tr(),
+          ),
+          AppDropdownMenuItem<bool>(
+            value: false,
+            label: 'edit_profile.female'.tr(),
+          ),
+        ],
+        onChanged: onChanged,
+      ),
     );
   }
 }

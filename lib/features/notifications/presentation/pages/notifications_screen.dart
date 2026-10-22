@@ -1,4 +1,3 @@
-import 'package:medicard/core/widgets/app_simple_header.dart';
 import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
@@ -8,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
+import '../../../../core/widgets/app_simple_header.dart';
 import '../../data/model/notification_model.dart';
 import '../../push_notification_service.dart';
 import '../cubit/notification_cubit.dart';
@@ -27,7 +27,6 @@ class NotificationsScreen extends StatefulWidget {
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
   final ScrollController _scrollController = ScrollController();
-  StreamSubscription? _messageSubscription;
   int _selectedIndex = 0;
   String? _activeLanguage;
 
@@ -35,19 +34,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    _messageSubscription = PushNotificationService.instance.onMessageReceived
-        .listen((_) {
-          if (!mounted) return;
-          final cubit = context.read<NotificationCubit>();
-          // Silent: a push arriving while the user reads the list must not
-          // collapse it into the loading skeleton.
-          if (!cubit.state.isLoading) cubit.getNotifications(silent: true);
-        });
+    unawaited(context.read<NotificationCubit>().init());
   }
 
   @override
   void dispose() {
-    _messageSubscription?.cancel();
     _scrollController
       ..removeListener(_onScroll)
       ..dispose();
@@ -273,10 +264,29 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         physics: const AlwaysScrollableScrollPhysics(
           parent: BouncingScrollPhysics(),
         ),
-        padding: EdgeInsets.fromLTRB(0, 6.h, 0, 24.h),
-        itemCount: visibleItems.length + (state.isLoadingMore ? 1 : 0),
+        padding: EdgeInsets.only(bottom: 24.h),
+        itemCount: visibleItems.length + 1 + (state.isLoadingMore ? 1 : 0),
         itemBuilder: (context, index) {
-          if (index >= visibleItems.length) {
+          if (index == 0) {
+            return Padding(
+              padding: EdgeInsets.fromLTRB(14.w, 14.h, 14.w, 10.h),
+              child: Text(
+                (_selectedIndex == 0
+                        ? context.tr('notifications.all')
+                        : context.tr('notifications.unread'))
+                    .toUpperCase(),
+                style: AppTextStyles.of(
+                  fontSize: 11.sp,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.8,
+                  color: const Color(0xFF657293),
+                ),
+              ),
+            );
+          }
+
+          final itemIndex = index - 1;
+          if (itemIndex >= visibleItems.length) {
             return Padding(
               padding: EdgeInsets.symmetric(vertical: 18.h),
               child: const Center(
@@ -291,7 +301,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             );
           }
 
-          final notification = visibleItems[index];
+          final notification = visibleItems[itemIndex];
           // Per-tile repaint isolation: marking one item read repaints only
           // that card instead of the whole viewport.
           return RepaintBoundary(
@@ -334,20 +344,18 @@ class _NotificationsToolbar extends StatelessWidget {
           ? context.tr('notifications.all_caught_up')
           : context.tr('notifications.unread_count', args: ['$unreadCount']),
       subtitleColor: unreadCount == 0 ? _inkFaint : _brandBlue,
-      actions: [
-        _MarkAllReadAction(enabled: unreadCount > 0, onPressed: onMarkAllRead),
-      ],
-      bottomChild: _NotificationFilters(
+      bottomChild: _NotificationControls(
         selectedIndex: selectedFilter,
         unreadCount: unreadCount,
         onSelected: onFilterSelected,
+        onMarkAllRead: onMarkAllRead,
       ),
     );
   }
 }
 
-/// Labelled "mark all read" pill — an icon-only round button gave no clue what
-/// it did and was a 40pt target with no affordance for its state.
+/// Labelled "mark all as read" action above the filters so the full action
+/// name remains visible on narrow screens and at large text scales.
 class _MarkAllReadAction extends StatelessWidget {
   final bool enabled;
   final VoidCallback onPressed;
@@ -386,7 +394,7 @@ class _MarkAllReadAction extends StatelessWidget {
               SizedBox(width: 5.w),
               Flexible(
                 child: Text(
-                  context.tr('notifications.mark_all_read_short'),
+                  context.tr('notifications.mark_all_read'),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.of(
@@ -408,40 +416,54 @@ class _MarkAllReadAction extends StatelessWidget {
 /// All / Unread filter chips. Replaces the segmented control, which reserved
 /// a full-width bar for two short labels and clipped them at large text
 /// scales.
-class _NotificationFilters extends StatelessWidget {
+class _NotificationControls extends StatelessWidget {
   final int selectedIndex;
   final int unreadCount;
   final ValueChanged<int> onSelected;
+  final VoidCallback onMarkAllRead;
 
-  const _NotificationFilters({
+  const _NotificationControls({
     required this.selectedIndex,
     required this.unreadCount,
     required this.onSelected,
+    required this.onMarkAllRead,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 40.h,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        padding: EdgeInsetsDirectional.fromSTEB(8.w, 4.h, 8.w, 6.h),
-        children: [
-          _FilterChip(
-            label: context.tr('notifications.all'),
-            isSelected: selectedIndex == 0,
-            onTap: () => onSelected(0),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: _MarkAllReadAction(
+            enabled: unreadCount > 0,
+            onPressed: onMarkAllRead,
           ),
-          SizedBox(width: 8.w),
-          _FilterChip(
-            label: context.tr('notifications.unread'),
-            isSelected: selectedIndex == 1,
-            count: unreadCount,
-            onTap: () => onSelected(1),
+        ),
+        SizedBox(height: 4.h),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          padding: EdgeInsetsDirectional.fromSTEB(8.w, 4.h, 8.w, 4.h),
+          child: Row(
+            children: [
+              _FilterChip(
+                label: context.tr('notifications.all'),
+                isSelected: selectedIndex == 0,
+                onTap: () => onSelected(0),
+              ),
+              SizedBox(width: 8.w),
+              _FilterChip(
+                label: context.tr('notifications.unread'),
+                isSelected: selectedIndex == 1,
+                count: unreadCount,
+                onTap: () => onSelected(1),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -471,7 +493,7 @@ class _FilterChip extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 160),
           alignment: Alignment.center,
-          padding: EdgeInsets.symmetric(horizontal: 14.w),
+          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 9.h),
           decoration: BoxDecoration(
             color: isSelected ? _brandBlue : Colors.white,
             borderRadius: BorderRadius.circular(999.r),
@@ -529,9 +551,17 @@ class _NotificationsLoading extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView.builder(
       physics: const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.only(top: 6.h),
-      itemCount: 5,
-      itemBuilder: (_, _) => const _NotificationSkeleton(),
+      padding: EdgeInsets.only(top: 8.h),
+      itemCount: 6,
+      itemBuilder: (context, index) => index == 0
+          ? Padding(
+              padding: EdgeInsets.fromLTRB(14.w, 6.h, 14.w, 10.h),
+              child: const Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: _SkeletonBlock(width: 82, height: 10, radius: 5),
+              ),
+            )
+          : const _NotificationSkeleton(),
     );
   }
 }
@@ -542,41 +572,31 @@ class _NotificationSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 132.h,
-      margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 5.h),
-      padding: EdgeInsets.all(14.r),
-      decoration: BoxDecoration(
+      constraints: BoxConstraints(minHeight: 82.h),
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+      decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: const Color(0xFFE9ECF0)),
+        border: Border(bottom: BorderSide(color: Color(0xFFE9ECF2))),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _SkeletonBlock(width: 52, height: 52, radius: 14),
-          SizedBox(width: 12.w),
+          const _SkeletonBlock(width: 42, height: 42, radius: 21),
+          SizedBox(width: 10.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const _SkeletonBlock(width: 150, height: 13, radius: 5),
-                SizedBox(height: 5.h),
+                SizedBox(height: 6.h),
                 const _SkeletonBlock(height: 10, radius: 5),
-                SizedBox(height: 8.h),
-                const _SkeletonBlock(width: 190, height: 10, radius: 5),
-                const Spacer(),
-                Row(
-                  children: [
-                    const _SkeletonBlock(width: 8, height: 8, radius: 4),
-                    SizedBox(width: 8.w),
-                    const _SkeletonBlock(width: 34, height: 9, radius: 5),
-                    const Spacer(),
-                    const _SkeletonBlock(width: 84, height: 22, radius: 11),
-                  ],
-                ),
+                SizedBox(height: 7.h),
+                const _SkeletonBlock(width: 48, height: 9, radius: 5),
               ],
             ),
           ),
+          SizedBox(width: 8.w),
+          const _SkeletonBlock(width: 32, height: 32, radius: 16),
         ],
       ),
     );

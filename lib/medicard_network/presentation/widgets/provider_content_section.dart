@@ -298,7 +298,7 @@ class PackagesSection extends StatelessWidget {
             crossAxisCount: 2,
             crossAxisSpacing: 12.w,
             mainAxisSpacing: 12.h,
-            childAspectRatio: 0.78,
+            mainAxisExtent: 272,
           ),
           itemCount: state.packages.length,
           itemBuilder: (context, index) {

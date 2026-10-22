@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:medicard/features/notifications/data/domain/use_cases/get_notifications_use_case.dart';
 import 'package:medicard/features/notifications/data/domain/use_cases/mark_all_notifications_read_use_case.dart';
@@ -11,18 +13,26 @@ class NotificationCubit extends Cubit<NotificationState> {
   final GetNotificationsUseCase _getNotificationsUseCase;
   final MarkNotificationReadUseCase _markNotificationReadUseCase;
   final MarkAllNotificationsReadUseCase _markAllNotificationsReadUseCase;
+  StreamSubscription<dynamic>? _messageSubscription;
+  bool _hasStarted = false;
 
   static const int _pageSize = 10;
 
   NotificationCubit(
-      this._getNotificationsUseCase,
-      this._markNotificationReadUseCase,
-      this._markAllNotificationsReadUseCase,
-      ) : super(const NotificationState());
+    this._getNotificationsUseCase,
+    this._markNotificationReadUseCase,
+    this._markAllNotificationsReadUseCase, {
+    Stream<dynamic>? messageStream,
+  }) : super(const NotificationState()) {
+    _messageSubscription = messageStream?.listen((_) {
+      if (isClosed || !_hasStarted || state.isLoading) return;
+      unawaited(getNotifications(silent: true));
+    });
+  }
 
   Future<void> init() async {
-    if (isClosed) return;
-    await getNotifications();
+    if (isClosed || state.isLoading) return;
+    await getNotifications(silent: state.items.isNotEmpty);
   }
 
   /// Loads page 1.
@@ -33,6 +43,7 @@ class NotificationCubit extends Cubit<NotificationState> {
   /// blank the list out from under the user.
   Future<void> getNotifications({bool silent = false}) async {
     if (isClosed) return;
+    _hasStarted = true;
     emit(
       state.copyWith(
         isLoading: !silent,
@@ -203,5 +214,11 @@ class NotificationCubit extends Cubit<NotificationState> {
       );
     }).toList();
     emit(state.copyWith(items: rolledBack, markReadError: failureMessage));
+  }
+
+  @override
+  Future<void> close() async {
+    await _messageSubscription?.cancel();
+    return super.close();
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +8,8 @@ import '../../../../core/theming/app_spacing.dart';
 import '../../../../core/theming/app_toast.dart';
 import '../../../../core/widgets/app_blue_header.dart';
 import '../../../addresses/presentation/widgets/address_selection_sheet.dart';
+import '../../../notifications/presentation/cubit/notification_cubit.dart';
+import '../../../notifications/presentation/cubit/notification_state.dart';
 
 import '../cubit/location_cubit.dart';
 import '../cubit/location_state.dart';
@@ -18,13 +22,7 @@ class HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF3872B1),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
-        ),
-      ),
+      color: Colors.white,
       width: double.infinity,
       child: SafeArea(
         bottom: false,
@@ -33,15 +31,15 @@ class HomeHeader extends StatelessWidget {
           child: Padding(
             padding: EdgeInsets.fromLTRB(
               AppSpacing.pageHorizontal,
-              10,
+              8,
               AppSpacing.pageHorizontal,
-              10,
+              12,
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: const [
                 _HeaderTopRow(),
-                SizedBox(height: 12),
+                SizedBox(height: 10),
                 Expanded(child: _HeaderSearchBar()),
               ],
             ),
@@ -70,21 +68,7 @@ class _HeaderTopRow extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 16),
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: GestureDetector(
-            onTap: () => context.push('/notifications'),
-            child: const Icon(
-              Icons.notifications_none_rounded,
-              color: Color(0xFF3872B1),
-              size: 22,
-            ),
-          ),
-        ),
+        const _NotificationsButton(),
       ],
     );
   }
@@ -119,6 +103,99 @@ class _HeaderTopRow extends StatelessWidget {
       onUseCurrentLocation: () async {
         await locationCubit.clearSelectedAddress();
         await locationCubit.retryLocation();
+      },
+    );
+  }
+}
+
+class _NotificationsButton extends StatefulWidget {
+  const _NotificationsButton();
+
+  @override
+  State<_NotificationsButton> createState() => _NotificationsButtonState();
+}
+
+class _NotificationsButtonState extends State<_NotificationsButton> {
+  @override
+  void initState() {
+    super.initState();
+    unawaited(context.read<NotificationCubit>().init());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocSelector<NotificationCubit, NotificationState, int>(
+      selector: (state) =>
+          state.items.where((notification) => !notification.isRead).length,
+      builder: (context, unreadCount) {
+        final hasUnread = unreadCount > 0;
+        return SizedBox(
+          width: 40,
+          height: 40,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Positioned.fill(
+                child: IconButton(
+                  tooltip: 'notifications.title'.tr(),
+                  onPressed: () => context.push('/notifications'),
+                  padding: EdgeInsets.zero,
+                  style: IconButton.styleFrom(
+                    backgroundColor: const Color(0xFFF8FAFC),
+                    side: const BorderSide(color: Color(0xFFE5E7EB)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  icon: Icon(
+                    hasUnread
+                        ? Icons.notifications_rounded
+                        : Icons.notifications_none_rounded,
+                    color: const Color(0xFF3872B1),
+                    size: 22,
+                  ),
+                ),
+              ),
+              if (hasUnread)
+                PositionedDirectional(
+                  key: const ValueKey('notification-unread-badge'),
+                  top: -6,
+                  end: -6,
+                  child: IgnorePointer(
+                    child: Container(
+                      constraints: const BoxConstraints(
+                        minWidth: 19,
+                        minHeight: 19,
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEF4444),
+                        borderRadius: BorderRadius.circular(999),
+                        border: Border.all(color: Colors.white, width: 1.5),
+                      ),
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 180),
+                        transitionBuilder: (child, animation) =>
+                            ScaleTransition(scale: animation, child: child),
+                        child: Text(
+                          unreadCount > 99 ? '99+' : '$unreadCount',
+                          key: ValueKey(unreadCount),
+                          textScaler: TextScaler.noScaling,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            height: 1,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
       },
     );
   }

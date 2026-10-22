@@ -272,8 +272,8 @@ class AppRouter {
         GoRoute(
           path: '/notifications',
           builder: (context, state) {
-            return BlocProvider(
-              create: (_) => sl<NotificationCubit>()..init(),
+            return BlocProvider.value(
+              value: sl<NotificationCubit>(),
               child: const NotificationsScreen(),
             );
           },
@@ -688,28 +688,16 @@ class AppRouter {
 /// Reports the top route path to [AppRouter.currentLocation] on every
 /// navigation event so app-wide overlays can react to the current screen.
 class _LocationObserver extends NavigatorObserver {
-  void _update() {
-    final pages = navigator?.widget.pages;
-    final name = (pages != null && pages.isNotEmpty)
-        ? (pages.last.name ?? '')
-        : '';
+  void _update(Route<dynamic>? route) {
+    final name = route?.settings.name ?? '';
     if (AppRouter.currentLocation.value != name) {
       AppRouter.currentLocation.value = name;
     }
   }
 
   @override
-  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) =>
-      _update();
-
-  @override
-  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) => _update();
-
-  @override
-  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) =>
-      _update();
-
-  @override
-  void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) =>
-      _update();
+  void didChangeTop(
+    Route<dynamic> topRoute,
+    Route<dynamic>? previousTopRoute,
+  ) => _update(topRoute);
 }

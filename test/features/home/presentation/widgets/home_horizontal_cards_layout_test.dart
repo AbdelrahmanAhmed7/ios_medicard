@@ -59,9 +59,51 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  for (final textScale in [0.8, 1.0, 1.3, 1.6, 2.0]) {
+    testWidgets(
+      'home card footers keep the same bottom inset at text scale $textScale',
+      (tester) async {
+        tester.view.devicePixelRatio = 1;
+        tester.view.physicalSize = const Size(430, 812);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        addTearDown(tester.view.resetPhysicalSize);
+
+        await tester.pumpWidget(_testApp(textScale: textScale));
+        await tester.pumpAndSettle();
+
+        final packageBottom = tester
+            .getBottomRight(find.byType(FeaturedServiceCard))
+            .dy;
+        final packageFooterBottom = tester
+            .getBottomRight(
+              find.byKey(const ValueKey('featured-package-footer')),
+            )
+            .dy;
+        final providerBottom = tester
+            .getBottomRight(find.byType(NearestProviderCard))
+            .dy;
+        final providerFooterBottom = tester
+            .getBottomRight(
+              find.byKey(const ValueKey('nearest-provider-footer')),
+            )
+            .dy;
+
+        expect(
+          packageBottom - packageFooterBottom,
+          HomeHorizontalCardStyle.footerBottomInset,
+        );
+        expect(
+          providerBottom - providerFooterBottom,
+          HomeHorizontalCardStyle.footerBottomInset,
+        );
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
 }
 
-Widget _testApp() {
+Widget _testApp({double textScale = 1}) {
   const provider = ProviderModel(
     providerId: 1,
     imageUrl: '',
@@ -103,6 +145,12 @@ Widget _testApp() {
           supportedLocales: context.supportedLocales,
           locale: context.locale,
           theme: ThemeData(fontFamily: 'Cairo'),
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(
+              context,
+            ).copyWith(textScaler: TextScaler.linear(textScale)),
+            child: child!,
+          ),
           home: Scaffold(
             body: Column(
               children: [

@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../core/theming/app_colors.dart';
 import '../../../core/theming/app_text_styles.dart';
+import '../../../core/widgets/app_dropdown_menu_item.dart';
 import '../../logic/provider_page_cubit.dart';
 import '../../logic/provider_page_state.dart';
 import 'provider_rebuild_scopes.dart';
@@ -55,66 +56,121 @@ class ProviderSearchRow extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12.r),
                     border: Border.all(color: const Color(0xFFE2E8F0)),
                   ),
-                  child: PopupMenuButton<ProviderViewType>(
-                    initialValue: state.catalogView,
-                    position: PopupMenuPosition.under,
-                    offset: Offset(0, 8.h),
-                    color: Colors.white,
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                      side: const BorderSide(color: Color(0xFFE2E8F0)),
-                    ),
-                    padding: EdgeInsets.zero,
-                    itemBuilder: (context) => [
-                      PopupMenuItem(
-                        value: ProviderViewType.services,
-                        child: Text(
-                          'provider_page.services'.tr(),
-                          style: AppTextStyles.of(
-                            color: AppColors.inkClr,
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w500,
-                            height: 1.3,
+                  child: AppDropdownTheme(
+                    child: MenuAnchor(
+                      alignmentOffset: Offset(0, 8.h),
+                      style: MenuStyle(
+                        backgroundColor: const WidgetStatePropertyAll(
+                          Colors.white,
+                        ),
+                        elevation: const WidgetStatePropertyAll(4),
+                        padding: const WidgetStatePropertyAll(EdgeInsets.zero),
+                        shape: WidgetStatePropertyAll(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.r),
+                            side: const BorderSide(color: Color(0xFFE2E8F0)),
                           ),
                         ),
                       ),
-                      PopupMenuItem(
-                        value: ProviderViewType.packages,
-                        child: Text(
-                          'provider_page.packages'.tr(),
-                          style: AppTextStyles.of(
-                            color: AppColors.inkClr,
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w500,
-                            height: 1.3,
+                      menuChildren: [
+                        MenuItemButton(
+                          style:
+                              AppDropdownTheme.menuItemButtonStyle(
+                                isSelected:
+                                    state.catalogView ==
+                                    ProviderViewType.services,
+                              ).copyWith(
+                                minimumSize: WidgetStatePropertyAll(
+                                  Size(150.w, 48.h),
+                                ),
+                                padding: WidgetStatePropertyAll(
+                                  EdgeInsets.symmetric(horizontal: 16.w),
+                                ),
+                              ),
+                          onPressed: () async {
+                            await cubit.switchView(ProviderViewType.services);
+                          },
+                          child: Text(
+                            'provider_page.services'.tr(),
+                            style: AppTextStyles.of(
+                              color:
+                                  state.catalogView == ProviderViewType.services
+                                  ? AppColors.brandBlueClr
+                                  : AppColors.inkClr,
+                              fontSize: 14.sp,
+                              fontWeight:
+                                  state.catalogView == ProviderViewType.services
+                                  ? FontWeight.w600
+                                  : FontWeight.w500,
+                              height: 1.3,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                    onSelected: (newValue) async {
-                      await cubit.switchView(newValue);
-                    },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          state.catalogView == ProviderViewType.packages
-                              ? 'provider_page.packages'.tr()
-                              : 'provider_page.services'.tr(),
-                          style: AppTextStyles.of(
-                            color: const Color(0xFF64748B),
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w500,
+                        MenuItemButton(
+                          style:
+                              AppDropdownTheme.menuItemButtonStyle(
+                                isSelected:
+                                    state.catalogView ==
+                                    ProviderViewType.packages,
+                              ).copyWith(
+                                minimumSize: WidgetStatePropertyAll(
+                                  Size(150.w, 48.h),
+                                ),
+                                padding: WidgetStatePropertyAll(
+                                  EdgeInsets.symmetric(horizontal: 16.w),
+                                ),
+                              ),
+                          onPressed: () async {
+                            await cubit.switchView(ProviderViewType.packages);
+                          },
+                          child: Text(
+                            'provider_page.packages'.tr(),
+                            style: AppTextStyles.of(
+                              color:
+                                  state.catalogView == ProviderViewType.packages
+                                  ? AppColors.brandBlueClr
+                                  : AppColors.inkClr,
+                              fontSize: 14.sp,
+                              fontWeight:
+                                  state.catalogView == ProviderViewType.packages
+                                  ? FontWeight.w600
+                                  : FontWeight.w500,
+                              height: 1.3,
+                            ),
                           ),
-                        ),
-                        SizedBox(width: 8.w),
-                        const Icon(
-                          Icons.keyboard_arrow_down_rounded,
-                          color: Color(0xFF64748B),
-                          size: 18,
                         ),
                       ],
+                      builder: (context, controller, child) => InkWell(
+                        borderRadius: BorderRadius.circular(12.r),
+                        onTap: () {
+                          if (controller.isOpen) {
+                            controller.close();
+                          } else {
+                            controller.open();
+                          }
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              state.catalogView == ProviderViewType.packages
+                                  ? 'provider_page.packages'.tr()
+                                  : 'provider_page.services'.tr(),
+                              style: AppTextStyles.of(
+                                color: AppColors.brandBlueClr,
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            SizedBox(width: 8.w),
+                            const Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              color: AppColors.brandBlueClr,
+                              size: 18,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),

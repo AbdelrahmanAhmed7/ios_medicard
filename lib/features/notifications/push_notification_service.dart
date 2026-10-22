@@ -43,7 +43,9 @@ class PushNotificationService {
   PushNotificationService._();
   static final PushNotificationService instance = PushNotificationService._();
 
-  final _messaging = FirebaseMessaging.instance;
+  // Resolve lazily so consumers can subscribe to the service's local event
+  // streams before Firebase finishes its non-blocking startup initialization.
+  FirebaseMessaging get _messaging => FirebaseMessaging.instance;
   final _localNotifications = FlutterLocalNotificationsPlugin();
   bool _isFlutterLocalNotificationsInitialized = false;
   bool _isInitialized = false;

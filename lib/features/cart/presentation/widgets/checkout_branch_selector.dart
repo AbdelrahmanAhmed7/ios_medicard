@@ -30,48 +30,50 @@ class CheckoutBranchSelector extends StatelessWidget {
             height: 48.h,
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 12.w),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<int>(
-                  value: selected?.branchId,
-                  isExpanded: true,
-                  style: AppTextStyles.of(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w500,
-                    color: const Color(0xFF111827),
-                  ),
-                  icon: const Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    color: Color(0xFF6B7280),
-                  ),
-                  hint: Text(
-                    state.isCheckoutLoading
-                        ? 'cart.loading_branches'.tr()
-                        : 'provider_page.select_branch'.tr(),
+              child: AppDropdownTheme(
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<int>(
+                    value: selected?.branchId,
+                    isExpanded: true,
                     style: AppTextStyles.of(
                       fontSize: 14.sp,
-                      color: const Color(0xFF9CA3AF),
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF111827),
                     ),
+                    icon: const Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      color: Color(0xFF6B7280),
+                    ),
+                    hint: Text(
+                      state.isCheckoutLoading
+                          ? 'cart.loading_branches'.tr()
+                          : 'provider_page.select_branch'.tr(),
+                      style: AppTextStyles.of(
+                        fontSize: 14.sp,
+                        color: const Color(0xFF9CA3AF),
+                      ),
+                    ),
+                    items: state.checkoutBranches
+                        .map(
+                          (branch) => AppDropdownMenuItem(
+                            value: branch.branchId,
+                            label: branch.fullAddress ?? branch.branchName,
+                            fontSize: 14,
+                          ),
+                        )
+                        .toList(),
+                    onChanged: state.isCheckoutLoading
+                        ? null
+                        : (branchId) {
+                            if (branchId == null) return;
+                            final branch = state.checkoutBranches.firstWhere(
+                              (branch) => branch.branchId == branchId,
+                            );
+                            context.read<CartCubit>().selectCheckoutBranch(
+                              branch,
+                            );
+                          },
                   ),
-                  items: state.checkoutBranches
-                      .map(
-                        (branch) => AppDropdownMenuItem(
-                          value: branch.branchId,
-                          label: branch.fullAddress ?? branch.branchName,
-                          fontSize: 14,
-                        ),
-                      )
-                      .toList(),
-                  onChanged: state.isCheckoutLoading
-                      ? null
-                      : (branchId) {
-                          if (branchId == null) return;
-                          final branch = state.checkoutBranches.firstWhere(
-                            (branch) => branch.branchId == branchId,
-                          );
-                          context.read<CartCubit>().selectCheckoutBranch(
-                            branch,
-                          );
-                        },
                 ),
               ),
             ),

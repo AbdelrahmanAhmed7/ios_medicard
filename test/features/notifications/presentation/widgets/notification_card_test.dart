@@ -39,7 +39,8 @@ void main() {
   });
 
   String resolve(String language, String key, [String? arg]) {
-    final value = translations[language]!['notifications'] as Map<String, dynamic>;
+    final value =
+        translations[language]!['notifications'] as Map<String, dynamic>;
     var text = value[key] as String;
     if (arg != null) text = text.replaceFirst('{}', arg);
     return text;
@@ -94,7 +95,7 @@ void main() {
           await tester.pumpAndSettle();
         }
 
-        // Read item: no action footer, so it stays compact.
+        // Read item: flat row with no mark-as-read action.
         await pumpCard(
           NotificationCard(
             notification: notification(isRead: true),
@@ -105,16 +106,15 @@ void main() {
         expect(find.byType(CachedNetworkImage), findsNothing);
         expect(find.text(ago), findsOneWidget);
         expect(
-          find.text(resolve(language, 'mark_read')),
+          find.byKey(const ValueKey('mark-notification-read-1')),
           findsNothing,
         );
-        final readHeight = tester.getSize(find.byType(NotificationCard)).height;
 
         await tester.tap(find.byType(NotificationCard));
         await tester.pumpAndSettle();
         expect(taps, 1);
 
-        // Unread item: unread footer row with the mark-as-read action.
+        // Unread item: compact trailing icon action inside the same flat row.
         await pumpCard(
           NotificationCard(
             notification: notification(isRead: false),
@@ -124,16 +124,14 @@ void main() {
         );
         expect(tester.takeException(), isNull);
         expect(find.text(ago), findsOneWidget);
-        expect(find.text(resolve(language, 'mark_read')), findsOneWidget);
-        expect(find.text(resolve(language, 'unread_label')), findsOneWidget);
-        final unreadHeight = tester.getSize(find.byType(NotificationCard)).height;
         expect(
-          unreadHeight,
-          greaterThan(readHeight),
-          reason: 'the unread footer needs its own row',
+          find.byKey(const ValueKey('mark-notification-read-1')),
+          findsOneWidget,
         );
 
-        await tester.tap(find.text(resolve(language, 'mark_read')));
+        await tester.tap(
+          find.byKey(const ValueKey('mark-notification-read-1')),
+        );
         await tester.pumpAndSettle();
         expect(markAsRead, 1);
         expect(taps, 1, reason: 'mark-as-read must not open the notification');

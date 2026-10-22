@@ -23,6 +23,9 @@ import 'package:medicard/features/home/presentation/cubit/location_cubit.dart';
 import 'package:medicard/features/home/presentation/cubit/location_state.dart';
 import 'package:medicard/features/home/presentation/pages/home_screen.dart';
 import 'package:medicard/features/home/presentation/widgets/home_bottom_nav.dart';
+import 'package:medicard/features/notifications/data/model/notification_model.dart';
+import 'package:medicard/features/notifications/presentation/cubit/notification_cubit.dart';
+import 'package:medicard/features/notifications/presentation/cubit/notification_state.dart';
 import 'package:medicard/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:medicard/features/profile/presentation/cubit/profile_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -44,6 +47,10 @@ void main() {
       sl.registerFactory<LocationCubit>(_LocationCubit.new);
       sl.registerFactory<ActivityCubit>(_ActivityCubit.new);
       sl.registerFactory<ECardCubit>(_ECardCubit.new);
+      sl.registerSingleton<NotificationCubit>(
+        _NotificationCubit(),
+        dispose: (cubit) => cubit.close(),
+      );
       sl.registerFactoryParam<CartCubit, int?, void>((_, _) => _CartCubit());
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1;
@@ -73,6 +80,13 @@ void main() {
       expect(
         tester.widget<HomeBottomNav>(find.byType(HomeBottomNav)).currentIndex,
         0,
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('notification-unread-badge')),
+          matching: find.text('2'),
+        ),
+        findsOneWidget,
       );
 
       for (var order = 0; order < 2; order++) {
@@ -163,6 +177,38 @@ class _ECardCubit extends Cubit<ECardState> implements ECardCubit {
   _ECardCubit() : super(const ECardState.initial());
   @override
   Future<void> loadCardData({bool forceRefresh = false}) async {}
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _NotificationCubit extends Cubit<NotificationState>
+    implements NotificationCubit {
+  _NotificationCubit()
+    : super(
+        NotificationState(
+          items: [
+            _notification(id: 1, isRead: false),
+            _notification(id: 2, isRead: true),
+            _notification(id: 3, isRead: false),
+          ],
+        ),
+      );
+
+  static NotificationModel _notification({
+    required int id,
+    required bool isRead,
+  }) => NotificationModel(
+    id: id,
+    title: 'Notification $id',
+    body: 'Body',
+    imageUrl: '',
+    isRead: isRead,
+    createdAt: DateTime(2026),
+  );
+
+  @override
+  Future<void> init() async {}
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

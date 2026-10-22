@@ -277,7 +277,7 @@ class _AllPackagesScreenState extends State<AllPackagesScreen> {
           crossAxisCount: 2,
           crossAxisSpacing: 12.w,
           mainAxisSpacing: 12.h,
-          childAspectRatio: 0.78,
+          mainAxisExtent: 272,
         ),
         itemCount: _items.length + (_isLoadingMore ? 1 : 0),
         itemBuilder: (context, index) {

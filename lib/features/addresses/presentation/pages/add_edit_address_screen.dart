@@ -287,40 +287,42 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
     if (state.isLoadingGovernorates && state.governorates.isEmpty) {
       return _LoadingBox();
     }
-    return DropdownButtonFormField<int>(
-      initialValue:
-          state.governorates.any((g) => g.id == _selectedGovernorateId)
-          ? _selectedGovernorateId
-          : null,
-      isExpanded: true,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      validator: (value) => value == null ? 'common.required'.tr() : null,
-      style: AppTextStyles.of(
-        fontSize: 15.sp,
-        color: Colors.black,
-        fontWeight: FontWeight.w500,
+    return AppDropdownTheme(
+      child: DropdownButtonFormField<int>(
+        initialValue:
+            state.governorates.any((g) => g.id == _selectedGovernorateId)
+            ? _selectedGovernorateId
+            : null,
+        isExpanded: true,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        validator: (value) => value == null ? 'common.required'.tr() : null,
+        style: AppTextStyles.of(
+          fontSize: 15.sp,
+          color: Colors.black,
+          fontWeight: FontWeight.w500,
+        ),
+        icon: Icon(
+          Icons.keyboard_arrow_down_rounded,
+          color: Colors.grey.shade500,
+          size: 20.sp,
+        ),
+        decoration: authInputDecoration(
+          hintText: 'addresses.select_governorate'.tr(),
+        ),
+        items: state.governorates.map((governorate) {
+          return AppDropdownMenuItem<int>(
+            value: governorate.id,
+            label: governorate.name ?? '',
+          );
+        }).toList(),
+        onChanged: (value) {
+          setState(() {
+            _selectedGovernorateId = value;
+            _selectedCityId = null;
+          });
+          context.read<AddressFormCubit>().selectGovernorate(value);
+        },
       ),
-      icon: Icon(
-        Icons.keyboard_arrow_down_rounded,
-        color: Colors.grey.shade500,
-        size: 20.sp,
-      ),
-      decoration: authInputDecoration(
-        hintText: 'addresses.select_governorate'.tr(),
-      ),
-      items: state.governorates.map((governorate) {
-        return AppDropdownMenuItem<int>(
-          value: governorate.id,
-          label: governorate.name ?? '',
-        );
-      }).toList(),
-      onChanged: (value) {
-        setState(() {
-          _selectedGovernorateId = value;
-          _selectedCityId = null;
-        });
-        context.read<AddressFormCubit>().selectGovernorate(value);
-      },
     );
   }
 
@@ -332,31 +334,36 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
     if (state.isLoadingCities) {
       return _LoadingBox();
     }
-    return DropdownButtonFormField<int>(
-      key: ValueKey('city-$_selectedGovernorateId'),
-      initialValue: state.cities.any((c) => c.id == _selectedCityId)
-          ? _selectedCityId
-          : null,
-      isExpanded: true,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      validator: (value) => value == null ? 'common.required'.tr() : null,
-      style: AppTextStyles.of(
-        fontSize: 15.sp,
-        color: Colors.black,
-        fontWeight: FontWeight.w500,
+    return AppDropdownTheme(
+      child: DropdownButtonFormField<int>(
+        key: ValueKey('city-$_selectedGovernorateId'),
+        initialValue: state.cities.any((c) => c.id == _selectedCityId)
+            ? _selectedCityId
+            : null,
+        isExpanded: true,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        validator: (value) => value == null ? 'common.required'.tr() : null,
+        style: AppTextStyles.of(
+          fontSize: 15.sp,
+          color: Colors.black,
+          fontWeight: FontWeight.w500,
+        ),
+        icon: Icon(
+          Icons.keyboard_arrow_down_rounded,
+          color: Colors.grey.shade500,
+          size: 20.sp,
+        ),
+        decoration: authInputDecoration(hintText: 'addresses.select_city'.tr()),
+        items: state.cities.map((city) {
+          return AppDropdownMenuItem<int>(
+            value: city.id,
+            label: city.name ?? '',
+          );
+        }).toList(),
+        onChanged: (value) {
+          setState(() => _selectedCityId = value);
+        },
       ),
-      icon: Icon(
-        Icons.keyboard_arrow_down_rounded,
-        color: Colors.grey.shade500,
-        size: 20.sp,
-      ),
-      decoration: authInputDecoration(hintText: 'addresses.select_city'.tr()),
-      items: state.cities.map((city) {
-        return AppDropdownMenuItem<int>(value: city.id, label: city.name ?? '');
-      }).toList(),
-      onChanged: (value) {
-        setState(() => _selectedCityId = value);
-      },
     );
   }
 

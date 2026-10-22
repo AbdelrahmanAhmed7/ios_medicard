@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/auth/auth_session_storage.dart';
 import '../../../../core/constants/api_result.dart';
 import '../../../../core/di/service_locator.dart';
+import '../../../../core/theming/app_spacing.dart';
 import '../../../../core/theming/app_toast.dart';
 import '../../../../medicard_network/domain/usecases/get_package_details_usecase.dart';
 import '../../../../medicard_network/presentation/widgets/package_details_sheet.dart';
@@ -33,196 +34,209 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
     final hasProviderLogo = service.providerLogoUrl.trim().isNotEmpty;
     final hasRating = service.rating > 0 || service.reviewCount > 0;
 
-    return GestureDetector(
-      onTap: () => _openPackageDetails(context),
-      child: Container(
-        width: HomeHorizontalCardStyle.width,
-        decoration: BoxDecoration(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(HomeHorizontalCardStyle.radius),
-          border: Border.all(color: HomeHorizontalCardStyle.line, width: 1),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(
-            HomeHorizontalCardStyle.clippedRadius,
+    return MediaQuery.withClampedTextScaling(
+      maxScaleFactor: AppSpacing.compactCardMaxTextScale,
+      child: GestureDetector(
+        onTap: () => _openPackageDetails(context),
+        child: Container(
+          width: HomeHorizontalCardStyle.width,
+          decoration: BoxDecoration(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(HomeHorizontalCardStyle.radius),
+            border: Border.all(
+              color: HomeHorizontalCardStyle.line,
+              width: HomeHorizontalCardStyle.borderWidth,
+            ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Stack(
-                children: [
-                  Container(
-                    color: HomeHorizontalCardStyle.imageBackground,
-                    height: HomeHorizontalCardStyle.imageHeight,
-                    width: double.infinity,
-                    child: CachedNetworkImage(
-                      imageUrl: service.imageUrl,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(
+              HomeHorizontalCardStyle.clippedRadius,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Stack(
+                  children: [
+                    Container(
+                      color: HomeHorizontalCardStyle.imageBackground,
                       height: HomeHorizontalCardStyle.imageHeight,
                       width: double.infinity,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        color: HomeHorizontalCardStyle.imageBackground,
+                      child: CachedNetworkImage(
+                        imageUrl: service.imageUrl,
                         height: HomeHorizontalCardStyle.imageHeight,
                         width: double.infinity,
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        color: HomeHorizontalCardStyle.imageBackground,
-                        height: HomeHorizontalCardStyle.imageHeight,
-                        child: const Icon(
-                          Icons.broken_image,
-                          color: Color(0xFF9CA3AF),
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Container(
+                          color: HomeHorizontalCardStyle.imageBackground,
+                          height: HomeHorizontalCardStyle.imageHeight,
+                          width: double.infinity,
                         ),
-                      ),
-                    ),
-                  ),
-                  if (hasProviderLogo)
-                    Positioned(
-                      top: 8,
-                      left: 8,
-                      child: CircleAvatar(
-                        radius: 18,
-                        backgroundColor: Colors.white,
-                        child: ClipOval(
-                          child: CachedNetworkImage(
-                            imageUrl: service.providerLogoUrl,
-                            width: 36,
-                            height: 36,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) => Container(
-                              color: HomeHorizontalCardStyle.imageBackground,
-                            ),
-                            errorWidget: (context, url, error) =>
-                                const Icon(Icons.broken_image, size: 16),
+                        errorWidget: (context, url, error) => Container(
+                          color: HomeHorizontalCardStyle.imageBackground,
+                          height: HomeHorizontalCardStyle.imageHeight,
+                          child: const Icon(
+                            Icons.broken_image,
+                            color: Color(0xFF9CA3AF),
                           ),
                         ),
                       ),
                     ),
-                  if (hasRating)
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: Container(
-                        padding: HomeHorizontalCardStyle.ratingPadding,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.92),
-                          borderRadius: BorderRadius.circular(20),
+                    if (hasProviderLogo)
+                      Positioned(
+                        top: 8,
+                        left: 8,
+                        child: CircleAvatar(
+                          radius: 18,
+                          backgroundColor: Colors.white,
+                          child: ClipOval(
+                            child: CachedNetworkImage(
+                              imageUrl: service.providerLogoUrl,
+                              width: 36,
+                              height: 36,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) => Container(
+                                color: HomeHorizontalCardStyle.imageBackground,
+                              ),
+                              errorWidget: (context, url, error) =>
+                                  const Icon(Icons.broken_image, size: 16),
+                            ),
+                          ),
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
+                      ),
+                    if (hasRating)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: Container(
+                          padding: HomeHorizontalCardStyle.ratingPadding,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.92),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.star,
+                                color: Color(0xFFF5A623),
+                                size: 12,
+                              ),
+                              const SizedBox(width: 3),
+                              Text(
+                                '${service.rating} (${service.reviewCount})',
+                                style: HomeHorizontalCardStyle.ratingText,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                // الفاصل بين الصورة والوصف
+                const Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: HomeHorizontalCardStyle.line,
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: HomeHorizontalCardStyle.contentPadding,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          service.serviceName,
+                          style: HomeHorizontalCardStyle.titleText,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: HomeHorizontalCardStyle.textGap),
+                        Text(
+                          service.providerName,
+                          style: HomeHorizontalCardStyle.supportingText,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: HomeHorizontalCardStyle.textGap),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Icon(
-                              Icons.star,
-                              color: Color(0xFFF5A623),
-                              size: 12,
+                            const Padding(
+                              padding: EdgeInsets.only(top: 2),
+                              child: Icon(
+                                Icons.location_on_outlined,
+                                color: Color(0xFF9CA3AF),
+                                size: 12,
+                              ),
                             ),
                             const SizedBox(width: 3),
-                            Text(
-                              '${service.rating} (${service.reviewCount})',
-                              style: HomeHorizontalCardStyle.ratingText,
+                            Expanded(
+                              child: Text(
+                                service.location,
+                                style: HomeHorizontalCardStyle.supportingText,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                           ],
                         ),
-                      ),
-                    ),
-                ],
-              ),
-              // الفاصل بين الصورة والوصف
-              const Divider(
-                height: 1,
-                thickness: 1,
-                color: HomeHorizontalCardStyle.line,
-              ),
-              Padding(
-                padding: HomeHorizontalCardStyle.contentPadding,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      service.serviceName,
-                      style: HomeHorizontalCardStyle.titleText,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: HomeHorizontalCardStyle.textGap),
-                    Text(
-                      service.providerName,
-                      style: HomeHorizontalCardStyle.supportingText,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: HomeHorizontalCardStyle.textGap),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.location_on_outlined,
-                          color: Color(0xFF9CA3AF),
-                          size: 12,
-                        ),
-                        const SizedBox(width: 3),
-                        Expanded(
-                          child: Text(
-                            service.location,
-                            style: HomeHorizontalCardStyle.supportingText,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: HomeHorizontalCardStyle.footerGap),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          'cart.egp_amount'.tr(
-                            args: ['${service.originalPrice.toInt()}'],
-                          ),
-                          style: HomeHorizontalCardStyle.priceBeforeText,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          'cart.egp_amount'.tr(
-                            args: ['${service.discountedPrice.toInt()}'],
-                          ),
-                          style: HomeHorizontalCardStyle.priceAfterText,
-                        ),
                         const Spacer(),
-                        SizedBox(
-                          height: 30,
-                          child: OutlinedButton(
-                            onPressed: () => _bookPackage(context),
-                            style: OutlinedButton.styleFrom(
-                              backgroundColor: const Color(0xFF3872B1),
-                              foregroundColor: const Color(0xFFFFFFFF),
-                              side: const BorderSide(
-                                color: Color(0xFF3872B1),
-                                width: 1.2,
+                        Row(
+                          key: const ValueKey('featured-package-footer'),
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              'cart.egp_amount'.tr(
+                                args: ['${service.originalPrice.toInt()}'],
                               ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              minimumSize: const Size(0, 30),
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              elevation: 0,
+                              style: HomeHorizontalCardStyle.priceBeforeText,
                             ),
-                            child: Text(
-                              'activity.book'.tr(),
-                              style: HomeHorizontalCardStyle.actionText
-                                  .copyWith(color: Colors.white),
+                            const SizedBox(width: 6),
+                            Text(
+                              'cart.egp_amount'.tr(
+                                args: ['${service.discountedPrice.toInt()}'],
+                              ),
+                              style: HomeHorizontalCardStyle.priceAfterText,
                             ),
-                          ),
+                            const Spacer(),
+                            SizedBox(
+                              height: 30,
+                              child: OutlinedButton(
+                                onPressed: () => _bookPackage(context),
+                                style: OutlinedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF3872B1),
+                                  foregroundColor: const Color(0xFFFFFFFF),
+                                  side: const BorderSide(
+                                    color: Color(0xFF3872B1),
+                                    width: 1.2,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  minimumSize: const Size(0, 30),
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                  elevation: 0,
+                                ),
+                                child: Text(
+                                  'activity.book'.tr(),
+                                  style: HomeHorizontalCardStyle.actionText
+                                      .copyWith(color: Colors.white),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

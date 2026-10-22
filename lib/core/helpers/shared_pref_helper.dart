@@ -71,7 +71,10 @@ class SharedPrefHelper {
 
 
   static final FlutterSecureStorage _secureStorage = FlutterSecureStorage(
-    aOptions: AndroidOptions(resetOnError: false),
+    // Android may restore encrypted preferences without their original
+    // Keystore key after a reinstall. Reset corrupted secure storage so a
+    // successful login can persist the new session instead of failing.
+    aOptions: AndroidOptions(resetOnError: true),
     iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
   );
 

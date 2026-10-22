@@ -99,15 +99,20 @@ class _PromoBannerWidgetState extends State<PromoBannerWidget> {
                           '/provider-page',
                           extra: banner.providerId,
                         ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16.r),
+                  child: Container(
+                    clipBehavior: Clip.antiAlias,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(16.r),
+                      border: Border.all(color: const Color(0xFFE5E7EB)),
+                    ),
                     child: CachedNetworkImage(
                       imageUrl: banner.imageUrl,
                       width: double.infinity,
                       height: 165,
-                      fit: BoxFit.contain,
+                      fit: BoxFit.cover,
                       errorWidget: (context, url, error) =>
-                          const SizedBox.shrink(),
+                          const ColoredBox(color: Color(0xFFF8FAFC)),
                     ),
                   ),
                 ),

@@ -185,24 +185,30 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: const Color(0xFFD1D5DB)),
       ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: value,
-          hint: Text(
-            hint,
-            style: AppTextStyles.of(fontSize: 13, color: Color(0xFF6B7280)),
+      child: AppDropdownTheme(
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            value: value,
+            hint: Text(
+              hint,
+              style: AppTextStyles.of(fontSize: 13, color: Color(0xFF6B7280)),
+            ),
+            isExpanded: true,
+            icon: const Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: Color(0xFF6B7280),
+            ),
+            items: items
+                .map(
+                  (e) => AppDropdownMenuItem<String>(
+                    value: e,
+                    label: e,
+                    fontSize: 13,
+                  ),
+                )
+                .toList(),
+            onChanged: onChanged,
           ),
-          isExpanded: true,
-          icon: const Icon(
-            Icons.keyboard_arrow_down_rounded,
-            color: Color(0xFF6B7280),
-          ),
-          items: items
-              .map(
-                (e) => AppDropdownMenuItem<String>(value: e, label: e, fontSize: 13),
-              )
-              .toList(),
-          onChanged: onChanged,
         ),
       ),
     );
