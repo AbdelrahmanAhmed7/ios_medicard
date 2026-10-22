@@ -18,54 +18,55 @@ class LocationDisplay extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            Icons.location_on_rounded,
-            color: Colors.white.withValues(alpha: 0.85),
-            size: 16.sp,
-          ),
-          SizedBox(width: 4.w),
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.location_on_rounded,
+                color: const Color(0xFF3872B1),
+                size: 16.sp,
+              ),
+              SizedBox(width: 4.w),
+              Flexible(
+                child: Text(
                   'home.location_label'.tr(),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.of(
                     fontSize: 10.5.sp,
                     fontWeight: FontWeight.w500,
-                    color: Colors.white.withValues(alpha: 0.75),
+                    color: const Color(0xFF6B7280),
                   ),
                 ),
-                SizedBox(height: 1.h),
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        text,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.of(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 15.sp,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 2.w),
-                    Icon(
-                      Icons.keyboard_arrow_down_rounded,
-                      color: Colors.white.withValues(alpha: 0.9),
-                      size: 18.sp,
-                    ),
-                  ],
+              ),
+            ],
+          ),
+          SizedBox(height: 1.h),
+          Row(
+            children: [
+              Flexible(
+                child: Text(
+                  text,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.of(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14.5.sp,
+                    color: const Color(0xFF111827),
+                  ),
                 ),
-              ],
-            ),
+              ),
+              SizedBox(width: 2.w),
+              Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: const Color(0xFF6B7280),
+                size: 18.sp,
+              ),
+            ],
           ),
         ],
       ),
