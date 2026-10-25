@@ -29,7 +29,7 @@ class HomeShimmer extends StatelessWidget {
           _SectionTitleShimmer(),
           const SizedBox(height: 12),
 
-          // ── Appointments horizontal scroll (w=303, h=90) ───────────────────
+          // ── Appointments horizontal scroll (w=310, h=90) ───────────────────
           SizedBox(
             height: 90,
             child: ListView(
@@ -38,13 +38,13 @@ class HomeShimmer extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children: const [
                 ShimmerCard(
-                  width: 303,
+                  width: 310,
                   height: 90,
                   borderRadius: BorderRadius.all(Radius.circular(16)),
                 ),
                 SizedBox(width: 12),
                 ShimmerCard(
-                  width: 303,
+                  width: 310,
                   height: 90,
                   borderRadius: BorderRadius.all(Radius.circular(16)),
                 ),

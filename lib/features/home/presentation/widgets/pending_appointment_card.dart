@@ -42,7 +42,7 @@ class PendingAppointmentCard extends StatelessWidget {
         context.push('/pending-appointment-details', extra: appointment);
       },
       child: Container(
-        width: 303,
+        width: 310,
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.transparent,
@@ -70,10 +70,10 @@ class PendingAppointmentCard extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 8),
               // فاصل رأسي أنيق يفصل بين لوجو العيادة وبين البيانات
               Container(width: 1, height: 40, color: const Color(0xFFE5E7EB)),
-              const SizedBox(width: 12),
+              const SizedBox(width: 8),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -123,7 +123,7 @@ class PendingAppointmentCard extends StatelessWidget {
                 const SizedBox(width: 8),
               if (appointment.status.isNotEmpty || appointment.date.isNotEmpty)
                 ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 76),
+                  constraints: const BoxConstraints(maxWidth: 115),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -132,21 +132,8 @@ class PendingAppointmentCard extends StatelessWidget {
                         _StatusBadge(status: appointment.status),
                       if (appointment.status.isNotEmpty &&
                           appointment.date.isNotEmpty)
-                        const SizedBox(height: 6),
-                      if (appointment.date.isNotEmpty)
-                        Text(
-                          AppDateFormatter.formatDateTimeShort(
-                            appointment.date,
-                            context.locale.languageCode,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.of(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w400,
-                            color: Color(0xFF6B7280),
-                          ),
-                        ),
+                        const SizedBox(height: 4),
+                      _buildDateSection(context),
                     ],
                   ),
                 ),
@@ -154,6 +141,57 @@ class PendingAppointmentCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildDateSection(BuildContext context) {
+    if (appointment.date.isEmpty) return const SizedBox.shrink();
+
+    final parsed = AppDateFormatter.tryParse(appointment.date);
+    final locale = context.locale.languageCode;
+    final String dateText;
+    final String? timeText;
+
+    if (parsed != null) {
+      dateText = AppDateFormatter.formatDate(appointment.date, locale);
+      final hasTime = appointment.date.contains(':') ||
+          parsed.hour != 0 ||
+          parsed.minute != 0;
+      timeText =
+          hasTime ? AppDateFormatter.formatTime(appointment.date, locale) : null;
+    } else {
+      dateText = appointment.date;
+      timeText = null;
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          dateText,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: AppTextStyles.of(
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+            color: const Color(0xFF1F2937),
+          ),
+        ),
+        if (timeText != null && timeText.isNotEmpty) ...[
+          const SizedBox(height: 2),
+          Text(
+            timeText,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.of(
+              fontSize: 10.5,
+              fontWeight: FontWeight.w500,
+              color: const Color(0xFF4B5563),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }
@@ -165,37 +203,36 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final normalized = status.trim().toLowerCase();
-    final isCancelled = normalized == 'canceled' || normalized == 'cancelled';
-    final color = isCancelled
-        ? const Color(0xFFDC2626)
-        : const Color(0xFFF5A623);
+    final color = _statusColor(status);
+    final isCancelled = _isCancelled(status);
+    final isCompleted = _isCompleted(status);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
       decoration: BoxDecoration(
-        color: color.withAlpha(0x1A),
+        color: color.withAlpha(0x22),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color, width: 0.5),
+        border: Border.all(color: color.withAlpha(0x77), width: 0.8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            isCancelled ? Icons.cancel_outlined : Icons.access_time,
+            isCancelled
+                ? Icons.cancel_outlined
+                : isCompleted
+                    ? Icons.check_circle_outline
+                    : Icons.access_time,
             size: 12,
             color: color,
           ),
           const SizedBox(width: 4),
-          Flexible(
-            child: Text(
-              _localizedStatus(status),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.of(
-                fontSize: 11,
-                fontWeight: FontWeight.w400,
-                color: color,
-              ),
+          Text(
+            _localizedStatus(status),
+            maxLines: 1,
+            style: AppTextStyles.of(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: color,
             ),
           ),
         ],
@@ -203,12 +240,37 @@ class _StatusBadge extends StatelessWidget {
     );
   }
 
+  bool _isCancelled(String status) {
+    final normalized = status.trim().toLowerCase();
+    return normalized == 'canceled' ||
+        normalized == 'cancelled' ||
+        normalized == 'ملغاة';
+  }
+
+  bool _isCompleted(String status) {
+    final normalized = status.trim().toLowerCase();
+    return normalized == 'completed' ||
+        normalized == 'used' ||
+        normalized == 'مكتملة' ||
+        normalized == 'مستخدمة' ||
+        normalized == 'paid' ||
+        normalized == 'مدفوعة';
+  }
+
+  Color _statusColor(String status) {
+    if (_isCancelled(status)) return const Color(0xFFDC2626);
+    if (_isCompleted(status)) return const Color(0xFF0F8A5F);
+    return const Color(0xFFB45309);
+  }
+
   String _localizedStatus(String status) {
     return switch (status.trim().toLowerCase()) {
-      'pending' => 'home.pending'.tr(),
-      'completed' => 'home.completed'.tr(),
-      'used' => 'activity.status_used'.tr(),
-      'canceled' || 'cancelled' => 'activity.status_cancelled'.tr(),
+      'pending' || '2' || 'قيد الانتظار' || 'في الانتظار' || 'معلق' =>
+        'home.pending'.tr(),
+      'completed' || 'مكتملة' => 'home.completed'.tr(),
+      'used' || 'مستخدمة' => 'activity.status_used'.tr(),
+      'paid' || 'مدفوعة' => 'activity.status_paid'.tr(),
+      'canceled' || 'cancelled' || 'ملغاة' => 'activity.status_cancelled'.tr(),
       _ => status,
     };
   }

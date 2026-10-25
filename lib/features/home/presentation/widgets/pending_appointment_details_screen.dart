@@ -205,10 +205,19 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final normalized = status.trim().toLowerCase();
-    final isCancelled = normalized == 'canceled' || normalized == 'cancelled';
+    final isCancelled = normalized == 'canceled' ||
+        normalized == 'cancelled' ||
+        normalized == 'ملغاة';
+    final isCompleted = normalized == 'completed' ||
+        normalized == 'used' ||
+        normalized == 'مكتملة' ||
+        normalized == 'مستخدمة';
+    final isPaid = normalized == 'paid' || normalized == 'مدفوعة';
     final color = isCancelled
         ? const Color(0xFFDC2626)
-        : const Color(0xFF9A6A00);
+        : (isCompleted || isPaid)
+            ? const Color(0xFF0F8A5F)
+            : const Color(0xFF9A6A00);
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
       decoration: BoxDecoration(
@@ -225,10 +234,12 @@ class _StatusBadge extends StatelessWidget {
 
   String _localizedStatus(String status) {
     return switch (status.trim().toLowerCase()) {
-      'pending' => 'home.pending'.tr(),
-      'completed' => 'home.completed'.tr(),
-      'used' => 'activity.status_used'.tr(),
-      'canceled' || 'cancelled' => 'activity.status_cancelled'.tr(),
+      'pending' || '2' || 'قيد الانتظار' || 'في الانتظار' || 'معلق' =>
+        'home.pending'.tr(),
+      'completed' || 'مكتملة' => 'home.completed'.tr(),
+      'used' || 'مستخدمة' => 'activity.status_used'.tr(),
+      'paid' || 'مدفوعة' => 'activity.status_paid'.tr(),
+      'canceled' || 'cancelled' || 'ملغاة' => 'activity.status_cancelled'.tr(),
       _ => status,
     };
   }
