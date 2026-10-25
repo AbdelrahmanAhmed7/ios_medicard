@@ -223,24 +223,39 @@ class _UnifiedSearchFieldState extends State<UnifiedSearchField> {
                                   ),
                                 ),
                               Flexible(
-                                child: AnimatedSwitcher(
-                                  duration: const Duration(milliseconds: 300),
-                                  switchInCurve: Curves.easeOut,
-                                  switchOutCurve: Curves.easeIn,
-                                  transitionBuilder: (child, animation) {
-                                    return FadeTransition(
-                                      opacity: animation,
-                                      child: child,
-                                    );
-                                  },
-                                  child: Text(
-                                    widget.hintWordKeys[_hintIndex].tr(),
-                                    key: ValueKey<int>(_hintIndex),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: AppTextStyles.of(
-                                      color: const Color(0xFF9CA3AF),
-                                      fontSize: 14.sp,
+                                child: AnimatedSize(
+                                  duration: const Duration(milliseconds: 400),
+                                  curve: Curves.easeInOut,
+                                  alignment: AlignmentDirectional.centerStart,
+                                  child: AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 400),
+                                    transitionBuilder: (child, animation) {
+                                      // Fade the old word out completely before
+                                      // revealing the next one. A regular
+                                      // cross-fade paints both words on top of
+                                      // each other and looks like a brief hang.
+                                      final opacity = CurvedAnimation(
+                                        parent: animation,
+                                        curve: const Interval(
+                                          0.5,
+                                          1,
+                                          curve: Curves.easeOut,
+                                        ),
+                                      );
+                                      return FadeTransition(
+                                        opacity: opacity,
+                                        child: child,
+                                      );
+                                    },
+                                    child: Text(
+                                      widget.hintWordKeys[_hintIndex].tr(),
+                                      key: ValueKey<int>(_hintIndex),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: AppTextStyles.of(
+                                        color: const Color(0xFF9CA3AF),
+                                        fontSize: 14.sp,
+                                      ),
                                     ),
                                   ),
                                 ),

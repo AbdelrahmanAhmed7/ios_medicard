@@ -284,6 +284,7 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
             totalBefore: data.totalBefore,
             totalAfter: data.totalAfter,
             discountPercentage: data.discountPercentage,
+            paymentLink: data.paymentLink,
             familyId: data.familyId,
             familyFirstName: data.familyFirstName,
             familyLastName: data.familyLastName,

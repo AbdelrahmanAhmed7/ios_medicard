@@ -149,6 +149,24 @@ String friendlyApiMessage(String message) {
     return 'auth.register.phoneNumberInvalid'.tr();
   }
 
+  if (lower.contains('does not belong to any valid range') ||
+      lower.contains('does not belong to a valid range') ||
+      lower.contains('outside the valid range') ||
+      lower.contains('invalid card range')) {
+    return 'activate_card.card_not_eligible'.tr();
+  }
+
+  if ((lower.contains('card') && lower.contains('already activated')) ||
+      lower.contains('cardalreadyactivated')) {
+    return 'activate_card.already_activated'.tr();
+  }
+
+  if (lower.contains('membercardnotfound') ||
+      lower.contains('card number not found') ||
+      lower.contains('card does not exist')) {
+    return 'activate_card.card_not_found'.tr();
+  }
+
   if (lower.contains('national id or passport number is required')) {
     return 'auth.register.nationalIdOrPassportRequired'.tr();
   }

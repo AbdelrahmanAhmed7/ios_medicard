@@ -101,6 +101,7 @@ void main() {
             'totalBefore': 165.00,
             'totalAfter': 132.00,
             'discountPercentage': 0.00,
+            'paymentLink': 'https://pay.example/invoice/358',
             'items': <String, dynamic>{
               'items': <Map<String, dynamic>>[
                 <String, dynamic>{
@@ -138,6 +139,8 @@ void main() {
           expect(details.totalBefore, 165.00);
           expect(details.totalAfter, 132.00);
           expect(details.discountPercentage, 0.00);
+          expect(details.paymentLink, 'https://pay.example/invoice/358');
+          expect(details.canContinuePayment, isFalse);
           final service = details.services.single;
           expect(service.id, 543);
           expect(service.serviceName, 'Annual subscription');

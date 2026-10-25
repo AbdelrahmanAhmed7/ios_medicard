@@ -109,7 +109,10 @@ class _PromoBannerWidgetState extends State<PromoBannerWidget> {
                       imageUrl: banner.imageUrl,
                       width: double.infinity,
                       height: 165,
-                      fit: BoxFit.cover,
+                      // Offer artwork often contains text/logos near its
+                      // edges. `cover` crops those edges on narrower phones;
+                      // `contain` keeps the complete creative visible.
+                      fit: BoxFit.contain,
                       errorWidget: (context, url, error) =>
                           const ColoredBox(color: Color(0xFFF8FAFC)),
                     ),

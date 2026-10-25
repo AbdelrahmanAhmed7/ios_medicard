@@ -13,6 +13,7 @@ import '../../../../core/utils/language_helper.dart';
 import '../../../../core/widgets/auth_shared_widgets.dart';
 import '../cubit/forgot_password_cubit.dart';
 import '../cubit/forgot_password_state.dart';
+import '../utils/otp_attempt_guard.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
@@ -37,6 +38,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   final _formKey = GlobalKey<FormState>();
   final _otpController = TextEditingController();
   final _otpFocus = FocusNode();
+  final _attemptGuard = OtpAttemptGuard();
   bool _otpTouched = false;
   Timer? _timer;
   bool _showOtp = true;
@@ -86,6 +88,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   void _restartCountdown(String otp) {
     _timer?.cancel();
+    _attemptGuard.reset();
     setState(() {
       _showOtp = true;
       _secondsLeft = _displaySeconds;
@@ -96,10 +99,22 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   void _onVerifyPressed(BuildContext context) {
     FocusScope.of(context).unfocus();
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      dismissActiveToast();
+      return;
+    }
     final otp = LanguageHelper.convertArabicToEnglishNumerals(
       _otpController.text.trim(),
     );
+    if (!_attemptGuard.tryRegister(otp)) {
+      showWarningToast('auth.forgot.otp_repeated_too_many_times'.tr());
+      _otpController.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: _otpController.text.length,
+      );
+      _otpFocus.requestFocus();
+      return;
+    }
     context.read<ForgotPasswordCubit>().verifyOtp(
       phoneNumber: widget.phoneNumber,
       otp: otp,

@@ -560,6 +560,13 @@ class SearchCubit extends Cubit<SearchState> {
     );
   }
 
+  /// UI errors are one-shot events. Clearing after presentation prevents an
+  /// unrelated state update from presenting the same message again.
+  void consumeCartActionError() {
+    if (isClosed || state.cartActionError == null) return;
+    emit(state.copyWith(clearCartActionError: true));
+  }
+
   Future<void> removeServiceFromCart({
     required int serviceId,
     required int categoryId,

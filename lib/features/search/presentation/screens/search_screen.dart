@@ -120,9 +120,9 @@ class _SearchScreenState extends State<SearchScreen>
               previous.cartActionError != current.cartActionError &&
               current.cartActionError != null,
           listener: (context, state) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.cartActionError!)));
+            final message = state.cartActionError!;
+            context.read<SearchCubit>().consumeCartActionError();
+            showErrorToast(message);
           },
         ),
         BlocListener<SearchCubit, SearchState>(

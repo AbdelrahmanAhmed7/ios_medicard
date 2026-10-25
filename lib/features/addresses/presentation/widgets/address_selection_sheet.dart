@@ -13,7 +13,7 @@ import '../cubit/addresses_state.dart';
 
 class AddressSelectionSheet extends StatefulWidget {
   final void Function(UserAddressModel address) onSelect;
-  final VoidCallback onUseCurrentLocation;
+  final Future<void> Function() onUseCurrentLocation;
 
   const AddressSelectionSheet({
     super.key,
@@ -24,7 +24,7 @@ class AddressSelectionSheet extends StatefulWidget {
   static Future<void> show(
     BuildContext context, {
     required void Function(UserAddressModel address) onSelect,
-    required VoidCallback onUseCurrentLocation,
+    required Future<void> Function() onUseCurrentLocation,
   }) {
     return showModalBottomSheet<void>(
       context: context,
@@ -199,9 +199,13 @@ class _AddressSelectionSheetState extends State<AddressSelectionSheet> {
     Navigator.of(context).pop();
   }
 
-  void _handleUseCurrentLocation() {
-    widget.onUseCurrentLocation();
+  Future<void> _handleUseCurrentLocation() async {
+    final useCurrentLocation = widget.onUseCurrentLocation;
     Navigator.of(context).pop();
+    // Let the bottom sheet finish dismissing before presenting the native
+    // permission dialog. This avoids competing platform/modal transitions.
+    await Future<void>.delayed(const Duration(milliseconds: 300));
+    await useCurrentLocation();
   }
 }
 

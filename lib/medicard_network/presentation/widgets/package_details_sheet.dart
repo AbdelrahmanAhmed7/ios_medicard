@@ -90,9 +90,7 @@ Future<void> openPackageCheckout(
     packageProviderId = resolvedDetails?.providerId;
   }
   if (packageProviderId == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Package provider data is missing.')),
-    );
+    showErrorToast('Package provider data is missing.');
     return;
   }
 

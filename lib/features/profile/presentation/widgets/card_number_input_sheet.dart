@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
+import '../../../../core/theming/app_toast.dart';
 import '../../../../core/widgets/auth_shared_widgets.dart';
 import '../../data/models/profile_response_model.dart';
 import '../cubit/profile_cubit.dart';
@@ -48,7 +49,10 @@ class CardNumberInputSheetState extends State<CardNumberInputSheet> {
   }
 
   void _submit() {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      dismissActiveToast();
+      return;
+    }
     Navigator.of(context).pop(_controller.text.trim());
   }
 

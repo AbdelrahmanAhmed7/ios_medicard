@@ -243,13 +243,9 @@ class _ProviderTile extends StatelessWidget {
       Navigator.of(context).pop();
       showSuccessToast('cart.provider_saved_toast'.tr());
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            cubit.state.assignProviderError ??
-                'cart.failed_to_update_provider'.tr(),
-          ),
-        ),
+      showErrorToast(
+        cubit.state.assignProviderError ??
+            'cart.failed_to_update_provider'.tr(),
       );
     }
   }

@@ -18,6 +18,7 @@ import '../cubit/family_members_cubit.dart';
 import '../cubit/family_members_state.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
+import '../../../../core/theming/app_toast.dart';
 
 class AddEditFamilyMemberScreen extends StatefulWidget {
   final FamilyMemberModel? member;
@@ -56,11 +57,7 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${"edit_profile.could_not_pick_image".tr()}: $e'),
-          ),
-        );
+        showErrorToast('${"edit_profile.could_not_pick_image".tr()}: $e');
       }
     } finally {
       if (mounted) setState(() => _isPickingImage = false);
@@ -98,24 +95,26 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
   }
 
   void _submit() {
-    if (_formKey.currentState!.validate()) {
-      final cubit = context.read<FamilyMembersCubit>();
-      if (widget.member == null) {
-        cubit.createFamilyMember(
-          firstName: _firstNameController.text,
-          lastName: _lastNameController.text,
-          relation: _selectedRelation!,
-          imagePath: _pickedImage?.path,
-        );
-      } else {
-        cubit.updateFamilyMember(
-          id: widget.member!.id!,
-          firstName: _firstNameController.text,
-          lastName: _lastNameController.text,
-          relation: _selectedRelation!,
-          imagePath: _pickedImage?.path,
-        );
-      }
+    if (!_formKey.currentState!.validate()) {
+      dismissActiveToast();
+      return;
+    }
+    final cubit = context.read<FamilyMembersCubit>();
+    if (widget.member == null) {
+      cubit.createFamilyMember(
+        firstName: _firstNameController.text,
+        lastName: _lastNameController.text,
+        relation: _selectedRelation!,
+        imagePath: _pickedImage?.path,
+      );
+    } else {
+      cubit.updateFamilyMember(
+        id: widget.member!.id!,
+        firstName: _firstNameController.text,
+        lastName: _lastNameController.text,
+        relation: _selectedRelation!,
+        imagePath: _pickedImage?.path,
+      );
     }
   }
 

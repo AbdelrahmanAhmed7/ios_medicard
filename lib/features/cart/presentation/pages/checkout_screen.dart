@@ -9,6 +9,7 @@ import '../../../../core/services/url_launcher_service.dart';
 import '../../../../core/cubit/app_refresh_cubit.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/theming/app_text_styles.dart';
+import '../../../../core/theming/app_toast.dart';
 import '../../../../network/data/provider_page_response_model.dart';
 import '../cubit/cart_cubit.dart';
 import '../cubit/cart_state.dart';
@@ -101,9 +102,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                 current.createdInvoicePaymentLink,
         listener: (context, state) async {
           if (state.createInvoiceError != null) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.createInvoiceError!)));
+            showErrorToast(state.createInvoiceError!);
           }
           if (state.createdInvoiceId != null) {
             // A new invoice exists — tell the invoices tab to reload so it
@@ -114,11 +113,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
               final opened = await UrlLauncherService().launchURL(paymentLink);
               if (!context.mounted) return;
               if (!opened) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('cart.could_not_open_payment_link'.tr()),
-                  ),
-                );
+                showErrorToast('cart.could_not_open_payment_link'.tr());
               } else {
                 _didLaunchPayment = true;
               }

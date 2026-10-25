@@ -9,6 +9,7 @@ import 'package:medicard/core/di/service_locator.dart';
 import 'package:medicard/core/services/location_repository.dart';
 import 'package:medicard/core/services/location_service.dart';
 import 'package:medicard/core/theming/app_text_styles.dart';
+import 'package:medicard/core/theming/app_toast.dart';
 import 'package:medicard/core/widgets/app_dropdown_menu_item.dart';
 import 'package:medicard/core/widgets/auth_shared_widgets.dart';
 import '../../data/models/user_address_model.dart';
@@ -115,7 +116,10 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
       await (_locationFuture ?? _resolveLocation());
       if (!mounted) return;
     }
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      dismissActiveToast();
+      return;
+    }
     setState(() => _isSubmitting = true);
     try {
       await context.read<AddressFormCubit>().save(

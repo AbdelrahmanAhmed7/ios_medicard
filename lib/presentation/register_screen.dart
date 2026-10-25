@@ -251,36 +251,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void _onRegisterPressed(BuildContext context) {
     FocusScope.of(context).unfocus();
 
-    if (_formKey.currentState!.validate()) {
-      final nationalId = _nationalIdController.text.trim();
-      final passportNumber = _passportNumberController.text.trim();
-
-      context.read<RegisterCubit>().register(
-        firstName: LanguageHelper.convertArabicToEnglishNumerals(
-          _firstNameController.text.trim(),
-        ),
-        lastName: LanguageHelper.convertArabicToEnglishNumerals(
-          _lastNameController.text.trim(),
-        ),
-        phoneNumber: LanguageHelper.convertArabicToEnglishNumerals(
-          _phoneNumberController.text.trim(),
-        ),
-        isMale: _isMale,
-        birthDate: _birthDate,
-        password: LanguageHelper.convertArabicToEnglishNumerals(
-          _passwordController.text.trim(),
-        ),
-        confirmPassword: LanguageHelper.convertArabicToEnglishNumerals(
-          _confirmPasswordController.text.trim(),
-        ),
-        nationalId: nationalId.isEmpty
-            ? null
-            : LanguageHelper.convertArabicToEnglishNumerals(nationalId),
-        passportNumber: passportNumber.isEmpty
-            ? null
-            : LanguageHelper.convertArabicToEnglishNumerals(passportNumber),
-      );
+    if (!_formKey.currentState!.validate()) {
+      dismissActiveToast();
+      return;
     }
+    final nationalId = _nationalIdController.text.trim();
+    final passportNumber = _passportNumberController.text.trim();
+
+    context.read<RegisterCubit>().register(
+      firstName: LanguageHelper.convertArabicToEnglishNumerals(
+        _firstNameController.text.trim(),
+      ),
+      lastName: LanguageHelper.convertArabicToEnglishNumerals(
+        _lastNameController.text.trim(),
+      ),
+      phoneNumber: LanguageHelper.convertArabicToEnglishNumerals(
+        _phoneNumberController.text.trim(),
+      ),
+      isMale: _isMale,
+      birthDate: _birthDate,
+      password: LanguageHelper.convertArabicToEnglishNumerals(
+        _passwordController.text.trim(),
+      ),
+      confirmPassword: LanguageHelper.convertArabicToEnglishNumerals(
+        _confirmPasswordController.text.trim(),
+      ),
+      nationalId: nationalId.isEmpty
+          ? null
+          : LanguageHelper.convertArabicToEnglishNumerals(nationalId),
+      passportNumber: passportNumber.isEmpty
+          ? null
+          : LanguageHelper.convertArabicToEnglishNumerals(passportNumber),
+    );
   }
 
   @override

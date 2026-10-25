@@ -33,6 +33,7 @@ class InvoiceDetailsDto {
   final double? totalBefore;
   final double? totalAfter;
   final double? discountPercentage;
+  final String? paymentLink;
   final int? familyId;
   final String? familyFirstName;
   final String? familyLastName;
@@ -45,6 +46,7 @@ class InvoiceDetailsDto {
     this.totalBefore,
     this.totalAfter,
     this.discountPercentage,
+    this.paymentLink,
     this.familyId,
     this.familyFirstName,
     this.familyLastName,
@@ -59,6 +61,7 @@ class InvoiceDetailsDto {
       totalBefore: (json['totalBefore'] as num?)?.toDouble(),
       totalAfter: (json['totalAfter'] as num?)?.toDouble(),
       discountPercentage: (json['discountPercentage'] as num?)?.toDouble(),
+      paymentLink: json['paymentLink']?.toString(),
       familyId: (json['familyId'] as num?)?.toInt(),
       familyFirstName: json['familyFirstName'] as String?,
       familyLastName: json['familyLastName'] as String?,

@@ -19,6 +19,7 @@ import '../widgets/edit_profile/edit_name_row.dart';
 import '../cubit/profile_cubit.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
+import '../../../../core/theming/app_toast.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final ProfileData profileData;
@@ -67,12 +68,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${"edit_profile.could_not_pick_image".tr()}: ${e.toString()}',
-            ),
-          ),
+        showErrorToast(
+          '${"edit_profile.could_not_pick_image".tr()}: ${e.toString()}',
         );
       }
     } finally {
@@ -143,13 +140,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         debugPrint('[EditProfile] showImageOptions error: $error');
       }
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${"edit_profile.could_not_pick_image".tr()}: $error',
-            ),
-          ),
-        );
+        showErrorToast('${"edit_profile.could_not_pick_image".tr()}: $error');
       }
     }
   }
@@ -406,13 +397,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             firstNameController: _firstNameController,
             lastNameController: _lastNameController,
             firstNameFocusNode: _focusNodes['firstName'],
-            firstNameAutovalidate:
-                _touchedFields.contains('firstName')
+            firstNameAutovalidate: _touchedFields.contains('firstName')
                 ? AutovalidateMode.onUserInteraction
                 : AutovalidateMode.disabled,
             lastNameFocusNode: _focusNodes['lastName'],
-            lastNameAutovalidate:
-                _touchedFields.contains('lastName')
+            lastNameAutovalidate: _touchedFields.contains('lastName')
                 ? AutovalidateMode.onUserInteraction
                 : AutovalidateMode.disabled,
             nameValidator: _validateName,
@@ -426,8 +415,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             cardNumberController: _cardNumberController,
             nationalIdController: _nationalIdController,
             nationalIdFocusNode: _focusNodes['nationalId'],
-            nationalIdAutovalidate:
-                _touchedFields.contains('nationalId')
+            nationalIdAutovalidate: _touchedFields.contains('nationalId')
                 ? AutovalidateMode.onUserInteraction
                 : AutovalidateMode.disabled,
             digitsFormatters: [_digitsOnly(maxDigits: 14)],
@@ -440,8 +428,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 : AutovalidateMode.disabled,
             phoneNumberController: _phoneNumberController,
             phoneNumberFocusNode: _focusNodes['phoneNumber'],
-            phoneNumberAutovalidate:
-                _touchedFields.contains('phoneNumber')
+            phoneNumberAutovalidate: _touchedFields.contains('phoneNumber')
                 ? AutovalidateMode.onUserInteraction
                 : AutovalidateMode.disabled,
             phoneNumberValidator: _validatePhoneNumber,
@@ -463,9 +450,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> _saveProfile() async {
     if (_isSaving) return;
     if (!_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('errors.validation_failed'.tr())));
+      dismissActiveToast();
       return;
     }
 

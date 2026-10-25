@@ -27,14 +27,19 @@ class LocationRepository {
       showRationaleDialog: showRationaleDialog,
     );
     _ongoingResolution = resolution;
-    return resolution.then((result) {
-      if (result.hasCoordinates) _cached = result;
-      return result;
-    }).whenComplete(() {
-      if (identical(_ongoingResolution, resolution)) {
-        _ongoingResolution = null;
-      }
-    });
+    return resolution
+        .then((result) {
+          // Keep denied/disabled results too. Passive consumers such as Home must
+          // not immediately trigger a second native prompt after the user denies
+          // the first one. Explicit user actions clear this value before retrying.
+          _cached = result;
+          return result;
+        })
+        .whenComplete(() {
+          if (identical(_ongoingResolution, resolution)) {
+            _ongoingResolution = null;
+          }
+        });
   }
 
   void cache(LocationResult result) {

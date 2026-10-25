@@ -61,7 +61,10 @@ class HomeCubit extends Cubit<HomeState> {
       double? lat = location?.latitude;
       double? lng = location?.longitude;
 
-      if (lat == null || lng == null) {
+      // Resolve only when location has not been checked yet. A cached denied
+      // result means the user already answered the native prompt; Home should
+      // continue without coordinates rather than asking again automatically.
+      if (location == null) {
         if (kDebugMode) debugPrint('[HomeCubit] waiting for shared location');
         final result = await _locationRepository.resolve(_locationService);
         if (isClosed) return;

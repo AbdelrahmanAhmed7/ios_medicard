@@ -270,42 +270,60 @@ class _AllPackagesScreenState extends State<AllPackagesScreen> {
     return RefreshIndicator(
       color: const Color(0xFF3872B1),
       onRefresh: () => _load(reset: true),
-      child: GridView.builder(
-        controller: _scrollController,
-        padding: EdgeInsets.fromLTRB(8.w, 12.h, 8.w, 24.h),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 12.w,
-          mainAxisSpacing: 12.h,
-          mainAxisExtent: 272,
-        ),
-        itemCount: _items.length + (_isLoadingMore ? 1 : 0),
-        itemBuilder: (context, index) {
-          if (index >= _items.length) {
-            return const Center(
-              child: CircularProgressIndicator(color: Color(0xFF3872B1)),
-            );
-          }
-          final item = _items[index];
-          return ProviderPackageCard(
-            packageData: ProviderPackage(
-              id: item.id,
-              name: item.name,
-              providerId: item.providerId,
-              providerNameAr: item.providerNameAr,
-              providerNameEn: item.providerNameEn,
-              imageUrl: item.image,
-              description: item.description,
-              priceBefore: item.priceBefore,
-              priceAfter: item.priceAfter,
-              discountPercentage: item.discountPercentage,
-              serviceNames: item.serviceNames,
-              servicesCount: (item.serviceNames ?? const []).length,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final horizontalPadding = 8.w;
+          final crossAxisSpacing = 12.w;
+          final cardWidth =
+              (constraints.maxWidth -
+                  horizontalPadding * 2 -
+                  crossAxisSpacing) /
+              2;
+          return GridView.builder(
+            controller: _scrollController,
+            padding: EdgeInsets.fromLTRB(
+              horizontalPadding,
+              12.h,
+              horizontalPadding,
+              24.h,
             ),
-            onDetailsTap: item.id == null || item.providerId == null
-                ? null
-                : () => _openPackage(context, item),
-            onQuickAdd: null,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: crossAxisSpacing,
+              mainAxisSpacing: 12.h,
+              mainAxisExtent: ProviderPackageCard.preferredHeightForWidth(
+                cardWidth,
+              ),
+            ),
+            itemCount: _items.length + (_isLoadingMore ? 1 : 0),
+            itemBuilder: (context, index) {
+              if (index >= _items.length) {
+                return const Center(
+                  child: CircularProgressIndicator(color: Color(0xFF3872B1)),
+                );
+              }
+              final item = _items[index];
+              return ProviderPackageCard(
+                packageData: ProviderPackage(
+                  id: item.id,
+                  name: item.name,
+                  providerId: item.providerId,
+                  providerNameAr: item.providerNameAr,
+                  providerNameEn: item.providerNameEn,
+                  imageUrl: item.image,
+                  description: item.description,
+                  priceBefore: item.priceBefore,
+                  priceAfter: item.priceAfter,
+                  discountPercentage: item.discountPercentage,
+                  serviceNames: item.serviceNames,
+                  servicesCount: (item.serviceNames ?? const []).length,
+                ),
+                onDetailsTap: item.id == null || item.providerId == null
+                    ? null
+                    : () => _openPackage(context, item),
+                onQuickAdd: null,
+              );
+            },
           );
         },
       ),

@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../services/haptic_feedback_service.dart';
+import '../utils/api_error_parser.dart';
 
 import 'app_text_styles.dart';
 
@@ -10,6 +13,43 @@ enum ToastType { success, error, warning, info }
 
 // ── Global navigator key — set this on MaterialApp.router ──────────────────
 final GlobalKey<NavigatorState> toastNavigatorKey = GlobalKey<NavigatorState>();
+
+OverlayEntry? _activeToastEntry;
+String? _activeToastKey;
+
+void _removeToastEntry(OverlayEntry entry) {
+  if (identical(_activeToastEntry, entry)) {
+    entry.remove();
+    _activeToastEntry = null;
+    _activeToastKey = null;
+  } else if (entry.mounted) {
+    entry.remove();
+  }
+}
+
+void dismissActiveToast() {
+  final entry = _activeToastEntry;
+  if (entry != null) _removeToastEntry(entry);
+}
+
+bool _insertSingleToast({
+  required String key,
+  required Widget Function(VoidCallback dismiss) builder,
+}) {
+  final overlay = toastNavigatorKey.currentState?.overlay;
+  if (overlay == null) return false;
+
+  final current = _activeToastEntry;
+  if (current != null && _activeToastKey == key) return false;
+  if (current != null) _removeToastEntry(current);
+
+  late final OverlayEntry entry;
+  entry = OverlayEntry(builder: (_) => builder(() => _removeToastEntry(entry)));
+  _activeToastEntry = entry;
+  _activeToastKey = key;
+  overlay.insert(entry);
+  return true;
+}
 
 Color _backgroundColorFor(ToastType type) {
   switch (type) {
@@ -44,36 +84,34 @@ void showToast(
 }) {
   final effectiveType = isError ? ToastType.error : type;
 
-  // haptic feedback
+  final didShow = _insertSingleToast(
+    key: '${effectiveType.name}:$message',
+    builder: (dismiss) => _ToastWidget(
+      message: message,
+      type: effectiveType,
+      backgroundColor: _backgroundColorFor(effectiveType),
+      icon: _iconFor(effectiveType),
+      onDismiss: dismiss,
+    ),
+  );
+  if (!didShow) return;
+
   if (effectiveType == ToastType.error) {
     HapticFeedbackService.instance.heavyImpact();
   } else if (effectiveType == ToastType.success) {
     HapticFeedbackService.instance.lightImpact();
   }
-
-  final overlay = toastNavigatorKey.currentState?.overlay;
-  if (overlay == null) return;
-
-  late OverlayEntry entry;
-  entry = OverlayEntry(
-    builder: (context) => _ToastWidget(
-      message: message,
-      type: effectiveType,
-      backgroundColor: _backgroundColorFor(effectiveType),
-      icon: _iconFor(effectiveType),
-      onDismiss: () => entry.remove(),
-    ),
-  );
-
-  overlay.insert(entry);
 }
 
 /// Shorthand helpers
 void showSuccessToast(String message) =>
     showToast(message, type: ToastType.success);
 
-void showErrorToast(String message) =>
-    showToast(message, type: ToastType.error, isError: true);
+void showErrorToast(String message) => showToast(
+  friendlyApiMessage(message),
+  type: ToastType.error,
+  isError: true,
+);
 
 void showInfoToast(String message) => showToast(message, type: ToastType.info);
 
@@ -83,25 +121,17 @@ void showWarningToast(String message) =>
 /// Unified "please log in" flow: shows a toast with a "Login Now" action
 /// that navigates to the login screen — no automatic navigation.
 void showLoginRequiredMessage(BuildContext context) {
-  final overlay = toastNavigatorKey.currentState?.overlay;
-  if (overlay == null) return;
-
-  HapticFeedbackService.instance.lightImpact();
-
-  late OverlayEntry entry;
-  entry = OverlayEntry(
-    builder: (_) => _LoginRequiredToast(
-      onDismiss: () {
-        if (entry.mounted) entry.remove();
-      },
+  final didShow = _insertSingleToast(
+    key: 'login-required',
+    builder: (dismiss) => _LoginRequiredToast(
+      onDismiss: dismiss,
       onLoginTap: () {
-        if (entry.mounted) entry.remove();
+        dismiss();
         context.push('/medicard-login');
       },
     ),
   );
-
-  overlay.insert(entry);
+  if (didShow) HapticFeedbackService.instance.lightImpact();
 }
 
 // ── Login-required toast ────────────────────────────────────────────────────
@@ -124,6 +154,7 @@ class _LoginRequiredToastState extends State<_LoginRequiredToast>
   late final AnimationController _controller;
   late final Animation<double> _opacity;
   late final Animation<Offset> _slide;
+  Timer? _dismissTimer;
 
   @override
   void initState() {
@@ -139,7 +170,7 @@ class _LoginRequiredToastState extends State<_LoginRequiredToast>
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
     _controller.forward();
-    Future.delayed(const Duration(milliseconds: 4000), _dismiss);
+    _dismissTimer = Timer(const Duration(milliseconds: 4000), _dismiss);
   }
 
   void _dismiss() {
@@ -151,6 +182,7 @@ class _LoginRequiredToastState extends State<_LoginRequiredToast>
 
   @override
   void dispose() {
+    _dismissTimer?.cancel();
     _controller.dispose();
     super.dispose();
   }
@@ -259,6 +291,7 @@ class _ToastWidgetState extends State<_ToastWidget>
   late final AnimationController _controller;
   late final Animation<double> _opacity;
   late final Animation<Offset> _slide;
+  Timer? _dismissTimer;
 
   @override
   void initState() {
@@ -276,7 +309,7 @@ class _ToastWidgetState extends State<_ToastWidget>
     _controller.forward();
 
     // auto-dismiss after 2.5 s
-    Future.delayed(const Duration(milliseconds: 2500), _dismiss);
+    _dismissTimer = Timer(const Duration(milliseconds: 2500), _dismiss);
   }
 
   void _dismiss() {
@@ -288,6 +321,7 @@ class _ToastWidgetState extends State<_ToastWidget>
 
   @override
   void dispose() {
+    _dismissTimer?.cancel();
     _controller.dispose();
     super.dispose();
   }

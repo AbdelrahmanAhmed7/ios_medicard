@@ -6,6 +6,7 @@ class InvoiceDetails {
   final double? totalBefore;
   final double? totalAfter;
   final double? discountPercentage;
+  final String? paymentLink;
   final int? familyId;
   final String? familyFirstName;
   final String? familyLastName;
@@ -20,12 +21,24 @@ class InvoiceDetails {
     required this.totalBefore,
     required this.totalAfter,
     required this.discountPercentage,
+    this.paymentLink,
     this.familyId,
     this.familyFirstName,
     this.familyLastName,
     this.beneficiaryName,
     required this.services,
   });
+
+  bool get canContinuePayment {
+    final normalizedStatus = status?.trim().toLowerCase();
+    final isFinished =
+        normalizedStatus == 'paid' ||
+        normalizedStatus == 'used' ||
+        normalizedStatus == 'completed' ||
+        normalizedStatus == 'canceled' ||
+        normalizedStatus == 'cancelled';
+    return !isFinished && paymentLink?.trim().isNotEmpty == true;
+  }
 }
 
 class InvoiceServiceItem {

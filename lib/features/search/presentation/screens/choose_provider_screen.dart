@@ -610,13 +610,8 @@ class _ChooseProviderBottomBar extends StatelessWidget {
                                   .read<CartCubit>()
                                   .state
                                   .assignProviderError;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    error ??
-                                        'cart.failed_to_update_provider'.tr(),
-                                  ),
-                                ),
+                              showErrorToast(
+                                error ?? 'cart.failed_to_update_provider'.tr(),
                               );
                             }
                           }

@@ -36,20 +36,22 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
 
   void _onLoginPressed(BuildContext context) {
     FocusScope.of(context).unfocus();
-    if (_formKey.currentState!.validate()) {
-      final identifier = LanguageHelper.convertArabicToEnglishNumerals(
-        _loginIdentifierController.text.trim(),
-      );
-      final password = LanguageHelper.convertArabicToEnglishNumerals(
-        _passwordController.text.trim(),
-      );
-      final loginIdentifier = _parseLoginIdentifier(identifier);
-      context.read<MedicardLoginCubit>().login(
-        cardNumber: loginIdentifier.cardNumber,
-        phoneNumber: loginIdentifier.phoneNumber,
-        password: password,
-      );
+    if (!_formKey.currentState!.validate()) {
+      dismissActiveToast();
+      return;
     }
+    final identifier = LanguageHelper.convertArabicToEnglishNumerals(
+      _loginIdentifierController.text.trim(),
+    );
+    final password = LanguageHelper.convertArabicToEnglishNumerals(
+      _passwordController.text.trim(),
+    );
+    final loginIdentifier = _parseLoginIdentifier(identifier);
+    context.read<MedicardLoginCubit>().login(
+      cardNumber: loginIdentifier.cardNumber,
+      phoneNumber: loginIdentifier.phoneNumber,
+      password: password,
+    );
   }
 
   String? _validateLoginIdentifier(String? value) {
@@ -65,20 +67,18 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
       return null;
     }
 
-    // An 11-digit value starting with '01' (or 10 digits starting with '1')
-    // is clearly a phone-number attempt. If it failed the strict prefix
-    // check above (valid prefixes are 010/011/012/015), surface a
-    // phone-format error instead of treating it as a card number — e.g.
-    // '01912345678' must not fall through to card-number handling.
+    // A Medicard number is always exactly 12 digits, regardless of prefix.
+    if (_isValidCardNumber(identifier)) {
+      return null;
+    }
+
+    // A value beginning like an Egyptian mobile remains a phone attempt even
+    // while incomplete. Do not let it fall through as a short card number.
     if (_looksLikePhoneAttempt(identifier)) {
       return 'auth.login.phoneNumberInvalid'.tr();
     }
 
-    if (_isPotentialCardNumber(identifier)) {
-      return null;
-    }
-
-    return 'auth.login.identifierInvalid'.tr();
+    return 'auth.login.cardNumberInvalid'.tr();
   }
 
   @override
@@ -241,6 +241,7 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
         hintText: 'auth.login.identifierHint'.tr(),
       ).copyWith(counterText: ''),
       validator: _validateLoginIdentifier,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
     );
   }
 
@@ -293,13 +294,10 @@ bool _isEgyptianMobile(String value) {
 }
 
 bool _looksLikePhoneAttempt(String value) {
-  // 11 digits with a leading zero (01xxxxxxxxx) or 10 digits without it
-  // (1xxxxxxxxx) — the shapes of an Egyptian mobile attempt.
-  if (RegExp(r'^01[0-9]{9}$').hasMatch(value)) return true;
-  if (RegExp(r'^1[0-9]{9}$').hasMatch(value)) return true;
-  return false;
+  return value.startsWith('01') ||
+      (value.startsWith('1') && value.length <= 10);
 }
 
-bool _isPotentialCardNumber(String value) {
-  return RegExp(r'^[0-9]{4,12}$').hasMatch(value);
+bool _isValidCardNumber(String value) {
+  return RegExp(r'^[0-9]{12}$').hasMatch(value);
 }

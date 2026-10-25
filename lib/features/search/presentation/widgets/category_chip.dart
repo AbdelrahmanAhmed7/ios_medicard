@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../data/models/category_model.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
@@ -127,22 +128,33 @@ class CategoryChip extends StatelessWidget {
     final imageUrl = category?.imageUrl;
     Widget content;
     if (imageUrl != null && imageUrl.isNotEmpty) {
-      content = CachedNetworkImage(
-        imageUrl: imageUrl,
+      final placeholder = Container(
         width: 26.r,
         height: 26.r,
-        fit: BoxFit.cover,
-        placeholder: (context, url) => Container(
-          width: 26.r,
-          height: 26.r,
-          color: const Color(0xFFEFF6FF),
-        ),
-        errorWidget: (context, url, error) => Icon(
-          Icons.image_not_supported_outlined,
-          size: 18.r,
-          color: isSelected ? Colors.white : activeColor,
-        ),
+        color: const Color(0xFFEFF6FF),
       );
+      final errorIcon = Icon(
+        Icons.image_not_supported_outlined,
+        size: 18.r,
+        color: isSelected ? Colors.white : activeColor,
+      );
+      content = isSvgImageUrl(imageUrl)
+          ? SvgPicture.network(
+              imageUrl,
+              width: 26.r,
+              height: 26.r,
+              fit: BoxFit.contain,
+              placeholderBuilder: (_) => placeholder,
+              errorBuilder: (_, _, _) => errorIcon,
+            )
+          : CachedNetworkImage(
+              imageUrl: imageUrl,
+              width: 26.r,
+              height: 26.r,
+              fit: BoxFit.cover,
+              placeholder: (_, _) => placeholder,
+              errorWidget: (_, _, _) => errorIcon,
+            );
     } else {
       content = Icon(
         Icons.grid_view_rounded,
@@ -163,4 +175,10 @@ class CategoryChip extends StatelessWidget {
       ),
     );
   }
+}
+
+@visibleForTesting
+bool isSvgImageUrl(String url) {
+  final path = Uri.tryParse(url)?.path ?? url;
+  return path.toLowerCase().endsWith('.svg');
 }

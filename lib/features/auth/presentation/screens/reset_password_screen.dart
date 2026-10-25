@@ -67,7 +67,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
   void _onResetPressed(BuildContext context) {
     FocusScope.of(context).unfocus();
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      dismissActiveToast();
+      return;
+    }
     context.read<ForgotPasswordCubit>().resetPassword(
       phoneNumber: widget.phoneNumber,
       password: _passwordController.text.trim(),

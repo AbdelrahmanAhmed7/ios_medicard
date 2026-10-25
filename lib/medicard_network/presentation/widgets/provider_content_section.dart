@@ -291,37 +291,45 @@ class PackagesSection extends StatelessWidget {
     }
     return Column(
       children: [
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 12.w,
-            mainAxisSpacing: 12.h,
-            mainAxisExtent: 272,
-          ),
-          itemCount: state.packages.length,
-          itemBuilder: (context, index) {
-            final packageData = state.packages[index];
-            final packageId = packageData.id;
-            return ProviderPackageCard(
-              packageData: packageData,
-              onDetailsTap: packageId == null
-                  ? null
-                  : () => openPackageDetailsSheet(
-                      context,
-                      cubit,
-                      packageData,
-                      selectedBranch,
-                    ),
-              onQuickAdd: packageId == null
-                  ? null
-                  : () => createPackageInvoice(
-                      context,
-                      cubit,
-                      packageId,
-                      selectedBranch,
-                    ),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final crossAxisSpacing = 12.w;
+            final cardWidth = (constraints.maxWidth - crossAxisSpacing) / 2;
+            return GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: crossAxisSpacing,
+                mainAxisSpacing: 12.h,
+                mainAxisExtent: ProviderPackageCard.preferredHeightForWidth(
+                  cardWidth,
+                ),
+              ),
+              itemCount: state.packages.length,
+              itemBuilder: (context, index) {
+                final packageData = state.packages[index];
+                final packageId = packageData.id;
+                return ProviderPackageCard(
+                  packageData: packageData,
+                  onDetailsTap: packageId == null
+                      ? null
+                      : () => openPackageDetailsSheet(
+                          context,
+                          cubit,
+                          packageData,
+                          selectedBranch,
+                        ),
+                  onQuickAdd: packageId == null
+                      ? null
+                      : () => createPackageInvoice(
+                          context,
+                          cubit,
+                          packageId,
+                          selectedBranch,
+                        ),
+                );
+              },
             );
           },
         ),

@@ -333,9 +333,10 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
                                 isLoading: isLoading,
                                 onPressed: () {
                                   if (!_formKey.currentState!.validate()) {
-                                    showErrorToast(
-                                      'errors.validation_failed'.tr(),
-                                    );
+                                    // Field labels already explain every
+                                    // validation error; avoid duplicating them
+                                    // in a global toast.
+                                    dismissActiveToast();
                                     return;
                                   }
                                   context

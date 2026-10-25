@@ -2,6 +2,42 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:medicard/features/activity/domain/models/invoice_details.dart';
 
 void main() {
+  group('InvoiceDetails canContinuePayment', () {
+    InvoiceDetails details({required String status, String? paymentLink}) {
+      return InvoiceDetails(
+        invoiceId: 388,
+        status: status,
+        date: null,
+        totalBefore: 165,
+        totalAfter: 132,
+        discountPercentage: 20,
+        paymentLink: paymentLink,
+        services: const [],
+      );
+    }
+
+    test('allows pending invoices with a payment link to resume payment', () {
+      expect(
+        details(
+          status: 'Pending',
+          paymentLink: 'https://pay.example/388',
+        ).canContinuePayment,
+        isTrue,
+      );
+    });
+
+    test('does not show payment action without both pending and link', () {
+      expect(details(status: 'Pending').canContinuePayment, isFalse);
+      expect(
+        details(
+          status: 'Paid',
+          paymentLink: 'https://pay.example/388',
+        ).canContinuePayment,
+        isFalse,
+      );
+    });
+  });
+
   group('InvoiceServiceItem displayedDiscountPercentage', () {
     test('calculates service discounts from the backend prices', () {
       for (final testCase in const [

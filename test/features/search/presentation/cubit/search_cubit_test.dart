@@ -161,6 +161,17 @@ void main() {
       expect(cubit.state.cartActionError, 'Server error');
     });
 
+    test('cart action error is consumed after it is presented', () async {
+      searchRepository.categoryServices[1] = _categoryData(1);
+      cartRepository.addResults[2] = const ApiResult.failure('Server error');
+      await cubit.loadCategoryServices(1);
+      await cubit.addServiceToCart(serviceId: 2, categoryId: 1);
+
+      cubit.consumeCartActionError();
+
+      expect(cubit.state.cartActionError, isNull);
+    });
+
     test('prevents duplicate pending add for same service', () async {
       searchRepository.categoryServices[1] = _categoryData(1);
       await cubit.loadCategoryServices(1);

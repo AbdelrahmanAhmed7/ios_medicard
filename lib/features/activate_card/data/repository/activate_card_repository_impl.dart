@@ -54,7 +54,7 @@ class ActivateCardRepositoryImpl implements ActivateCardRepository {
 
   String? _backendMessageFrom(dynamic value) {
     final message = _extractBackendMessages(value);
-    return message.isEmpty ? null : message;
+    return message.isEmpty ? null : friendlyApiMessage(message);
   }
 
   String _extractBackendMessages(dynamic value) {

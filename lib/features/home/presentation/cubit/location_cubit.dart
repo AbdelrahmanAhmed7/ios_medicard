@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import '../../../../core/services/location_repository.dart';
 import '../../../../core/services/location_service.dart';
@@ -110,7 +111,10 @@ class LocationCubit extends Cubit<LocationState> {
     }
 
     if (permission == LocationPermission.deniedForever) {
-      if (!isClosed) emit(const LocationError('Location unavailable'));
+      await _locationService.openAppSettings();
+      if (!isClosed) {
+        emit(LocationError('sort_filter.location_permanently_denied'.tr()));
+      }
       return;
     }
 

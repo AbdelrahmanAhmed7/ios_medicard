@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
+import '../../../../core/theming/app_toast.dart';
 import '../../../../core/widgets/app_simple_header.dart';
 import '../../data/model/notification_model.dart';
 import '../../push_notification_service.dart';
@@ -111,9 +112,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     if (!context.mounted) return;
     Navigator.of(context).pop();
     if (!opened && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.tr('errors.something_went_wrong'))),
-      );
+      showErrorToast(context.tr('errors.something_went_wrong'));
     }
   }
 
@@ -124,9 +123,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           previous.markReadError != current.markReadError &&
           current.markReadError != null,
       listener: (context, state) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(state.markReadError!)));
+        showErrorToast(state.markReadError!);
       },
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -201,19 +198,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         .length;
     if (unreadCount == 0) return;
 
-    final messenger = ScaffoldMessenger.of(context);
     await context.read<NotificationCubit>().markAllAsRead();
     if (!mounted) return;
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(
-          context.tr('notifications.all_marked_read'),
-          style: const TextStyle(color: Colors.white),
-        ),
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
-      ),
-    );
+    showSuccessToast(context.tr('notifications.all_marked_read'));
   }
 
   Widget _buildBody(
@@ -457,10 +444,7 @@ class _NotificationControls extends StatelessWidget {
           ),
         ),
         SizedBox(width: 16.w),
-        _MarkAllReadAction(
-          enabled: unreadCount > 0,
-          onPressed: onMarkAllRead,
-        ),
+        _MarkAllReadAction(enabled: unreadCount > 0, onPressed: onMarkAllRead),
       ],
     );
   }

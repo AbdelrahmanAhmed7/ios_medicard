@@ -34,6 +34,25 @@ void main() {
             cardBottom - footerBottom,
             AppSpacing.compactCardFooterBottomInset,
           );
+          expect(
+            tester.getSize(find.byType(ProviderPackageCard)).height,
+            ProviderPackageCard.preferredHeightForWidth(cardWidth),
+          );
+          final descriptionBottom = tester
+              .getBottomLeft(
+                find.text(
+                  'A package with several diagnostic services included',
+                ),
+              )
+              .dy;
+          final footerTop = tester
+              .getTopLeft(find.byKey(const ValueKey('provider-package-footer')))
+              .dy;
+          expect(
+            footerTop - descriptionBottom,
+            lessThanOrEqualTo(48),
+            reason: 'the flexible middle gap should stay moderate',
+          );
           expect(tester.takeException(), isNull);
         }
       },
@@ -66,7 +85,7 @@ Widget _testApp({required double cardWidth, required double textScale}) {
         body: Center(
           child: SizedBox(
             width: cardWidth,
-            height: 272,
+            height: ProviderPackageCard.preferredHeightForWidth(cardWidth),
             child: ProviderPackageCard(packageData: package, onQuickAdd: () {}),
           ),
         ),

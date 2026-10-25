@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/service_locator.dart';
+import '../../../../core/services/url_launcher_service.dart';
 import '../../../../core/theming/app_spacing.dart';
 import '../../../../core/theming/app_toast.dart';
 import '../../../../core/utils/app_date_formatter.dart';
@@ -183,7 +184,68 @@ class _DetailsBody extends StatelessWidget {
         ),
         SizedBox(height: 20.h),
         _DetailsActions(invoice: invoice, details: details, tab: tab),
+        if (details.canContinuePayment) ...[
+          SizedBox(height: 12.h),
+          _ContinuePaymentButton(paymentLink: details.paymentLink!),
+        ],
       ],
+    );
+  }
+}
+
+class _ContinuePaymentButton extends StatefulWidget {
+  final String paymentLink;
+
+  const _ContinuePaymentButton({required this.paymentLink});
+
+  @override
+  State<_ContinuePaymentButton> createState() => _ContinuePaymentButtonState();
+}
+
+class _ContinuePaymentButtonState extends State<_ContinuePaymentButton> {
+  bool _isOpening = false;
+
+  Future<void> _openPayment() async {
+    if (_isOpening) return;
+    setState(() => _isOpening = true);
+    final opened = await UrlLauncherService().launchURL(widget.paymentLink);
+    if (!mounted) return;
+    setState(() => _isOpening = false);
+    if (!opened) showErrorToast('cart.could_not_open_payment_link'.tr());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 54.h,
+      child: ElevatedButton(
+        onPressed: _isOpening ? null : _openPayment,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF3872B1),
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: const Color(0xFF9DB7D3),
+          disabledForegroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14.r),
+          ),
+          textStyle: AppTextStyles.of(
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        child: _isOpening
+            ? SizedBox(
+                width: 20.r,
+                height: 20.r,
+                child: const CircularProgressIndicator(
+                  strokeWidth: 2.2,
+                  color: Colors.white,
+                ),
+              )
+            : Text('cart.continue_payment'.tr()),
+      ),
     );
   }
 }

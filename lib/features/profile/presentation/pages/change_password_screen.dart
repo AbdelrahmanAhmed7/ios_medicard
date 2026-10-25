@@ -11,6 +11,7 @@ import '../cubit/change_password_cubit.dart';
 import '../cubit/change_password_state.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
+import '../../../../core/theming/app_toast.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -78,7 +79,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   }
 
   void _submit() {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      dismissActiveToast();
+      return;
+    }
     context.read<ChangePasswordCubit>().changePassword(
       currentPassword: LanguageHelper.convertArabicToEnglishNumerals(
         _currentPasswordController.text.trim(),
@@ -128,18 +132,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       listener: (context, state) {
         state.maybeWhen(
           success: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('change_password.success'.tr()),
-                backgroundColor: Colors.green,
-              ),
-            );
+            showSuccessToast('change_password.success'.tr());
             context.pop();
           },
           failure: (message) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(message), backgroundColor: Colors.red),
-            );
+            showErrorToast(message);
           },
           orElse: () {},
         );

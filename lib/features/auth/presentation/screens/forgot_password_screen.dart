@@ -43,7 +43,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   void _onSendOtpPressed(BuildContext context) {
     FocusScope.of(context).unfocus();
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      dismissActiveToast();
+      return;
+    }
     final phoneNumber = LanguageHelper.convertArabicToEnglishNumerals(
       _phoneController.text.trim(),
     );

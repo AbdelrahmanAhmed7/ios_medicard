@@ -21,6 +21,18 @@ class ProviderPackageCard extends StatelessWidget {
     this.onQuickAdd,
   });
 
+  /// Keeps the text/footer area within a moderate range while allowing the
+  /// 16:9 image to follow the actual card width. This avoids the large spacer
+  /// produced by one fixed card height across narrow and wide screens.
+  static double preferredHeightForWidth(double cardWidth) {
+    const contentHeight = 146.0;
+    const minHeight = 232.0;
+    const maxHeight = 254.0;
+    return (cardWidth * 9 / 16 + contentHeight)
+        .clamp(minHeight, maxHeight)
+        .toDouble();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MediaQuery.withClampedTextScaling(
