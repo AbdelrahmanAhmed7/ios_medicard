@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:async';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:medicard/core/constants/api_result.dart';
 import 'package:medicard/core/theming/app_toast.dart';
@@ -132,7 +133,21 @@ class ProfileCubit extends Cubit<ProfileState> {
     required ProfileData currentData,
   }) async {
     if (isClosed) return false;
-    emit(ProfileState.updating(currentData));
+    final optimisticData = ProfileData(
+      firstName: firstName,
+      lastName: lastName,
+      phoneNumber: phoneNumber,
+      nationalId: nationalId,
+      cardNumber: currentData.cardNumber,
+      passportNumber: passportNumber,
+      isMale: isMale,
+      birthDate: birthDate,
+      // ProfileAvatar supports local file paths. Keeping the selected file in
+      // state makes the new photo visible immediately after a slow upload,
+      // instead of waiting for the server URL and its stale image cache.
+      imageUrl: removeImage ? null : imagePath ?? currentData.imageUrl,
+    );
+    emit(ProfileState.updating(optimisticData));
     try {
       final result = await _updateProfileUseCase.call(
         firstName: firstName,
@@ -160,10 +175,21 @@ class ProfileCubit extends Cubit<ProfileState> {
         return false;
       }
 
-      // PUT succeeded — re-fetch from API so the state reflects exactly
-      // what the backend persisted (imageUrl, cardNumber, etc.).
+      if (imagePath != null &&
+          currentData.imageUrl?.trim().isNotEmpty == true) {
+        // The backend can keep the same URL after replacing the file. Remove
+        // both memory/disk cached copies so the next cold profile load cannot
+        // display the old photo under that URL.
+        await CachedNetworkImage.evictFromCache(currentData.imageUrl!.trim());
+      }
+      if (isClosed) return false;
+
+      // The update request already succeeded. Publishing the submitted data
+      // avoids a second network round-trip and keeps the selected local image
+      // visible immediately; the next normal profile load reconciles with the
+      // backend response.
+      emit(ProfileState.success(optimisticData));
       showSuccessToast('profile.updated_successfully'.tr());
-      await _performProfileLoad();
       return true;
     } catch (e) {
       if (isClosed) return false;

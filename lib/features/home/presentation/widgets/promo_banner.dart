@@ -1,13 +1,14 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../data/home_mock_data.dart';
 import '../../../../core/theming/app_spacing.dart';
 import '../../../../core/theming/app_text_styles.dart';
+import '../../data/home_mock_data.dart';
 
 class PromoBannerWidget extends StatefulWidget {
   final List<PromoBanner> banners;
@@ -112,7 +113,7 @@ class _PromoBannerWidgetState extends State<PromoBannerWidget> {
                       // Offer artwork often contains text/logos near its
                       // edges. `cover` crops those edges on narrower phones;
                       // `contain` keeps the complete creative visible.
-                      fit: BoxFit.contain,
+                      fit: BoxFit.fill,
                       errorWidget: (context, url, error) =>
                           const ColoredBox(color: Color(0xFFF8FAFC)),
                     ),

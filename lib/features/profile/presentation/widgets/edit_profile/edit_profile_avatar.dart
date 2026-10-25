@@ -12,6 +12,7 @@ import '../../../../../core/widgets/auth_shared_widgets.dart';
 class EditProfileAvatar extends StatelessWidget {
   final File? imageFile;
   final bool isPickingImage;
+  final bool isUploading;
   final bool removeImage;
   final String? imageUrl;
   final VoidCallback onPreviewTap;
@@ -21,6 +22,7 @@ class EditProfileAvatar extends StatelessWidget {
     super.key,
     required this.imageFile,
     required this.isPickingImage,
+    required this.isUploading,
     required this.removeImage,
     required this.imageUrl,
     required this.onPreviewTap,
@@ -67,6 +69,27 @@ class EditProfileAvatar extends StatelessWidget {
             ),
           ),
         ),
+        if (isUploading)
+          Positioned.fill(
+            child: IgnorePointer(
+              child: Container(
+                margin: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.28),
+                  shape: BoxShape.circle,
+                ),
+                child: const Center(
+                  child: SizedBox.square(
+                    dimension: 28,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.7,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
         PositionedDirectional(
           bottom: 2.h,
           end: 2.w,
@@ -75,7 +98,7 @@ class EditProfileAvatar extends StatelessWidget {
             label: 'edit_profile.change_photo'.tr(),
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
-              onTap: onEditTap,
+              onTap: isUploading ? null : onEditTap,
               child: Container(
                 width: 38.r,
                 height: 38.r,
@@ -132,9 +155,7 @@ class _RemoteImage extends StatelessWidget {
     return CachedNetworkImage(
       imageUrl: imageUrl!,
       fit: BoxFit.cover,
-      placeholder: (context, url) => const ColoredBox(
-        color: Color(0xFFF1F5F9),
-      ),
+      placeholder: (context, url) => const ColoredBox(color: Color(0xFFF1F5F9)),
       errorWidget: (context, url, error) => const _AvatarPlaceholder(),
     );
   }

@@ -82,6 +82,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       (!_removeImage && hasValidProfileImageUrl(widget.profileData.imageUrl));
 
   Future<void> _showImageOptions() async {
+    if (_isSaving || _isPickingImage) return;
     final showRemove = _hasCurrentPhoto;
     try {
       await showModalBottomSheet<void>(
@@ -350,6 +351,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           EditProfileAvatar(
             imageFile: _pickedImage,
             isPickingImage: _isPickingImage,
+            isUploading: _isSaving && _pickedImage != null,
             removeImage: _removeImage,
             imageUrl: widget.profileData.imageUrl,
             onPreviewTap: () => showProfileImagePreview(
