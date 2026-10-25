@@ -292,6 +292,18 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
               firstName: data.familyFirstName,
               lastName: data.familyLastName,
             ),
+            review: data.review == null
+                ? null
+                : InvoiceReview(
+                    userName: data.review!.userName,
+                    userImageUrl: data.review!.userImageUrl,
+                    rating: data.review!.rating,
+                    ratingText: data.review!.ratingText,
+                    createdAt: data.review!.createdAt == null
+                        ? null
+                        : DateTime.tryParse(data.review!.createdAt!),
+                    apiCreatedAt: data.review!.createdAt,
+                  ),
             services: (data.items?.items ?? const [])
                 .map(
                   (item) => InvoiceServiceItem(

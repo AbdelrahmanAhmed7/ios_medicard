@@ -11,6 +11,7 @@ class InvoiceDetails {
   final String? familyFirstName;
   final String? familyLastName;
   final String? beneficiaryName;
+  final InvoiceReview? review;
   final List<InvoiceServiceItem> services;
 
   const InvoiceDetails({
@@ -26,6 +27,7 @@ class InvoiceDetails {
     this.familyFirstName,
     this.familyLastName,
     this.beneficiaryName,
+    this.review,
     required this.services,
   });
 
@@ -39,6 +41,24 @@ class InvoiceDetails {
         normalizedStatus == 'cancelled';
     return !isFinished && paymentLink?.trim().isNotEmpty == true;
   }
+}
+
+class InvoiceReview {
+  final String? userName;
+  final String? userImageUrl;
+  final int? rating;
+  final String? ratingText;
+  final DateTime? createdAt;
+  final String? apiCreatedAt;
+
+  const InvoiceReview({
+    this.userName,
+    this.userImageUrl,
+    this.rating,
+    this.ratingText,
+    this.createdAt,
+    this.apiCreatedAt,
+  });
 }
 
 class InvoiceServiceItem {

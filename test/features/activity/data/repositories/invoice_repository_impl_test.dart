@@ -102,6 +102,13 @@ void main() {
             'totalAfter': 132.00,
             'discountPercentage': 0.00,
             'paymentLink': 'https://pay.example/invoice/358',
+            'review': <String, dynamic>{
+              'userName': 'أحمد عاطف',
+              'userImageUrl': 'https://example.com/profile.jpg',
+              'rating': 5,
+              'ratingText': 'خدمة سيئة جدا جدا',
+              'createdAt': '2026-10-20T14:21:35.2468716',
+            },
             'items': <String, dynamic>{
               'items': <Map<String, dynamic>>[
                 <String, dynamic>{
@@ -141,6 +148,15 @@ void main() {
           expect(details.discountPercentage, 0.00);
           expect(details.paymentLink, 'https://pay.example/invoice/358');
           expect(details.canContinuePayment, isFalse);
+          expect(details.review?.userName, 'أحمد عاطف');
+          expect(
+            details.review?.userImageUrl,
+            'https://example.com/profile.jpg',
+          );
+          expect(details.review?.rating, 5);
+          expect(details.review?.ratingText, 'خدمة سيئة جدا جدا');
+          expect(details.review?.apiCreatedAt, '2026-10-20T14:21:35.2468716');
+          expect(details.review?.createdAt, isNotNull);
           final service = details.services.single;
           expect(service.id, 543);
           expect(service.serviceName, 'Annual subscription');

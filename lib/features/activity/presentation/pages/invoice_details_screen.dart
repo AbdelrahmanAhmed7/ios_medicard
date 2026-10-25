@@ -182,6 +182,10 @@ class _DetailsBody extends StatelessWidget {
           totalAfter: details.totalAfter,
           discountPct: details.discountPercentage,
         ),
+        if (details.review != null) ...[
+          SizedBox(height: 12.h),
+          _InvoiceReviewCard(review: details.review!),
+        ],
         SizedBox(height: 20.h),
         _DetailsActions(invoice: invoice, details: details, tab: tab),
         if (details.canContinuePayment) ...[
@@ -189,6 +193,131 @@ class _DetailsBody extends StatelessWidget {
           _ContinuePaymentButton(paymentLink: details.paymentLink!),
         ],
       ],
+    );
+  }
+}
+
+class _InvoiceReviewCard extends StatelessWidget {
+  final InvoiceReview review;
+
+  const _InvoiceReviewCard({required this.review});
+
+  @override
+  Widget build(BuildContext context) {
+    final imageUrl = resolveImageUrl(review.userImageUrl);
+    final userName = review.userName?.trim() ?? '';
+    final ratingText = review.ratingText?.trim() ?? '';
+    final hasRatingText =
+        ratingText.isNotEmpty && ratingText.toLowerCase() != 'null';
+    final rating = (review.rating ?? 0).clamp(0, 5);
+    final formattedDate = AppDateFormatter.formatDateTime(
+      review.apiCreatedAt ?? review.createdAt?.toIso8601String(),
+      context.locale.languageCode,
+    );
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(14.r),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'activity.your_review'.tr(),
+            style: AppTextStyles.of(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF111827),
+            ),
+          ),
+          SizedBox(height: 12.h),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipOval(
+                child: SizedBox(
+                  width: 42.r,
+                  height: 42.r,
+                  child: imageUrl == null
+                      ? const ColoredBox(
+                          color: Color(0xFFE2E8F0),
+                          child: Icon(
+                            Icons.person_rounded,
+                            color: Color(0xFF64748B),
+                          ),
+                        )
+                      : CachedNetworkImage(
+                          imageUrl: imageUrl,
+                          fit: BoxFit.cover,
+                          errorWidget: (_, _, _) => const ColoredBox(
+                            color: Color(0xFFE2E8F0),
+                            child: Icon(
+                              Icons.person_rounded,
+                              color: Color(0xFF64748B),
+                            ),
+                          ),
+                        ),
+                ),
+              ),
+              SizedBox(width: 10.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (userName.isNotEmpty)
+                      Text(
+                        userName,
+                        style: AppTextStyles.of(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF111827),
+                        ),
+                      ),
+                    SizedBox(height: userName.isEmpty ? 0 : 4.h),
+                    Row(
+                      children: List.generate(
+                        5,
+                        (index) => Icon(
+                          index < rating
+                              ? Icons.star_rounded
+                              : Icons.star_border_rounded,
+                          size: 17.sp,
+                          color: const Color(0xFFF5A623),
+                        ),
+                      ),
+                    ),
+                    if (formattedDate.isNotEmpty) ...[
+                      SizedBox(height: 5.h),
+                      Text(
+                        formattedDate,
+                        style: AppTextStyles.of(
+                          fontSize: 11.5.sp,
+                          color: const Color(0xFF94A3B8),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (hasRatingText) ...[
+            SizedBox(height: 10.h),
+            Text(
+              ratingText,
+              style: AppTextStyles.of(
+                fontSize: 13.sp,
+                height: 1.4,
+                color: const Color(0xFF475569),
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
@@ -844,6 +973,7 @@ class _DetailsActionsState extends State<_DetailsActions> {
   bool get _canReview =>
       (widget.tab == 3 || widget.invoice.isUsed) &&
       !widget.invoice.isReviewed &&
+      widget.details.review == null &&
       !_hasReviewedLocally;
 
   Future<void> _onCancelTapped() async {
