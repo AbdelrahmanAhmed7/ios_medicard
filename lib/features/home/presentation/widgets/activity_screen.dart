@@ -11,6 +11,7 @@ import '../../../activity/presentation/cubit/activity_cubit.dart';
 import '../../../activity/presentation/cubit/activity_state.dart';
 import 'activity/activity_error_view.dart';
 import 'activity/invoice_list.dart';
+import 'activity/invoices_shimmer.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
@@ -24,6 +25,7 @@ class ActivityScreen extends StatefulWidget {
 class _ActivityScreenState extends State<ActivityScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  int _requestedTab = 1;
 
   @override
   void initState() {
@@ -57,8 +59,13 @@ class _ActivityScreenState extends State<ActivityScreen>
   }
 
   void _onTabChanged() {
-    if (!_tabController.indexIsChanging || !mounted) return;
+    if (!mounted) return;
     final tab = _tabController.index + 1;
+    // TabController.indexIsChanging is only true for animateTo (tab taps),
+    // not for a user swiping the TabBarView. Dedupe by the selected tab so
+    // both interactions trigger exactly one request.
+    if (tab == _requestedTab) return;
+    _requestedTab = tab;
     context.read<ActivityCubit>().loadInvoices(tab: tab);
   }
 
@@ -196,9 +203,7 @@ class _ActivityScreenState extends State<ActivityScreen>
               builder: (context, state) {
                 return state.when(
                   initial: () => const SizedBox.shrink(),
-                  loading: () => const Center(
-                    child: CircularProgressIndicator(color: kAuthBlue),
-                  ),
+                  loading: () => const InvoicesShimmer(),
                   failure: (error) => ActivityErrorView(
                     error: error,
                     onRetry: () => context.read<ActivityCubit>().loadInvoices(

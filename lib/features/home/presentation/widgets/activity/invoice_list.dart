@@ -9,6 +9,7 @@ import '../../../../../features/activity/domain/models/invoice_item.dart';
 import '../../../../../features/activity/presentation/cubit/activity_cubit.dart';
 import 'activity_empty_view.dart';
 import 'invoice_card.dart';
+import 'invoices_shimmer.dart';
 
 class InvoiceList extends StatefulWidget {
   final List<InvoiceItem> items;
@@ -94,7 +95,7 @@ class InvoiceListState extends State<InvoiceList> {
     }
 
     if (widget.items.isEmpty && (widget.isLoadingMore || widget.hasMore)) {
-      return const Center(child: CircularProgressIndicator(color: kAuthBlue));
+      return const InvoicesShimmer();
     }
 
     final itemCount =

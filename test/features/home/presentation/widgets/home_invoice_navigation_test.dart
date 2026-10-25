@@ -45,7 +45,8 @@ void main() {
       sl.registerFactory<HomeCubit>(_HomeCubit.new);
       sl.registerFactory<ProfileCubit>(_ProfileCubit.new);
       sl.registerFactory<LocationCubit>(_LocationCubit.new);
-      sl.registerFactory<ActivityCubit>(_ActivityCubit.new);
+      final activityCubit = _ActivityCubit();
+      sl.registerFactory<ActivityCubit>(() => activityCubit);
       sl.registerFactory<ECardCubit>(_ECardCubit.new);
       sl.registerSingleton<NotificationCubit>(
         _NotificationCubit(),
@@ -101,6 +102,15 @@ void main() {
           1,
         );
         expect(find.text('Invoices').hitTestable(), findsWidgets);
+        if (order == 0) {
+          expect(activityCubit.loadedTabs, contains(1));
+          await tester.drag(
+            find.byType(TabBarView).hitTestable(),
+            const Offset(-320, 0),
+          );
+          await tester.pumpAndSettle();
+          expect(activityCubit.loadedTabs.last, 2);
+        }
         tester.widget<HomeBottomNav>(find.byType(HomeBottomNav)).onTap(0);
         await tester.pumpAndSettle();
         expect(
@@ -167,8 +177,14 @@ class _LocationCubit extends Cubit<LocationState> implements LocationCubit {
 
 class _ActivityCubit extends Cubit<ActivityState> implements ActivityCubit {
   _ActivityCubit() : super(const ActivityState.success(invoices: []));
+
+  final List<int> loadedTabs = [];
+
   @override
-  Future<void> loadInvoices({int tab = 1, bool forceRefresh = false}) async {}
+  Future<void> loadInvoices({int tab = 1, bool forceRefresh = false}) async {
+    loadedTabs.add(tab);
+  }
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
