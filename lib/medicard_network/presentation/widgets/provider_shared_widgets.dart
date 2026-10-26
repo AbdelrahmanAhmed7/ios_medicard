@@ -420,20 +420,27 @@ class ServiceBadge extends StatelessWidget {
 class CartActionButton extends StatelessWidget {
   final bool inCart;
   final VoidCallback onPressed;
+  final double? size;
+  final double? iconSize;
 
   const CartActionButton({
     super.key,
     required this.inCart,
     required this.onPressed,
+    this.size,
+    this.iconSize,
   });
 
   @override
   Widget build(BuildContext context) {
+    final effectiveSize = size ?? 38.r;
+    final effectiveIconSize = iconSize ?? 20.sp;
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onPressed,
       child: Container(
-        width: 38.r,
-        height: 38.r,
+        width: effectiveSize,
+        height: effectiveSize,
         decoration: BoxDecoration(
           color: inCart ? const Color(0xFFEAF1F9) : const Color(0xFF3872B1),
           shape: BoxShape.circle,
@@ -445,7 +452,7 @@ class CartActionButton extends StatelessWidget {
         ),
         child: Icon(
           inCart ? Icons.remove_rounded : Icons.add_rounded,
-          size: 20.sp,
+          size: effectiveIconSize,
           color: inCart ? const Color(0xFF3872B1) : Colors.white,
         ),
       ),

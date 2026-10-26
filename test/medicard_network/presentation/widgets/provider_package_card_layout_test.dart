@@ -20,10 +20,6 @@ void main() {
           );
           await tester.pumpAndSettle();
 
-          expect(
-            tester.getSize(find.byType(ProviderPackageCard)).height,
-            ProviderPackageCard.preferredHeightForWidth(cardWidth),
-          );
           final descriptionBottom = tester
               .getBottomLeft(
                 find.text(
@@ -49,7 +45,7 @@ void main() {
           );
           expect(
             cardBottom - footerBottom,
-            lessThanOrEqualTo(14),
+            lessThanOrEqualTo(7),
             reason: 'the card should not leave excess space below its footer',
           );
           expect(tester.takeException(), isNull);
@@ -84,7 +80,6 @@ Widget _testApp({required double cardWidth, required double textScale}) {
         body: Center(
           child: SizedBox(
             width: cardWidth,
-            height: ProviderPackageCard.preferredHeightForWidth(cardWidth),
             child: ProviderPackageCard(packageData: package, onQuickAdd: () {}),
           ),
         ),

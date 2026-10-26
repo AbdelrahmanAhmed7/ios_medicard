@@ -295,41 +295,37 @@ class PackagesSection extends StatelessWidget {
           builder: (context, constraints) {
             final crossAxisSpacing = 12.w;
             final cardWidth = (constraints.maxWidth - crossAxisSpacing) / 2;
-            return GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: crossAxisSpacing,
-                mainAxisSpacing: 12.h,
-                mainAxisExtent: ProviderPackageCard.preferredHeightForWidth(
-                  cardWidth,
-                ),
-              ),
-              itemCount: state.packages.length,
-              itemBuilder: (context, index) {
+            // Let each card end just below its footer instead of reserving a
+            // fixed height for content that may be absent (e.g. description).
+            return Wrap(
+              spacing: crossAxisSpacing,
+              runSpacing: 12.h,
+              children: List.generate(state.packages.length, (index) {
                 final packageData = state.packages[index];
                 final packageId = packageData.id;
-                return ProviderPackageCard(
-                  packageData: packageData,
-                  onDetailsTap: packageId == null
-                      ? null
-                      : () => openPackageDetailsSheet(
-                          context,
-                          cubit,
-                          packageData,
-                          selectedBranch,
-                        ),
-                  onQuickAdd: packageId == null
-                      ? null
-                      : () => createPackageInvoice(
-                          context,
-                          cubit,
-                          packageId,
-                          selectedBranch,
-                        ),
+                return SizedBox(
+                  width: cardWidth,
+                  child: ProviderPackageCard(
+                    packageData: packageData,
+                    onDetailsTap: packageId == null
+                        ? null
+                        : () => openPackageDetailsSheet(
+                            context,
+                            cubit,
+                            packageData,
+                            selectedBranch,
+                          ),
+                    onQuickAdd: packageId == null
+                        ? null
+                        : () => createPackageInvoice(
+                            context,
+                            cubit,
+                            packageId,
+                            selectedBranch,
+                          ),
+                  ),
                 );
-              },
+              }),
             );
           },
         ),
