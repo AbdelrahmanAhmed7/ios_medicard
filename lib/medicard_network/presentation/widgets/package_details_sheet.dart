@@ -576,6 +576,8 @@ class _PackageCheckoutBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final useVerticalLayout = MediaQuery.textScalerOf(context).scale(1) > 1.3;
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -591,112 +593,93 @@ class _PackageCheckoutBar extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 10.h),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 10.h),
+          child: useVerticalLayout
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      'cart.total_amount'.tr(),
-                      style: AppTextStyles.of(
-                        color: const Color(0xFF64748B),
-                        fontSize: 11.5.sp,
-                      ),
-                    ),
-                    SizedBox(height: 2.h),
-                    Row(
-                      children: [
-                        if (priceAfter != null)
-                          Flexible(
-                            child: Text(
-                              'cart.egp_amount'.tr(
-                                args: [formatPrice(priceAfter)],
-                              ),
-                              style: AppTextStyles.of(
-                                color: const Color(0xFF1F6BC1),
-                                fontSize: 18.sp,
-                                fontWeight: FontWeight.w700,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        if (priceBefore != null && priceAfter != null) ...[
-                          SizedBox(width: 7.w),
-                          Flexible(
-                            child: Text(
-                              'cart.egp_amount'.tr(
-                                args: [formatPrice(priceBefore)],
-                              ),
-                              style: AppTextStyles.of(
-                                color: const Color(0xFF94A3B8),
-                                fontSize: 11.sp,
-                                decoration: TextDecoration.lineThrough,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ] else if (priceAfter == null && priceBefore != null)
-                          Flexible(
-                            child: Text(
-                              'cart.egp_amount'.tr(
-                                args: [formatPrice(priceBefore)],
-                              ),
-                              style: AppTextStyles.of(
-                                color: const Color(0xFF1F6BC1),
-                                fontSize: 18.sp,
-                                fontWeight: FontWeight.w700,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                      ],
-                    ),
+                    _priceSummary(context),
+                    SizedBox(height: 10.h),
+                    _addButton(context),
+                  ],
+                )
+              : Row(
+                  children: [
+                    Expanded(child: _priceSummary(context)),
+                    SizedBox(width: 12.w),
+                    SizedBox(width: 132.w, child: _addButton(context)),
                   ],
                 ),
-              ),
-              SizedBox(width: 12.w),
-              SizedBox(
-                width: 132.w,
-                height: 48.h,
-                child: ElevatedButton.icon(
-                  onPressed: isLoading ? null : onAdd,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF3872B1),
-                    disabledBackgroundColor: const Color(0xFFCBD5E1),
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(13.r),
-                    ),
-                  ),
-                  icon: isLoading
-                      ? SizedBox(
-                          width: 17.r,
-                          height: 17.r,
-                          child: const CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : Icon(Icons.add_rounded, size: 19.sp),
-                  label: Text(
-                    'common.add'.tr(),
-                    style: AppTextStyles.of(
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+        ),
+      ),
+    );
+  }
+
+  Widget _priceSummary(BuildContext context) {
+    final hasBothPrices = priceBefore != null && priceAfter != null;
+    final currentPrice = priceAfter ?? priceBefore;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          'cart.total_amount'.tr(),
+          style: AppTextStyles.of(
+            color: const Color(0xFF64748B),
+            fontSize: 11.5.sp,
           ),
         ),
+        SizedBox(height: 2.h),
+        if (currentPrice != null)
+          Text(
+            'cart.egp_amount'.tr(args: [formatPrice(currentPrice)]),
+            style: AppTextStyles.of(
+              color: const Color(0xFF1F6BC1),
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        if (hasBothPrices)
+          Text(
+            'cart.egp_amount'.tr(args: [formatPrice(priceBefore)]),
+            style: AppTextStyles.of(
+              color: const Color(0xFF94A3B8),
+              fontSize: 11.sp,
+              decoration: TextDecoration.lineThrough,
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _addButton(BuildContext context) {
+    return ElevatedButton.icon(
+      onPressed: isLoading ? null : onAdd,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFF3872B1),
+        disabledBackgroundColor: const Color(0xFFCBD5E1),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        minimumSize: Size(0, 48.h),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(13.r),
+        ),
+      ),
+      icon: isLoading
+          ? SizedBox(
+              width: 17.r,
+              height: 17.r,
+              child: const CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            )
+          : Icon(Icons.add_rounded, size: 19.sp),
+      label: Text(
+        'common.add'.tr(),
+        style: AppTextStyles.of(fontSize: 15.sp, fontWeight: FontWeight.w600),
       ),
     );
   }

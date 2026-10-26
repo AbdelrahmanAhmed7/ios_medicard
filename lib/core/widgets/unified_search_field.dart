@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -65,8 +65,6 @@ class UnifiedSearchField extends StatefulWidget {
 class _UnifiedSearchFieldState extends State<UnifiedSearchField> {
   late final FocusNode _focusNode;
   late final TextEditingController _controller;
-  Timer? _hintTimer;
-  int _hintIndex = 0;
 
   FocusNode get _effectiveFocusNode => widget.focusNode ?? _focusNode;
   TextEditingController get _effectiveController =>
@@ -86,16 +84,6 @@ class _UnifiedSearchFieldState extends State<UnifiedSearchField> {
     _controller = TextEditingController();
     _effectiveFocusNode.addListener(_onFocusChanged);
     _effectiveController.addListener(_onTextChanged);
-
-    if (widget.showAnimatedHint && widget.hintWordKeys.isNotEmpty) {
-      _hintTimer = Timer.periodic(const Duration(seconds: 3), (_) {
-        if (!mounted) return;
-        if (!_showOverlay) return;
-        setState(
-          () => _hintIndex = (_hintIndex + 1) % widget.hintWordKeys.length,
-        );
-      });
-    }
   }
 
   void _onFocusChanged() {
@@ -107,18 +95,47 @@ class _UnifiedSearchFieldState extends State<UnifiedSearchField> {
   }
 
   @override
+  void didUpdateWidget(covariant UnifiedSearchField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.controller != oldWidget.controller) {
+      if (oldWidget.controller == null) {
+        _controller.removeListener(_onTextChanged);
+      } else {
+        oldWidget.controller!.removeListener(_onTextChanged);
+      }
+      if (widget.controller == null) {
+        _controller.addListener(_onTextChanged);
+      } else {
+        widget.controller!.addListener(_onTextChanged);
+      }
+    }
+    if (widget.focusNode != oldWidget.focusNode) {
+      if (oldWidget.focusNode == null) {
+        _focusNode.removeListener(_onFocusChanged);
+      } else {
+        oldWidget.focusNode!.removeListener(_onFocusChanged);
+      }
+      if (widget.focusNode == null) {
+        _focusNode.addListener(_onFocusChanged);
+      } else {
+        widget.focusNode!.addListener(_onFocusChanged);
+      }
+    }
+  }
+
+  @override
   void dispose() {
-    _hintTimer?.cancel();
     if (widget.focusNode == null) {
       _focusNode.removeListener(_onFocusChanged);
       _focusNode.dispose();
+    } else {
+      widget.focusNode!.removeListener(_onFocusChanged);
     }
     if (widget.controller == null) {
       _controller.removeListener(_onTextChanged);
       _controller.dispose();
     } else {
-      _effectiveFocusNode.removeListener(_onFocusChanged);
-      _effectiveController.removeListener(_onTextChanged);
+      widget.controller!.removeListener(_onTextChanged);
     }
     super.dispose();
   }
@@ -134,6 +151,10 @@ class _UnifiedSearchFieldState extends State<UnifiedSearchField> {
           top: 12.h,
           bottom: 12.h,
         );
+    final resolvedPadding = contentPadding.resolve(Directionality.of(context));
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+    final suffixReserve = widget.suffixIcon != null ? 36.w : 0.0;
+
     return Container(
       height: widget.height ?? 44.h,
       decoration: BoxDecoration(
@@ -204,63 +225,18 @@ class _UnifiedSearchFieldState extends State<UnifiedSearchField> {
                         alignment: AlignmentDirectional.centerStart,
                         child: Padding(
                           padding: EdgeInsets.only(
-                            left: contentPadding
-                                .resolve(Directionality.of(context))
-                                .left,
-                            right: contentPadding
-                                .resolve(Directionality.of(context))
-                                .right,
+                            left: resolvedPadding.left +
+                                (isRtl ? suffixReserve : 0.0),
+                            right: resolvedPadding.right +
+                                (isRtl ? 0.0 : suffixReserve),
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (widget.searchForPrefixKey != null)
-                                Text(
-                                  '${widget.searchForPrefixKey!.tr()} ',
-                                  style: AppTextStyles.of(
-                                    color: const Color(0xFF9CA3AF),
-                                    fontSize: 14.sp,
-                                  ),
-                                ),
-                              Flexible(
-                                child: AnimatedSize(
-                                  duration: const Duration(milliseconds: 400),
-                                  curve: Curves.easeInOut,
-                                  alignment: AlignmentDirectional.centerStart,
-                                  child: AnimatedSwitcher(
-                                    duration: const Duration(milliseconds: 400),
-                                    transitionBuilder: (child, animation) {
-                                      // Fade the old word out completely before
-                                      // revealing the next one. A regular
-                                      // cross-fade paints both words on top of
-                                      // each other and looks like a brief hang.
-                                      final opacity = CurvedAnimation(
-                                        parent: animation,
-                                        curve: const Interval(
-                                          0.5,
-                                          1,
-                                          curve: Curves.easeOut,
-                                        ),
-                                      );
-                                      return FadeTransition(
-                                        opacity: opacity,
-                                        child: child,
-                                      );
-                                    },
-                                    child: Text(
-                                      widget.hintWordKeys[_hintIndex].tr(),
-                                      key: ValueKey<int>(_hintIndex),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: AppTextStyles.of(
-                                        color: const Color(0xFF9CA3AF),
-                                        fontSize: 14.sp,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
+                          child: _AnimatedSearchHint(
+                            hintWordKeys: widget.hintWordKeys,
+                            searchForPrefixKey: widget.searchForPrefixKey,
+                            textStyle: AppTextStyles.of(
+                              color: const Color(0xFF9CA3AF),
+                              fontSize: 14.sp,
+                            ),
                           ),
                         ),
                       ),
@@ -271,6 +247,121 @@ class _UnifiedSearchFieldState extends State<UnifiedSearchField> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _AnimatedSearchHint extends StatefulWidget {
+  final List<String> hintWordKeys;
+  final String? searchForPrefixKey;
+  final TextStyle textStyle;
+
+  const _AnimatedSearchHint({
+    required this.hintWordKeys,
+    this.searchForPrefixKey,
+    required this.textStyle,
+  });
+
+  @override
+  State<_AnimatedSearchHint> createState() => _AnimatedSearchHintState();
+}
+
+class _AnimatedSearchHintState extends State<_AnimatedSearchHint> {
+  Timer? _timer;
+  int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _startTimer();
+  }
+
+  void _startTimer() {
+    _timer?.cancel();
+    if (widget.hintWordKeys.length > 1) {
+      _timer = Timer.periodic(const Duration(seconds: 3), (_) {
+        if (!mounted) return;
+        setState(() {
+          _currentIndex = (_currentIndex + 1) % widget.hintWordKeys.length;
+        });
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant _AnimatedSearchHint oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.hintWordKeys != widget.hintWordKeys) {
+      if (_currentIndex >= widget.hintWordKeys.length) {
+        _currentIndex = 0;
+      }
+      _startTimer();
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.hintWordKeys.isEmpty) return const SizedBox.shrink();
+
+    final safeIndex = _currentIndex % widget.hintWordKeys.length;
+    final prefix = widget.searchForPrefixKey != null
+        ? '${widget.searchForPrefixKey!.tr()} '
+        : '';
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (prefix.isNotEmpty)
+          Text(
+            prefix,
+            style: widget.textStyle,
+          ),
+        Flexible(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 320),
+            switchInCurve: Curves.easeOutCubic,
+            switchOutCurve: Curves.easeInCubic,
+            layoutBuilder:
+                (Widget? currentChild, List<Widget> previousChildren) {
+              return Stack(
+                alignment: AlignmentDirectional.centerStart,
+                children: <Widget>[
+                  ...previousChildren,
+                  ?currentChild,
+                ],
+              );
+            },
+            transitionBuilder: (Widget child, Animation<double> animation) {
+              final isIncoming = child.key == ValueKey<int>(safeIndex);
+              return SlideTransition(
+                position: Tween<Offset>(
+                  begin: isIncoming
+                      ? const Offset(0.0, 0.35)
+                      : const Offset(0.0, -0.35),
+                  end: Offset.zero,
+                ).animate(animation),
+                child: FadeTransition(
+                  opacity: animation,
+                  child: child,
+                ),
+              );
+            },
+            child: Text(
+              widget.hintWordKeys[safeIndex].tr(),
+              key: ValueKey<int>(safeIndex),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: widget.textStyle,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

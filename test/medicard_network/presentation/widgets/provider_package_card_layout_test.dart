@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:medicard/core/theming/app_spacing.dart';
 import 'package:medicard/medicard_network/presentation/widgets/provider_package_card.dart';
 import 'package:medicard/network/data/provider_page_response_model.dart';
 
 void main() {
   for (final cardWidth in [146.0, 173.5, 201.0]) {
     testWidgets(
-      'package footer keeps its bottom inset at card width $cardWidth',
+      'package footer stays close to description at card width $cardWidth',
       (tester) async {
         tester.view.devicePixelRatio = 1;
         tester.view.physicalSize = const Size(430, 812);
@@ -21,19 +20,6 @@ void main() {
           );
           await tester.pumpAndSettle();
 
-          final cardBottom = tester
-              .getBottomRight(find.byType(ProviderPackageCard))
-              .dy;
-          final footerBottom = tester
-              .getBottomRight(
-                find.byKey(const ValueKey('provider-package-footer')),
-              )
-              .dy;
-
-          expect(
-            cardBottom - footerBottom,
-            AppSpacing.compactCardFooterBottomInset,
-          );
           expect(
             tester.getSize(find.byType(ProviderPackageCard)).height,
             ProviderPackageCard.preferredHeightForWidth(cardWidth),
@@ -48,10 +34,23 @@ void main() {
           final footerTop = tester
               .getTopLeft(find.byKey(const ValueKey('provider-package-footer')))
               .dy;
+          final cardBottom = tester
+              .getBottomRight(find.byType(ProviderPackageCard))
+              .dy;
+          final footerBottom = tester
+              .getBottomRight(
+                find.byKey(const ValueKey('provider-package-footer')),
+              )
+              .dy;
           expect(
             footerTop - descriptionBottom,
-            lessThanOrEqualTo(48),
-            reason: 'the flexible middle gap should stay moderate',
+            lessThanOrEqualTo(18),
+            reason: 'the price and add button should follow the description',
+          );
+          expect(
+            cardBottom - footerBottom,
+            lessThanOrEqualTo(14),
+            reason: 'the card should not leave excess space below its footer',
           );
           expect(tester.takeException(), isNull);
         }

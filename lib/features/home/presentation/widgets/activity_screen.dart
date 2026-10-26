@@ -199,78 +199,138 @@ class _ActivityScreenState extends State<ActivityScreen>
             },
           ),
           Expanded(
-            child: BlocBuilder<ActivityCubit, ActivityState>(
-              builder: (context, state) {
-                return state.when(
-                  initial: () => const SizedBox.shrink(),
-                  loading: () => const InvoicesShimmer(),
-                  failure: (error) => ActivityErrorView(
-                    error: error,
-                    onRetry: () => context.read<ActivityCubit>().loadInvoices(
-                      tab: _tabController.index + 1,
-                    ),
-                  ),
-                  success: (invoices, isLoadingMore, hasMore) {
-                    return TabBarView(
-                      controller: _tabController,
-                      children: [
-                        TabScope(
-                          tab: 1,
-                          child: InvoiceList(
-                            key: const ValueKey('pending'),
-                            items: invoices,
-                            emptyTitleKey: 'activity.empty_pending_title',
-                            emptyMessageKey: 'activity.empty_pending_message',
-                            emptyIcon: Icons.event_available_outlined,
-                            isLoadingMore: isLoadingMore,
-                            hasMore: hasMore,
-                          ),
-                        ),
-                        TabScope(
-                          tab: 2,
-                          child: InvoiceList(
-                            key: const ValueKey('paid'),
-                            items: invoices,
-                            emptyTitleKey: 'activity.empty_paid_title',
-                            emptyMessageKey: 'activity.empty_paid_message',
-                            emptyIcon: Icons.account_balance_wallet_outlined,
-                            isLoadingMore: isLoadingMore,
-                            hasMore: hasMore,
-                          ),
-                        ),
-                        TabScope(
-                          tab: 3,
-                          child: InvoiceList(
-                            key: const ValueKey('used'),
-                            items: invoices,
-                            emptyTitleKey: 'activity.empty_used_title',
-                            emptyMessageKey: 'activity.empty_used_message',
-                            emptyIcon: Icons.receipt_long_outlined,
-                            isLoadingMore: isLoadingMore,
-                            hasMore: hasMore,
-                          ),
-                        ),
-                        TabScope(
-                          tab: 4,
-                          child: InvoiceList(
-                            key: const ValueKey('cancelled'),
-                            items: invoices,
-                            emptyTitleKey: 'activity.empty_cancelled_title',
-                            emptyMessageKey: 'activity.empty_cancelled_message',
-                            emptyIcon: Icons.cancel_outlined,
-                            isLoadingMore: isLoadingMore,
-                            hasMore: hasMore,
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
+            child: TabBarView(
+              controller: _tabController,
+              children: const [
+                _ActivityTabView(
+                  tab: 1,
+                  key: ValueKey('pending'),
+                  emptyTitleKey: 'activity.empty_pending_title',
+                  emptyMessageKey: 'activity.empty_pending_message',
+                  emptyIcon: Icons.event_available_outlined,
+                ),
+                _ActivityTabView(
+                  tab: 2,
+                  key: ValueKey('paid'),
+                  emptyTitleKey: 'activity.empty_paid_title',
+                  emptyMessageKey: 'activity.empty_paid_message',
+                  emptyIcon: Icons.account_balance_wallet_outlined,
+                ),
+                _ActivityTabView(
+                  tab: 3,
+                  key: ValueKey('used'),
+                  emptyTitleKey: 'activity.empty_used_title',
+                  emptyMessageKey: 'activity.empty_used_message',
+                  emptyIcon: Icons.receipt_long_outlined,
+                ),
+                _ActivityTabView(
+                  tab: 4,
+                  key: ValueKey('cancelled'),
+                  emptyTitleKey: 'activity.empty_cancelled_title',
+                  emptyMessageKey: 'activity.empty_cancelled_message',
+                  emptyIcon: Icons.cancel_outlined,
+                ),
+              ],
             ),
           ),
         ],
       ),
     );
+  }
+}
+
+class _ActivityTabView extends StatefulWidget {
+  final int tab;
+  final String emptyTitleKey;
+  final String emptyMessageKey;
+  final IconData emptyIcon;
+
+  const _ActivityTabView({
+    super.key,
+    required this.tab,
+    required this.emptyTitleKey,
+    required this.emptyMessageKey,
+    required this.emptyIcon,
+  });
+
+  @override
+  State<_ActivityTabView> createState() => _ActivityTabViewState();
+}
+
+class _ActivityTabViewState extends State<_ActivityTabView>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final cubit = context.read<ActivityCubit>();
+      final tabData = _safeGetTabData(cubit, widget.tab, cubit.state);
+      if (tabData.items == null && !tabData.isLoading) {
+        cubit.loadInvoices(tab: widget.tab);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return BlocBuilder<ActivityCubit, ActivityState>(
+      builder: (context, state) {
+        final cubit = context.read<ActivityCubit>();
+        final tabData = _safeGetTabData(cubit, widget.tab, state);
+
+        if (tabData.isLoading && tabData.items == null) {
+          return const InvoicesShimmer();
+        }
+
+        if (tabData.error != null && tabData.items == null) {
+          return ActivityErrorView(
+            error: tabData.error!,
+            onRetry: () => cubit.loadInvoices(
+              tab: widget.tab,
+              forceRefresh: true,
+            ),
+          );
+        }
+
+        final items = tabData.items ?? const [];
+        return TabScope(
+          tab: widget.tab,
+          child: InvoiceList(
+            items: items,
+            emptyTitleKey: widget.emptyTitleKey,
+            emptyMessageKey: widget.emptyMessageKey,
+            emptyIcon: widget.emptyIcon,
+            isLoadingMore: tabData.isLoadingMore,
+            hasMore: tabData.hasMore,
+          ),
+        );
+      },
+    );
+  }
+
+  TabInvoicesData _safeGetTabData(
+    ActivityCubit cubit,
+    int tab,
+    ActivityState state,
+  ) {
+    try {
+      return cubit.getTabData(tab);
+    } catch (_) {
+      return state.maybeWhen(
+        success: (inv, loadingMore, more) => TabInvoicesData(
+          items: inv,
+          isLoadingMore: loadingMore,
+          hasMore: more,
+        ),
+        loading: () => const TabInvoicesData(isLoading: true),
+        failure: (err) => TabInvoicesData(error: err),
+        orElse: () => const TabInvoicesData(items: []),
+      );
+    }
   }
 }

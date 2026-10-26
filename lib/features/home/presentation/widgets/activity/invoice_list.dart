@@ -64,7 +64,7 @@ class InvoiceListState extends State<InvoiceList> {
     if (!_scrollController.hasClients) return;
     final position = _scrollController.position;
     if (position.pixels >= position.maxScrollExtent - 160.h) {
-      context.read<ActivityCubit>().loadMore();
+      context.read<ActivityCubit>().loadMore(tab: TabScope.of(context));
     }
   }
 
@@ -72,7 +72,7 @@ class InvoiceListState extends State<InvoiceList> {
     if (!mounted || !widget.hasMore || widget.isLoadingMore) return;
     if (!_scrollController.hasClients) {
       if (widget.items.isEmpty) {
-        context.read<ActivityCubit>().loadMore();
+        context.read<ActivityCubit>().loadMore(tab: TabScope.of(context));
       }
       return;
     }
@@ -80,7 +80,7 @@ class InvoiceListState extends State<InvoiceList> {
     if (!position.hasContentDimensions) return;
     if (position.maxScrollExtent <= 0 ||
         position.pixels >= position.maxScrollExtent - 160.h) {
-      context.read<ActivityCubit>().loadMore();
+      context.read<ActivityCubit>().loadMore(tab: TabScope.of(context));
     }
   }
 
@@ -103,8 +103,10 @@ class InvoiceListState extends State<InvoiceList> {
 
     return RefreshIndicator(
       color: kAuthBlue,
-      onRefresh: () =>
-          context.read<ActivityCubit>().loadInvoices(tab: TabScope.of(context)),
+      onRefresh: () => context.read<ActivityCubit>().loadInvoices(
+        tab: TabScope.of(context),
+        forceRefresh: true,
+      ),
       child: ListView.separated(
         controller: _scrollController,
         physics: const AlwaysScrollableScrollPhysics(),

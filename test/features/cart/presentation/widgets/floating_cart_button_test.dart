@@ -79,6 +79,39 @@ void main() {
       );
     },
   );
+
+  testWidgets(
+    'remains hidden on /checkout even if route name is empty or popup is open',
+    (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(375, 812);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.view.resetPhysicalSize);
+
+      SharedPreferences.setMockInitialValues({});
+      await sl.reset();
+      addTearDown(sl.reset);
+
+      sl.registerSingleton<CartRepository>(_FakeCartRepository());
+      sl.registerSingleton<CartSyncService>(CartSyncService());
+      AppRouter.currentLocation.value = '/checkout';
+      addTearDown(() => AppRouter.currentLocation.value = '');
+
+      await tester.pumpWidget(
+        ScreenUtilInit(
+          designSize: const Size(375, 812),
+          builder: (_, _) => const MaterialApp(
+            home: Stack(
+              children: [SizedBox.expand(), FloatingCartButton()],
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.shopping_cart_outlined), findsNothing);
+    },
+  );
 }
 
 Widget _testApp(ValueNotifier<double> keyboardInset) {

@@ -1000,7 +1000,7 @@ class _DetailsActionsState extends State<_DetailsActions> {
                   ),
                   child: Icon(
                     Icons.cancel_outlined,
-                    color: Colors.red,
+                    color: const Color(0xFFDC2626),
                     size: 26.sp,
                   ),
                 ),
@@ -1032,12 +1032,24 @@ class _DetailsActionsState extends State<_DetailsActions> {
                         style: OutlinedButton.styleFrom(
                           foregroundColor: const Color(0xFF334155),
                           side: const BorderSide(color: Color(0xFFD1D5DB)),
+                          padding: EdgeInsets.symmetric(horizontal: 8.w),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.r),
                           ),
                           minimumSize: Size.fromHeight(48.h),
+                          textStyle: AppTextStyles.of(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                        child: Text('common.cancel'.tr()),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            'common.cancel'.tr(),
+                            maxLines: 1,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
                       ),
                     ),
                     SizedBox(width: 12.w),
@@ -1045,15 +1057,27 @@ class _DetailsActionsState extends State<_DetailsActions> {
                       child: ElevatedButton(
                         onPressed: () => Navigator.of(sheetContext).pop(true),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
+                          backgroundColor: const Color(0xFFDC2626),
                           foregroundColor: Colors.white,
                           elevation: 0,
+                          padding: EdgeInsets.symmetric(horizontal: 8.w),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.r),
                           ),
                           minimumSize: Size.fromHeight(48.h),
+                          textStyle: AppTextStyles.of(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                        child: Text('activity.cancel_invoice'.tr()),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            'activity.cancel_invoice'.tr(),
+                            maxLines: 1,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -1122,7 +1146,13 @@ class _DetailsActionsState extends State<_DetailsActions> {
                       children: [
                         Icon(Icons.close_rounded, size: 21.sp),
                         SizedBox(width: 8.w),
-                        Text('activity.cancel_invoice'.tr()),
+                        Flexible(
+                          child: Text(
+                            'activity.cancel_invoice'.tr(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ],
                     ),
             ),

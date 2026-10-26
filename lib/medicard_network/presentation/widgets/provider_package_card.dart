@@ -21,13 +21,11 @@ class ProviderPackageCard extends StatelessWidget {
     this.onQuickAdd,
   });
 
-  /// Keeps the text/footer area within a moderate range while allowing the
-  /// 16:9 image to follow the actual card width. This avoids the large spacer
-  /// produced by one fixed card height across narrow and wide screens.
+  /// Keeps the card compact while allowing the 16:9 image to follow its width.
   static double preferredHeightForWidth(double cardWidth) {
-    const contentHeight = 146.0;
-    const minHeight = 232.0;
-    const maxHeight = 254.0;
+    const contentHeight = 100.0;
+    const minHeight = 182.0;
+    const maxHeight = 224.0;
     return (cardWidth * 9 / 16 + contentHeight)
         .clamp(minHeight, maxHeight)
         .toDouble();
@@ -72,13 +70,7 @@ class ProviderPackageCard extends StatelessWidget {
               ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    8,
-                    7,
-                    8,
-                    AppSpacing.compactCardFooterBottomInset -
-                        AppSpacing.compactCardBorderWidth,
-                  ),
+                  padding: const EdgeInsets.fromLTRB(8, 7, 8, 8),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -102,11 +94,11 @@ class ProviderPackageCard extends StatelessWidget {
                             color: const Color(0xFF6B7280),
                             height: 1.3,
                           ),
-                          maxLines: 2,
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ],
-                      const Spacer(),
+                      SizedBox(height: 6.h),
                       Row(
                         key: const ValueKey('provider-package-footer'),
                         crossAxisAlignment: CrossAxisAlignment.end,

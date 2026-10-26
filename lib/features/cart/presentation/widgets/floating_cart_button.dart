@@ -184,6 +184,7 @@ class _FloatingCartButtonState extends State<FloatingCartButton> {
   };
 
   static bool _isHiddenRoute(String location) {
+    if (location.isEmpty) return true;
     for (final route in _cartHiddenRoutes) {
       if (location == route || location.startsWith('$route/')) return true;
     }

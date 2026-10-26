@@ -87,7 +87,7 @@ class AppRouter {
 
       // No stored session at all.
       if (session == null) {
-        return _loginOrOnboarding();
+        return await _loginOrOnboarding();
       }
 
       // If an old session only has an access token, keep it while it is still
@@ -689,7 +689,13 @@ class AppRouter {
 /// navigation event so app-wide overlays can react to the current screen.
 class _LocationObserver extends NavigatorObserver {
   void _update(Route<dynamic>? route) {
-    final name = route?.settings.name ?? '';
+    if (route == null) return;
+    // Transient routes (dropdowns, dialogs, bottom sheets) don't change the
+    // current screen location; keep the underlying page location so overlays
+    // (e.g. floating cart button) stay hidden while popups are open.
+    if (route is PopupRoute) return;
+    final name = route.settings.name;
+    if (name == null || name.isEmpty) return;
     if (AppRouter.currentLocation.value != name) {
       AppRouter.currentLocation.value = name;
     }

@@ -5,58 +5,150 @@ import '../../domain/models/invoice_item.dart';
 import '../../domain/repositories/invoice_repository.dart';
 import 'activity_state.dart';
 
+class TabInvoicesData {
+  final List<InvoiceItem>? items;
+  final int pageNumber;
+  final bool isLoading;
+  final bool isLoadingMore;
+  final bool hasMore;
+  final String? error;
+
+  const TabInvoicesData({
+    this.items,
+    this.pageNumber = 0,
+    this.isLoading = false,
+    this.isLoadingMore = false,
+    this.hasMore = false,
+    this.error,
+  });
+
+  TabInvoicesData copyWith({
+    List<InvoiceItem>? items,
+    int? pageNumber,
+    bool? isLoading,
+    bool? isLoadingMore,
+    bool? hasMore,
+    String? error,
+  }) {
+    return TabInvoicesData(
+      items: items ?? this.items,
+      pageNumber: pageNumber ?? this.pageNumber,
+      isLoading: isLoading ?? this.isLoading,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      hasMore: hasMore ?? this.hasMore,
+      error: error,
+    );
+  }
+}
+
 class ActivityCubit extends Cubit<ActivityState> {
   final InvoiceRepository _repository;
 
   static const int _pageSize = 10;
 
-  int _currentTab = 1;
-  int _currentPage = 0;
-  List<InvoiceItem> _currentInvoices = const [];
+  final Map<int, TabInvoicesData> _tabData = {
+    1: const TabInvoicesData(),
+    2: const TabInvoicesData(),
+    3: const TabInvoicesData(),
+    4: const TabInvoicesData(),
+  };
 
-  Future<void>? _invoicesLoad;
-  Future<void>? _loadMore;
+  int _currentTab = 1;
+  final Map<int, Future<void>> _invoicesLoads = {};
+  final Map<int, Future<void>> _loadMores = {};
   int _requestVersion = 0;
 
   ActivityCubit(this._repository) : super(const ActivityState.initial());
 
+  int get currentTab => _currentTab;
+
+  TabInvoicesData getTabData(int tab) {
+    final data = _tabData[tab];
+    if (data != null &&
+        (data.items != null || data.isLoading || data.error != null)) {
+      return data;
+    }
+    return state.maybeWhen(
+      loading: () => const TabInvoicesData(isLoading: true),
+      failure: (err) => TabInvoicesData(error: err),
+      success: (inv, loadingMore, more) {
+        if (tab == _currentTab) {
+          return TabInvoicesData(
+            items: inv,
+            isLoadingMore: loadingMore,
+            hasMore: more,
+          );
+        }
+        return data ?? const TabInvoicesData();
+      },
+      orElse: () => data ?? const TabInvoicesData(),
+    );
+  }
+
   /// Loads invoices for a specific tab (1=Pending, 2=Paid, 3=Used, 4=Canceled).
   Future<void> loadInvoices({int tab = 1, bool forceRefresh = false}) {
     if (isClosed) return Future.value();
-    final ongoing = _invoicesLoad;
-    if (!forceRefresh && ongoing != null && tab == _currentTab) return ongoing;
-
     _currentTab = tab;
+
+    if (forceRefresh) {
+      // Clear data for other tabs so they refresh when visited
+      for (final key in _tabData.keys) {
+        if (key != tab) {
+          _tabData[key] = const TabInvoicesData();
+        }
+      }
+    }
+
+    final existing = _tabData[tab];
+    if (!forceRefresh &&
+        existing != null &&
+        existing.items != null &&
+        !existing.isLoading) {
+      emit(
+        ActivityState.success(
+          invoices: existing.items!,
+          hasMore: existing.hasMore,
+          isLoadingMore: existing.isLoadingMore,
+        ),
+      );
+      return Future.value();
+    }
+
+    final ongoing = _invoicesLoads[tab];
+    if (!forceRefresh && ongoing != null) return ongoing;
+
     final requestVersion = ++_requestVersion;
     final load = _performLoadInvoices(tab: tab, requestVersion: requestVersion);
-    _invoicesLoad = load;
+    _invoicesLoads[tab] = load;
     return load.whenComplete(() {
-      if (identical(_invoicesLoad, load)) {
-        _invoicesLoad = null;
+      if (identical(_invoicesLoads[tab], load)) {
+        _invoicesLoads.remove(tab);
       }
     });
   }
 
-  Future<void> loadMore() {
+  Future<void> loadMore({int? tab}) {
     if (isClosed) return Future.value();
+    final targetTab = tab ?? _currentTab;
+    final targetData = _tabData[targetTab] ?? const TabInvoicesData();
 
-    final canLoadMore = state.maybeWhen(
-      success: (_, isLoadingMore, hasMore) => hasMore && !isLoadingMore,
-      orElse: () => false,
-    );
-    if (!canLoadMore) return Future.value();
+    if (!targetData.hasMore ||
+        targetData.isLoadingMore ||
+        targetData.isLoading) {
+      return Future.value();
+    }
 
-    final ongoing = _loadMore;
+    final ongoing = _loadMores[targetTab];
     if (ongoing != null) return ongoing;
 
     final load = _performLoadMore(
-      tab: _currentTab,
+      tab: targetTab,
       requestVersion: _requestVersion,
     );
-    _loadMore = load;
+    _loadMores[targetTab] = load;
     return load.whenComplete(() {
-      if (identical(_loadMore, load)) {
-        _loadMore = null;
+      if (identical(_loadMores[targetTab], load)) {
+        _loadMores.remove(targetTab);
       }
     });
   }
@@ -66,8 +158,14 @@ class ActivityCubit extends Cubit<ActivityState> {
     required int requestVersion,
   }) async {
     if (isClosed) return;
-    emit(const ActivityState.loading());
-    _currentPage = 0;
+    final prev = _tabData[tab] ?? const TabInvoicesData();
+    _tabData[tab] = prev.copyWith(isLoading: true, error: null);
+
+    if (tab == _currentTab && prev.items == null) {
+      emit(const ActivityState.loading());
+    } else if (tab == _currentTab && prev.items != null) {
+      emit(ActivityState.success(invoices: prev.items!, hasMore: prev.hasMore));
+    }
 
     final result = await _repository.getMyInvoices(
       pageNumber: 1,
@@ -75,35 +173,48 @@ class ActivityCubit extends Cubit<ActivityState> {
       tab: tab,
     );
 
-    if (isClosed || requestVersion != _requestVersion || tab != _currentTab) {
-      return;
-    }
+    if (isClosed) return;
+
     result.when(
       success: (page) {
-        if (isClosed ||
-            requestVersion != _requestVersion ||
-            tab != _currentTab) {
-          return;
-        }
-        _currentPage = page.pageNumber;
-        _currentInvoices = page.items;
+        if (isClosed) return;
+        _tabData[tab] = TabInvoicesData(
+          items: page.items,
+          pageNumber: page.pageNumber,
+          hasMore: page.hasMore,
+          isLoading: false,
+        );
         if (kDebugMode) {
           debugPrint(
             '[ActivityCubit] tab=$tab page ${page.pageNumber}/${page.totalPages} '
             'items=${page.items.length}',
           );
         }
-        emit(
-          ActivityState.success(invoices: page.items, hasMore: page.hasMore),
-        );
+        if (tab == _currentTab) {
+          emit(
+            ActivityState.success(invoices: page.items, hasMore: page.hasMore),
+          );
+        } else {
+          final activeData = _tabData[_currentTab];
+          if (activeData != null && activeData.items != null) {
+            emit(
+              ActivityState.success(
+                invoices: activeData.items!,
+                hasMore: activeData.hasMore,
+              ),
+            );
+          }
+        }
       },
       failure: (message) {
-        if (isClosed ||
-            requestVersion != _requestVersion ||
-            tab != _currentTab) {
-          return;
+        if (isClosed) return;
+        _tabData[tab] = (_tabData[tab] ?? const TabInvoicesData()).copyWith(
+          isLoading: false,
+          error: message,
+        );
+        if (tab == _currentTab && (_tabData[tab]?.items == null)) {
+          emit(ActivityState.failure(message));
         }
-        emit(ActivityState.failure(message));
       },
     );
   }
@@ -113,64 +224,72 @@ class ActivityCubit extends Cubit<ActivityState> {
     required int requestVersion,
   }) async {
     if (isClosed) return;
+    final prev = _tabData[tab] ?? const TabInvoicesData();
+    _tabData[tab] = prev.copyWith(isLoadingMore: true);
 
-    emit(
-      ActivityState.success(
-        invoices: _currentInvoices,
-        isLoadingMore: true,
-        hasMore: true,
-      ),
-    );
+    if (tab == _currentTab && prev.items != null) {
+      emit(
+        ActivityState.success(
+          invoices: prev.items!,
+          isLoadingMore: true,
+          hasMore: true,
+        ),
+      );
+    }
 
-    final nextPage = _currentPage + 1;
+    final nextPage = prev.pageNumber + 1;
     final result = await _repository.getMyInvoices(
       pageNumber: nextPage,
       pageSize: _pageSize,
       tab: tab,
     );
 
-    if (isClosed || requestVersion != _requestVersion || tab != _currentTab) {
-      return;
-    }
+    if (isClosed) return;
+
     result.when(
       success: (page) {
-        if (isClosed ||
-            requestVersion != _requestVersion ||
-            tab != _currentTab) {
-          return;
-        }
-        _currentPage = page.pageNumber;
-
-        final existingIds = _currentInvoices.map((e) => e.invoiceId).toSet();
+        if (isClosed) return;
+        final currentItems = _tabData[tab]?.items ?? const [];
+        final existingIds = currentItems.map((e) => e.invoiceId).toSet();
         final newItems = page.items
             .where((item) => !existingIds.contains(item.invoiceId))
             .toList();
-        _currentInvoices = [..._currentInvoices, ...newItems];
+        final updatedItems = [...currentItems, ...newItems];
 
-        emit(
-          ActivityState.success(
-            invoices: _currentInvoices,
-            isLoadingMore: false,
-            hasMore: page.hasMore,
-          ),
+        _tabData[tab] = TabInvoicesData(
+          items: updatedItems,
+          pageNumber: page.pageNumber,
+          hasMore: page.hasMore,
+          isLoadingMore: false,
         );
+
+        if (tab == _currentTab) {
+          emit(
+            ActivityState.success(
+              invoices: updatedItems,
+              isLoadingMore: false,
+              hasMore: page.hasMore,
+            ),
+          );
+        }
       },
       failure: (message) {
-        if (isClosed ||
-            requestVersion != _requestVersion ||
-            tab != _currentTab) {
-          return;
-        }
+        if (isClosed) return;
         if (kDebugMode) {
           debugPrint('[ActivityCubit] loadMore failed: $message');
         }
-        emit(
-          ActivityState.success(
-            invoices: _currentInvoices,
-            isLoadingMore: false,
-            hasMore: true,
-          ),
+        _tabData[tab] = (_tabData[tab] ?? const TabInvoicesData()).copyWith(
+          isLoadingMore: false,
         );
+        if (tab == _currentTab && prev.items != null) {
+          emit(
+            ActivityState.success(
+              invoices: prev.items!,
+              isLoadingMore: false,
+              hasMore: true,
+            ),
+          );
+        }
       },
     );
   }
