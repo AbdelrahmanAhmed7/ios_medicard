@@ -472,7 +472,7 @@ class _PackageImage extends StatelessWidget {
             width: double.infinity,
             child: CachedNetworkImage(
               imageUrl: imageUrl,
-              fit: BoxFit.cover,
+              fit: BoxFit.fill,
               errorWidget: (_, _, _) => ColoredBox(
                 color: const Color(0xFFF1F5F9),
                 child: Center(
@@ -578,7 +578,7 @@ class _PackageCheckoutBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final useVerticalLayout = MediaQuery.textScalerOf(context).scale(1) > 1.3;
 
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: Colors.white,
         border: const Border(top: BorderSide(color: Color(0xFFE5E7EB))),

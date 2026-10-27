@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -21,21 +23,66 @@ class ProviderPackageCard extends StatelessWidget {
     this.onQuickAdd,
   });
 
-  /// Keeps the card compact while allowing the 16:9 image to follow its width.
-  static double preferredHeightForWidth(double cardWidth) {
-    const contentHeight = 94.0;
-    const minHeight = 174.0;
-    const maxHeight = 210.0;
-    return (cardWidth * 9 / 16 + contentHeight)
-        .clamp(minHeight, maxHeight)
-        .toDouble();
+  /// Keeps the grid card tall enough for its 16:9 image and fullest footer.
+  static double preferredHeightForWidth(
+    BuildContext context,
+    double cardWidth,
+  ) {
+    final textScaler = MediaQuery.textScalerOf(
+      context,
+    ).clamp(maxScaleFactor: AppSpacing.compactCardMaxTextScale);
+    final titleHeight = _singleLineHeight(
+      context,
+      AppTextStyles.of(fontSize: 13.sp, fontWeight: FontWeight.w700),
+      textScaler,
+    );
+    final descriptionHeight = _singleLineHeight(
+      context,
+      AppTextStyles.of(fontSize: 10.5.sp, height: 1.3),
+      textScaler,
+    );
+    final pricesHeight =
+        _singleLineHeight(
+          context,
+          AppTextStyles.of(fontSize: 10.5.sp),
+          textScaler,
+        ) +
+        _singleLineHeight(
+          context,
+          AppTextStyles.of(fontSize: 13.sp, fontWeight: FontWeight.w600),
+          textScaler,
+        );
+    final footerHeight = math.max(38.r, pricesHeight);
+    final contentHeight =
+        6.5 + titleHeight + 2.h + descriptionHeight + 4.h + footerHeight + 5.5;
+    const borderHeight = AppSpacing.compactCardBorderWidth * 2;
+    final imageWidth = math.max(0.0, cardWidth - borderHeight);
+
+    return imageWidth * 9 / 16 + contentHeight + borderHeight;
+  }
+
+  static double _singleLineHeight(
+    BuildContext context,
+    TextStyle style,
+    TextScaler textScaler,
+  ) {
+    final painter = TextPainter(
+      text: TextSpan(
+        text: 'Ag',
+        style: DefaultTextStyle.of(context).style.merge(style),
+      ),
+      maxLines: 1,
+      textDirection: Directionality.of(context),
+      textScaler: textScaler,
+    )..layout();
+    return painter.height;
   }
 
   @override
   Widget build(BuildContext context) {
     return MediaQuery.withClampedTextScaling(
       maxScaleFactor: AppSpacing.compactCardMaxTextScale,
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(8.r),
@@ -60,7 +107,7 @@ class ProviderPackageCard extends StatelessWidget {
                   ),
                   child: CachedNetworkImage(
                     imageUrl: packageData.imageUrl ?? '',
-                    fit: BoxFit.cover,
+                    fit: BoxFit.fill,
                     width: double.infinity,
                     errorWidget: (context, url, error) => const Icon(
                       Icons.local_hospital,

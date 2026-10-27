@@ -38,7 +38,7 @@ class ProviderReviewCard extends StatelessWidget {
               imageUrl: review.userImageUrl ?? '',
               width: 42.r,
               height: 42.r,
-              fit: BoxFit.cover,
+              fit: BoxFit.fill,
               errorWidget: (_, _, _) => Container(
                 width: 42.r,
                 height: 42.r,

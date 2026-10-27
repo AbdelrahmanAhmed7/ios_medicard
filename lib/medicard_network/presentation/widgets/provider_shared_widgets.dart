@@ -65,7 +65,7 @@ class ProviderInfoRow extends StatelessWidget {
                     ? const Icon(Icons.local_hospital, color: Color(0xFF3872B1))
                     : CachedNetworkImage(
                         imageUrl: data.providerLogo,
-                        fit: BoxFit.contain,
+                        fit: BoxFit.fill,
                         errorWidget: (_, _, _) => const Icon(
                           Icons.local_hospital,
                           color: Color(0xFF3872B1),
@@ -504,7 +504,7 @@ class CategoryTabChip extends StatelessWidget {
                       height: 22.r,
                       child: CachedNetworkImage(
                         imageUrl: resolveImageUrl(tab.imageUrl) ?? '',
-                        fit: BoxFit.cover,
+                        fit: BoxFit.fill,
                         errorWidget: (_, _, _) => const SizedBox.shrink(),
                       ),
                     ),

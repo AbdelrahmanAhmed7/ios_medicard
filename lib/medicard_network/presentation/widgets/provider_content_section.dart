@@ -291,43 +291,48 @@ class PackagesSection extends StatelessWidget {
     }
     return Column(
       children: [
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final crossAxisSpacing = 12.w;
-            final cardWidth = (constraints.maxWidth - crossAxisSpacing) / 2;
-            // Let each card end just below its footer instead of reserving a
-            // fixed height for content that may be absent (e.g. description).
-            return Wrap(
-              spacing: crossAxisSpacing,
-              runSpacing: 12.h,
-              children: List.generate(state.packages.length, (index) {
-                final packageData = state.packages[index];
-                final packageId = packageData.id;
-                return SizedBox(
-                  width: cardWidth,
-                  child: ProviderPackageCard(
-                    packageData: packageData,
-                    onDetailsTap: packageId == null
-                        ? null
-                        : () => openPackageDetailsSheet(
-                            context,
-                            cubit,
-                            packageData,
-                            selectedBranch,
-                          ),
-                    onQuickAdd: packageId == null
-                        ? null
-                        : () => createPackageInvoice(
-                            context,
-                            cubit,
-                            packageId,
-                            selectedBranch,
-                          ),
-                  ),
-                );
-              }),
-            );
-          },
+        SizedBox(
+          key: const ValueKey('provider-packages-grid'),
+          width: double.infinity,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final crossAxisSpacing = 12.w;
+              final cardWidth = (constraints.maxWidth - crossAxisSpacing) / 2;
+              // Keep the grid full-width even when it contains one package.
+              // Without the explicit width, Wrap shrink-wraps that single
+              // card and the parent Column centers the whole section.
+              return Wrap(
+                spacing: crossAxisSpacing,
+                runSpacing: 12.h,
+                children: List.generate(state.packages.length, (index) {
+                  final packageData = state.packages[index];
+                  final packageId = packageData.id;
+                  return SizedBox(
+                    width: cardWidth,
+                    child: ProviderPackageCard(
+                      packageData: packageData,
+                      onDetailsTap: packageId == null
+                          ? null
+                          : () => openPackageDetailsSheet(
+                              context,
+                              cubit,
+                              packageData,
+                              selectedBranch,
+                            ),
+                      onQuickAdd: packageId == null
+                          ? null
+                          : () => createPackageInvoice(
+                              context,
+                              cubit,
+                              packageId,
+                              selectedBranch,
+                            ),
+                    ),
+                  );
+                }),
+              );
+            },
+          ),
         ),
         if (state.isPackagesLoadingMore)
           const Padding(
