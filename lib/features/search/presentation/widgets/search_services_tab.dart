@@ -322,6 +322,7 @@ class _ServicesTabState extends State<SearchServicesTab> {
         final serviceId = service.serviceId ?? 0;
         final isSelected = service.isSelected == true;
         return _ServiceCardConnector(
+          key: ValueKey('svc_${service.serviceId ?? index}'),
           serviceId: serviceId,
           categoryId: categoryId,
           serviceNameAr: service.serviceNameAr,
@@ -382,6 +383,7 @@ class _ServiceCardConnector extends StatelessWidget {
   final bool isSelected;
 
   const _ServiceCardConnector({
+    super.key,
     required this.serviceId,
     required this.categoryId,
     required this.serviceNameAr,

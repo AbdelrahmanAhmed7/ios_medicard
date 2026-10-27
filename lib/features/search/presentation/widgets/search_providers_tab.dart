@@ -109,7 +109,11 @@ class _ResultsBody extends StatelessWidget {
                 ),
               );
             }
-            return ProviderCard(provider: state.items[index]);
+            final provider = state.items[index];
+            return ProviderCard(
+              key: ValueKey('provider_${provider.providerId ?? index}'),
+              provider: provider,
+            );
           },
         );
       },

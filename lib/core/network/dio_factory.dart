@@ -87,37 +87,7 @@ class DioFactory {
     return dio;
   }
 
-  // ── External card API (no auth) ────────────────────────────────────────────
 
-  static Future<Dio> getDioForMedicard() async {
-    await AppLanguageManager.instance.initializationFuture;
-    final dio = Dio(
-      BaseOptions(
-        connectTimeout: const Duration(seconds: 30),
-        receiveTimeout: const Duration(seconds: 30),
-        sendTimeout: const Duration(seconds: 30),
-        headers: {'Accept': 'application/json'},
-      ),
-    );
-    _addCommonInterceptors(dio);
-    return dio;
-  }
-
-  // ── Login/register Dio (no auth) ───────────────────────────────────────────
-
-  static Future<Dio> getDioForLogin() async {
-    await AppLanguageManager.instance.initializationFuture;
-    final dio = Dio(
-      BaseOptions(
-        baseUrl: _medicardBaseUrl,
-        connectTimeout: const Duration(seconds: 10),
-        receiveTimeout: const Duration(seconds: 10),
-        headers: {'Accept': 'application/json'},
-      ),
-    );
-    _addCommonInterceptors(dio);
-    return dio;
-  }
 
   // ── Token helpers ──────────────────────────────────────────────────────────
 

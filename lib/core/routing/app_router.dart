@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -120,27 +121,26 @@ class AppRouter {
         return '/medicard-home';
       }
 
-      // Access token expired but refresh token is valid — try to refresh
-      // silently so the user lands directly on the home screen.
+      // Access token expired but refresh token is valid — refresh silently in
+      // the background while the splash animation is playing. Never block runApp.
       if (kDebugMode) {
         debugPrint(
-          '[AppRouter] Access token expired at startup — refreshing silently',
+          '[AppRouter] Access token expired at startup — refreshing silently in background',
         );
       }
 
-      final refreshService = sl<AuthRefreshService>();
-      final newSession = await refreshService.refreshToken();
-      if (newSession != null) {
-        return '/medicard-home';
-      }
+      unawaited(() async {
+        final refreshService = sl<AuthRefreshService>();
+        final newSession = await refreshService.refreshToken();
+        if (newSession == null) {
+          final retainedSession = await sessionStorage.getSession();
+          if (retainedSession == null || !retainedSession.hasRefreshToken) {
+            sl<AppRefreshCubit>().triggerSessionExpired();
+          }
+        }
+      }());
 
-      final retainedSession = await sessionStorage.getSession();
-      if (retainedSession != null && retainedSession.hasRefreshToken) {
-        return '/medicard-home';
-      }
-
-      // Refresh failed.
-      return '/medicard-login';
+      return '/medicard-home';
     } catch (e) {
       if (kDebugMode) debugPrint('[AppRouter] getInitialLocation error: $e');
       return '/guest-home';

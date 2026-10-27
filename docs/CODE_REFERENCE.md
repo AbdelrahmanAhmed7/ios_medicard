@@ -240,8 +240,6 @@
 - [`static Interceptor get _logger`](../lib/core/network/dio_factory.dart#L32) — **خاص** — ينفّذ منطق `logger` داخل `DioFactory`.
 - [`static Future<Dio> getDio()`](../lib/core/network/dio_factory.dart#L52) — يجلب `get dio` من مصدر البيانات المناسب داخل `DioFactory`.
 - [`static Dio createRefreshDio()`](../lib/core/network/dio_factory.dart#L73) — ينشئ أو يضيف `create refresh dio` داخل `DioFactory`.
-- [`static Future<Dio> getDioForMedicard()`](../lib/core/network/dio_factory.dart#L92) — يجلب `get dio for medicard` من مصدر البيانات المناسب داخل `DioFactory`.
-- [`static Future<Dio> getDioForLogin()`](../lib/core/network/dio_factory.dart#L108) — يجلب `get dio for login` من مصدر البيانات المناسب داخل `DioFactory`.
 - [`static void setTokenIntoHeaderAfterLogin(String token)`](../lib/core/network/dio_factory.dart#L124) — يحدّث `set token into header after login` داخل `DioFactory`.
 - [`static void clearTokenFromHeader()`](../lib/core/network/dio_factory.dart#L130) — يحذف أو يمسح `clear token from header` داخل `DioFactory`.
 - [`static Future<void> setAcceptLanguage(String language)`](../lib/core/network/dio_factory.dart#L135) — يحدّث `set accept language` داخل `DioFactory`.

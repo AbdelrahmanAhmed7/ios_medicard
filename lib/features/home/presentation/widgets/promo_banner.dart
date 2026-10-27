@@ -21,8 +21,8 @@ class PromoBannerWidget extends StatefulWidget {
 
 class _PromoBannerWidgetState extends State<PromoBannerWidget> {
   final PageController _pageController = PageController(viewportFraction: 0.88);
+  final ValueNotifier<int> _currentPageNotifier = ValueNotifier<int>(0);
   Timer? _timer;
-  int _currentPage = 0;
 
   @override
   void initState() {
@@ -36,12 +36,11 @@ class _PromoBannerWidgetState extends State<PromoBannerWidget> {
     _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
       if (!mounted) return;
       if (widget.banners.isEmpty) return;
-      setState(() {
-        _currentPage = (_currentPage + 1) % widget.banners.length;
-      });
+      final nextPage = (_currentPageNotifier.value + 1) % widget.banners.length;
+      _currentPageNotifier.value = nextPage;
       if (_pageController.hasClients) {
         _pageController.animateToPage(
-          _currentPage,
+          nextPage,
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
         );
@@ -53,6 +52,7 @@ class _PromoBannerWidgetState extends State<PromoBannerWidget> {
   void dispose() {
     _timer?.cancel();
     _pageController.dispose();
+    _currentPageNotifier.dispose();
     super.dispose();
   }
 
@@ -87,7 +87,7 @@ class _PromoBannerWidgetState extends State<PromoBannerWidget> {
             controller: _pageController,
             itemCount: widget.banners.length,
             onPageChanged: (index) {
-              setState(() => _currentPage = index);
+              _currentPageNotifier.value = index;
             },
             itemBuilder: (context, index) {
               final banner = widget.banners[index];
@@ -126,23 +126,28 @@ class _PromoBannerWidgetState extends State<PromoBannerWidget> {
           ),
         ),
         const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(widget.banners.length, (index) {
-            final isActive = _currentPage == index;
-            return AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              margin: const EdgeInsets.symmetric(horizontal: 3),
-              width: isActive ? 16 : 6,
-              height: 6,
-              decoration: BoxDecoration(
-                color: isActive
-                    ? const Color(0xFF3872B1)
-                    : const Color(0xFF9CA3AF),
-                borderRadius: BorderRadius.circular(3),
-              ),
+        ValueListenableBuilder<int>(
+          valueListenable: _currentPageNotifier,
+          builder: (context, currentPage, _) {
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(widget.banners.length, (index) {
+                final isActive = currentPage == index;
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  margin: const EdgeInsets.symmetric(horizontal: 3),
+                  width: isActive ? 16 : 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: isActive
+                        ? const Color(0xFF3872B1)
+                        : const Color(0xFF9CA3AF),
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                );
+              }),
             );
-          }),
+          },
         ),
       ],
     );
