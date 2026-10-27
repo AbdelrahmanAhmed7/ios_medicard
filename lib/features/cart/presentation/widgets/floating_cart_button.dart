@@ -97,6 +97,8 @@ class _FloatingCartButtonState extends State<FloatingCartButton> {
 
   bool _locationRefreshScheduled = false;
 
+  DateTime? _lastFetchTime;
+
   void _onLocationChanged() {
     // The observer fires mid-build (Navigator updating); defer so setState
     // never runs during another subtree's build phase.
@@ -105,11 +107,28 @@ class _FloatingCartButtonState extends State<FloatingCartButton> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _locationRefreshScheduled = false;
       if (!mounted) return;
+      final location = AppRouter.currentLocation.value;
+      if (_isSessionlessRoute(location)) {
+        if (_count != 0) setState(() => _count = 0);
+        return;
+      }
+      if (_isHiddenRoute(location)) {
+        setState(() {});
+        return;
+      }
       setState(() {});
-      // Re-sync on every navigation: entering a visible route (e.g. home
-      // right after login) must re-fetch instead of trusting a stale 0.
-      // _refreshCount no-ops on hidden routes by itself.
-      _refreshCount();
+
+      // Only re-fetch if count is 0 or if at least 60s elapsed since last fetch.
+      // Active cart modifications already publish events to CartSyncService.
+      final now = DateTime.now();
+      final shouldFetch = _lastFetchTime == null ||
+          _count == 0 ||
+          now.difference(_lastFetchTime!) > const Duration(seconds: 60);
+
+      if (shouldFetch) {
+        _lastFetchTime = now;
+        _refreshCount();
+      }
     });
   }
 
@@ -260,7 +279,8 @@ class _FloatingCartButtonState extends State<FloatingCartButton> {
       curve: Curves.easeOutCubic,
       left: pos.dx,
       top: pos.dy,
-      child: GestureDetector(
+      child: RepaintBoundary(
+        child: GestureDetector(
         // This widget is outside the router subtree in MaterialApp.builder.
         onTap: () {
           HapticFeedbackService.instance.lightImpact();
@@ -345,6 +365,7 @@ class _FloatingCartButtonState extends State<FloatingCartButton> {
                   ),
                 ),
               ],
+            ),
             ),
           ),
         ),

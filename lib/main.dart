@@ -28,30 +28,41 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await EasyLocalization.ensureInitialized();
-  await initializeDateFormatting('ar');
-  await initializeDateFormatting('en');
-  if (_shouldInitializeFirebase) {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-  } else if (kDebugMode) {
+  await Future.wait([
+    EasyLocalization.ensureInitialized(),
+    initializeDateFormatting('ar'),
+    initializeDateFormatting('en'),
+    if (_shouldInitializeFirebase)
+      Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      ),
+  ]);
+
+  if (!_shouldInitializeFirebase && kDebugMode) {
     debugPrint('[Startup] Firebase disabled for iOS debug run.');
   }
-  await AppLanguageManager.instance.initialize();
+
   await setupServiceLocator();
 
   // Session refresh can involve a network request. Never let it block the
   // first Flutter frame indefinitely.
-  final initialLocation = await AppRouter.getInitialLocation().timeout(
-    const Duration(seconds: 10),
-    onTimeout: () {
-      if (kDebugMode) {
-        debugPrint('[Startup] Initial route timed out; opening guest home.');
-      }
-      return '/guest-home';
-    },
-  );
+  var safeTimeoutFallback = '/guest-home';
+  final initialLocation =
+      await AppRouter.getInitialLocation(
+        onSafeTimeoutFallback: (location) {
+          safeTimeoutFallback = location;
+        },
+      ).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          if (kDebugMode) {
+            debugPrint(
+              '[Startup] Initial route timed out; opening $safeTimeoutFallback.',
+            );
+          }
+          return safeTimeoutFallback;
+        },
+      );
 
   runApp(
     EasyLocalization(
@@ -234,7 +245,7 @@ class _MyAppState extends State<MyApp> {
                   return Stack(
                     children: [
                       child!,
-                      const FloatingCartButton(),
+                      const RepaintBoundary(child: FloatingCartButton()),
                     ],
                   );
                 },

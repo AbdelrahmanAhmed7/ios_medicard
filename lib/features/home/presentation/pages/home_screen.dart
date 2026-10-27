@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicard/features/home/data/home_mock_data.dart';
+import 'package:medicard/features/home/domain/models/appointment_model.dart';
+import 'package:medicard/features/home/domain/models/featured_service_model.dart';
+import 'package:medicard/features/home/domain/models/provider_model.dart';
 
 import '../../../../core/cubit/app_refresh_cubit.dart';
 import '../../../../core/di/service_locator.dart';
@@ -48,6 +51,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late int _currentIndex;
+  late final Set<int> _visitedTabs;
   bool _locationLoadStarted = false;
   bool _homeLoadStarted = false;
 
@@ -55,6 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex;
+    _visitedTabs = {_currentIndex};
     // Show the summer promo popup on first frame if within the promo window.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -68,10 +73,12 @@ class _HomeScreenState extends State<HomeScreen> {
     // GoRouter reuses this page when checkout returns with a different tab.
     if (oldWidget.initialIndex != widget.initialIndex) {
       _currentIndex = widget.initialIndex;
+      _visitedTabs.add(_currentIndex);
     }
   }
 
   void _selectTab(int index) {
+    _visitedTabs.add(index);
     if (index != _currentIndex) setState(() => _currentIndex = index);
     // Keep the URL in sync, including when leaving invoices manually. A later
     // "View invoices" action must be a new tab request, even on a reused page.
@@ -96,9 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         ),
         BlocProvider<LocationCubit>(create: (context) => sl<LocationCubit>()),
-        BlocProvider<ActivityCubit>(
-          create: (context) => sl<ActivityCubit>()..loadInvoices(),
-        ),
+        BlocProvider<ActivityCubit>(create: (context) => sl<ActivityCubit>()),
         BlocProvider<ECardCubit>(create: (context) => sl<ECardCubit>()),
         BlocProvider<NotificationCubit>.value(value: sl<NotificationCubit>()),
         BlocProvider<AppRefreshCubit>.value(value: sl<AppRefreshCubit>()),
@@ -163,11 +168,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   index: _currentIndex,
                   children: [
                     _HomeBody(onNavigateToTab: _selectTab),
-                    // Not const: the parent rebuilds on locale change (router
-                    // refreshListenable) and const children would be skipped,
-                    // leaving `.tr()` strings stale on these tabs.
-                    ActivityScreen(),
-                    _ProfileBody(),
+                    // Lazy-loaded on first visit: avoids eagerly firing loadInvoices
+                    // or building profile view at cold startup when opening home.
+                    _visitedTabs.contains(1)
+                        ? const ActivityScreen()
+                        : const SizedBox.shrink(),
+                    _visitedTabs.contains(2)
+                        ? const _ProfileBody()
+                        : const SizedBox.shrink(),
                   ],
                 ),
                 bottomNavigationBar: Builder(
@@ -193,10 +201,30 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class _HomeBody extends StatelessWidget {
+class _HomeBody extends StatefulWidget {
   final ValueChanged<int> onNavigateToTab;
 
   const _HomeBody({required this.onNavigateToTab});
+
+  @override
+  State<_HomeBody> createState() => _HomeBodyState();
+}
+
+class _HomeBodyState extends State<_HomeBody> {
+  HomeResponseModel? _lastData;
+  List<AppointmentModel> _cachedAppointments = const [];
+  List<ProviderModel> _cachedProviders = const [];
+  List<PromoBanner> _cachedBanners = const [];
+  List<FeaturedServiceModel> _cachedServices = const [];
+
+  void _updateCacheIfNeeded(HomeResponseModel data) {
+    if (identical(_lastData, data) || _lastData == data) return;
+    _lastData = data;
+    _cachedAppointments = mapAppointments(data.data?.pendingAppointments ?? []);
+    _cachedProviders = mapProviders(data.data?.nearestProviders ?? []);
+    _cachedBanners = mapPromoBanners(data.data?.sliders ?? []);
+    _cachedServices = mapPackages(data.data?.packages ?? []);
+  }
 
   void _openAllProviders(BuildContext context) {
     context.push('/search/providers', extra: {'enableCartFeatures': true});
@@ -252,10 +280,11 @@ class _HomeBody extends StatelessWidget {
     HomeResponseModel data, {
     bool isRefreshing = false,
   }) {
-    final appointments = mapAppointments(data.data?.pendingAppointments ?? []);
-    final providers = mapProviders(data.data?.nearestProviders ?? []);
-    final banners = mapPromoBanners(data.data?.sliders ?? []);
-    final services = mapPackages(data.data?.packages ?? []);
+    _updateCacheIfNeeded(data);
+    final appointments = _cachedAppointments;
+    final providers = _cachedProviders;
+    final banners = _cachedBanners;
+    final services = _cachedServices;
 
     final hasContent =
         appointments.isNotEmpty ||
@@ -277,7 +306,7 @@ class _HomeBody extends StatelessWidget {
               SliverToBoxAdapter(
                 child: PendingAppointmentsSection(
                   appointments: appointments,
-                  onViewAll: () => onNavigateToTab(1),
+                  onViewAll: () => widget.onNavigateToTab(1),
                 ),
               ),
               const SliverToBoxAdapter(child: SizedBox(height: 16)),
@@ -315,7 +344,7 @@ class _HomeBody extends StatelessWidget {
         parent: BouncingScrollPhysics(),
       ),
       slivers: [
-        SliverToBoxAdapter(child: HomeHeader()),
+        const SliverToBoxAdapter(child: HomeHeader()),
         if (isRefreshing)
           const SliverToBoxAdapter(
             child: LinearProgressIndicator(minHeight: 2),
@@ -326,7 +355,7 @@ class _HomeBody extends StatelessWidget {
         const SliverToBoxAdapter(child: SizedBox(height: 6)),
 
         if (showQuickActions) ...[
-          SliverToBoxAdapter(
+          const SliverToBoxAdapter(
             child: QuickActionsRow(
               actions: HomeMockData.quickActions,
               verticalPadding: 8,
@@ -381,7 +410,7 @@ class _ProfileBodyState extends State<_ProfileBody> {
       listener: (context, state) {
         state.maybeWhen(
           failed: (error) => showErrorToast(error),
-          updated: (data) {},
+          updated: (data, summary) {},
           orElse: () {},
         );
       },
@@ -391,8 +420,10 @@ class _ProfileBodyState extends State<_ProfileBody> {
           loading: () => const ProfileShimmer(),
           success: (data, summary) =>
               ProfileContent(data: data, summary: summary),
-          updating: (data) => ProfileContent(data: data),
-          updated: (data) => ProfileContent(data: data),
+          updating: (data, summary) =>
+              ProfileContent(data: data, summary: summary),
+          updated: (data, summary) =>
+              ProfileContent(data: data, summary: summary),
           failed: (error) => ProfileErrorView(error: error),
         );
       },

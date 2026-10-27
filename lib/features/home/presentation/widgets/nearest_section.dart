@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import '../../domain/models/provider_model.dart';
 import 'home_horizontal_card_style.dart';
@@ -25,6 +26,7 @@ class NearestSection extends StatelessWidget {
         SizedBox(
           height: HomeHorizontalCardStyle.height,
           child: ListView.separated(
+            scrollCacheExtent: const ScrollCacheExtent.pixels(280),
             scrollDirection: Axis.horizontal,
             padding: HomeHorizontalCardStyle.listPadding,
             itemCount: providers.length,
