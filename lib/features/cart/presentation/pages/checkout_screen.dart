@@ -282,7 +282,7 @@ class _CheckoutPayBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final pricing = CheckoutPricing.fromState(state);
     final showTotal = !state.isInvoiceOutcomeUnknown;
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: Colors.white,
         border: const Border(top: BorderSide(color: Color(0xFFE5E9F0))),

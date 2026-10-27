@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
@@ -20,7 +20,7 @@ class HomeBottomNav extends StatelessWidget {
     context.locale;
 
     final bottomSafePadding = MediaQuery.viewPaddingOf(context).bottom;
-    final items = <_NavItem>[
+    const items = <_NavItem>[
       _NavItem(icon: Icons.home_outlined, labelKey: 'home.nav_home'),
       _NavItem(
         icon: Icons.receipt_long_outlined,

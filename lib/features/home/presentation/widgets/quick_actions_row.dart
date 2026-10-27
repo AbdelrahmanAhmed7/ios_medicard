@@ -53,7 +53,7 @@ class QuickActionsRow extends StatelessWidget {
                               style: AppTextStyles.of(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
-                                color: Color(0xFF1A1A2E),
+                                color: const Color(0xFF1A1A2E),
                               ),
                               textAlign: TextAlign.center,
                               maxLines: 1,

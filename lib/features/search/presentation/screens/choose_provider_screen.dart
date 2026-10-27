@@ -326,7 +326,7 @@ class _ProviderCard extends StatelessWidget {
                                 provider.providerImageUrl!.isNotEmpty
                             ? CachedNetworkImage(
                                 imageUrl: provider.providerImageUrl!,
-                                fit: BoxFit.contain,
+                                fit: BoxFit.fill,
                                 errorWidget: (_, _, _) =>
                                     _Initials(name: provider.providerName),
                               )
@@ -658,7 +658,7 @@ class _Initials extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final initials = name.isNotEmpty ? name[0].toUpperCase() : '?';
-    return Container(
+    return ColoredBox(
       color: Colors.transparent,
       child: Center(
         child: Text(

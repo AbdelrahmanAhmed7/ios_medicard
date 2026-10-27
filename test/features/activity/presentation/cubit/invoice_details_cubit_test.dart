@@ -19,7 +19,7 @@ class _FakeInvoiceRepository implements InvoiceRepository {
       services: const [],
     ),
   );
-  ApiResult<void> voidResult = ApiResult<void>.success(null);
+  ApiResult<void> voidResult = const ApiResult<void>.success(null);
 
   final List<int> detailCalls = [];
   final List<int> cancelCalls = [];
@@ -84,7 +84,7 @@ void main() {
       });
 
       test('emits LoadFailure with the backend message', () async {
-        repo.detailsResult = ApiResult<InvoiceDetails>.failure('Boom');
+        repo.detailsResult = const ApiResult<InvoiceDetails>.failure('Boom');
 
         await cubit.loadDetails(7);
         await Future<void>.delayed(Duration.zero);
@@ -111,7 +111,7 @@ void main() {
       test('returns the failure message and keeps loaded state', () async {
         await cubit.loadDetails(7);
         final loadedState = cubit.state;
-        repo.voidResult = ApiResult<void>.failure('Cannot cancel');
+        repo.voidResult = const ApiResult<void>.failure('Cannot cancel');
 
         final error = await cubit.cancelInvoice(7);
 
@@ -135,7 +135,7 @@ void main() {
       });
 
       test('returns the failure message', () async {
-        repo.voidResult = ApiResult<void>.failure('Bad review');
+        repo.voidResult = const ApiResult<void>.failure('Bad review');
 
         final error = await cubit.submitReview(
           invoiceId: 7,

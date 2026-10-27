@@ -105,7 +105,7 @@ class CartBody extends StatelessWidget {
                 },
               ),
               SizedBox(height: 14.h),
-              Container(
+              DecoratedBox(
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16.r),

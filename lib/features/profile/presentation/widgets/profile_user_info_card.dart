@@ -19,7 +19,7 @@ class ProfileUserInfoCard extends StatelessWidget {
 
     return Padding(
       padding: AppSpacing.pageHorizontalInsets,
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16.r),

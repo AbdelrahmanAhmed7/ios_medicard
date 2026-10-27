@@ -37,7 +37,7 @@ class _ProviderQuickPickSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return DecoratedBox(
       key: const ValueKey('quick-pick-sheet'),
       decoration: BoxDecoration(
         color: Colors.white,

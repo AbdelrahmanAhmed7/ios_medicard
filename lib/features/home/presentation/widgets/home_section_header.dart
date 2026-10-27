@@ -25,7 +25,7 @@ class HomeSectionHeader extends StatelessWidget {
               style: AppTextStyles.of(
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF111827),
+                color: const Color(0xFF111827),
               ),
             ),
           ),
@@ -43,7 +43,7 @@ class HomeSectionHeader extends StatelessWidget {
                       style: AppTextStyles.of(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF3872B1),
+                        color: const Color(0xFF3872B1),
                       ),
                     ),
                     const SizedBox(width: 2),
@@ -51,7 +51,7 @@ class HomeSectionHeader extends StatelessWidget {
                       '›',
                       style: AppTextStyles.of(
                         fontSize: 18,
-                        color: Color(0xFF3872B1),
+                        color: const Color(0xFF3872B1),
                         fontWeight: FontWeight.w600,
                         height: 1.1,
                       ),

@@ -148,11 +148,11 @@ class ShimmerApprovalCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.whiteClr,
           borderRadius: BorderRadius.circular(16.r),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
               color: AppColors.cardShadowClr,
               blurRadius: 8,
-              offset: const Offset(0, 2),
+              offset: Offset(0, 2),
             ),
           ],
         ),

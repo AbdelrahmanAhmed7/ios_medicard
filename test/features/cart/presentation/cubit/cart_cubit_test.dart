@@ -243,8 +243,8 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final cart = Cart(
-        items: const [
+      const cart = Cart(
+        items: [
           CartItem(
             cartItemId: 1,
             serviceId: 10,
@@ -253,7 +253,7 @@ void main() {
           ),
         ],
         totalCount: 1,
-        categoryCounters: const [],
+        categoryCounters: [],
       );
       final fixture = _Fixture(cart: cart);
       fixture.cart.chooseProviders = [_providerA(allItems: true)];

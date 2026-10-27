@@ -53,7 +53,7 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
             style: AppTextStyles.of(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF1A1A2E),
+              color: const Color(0xFF1A1A2E),
             ),
           ),
           const SizedBox(height: 12),
@@ -70,7 +70,7 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
             style: AppTextStyles.of(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF1A1A2E),
+              color: const Color(0xFF1A1A2E),
             ),
           ),
           const SizedBox(height: 12),
@@ -163,7 +163,7 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
               style: AppTextStyles.of(
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
-                color: Color(0xFF1A1A2E),
+                color: const Color(0xFF1A1A2E),
               ),
             ),
           ],
@@ -191,7 +191,7 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
             value: value,
             hint: Text(
               hint,
-              style: AppTextStyles.of(fontSize: 13, color: Color(0xFF6B7280)),
+              style: AppTextStyles.of(fontSize: 13, color: const Color(0xFF6B7280)),
             ),
             isExpanded: true,
             icon: const Icon(

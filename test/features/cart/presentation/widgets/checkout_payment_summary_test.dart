@@ -92,8 +92,8 @@ void main() {
 }
 
 CartState _packageState() {
-  return CartState(
-    checkoutProvider: const ProviderOption(
+  return const CartState(
+    checkoutProvider: ProviderOption(
       providerId: 80,
       providerName: 'Alfa Labs',
       coveredCount: 0,
@@ -106,7 +106,7 @@ CartState _packageState() {
     ),
     checkoutPackageId: 21,
     checkoutPackageName: 'alfa lab package',
-    checkoutPackageServiceNames: const [
+    checkoutPackageServiceNames: [
       'ECG',
       'CT Scan',
       'Annual subscription',

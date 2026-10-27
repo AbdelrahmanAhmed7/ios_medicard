@@ -35,9 +35,9 @@ class HomeHeader extends StatelessWidget {
               AppSpacing.pageHorizontal,
               12,
             ),
-            child: Column(
+            child: const Column(
               mainAxisSize: MainAxisSize.min,
-              children: const [
+              children: [
                 _HeaderTopRow(),
                 SizedBox(height: 10),
                 Expanded(child: _HeaderSearchBar()),

@@ -131,7 +131,7 @@ class AppErrorHandler {
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            Icon(Icons.error_outline, color: AppColors.errorClr),
+            const Icon(Icons.error_outline, color: AppColors.errorClr),
             const SizedBox(width: 8),
             Text('common.error'.tr()),
           ],

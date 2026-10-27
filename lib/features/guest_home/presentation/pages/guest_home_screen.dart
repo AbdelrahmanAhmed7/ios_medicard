@@ -55,7 +55,9 @@ class _GuestHomeScreenState extends State<GuestHomeScreen> {
           builder: (context, state) {
             return state.when(
               initial: () => const SizedBox.shrink(),
-              loading: () => _buildShellScrollView(child: const HomeShimmer()),
+              loading: () => _buildShellScrollView(
+                child: const HomeShimmer(showAppointments: false),
+              ),
               success: (data) {
                 final providers = mapGuestProviders(
                   data.data?.nearestProviders ?? [],
@@ -106,7 +108,7 @@ class _GuestHomeScreenState extends State<GuestHomeScreen> {
         ),
         slivers: [
           const SliverToBoxAdapter(child: _GuestHomeHeader()),
-          SliverToBoxAdapter(
+          const SliverToBoxAdapter(
             child: QuickActionsRow(actions: HomeMockData.guestQuickActions),
           ),
           if (banners.isNotEmpty) ...[
@@ -126,7 +128,7 @@ class _GuestHomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return DecoratedBox(
       decoration: const BoxDecoration(
         color: Colors.white,
         border: Border(bottom: BorderSide(color: Color(0xFFEEF1F5))),
@@ -233,7 +235,11 @@ class _GuestHomeSuccessContent extends StatelessWidget {
           ),
           const SizedBox(height: 24),
         ],
-        if (packages.isNotEmpty) FeaturedServicesSection(services: packages),
+        if (packages.isNotEmpty)
+          FeaturedServicesSection(
+            services: packages,
+            onViewAll: () => context.push('/packages'),
+          ),
       ],
     );
   }

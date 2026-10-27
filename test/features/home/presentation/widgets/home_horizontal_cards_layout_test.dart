@@ -151,16 +151,16 @@ Widget _testApp({double textScale = 1}) {
             ).copyWith(textScaler: TextScaler.linear(textScale)),
             child: child!,
           ),
-          home: Scaffold(
+          home: const Scaffold(
             body: Column(
               children: [
                 SizedBox(
                   height: HomeHorizontalCardStyle.height,
-                  child: const NearestProviderCard(provider: provider),
+                  child: NearestProviderCard(provider: provider),
                 ),
                 SizedBox(
                   height: HomeHorizontalCardStyle.height,
-                  child: const FeaturedServiceCard(service: package),
+                  child: FeaturedServiceCard(service: package),
                 ),
               ],
             ),

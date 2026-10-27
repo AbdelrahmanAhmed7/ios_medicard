@@ -21,7 +21,7 @@ class HomeEmptyView extends StatelessWidget {
             style: AppTextStyles.of(
               fontSize: 15,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF6B7280),
+              color: const Color(0xFF6B7280),
             ),
           ),
           const SizedBox(height: 6),
@@ -30,7 +30,7 @@ class HomeEmptyView extends StatelessWidget {
             textAlign: TextAlign.center,
             style: AppTextStyles.of(
               fontSize: 13,
-              color: Color(0xFF9CA3AF),
+              color: const Color(0xFF9CA3AF),
               height: 1.5,
             ),
           ),

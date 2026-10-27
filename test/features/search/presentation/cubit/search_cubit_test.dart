@@ -281,16 +281,16 @@ void main() {
     );
 
     test('provider search appends pages and stops at last page', () async {
-      final provider1 = const SearchProviderModel(providerId: 1);
-      final provider2 = const SearchProviderModel(providerId: 2);
-      searchRepository.providerPages[1] = SearchResponseData(
+      const provider1 = SearchProviderModel(providerId: 1);
+      const provider2 = SearchProviderModel(providerId: 2);
+      searchRepository.providerPages[1] = const SearchResponseData(
         items: [provider1],
         pageNumber: 1,
         pageSize: 15,
         totalCount: 2,
         totalPages: 2,
       );
-      searchRepository.providerPages[2] = SearchResponseData(
+      searchRepository.providerPages[2] = const SearchResponseData(
         items: [provider2],
         pageNumber: 2,
         pageSize: 15,
@@ -317,8 +317,8 @@ void main() {
       'applyFilters nearest sort reuses cached location coordinates',
       () async {
         locationRepository.cache(LocationResult.granted(30.0444, 31.2357));
-        searchRepository.providerPages[1] = SearchResponseData(
-          items: [const SearchProviderModel(providerId: 1)],
+        searchRepository.providerPages[1] = const SearchResponseData(
+          items: [SearchProviderModel(providerId: 1)],
           pageNumber: 1,
           pageSize: 15,
           totalCount: 1,

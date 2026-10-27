@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SharedPrefHelper {
   SharedPrefHelper._();
 
-
   static SharedPreferences? _prefs;
 
   static Future<SharedPreferences> _getPrefs() async {
@@ -69,15 +68,13 @@ class SharedPrefHelper {
     await prefs.clear();
   }
 
-
-  static final FlutterSecureStorage _secureStorage = FlutterSecureStorage(
+  static const FlutterSecureStorage _secureStorage = FlutterSecureStorage(
     // Android may restore encrypted preferences without their original
     // Keystore key after a reinstall. Reset corrupted secure storage so a
     // successful login can persist the new session instead of failing.
     aOptions: AndroidOptions(resetOnError: true),
     iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
   );
-
 
   static Future<void> setSecuredString(String key, String value) async {
     if (kDebugMode) debugPrint("SecureStorage : set $key");
@@ -96,7 +93,6 @@ class SharedPrefHelper {
       rethrow;
     }
   }
-
 
   static Future<String> getSecuredString(String key) async {
     if (kDebugMode) debugPrint("SecureStorage : get $key");
@@ -117,7 +113,6 @@ class SharedPrefHelper {
       return '';
     }
   }
-
 
   static Future<void> clearAllSecuredData() async {
     if (kDebugMode) debugPrint("SecureStorage : cleared all");

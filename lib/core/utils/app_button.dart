@@ -137,13 +137,13 @@ class _AppButtonState extends State<AppButton>
           gradient: effectiveGradient,
           borderRadius: BorderRadius.circular(12.r),
           boxShadow: isActive
-              ? [
-            BoxShadow(
-              color: AppColors.primaryShadowClr,
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ]
+              ? const [
+                  BoxShadow(
+                    color: AppColors.primaryShadowClr,
+                    blurRadius: 12,
+                    offset: Offset(0, 4),
+                  ),
+                ]
               : null,
         ),
         child: Material(

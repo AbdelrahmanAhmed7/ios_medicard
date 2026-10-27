@@ -30,7 +30,7 @@ class NetworkCacheService {
 
     final now = DateTime.now().millisecondsSinceEpoch;
     final cacheAge = now - lastUpdate;
-    final cacheExpiryMs = _supportContactsCacheExpiryHours * 60 * 60 * 1000;
+    const cacheExpiryMs = _supportContactsCacheExpiryHours * 60 * 60 * 1000;
 
     if (cacheAge > cacheExpiryMs) {
       await clearSupportContactsCache();

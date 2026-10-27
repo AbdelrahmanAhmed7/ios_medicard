@@ -80,9 +80,11 @@ class AppRouter {
   /// 3. Access token still valid → /medicard-home
   /// 4. Access token expired but refresh token valid → attempt refresh
   ///    → success: /medicard-home | failure: /medicard-login
-  static Future<String> getInitialLocation() async {
+  static Future<String> getInitialLocation({
+    ValueChanged<String>? onSafeTimeoutFallback,
+  }) async {
     try {
-      final sessionStorage = const AuthSessionStorage();
+      const sessionStorage = AuthSessionStorage();
       final session = await sessionStorage.getSession();
 
       // No stored session at all.
@@ -90,12 +92,18 @@ class AppRouter {
         return await _loginOrOnboarding();
       }
 
+      // A stored authenticated session exists. If the network refresh below
+      // outlives the startup deadline, opening home is safer than making the
+      // user appear logged out as a guest.
+      onSafeTimeoutFallback?.call('/medicard-home');
+
       // If an old session only has an access token, keep it while it is still
       // valid. Once expired there is no refresh token to recover it.
       if (!session.hasRefreshToken) {
         if (session.accessTokenExpiresAt != null &&
             session.isAccessTokenExpiredOrAboutToExpire) {
           await sessionStorage.clearSession();
+          onSafeTimeoutFallback?.call('/medicard-login');
           return '/medicard-login';
         }
         return '/medicard-home';
@@ -103,6 +111,7 @@ class AppRouter {
 
       if (session.isRefreshTokenExpired) {
         await sessionStorage.clearSession();
+        onSafeTimeoutFallback?.call('/medicard-login');
         return '/medicard-login';
       }
 
