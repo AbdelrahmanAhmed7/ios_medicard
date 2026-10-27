@@ -58,7 +58,7 @@ class PendingAppointmentDetailsScreen extends StatelessWidget {
             child: ListView(
               padding: EdgeInsets.fromLTRB(16.w, 18.h, 16.w, 22.h),
               children: [
-                Container(
+                DecoratedBox(
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16.r),
@@ -143,7 +143,7 @@ class PendingAppointmentDetailsScreen extends StatelessWidget {
           imageUrl: logoUrl,
           width: 52,
           height: 52,
-          fit: BoxFit.cover,
+          fit: BoxFit.fill,
           placeholder: (context, url) =>
               Container(color: const Color(0xFFEEF3FB)),
           errorWidget: (context, url, error) =>

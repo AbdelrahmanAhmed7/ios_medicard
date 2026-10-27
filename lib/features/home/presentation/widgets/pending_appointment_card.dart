@@ -60,9 +60,11 @@ class PendingAppointmentCard extends StatelessWidget {
                 child: ClipOval(
                   child: CachedNetworkImage(
                     imageUrl: appointment.providerLogoUrl,
+                    memCacheWidth: 150,
+                    memCacheHeight: 150,
                     width: 56,
                     height: 56,
-                    fit: BoxFit.cover,
+                    fit: BoxFit.fill,
                     placeholder: (context, url) =>
                         Container(color: const Color(0xFFEEF3FB)),
                     errorWidget: (context, url, error) =>
@@ -85,7 +87,7 @@ class PendingAppointmentCard extends StatelessWidget {
                       style: AppTextStyles.of(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF1A1A2E),
+                        color: const Color(0xFF1A1A2E),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -97,7 +99,7 @@ class PendingAppointmentCard extends StatelessWidget {
                         style: AppTextStyles.of(
                           fontSize: 11,
                           fontWeight: FontWeight.w400,
-                          color: Color(0xFF6B7280),
+                          color: const Color(0xFF6B7280),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -110,7 +112,7 @@ class PendingAppointmentCard extends StatelessWidget {
                         style: AppTextStyles.of(
                           fontSize: 11,
                           fontWeight: FontWeight.w400,
-                          color: Color(0xFF6B7280),
+                          color: const Color(0xFF6B7280),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
