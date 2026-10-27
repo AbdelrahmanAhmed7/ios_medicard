@@ -49,9 +49,11 @@ class NearestProviderCard extends StatelessWidget {
                       width: double.infinity,
                       child: CachedNetworkImage(
                         imageUrl: provider.imageUrl,
+                        memCacheWidth: 400,
+                        memCacheHeight: 300,
                         height: HomeHorizontalCardStyle.imageHeight,
                         width: double.infinity,
-                        fit: BoxFit.cover,
+                        fit: BoxFit.fill,
                         alignment: Alignment.center,
                         placeholder: (context, url) => Container(
                           color: HomeHorizontalCardStyle.imageBackground,
@@ -134,7 +136,7 @@ class NearestProviderCard extends StatelessWidget {
                                       style: AppTextStyles.of(
                                         fontSize: 10,
                                         fontWeight: FontWeight.w500,
-                                        color: Color(0xFF3872B1),
+                                        color: const Color(0xFF3872B1),
                                       ),
                                     ),
                                   ),
@@ -191,7 +193,7 @@ class NearestProviderCard extends StatelessWidget {
                             children: [
                               if (provider.distanceKm != null)
                                 Container(
-                                  padding: EdgeInsets.symmetric(
+                                  padding: const EdgeInsets.symmetric(
                                     horizontal: 9,
                                     vertical: 5,
                                   ),
@@ -202,10 +204,10 @@ class NearestProviderCard extends StatelessWidget {
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Icon(
+                                      const Icon(
                                         Icons.navigation_outlined,
                                         size: 12,
-                                        color: const Color(0xFF3872B1),
+                                        color: Color(0xFF3872B1),
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
@@ -221,17 +223,17 @@ class NearestProviderCard extends StatelessWidget {
                                 TextButton.icon(
                                   onPressed: () => UrlLauncherService()
                                       .launchURL(provider.mapUrl),
-                                  icon: Icon(
+                                  icon: const Icon(
                                     Icons.map_outlined,
                                     size: 14,
-                                    color: const Color(0xFF3872B1),
+                                    color: Color(0xFF3872B1),
                                   ),
                                   label: Text(
                                     'provider_page.open_map'.tr(),
                                     style: HomeHorizontalCardStyle.actionText,
                                   ),
                                   style: TextButton.styleFrom(
-                                    padding: EdgeInsets.symmetric(
+                                    padding: const EdgeInsets.symmetric(
                                       horizontal: 6,
                                       vertical: 2,
                                     ),

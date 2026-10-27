@@ -143,7 +143,7 @@ class CategoryChip extends StatelessWidget {
               imageUrl,
               width: 26.r,
               height: 26.r,
-              fit: BoxFit.contain,
+              fit: BoxFit.fill,
               placeholderBuilder: (_) => placeholder,
               errorBuilder: (_, _, _) => errorIcon,
             )
@@ -151,7 +151,7 @@ class CategoryChip extends StatelessWidget {
               imageUrl: imageUrl,
               width: 26.r,
               height: 26.r,
-              fit: BoxFit.cover,
+              fit: BoxFit.fill,
               placeholder: (_, _) => placeholder,
               errorWidget: (_, _, _) => errorIcon,
             );

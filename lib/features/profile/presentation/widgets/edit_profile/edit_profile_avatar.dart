@@ -154,7 +154,7 @@ class _RemoteImage extends StatelessWidget {
     }
     return CachedNetworkImage(
       imageUrl: imageUrl!,
-      fit: BoxFit.cover,
+      fit: BoxFit.fill,
       placeholder: (context, url) => const ColoredBox(color: Color(0xFFF1F5F9)),
       errorWidget: (context, url, error) => const _AvatarPlaceholder(),
     );
@@ -209,7 +209,7 @@ void showProfileImagePreview(
               Positioned(
                 top: 0,
                 right: 0,
-                child: Container(
+                child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.5),
                     shape: BoxShape.circle,
@@ -242,7 +242,7 @@ class _PreviewPhoto extends StatelessWidget {
     if (hasValidProfileImageUrl(imageUrl)) {
       return CachedNetworkImage(
         imageUrl: imageUrl!,
-        fit: BoxFit.cover,
+        fit: BoxFit.fill,
         placeholder: (context, url) =>
             const ColoredBox(color: Color(0xFFF1F5F9)),
         errorWidget: (context, url, error) => const _AvatarPlaceholder(),

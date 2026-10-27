@@ -32,9 +32,11 @@ class ProfileAvatar extends StatelessWidget {
     return ClipOval(
       child: CachedNetworkImage(
         imageUrl: image,
+        memCacheWidth: 200,
+        memCacheHeight: 200,
         width: 64.r,
         height: 64.r,
-        fit: BoxFit.cover,
+        fit: BoxFit.fill,
         placeholder: (context, url) => Container(color: Colors.grey[300]),
         errorWidget: (context, url, error) => _fallbackAvatar(),
       ),

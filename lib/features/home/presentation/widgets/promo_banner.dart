@@ -108,6 +108,8 @@ class _PromoBannerWidgetState extends State<PromoBannerWidget> {
                     ),
                     child: CachedNetworkImage(
                       imageUrl: banner.imageUrl,
+                      memCacheWidth: 800,
+                      memCacheHeight: 400,
                       width: double.infinity,
                       height: 165,
                       // Offer artwork often contains text/logos near its

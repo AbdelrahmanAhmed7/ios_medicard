@@ -64,9 +64,11 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                       width: double.infinity,
                       child: CachedNetworkImage(
                         imageUrl: service.imageUrl,
+                        memCacheWidth: 400,
+                        memCacheHeight: 300,
                         height: HomeHorizontalCardStyle.imageHeight,
                         width: double.infinity,
-                        fit: BoxFit.cover,
+                        fit: BoxFit.fill,
                         placeholder: (context, url) => Container(
                           color: HomeHorizontalCardStyle.imageBackground,
                           height: HomeHorizontalCardStyle.imageHeight,
@@ -92,9 +94,11 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                           child: ClipOval(
                             child: CachedNetworkImage(
                               imageUrl: service.providerLogoUrl,
+                              memCacheWidth: 100,
+                              memCacheHeight: 100,
                               width: 36,
                               height: 36,
-                              fit: BoxFit.cover,
+                              fit: BoxFit.fill,
                               placeholder: (context, url) => Container(
                                 color: HomeHorizontalCardStyle.imageBackground,
                               ),

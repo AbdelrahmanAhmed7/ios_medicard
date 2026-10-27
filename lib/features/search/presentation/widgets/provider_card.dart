@@ -106,8 +106,10 @@ class ProviderCard extends StatelessWidget {
             children: [
               CachedNetworkImage(
                 imageUrl: provider.imageUrl ?? '',
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
+                memCacheWidth: 300,
+                memCacheHeight: 300,
+                fit: BoxFit.fill,
+                placeholder: (context, url) => ColoredBox(
                   color: const Color(0xFFEEF3FB),
                   child: Icon(
                     Icons.local_hospital_outlined,
@@ -115,7 +117,7 @@ class ProviderCard extends StatelessWidget {
                     size: 30.sp,
                   ),
                 ),
-                errorWidget: (context, url, error) => Container(
+                errorWidget: (context, url, error) => ColoredBox(
                   color: const Color(0xFFEEF3FB),
                   child: Icon(
                     Icons.local_hospital_outlined,

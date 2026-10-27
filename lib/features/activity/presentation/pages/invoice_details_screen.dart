@@ -252,7 +252,7 @@ class _InvoiceReviewCard extends StatelessWidget {
                         )
                       : CachedNetworkImage(
                           imageUrl: imageUrl,
-                          fit: BoxFit.cover,
+                          fit: BoxFit.fill,
                           errorWidget: (_, _, _) => const ColoredBox(
                             color: Color(0xFFE2E8F0),
                             child: Icon(
@@ -489,7 +489,7 @@ class _ProviderCard extends StatelessWidget {
                         )
                       : CachedNetworkImage(
                           imageUrl: imageUrl,
-                          fit: BoxFit.cover,
+                          fit: BoxFit.fill,
                           errorWidget: (_, _, _) => const Icon(
                             Icons.local_hospital,
                             color: Color(0xFF3872B1),

@@ -311,7 +311,7 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
                   : imageUrl != null
                   ? CachedNetworkImage(
                       imageUrl: imageUrl,
-                      fit: BoxFit.cover,
+                      fit: BoxFit.fill,
                       placeholder: (_, _) => _buildAvatarFallback(),
                       errorWidget: (_, _, _) => _buildAvatarFallback(),
                     )

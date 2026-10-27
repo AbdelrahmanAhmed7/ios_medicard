@@ -292,6 +292,7 @@ class _AllPackagesScreenState extends State<AllPackagesScreen> {
               crossAxisSpacing: crossAxisSpacing,
               mainAxisSpacing: 12.h,
               mainAxisExtent: ProviderPackageCard.preferredHeightForWidth(
+                context,
                 cardWidth,
               ),
             ),

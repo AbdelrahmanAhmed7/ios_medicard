@@ -290,7 +290,7 @@ class _FamilyMemberListItem extends StatelessWidget {
           ? _buildInitials(member)
           : CachedNetworkImage(
               imageUrl: imageUrl,
-              fit: BoxFit.cover,
+              fit: BoxFit.fill,
               placeholder: (_, _) => _buildInitials(member),
               errorWidget: (_, _, _) => _buildInitials(member),
             ),

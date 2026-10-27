@@ -71,7 +71,9 @@ class InvoiceCard extends StatelessWidget {
                           child: imageUrl != null
                               ? CachedNetworkImage(
                                   imageUrl: imageUrl,
-                                  fit: BoxFit.cover,
+                                  memCacheWidth: 150,
+                                  memCacheHeight: 150,
+                                  fit: BoxFit.fill,
                                   placeholder: (_, _) =>
                                       Container(color: Colors.grey[100]),
                                   errorWidget: (_, _, _) => _providerInitial(),
@@ -89,7 +91,7 @@ class InvoiceCard extends StatelessWidget {
                               color: Colors.white,
                               shape: BoxShape.circle,
                             ),
-                            child: Container(
+                            child: DecoratedBox(
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 shape: BoxShape.circle,

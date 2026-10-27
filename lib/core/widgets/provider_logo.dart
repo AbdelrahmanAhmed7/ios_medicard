@@ -34,7 +34,9 @@ class ProviderLogo extends StatelessWidget {
           : ClipOval(
               child: CachedNetworkImage(
                 imageUrl: url,
-                fit: BoxFit.contain,
+                memCacheWidth: (size * 3).round(),
+                memCacheHeight: (size * 3).round(),
+                fit: BoxFit.fill,
                 placeholder: (_, _) => _Initials(name: name, size: size),
                 errorWidget: (_, _, _) => _Initials(name: name, size: size),
               ),

@@ -266,7 +266,7 @@ class _NotificationImage extends StatelessWidget {
 
     return CachedNetworkImage(
       imageUrl: imageUrl,
-      fit: BoxFit.cover,
+      fit: BoxFit.fill,
       placeholder: (_, _) => _NotificationFallbackIcon(icon: fallbackIcon),
       errorWidget: (_, _, _) => _NotificationFallbackIcon(icon: fallbackIcon),
     );

@@ -99,7 +99,7 @@ class _OrderHeader extends StatelessWidget {
                   )
                 : CachedNetworkImage(
                     imageUrl: providerImageUrl!,
-                    fit: BoxFit.contain,
+                    fit: BoxFit.fill,
                     errorWidget: (_, _, _) => Icon(
                       Icons.local_hospital_outlined,
                       color: const Color(0xFF3872B1),
