@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theming/app_spacing.dart';
 import '../../../../core/theming/app_text_styles.dart';
+import '../../../../core/utils/shimmer_card.dart';
 import '../../../ecard/data/models/card_data_response_model.dart';
 import '../../../ecard/presentation/cubit/ecard_cubit.dart';
 import '../../../ecard/presentation/cubit/ecard_state.dart';
@@ -32,6 +33,8 @@ class _ECardPreviewCardState extends State<ECardPreviewCard> {
     return BlocBuilder<ECardCubit, ECardState>(
       builder: (context, state) {
         return state.maybeWhen(
+          initial: () => const ECardPreviewShimmer(animate: false),
+          loading: () => const ECardPreviewShimmer(),
           loaded: (data) {
             if (data == null) return const SizedBox.shrink();
             return Padding(
@@ -45,6 +48,34 @@ class _ECardPreviewCardState extends State<ECardPreviewCard> {
           orElse: () => const SizedBox.shrink(),
         );
       },
+    );
+  }
+}
+
+/// Reserves the exact space occupied by the home eCard while its separate
+/// request is in flight, preventing the quick actions from jumping down when
+/// the card data arrives.
+class ECardPreviewShimmer extends StatelessWidget {
+  final bool animate;
+
+  const ECardPreviewShimmer({super.key, this.animate = true});
+
+  @override
+  Widget build(BuildContext context) {
+    const placeholder = DecoratedBox(
+      decoration: BoxDecoration(
+        color: Color(0xFFE8E8E8),
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+      ),
+    );
+
+    return Padding(
+      padding: AppSpacing.pageHorizontalInsets,
+      child: AspectRatio(
+        key: const ValueKey('home-shimmer-ecard'),
+        aspectRatio: _MediCardPreview.aspectRatio,
+        child: animate ? const SmoothShimmer(child: placeholder) : placeholder,
+      ),
     );
   }
 }
@@ -77,7 +108,7 @@ class _MediCardPreview extends StatelessWidget {
   const _MediCardPreview({required this.card});
 
   static const _assetPath = 'assets/ecard/card_background.jpg';
-  static const _aspectRatio = 1024 / 596;
+  static const aspectRatio = 1024 / 596;
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +118,7 @@ class _MediCardPreview extends StatelessWidget {
     final direction = Directionality.of(context);
 
     return AspectRatio(
-      aspectRatio: _aspectRatio,
+      aspectRatio: aspectRatio,
       child: Stack(
         fit: StackFit.expand,
         children: [
