@@ -16,29 +16,31 @@ class AuthSessionStorage {
   // ── Write ──────────────────────────────────────────────────────────────────
 
   Future<void> saveSession(AuthSession session) async {
-    await Future.wait([
-      SharedPrefHelper.setSecuredString(
-        SharedPrefKeys.accessToken,
-        session.accessToken,
-      ),
-      SharedPrefHelper.setSecuredString(
-        SharedPrefKeys.refreshToken,
-        session.refreshToken,
-      ),
-      SharedPrefHelper.setSecuredString(
-        SharedPrefKeys.accessTokenExpiresAt,
-        session.accessTokenExpiresAt?.toUtc().toIso8601String() ?? '',
-      ),
-      SharedPrefHelper.setSecuredString(
-        SharedPrefKeys.refreshTokenExpiresAt,
-        session.refreshTokenExpiresAt?.toUtc().toIso8601String() ?? '',
-      ),
-      // Keep legacy key in sync so older code paths still work.
-      SharedPrefHelper.setSecuredString(
-        SharedPrefKeys.userToken,
-        session.accessToken,
-      ),
-    ]);
+    // The backend rotates the refresh token on every refresh. Persist it
+    // before the access token and never write the pair in parallel: if the
+    // process is interrupted halfway through, "old access + new refresh" can
+    // recover, while "new access + old (already invalidated) refresh" cannot.
+    await SharedPrefHelper.setSecuredString(
+      SharedPrefKeys.refreshToken,
+      session.refreshToken,
+    );
+    await SharedPrefHelper.setSecuredString(
+      SharedPrefKeys.refreshTokenExpiresAt,
+      session.refreshTokenExpiresAt?.toUtc().toIso8601String() ?? '',
+    );
+    await SharedPrefHelper.setSecuredString(
+      SharedPrefKeys.accessToken,
+      session.accessToken,
+    );
+    await SharedPrefHelper.setSecuredString(
+      SharedPrefKeys.accessTokenExpiresAt,
+      session.accessTokenExpiresAt?.toUtc().toIso8601String() ?? '',
+    );
+    // Keep the legacy key in sync after the canonical access token is saved.
+    await SharedPrefHelper.setSecuredString(
+      SharedPrefKeys.userToken,
+      session.accessToken,
+    );
   }
 
   Future<void> updateTokens({

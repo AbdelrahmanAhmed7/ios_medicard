@@ -36,7 +36,6 @@ class AuthRefreshService {
 
       // Nothing to refresh — not logged in.
       if (session == null || !session.hasRefreshToken) {
-        await _sessionStorage.clearSession();
         return null;
       }
 
@@ -47,7 +46,7 @@ class AuthRefreshService {
             '[AuthRefreshService] Refresh token expired — clearing session',
           );
         }
-        await _sessionStorage.clearSession();
+        await _clearSessionIfStillCurrent(session.refreshToken);
         return null;
       }
 
@@ -78,7 +77,12 @@ class AuthRefreshService {
             '[AuthRefreshService] Refresh failed — response: ${envelope.message}',
           );
         }
-        await _sessionStorage.clearSession();
+        // A malformed/partial 2xx response can be caused by a temporary
+        // backend problem. Only destroy the session when the envelope itself
+        // explicitly says the credential is invalid.
+        if (_isCredentialRejection(envelope.httpStatusCode)) {
+          await _clearSessionIfStillCurrent(session.refreshToken);
+        }
         return null;
       }
 
@@ -96,6 +100,17 @@ class AuthRefreshService {
         refreshTokenExpiresAt: data?.refreshTokenExpiresAt,
       );
 
+      // A login/logout may have happened while the refresh request was in
+      // flight. Never let an old response overwrite that newer session.
+      final currentSession = await _sessionStorage.getSession();
+      if (currentSession == null ||
+          currentSession.refreshToken != session.refreshToken) {
+        if (kDebugMode) {
+          debugPrint('[AuthRefreshService] Ignoring stale refresh response');
+        }
+        return currentSession;
+      }
+
       await _sessionStorage.saveSession(newSession);
 
       if (kDebugMode) {
@@ -112,8 +127,11 @@ class AuthRefreshService {
           '[AuthRefreshService] Refresh request failed (HTTP $statusCode, message=$message)',
         );
       }
-      if (statusCode == 400 || statusCode == 401 || statusCode == 403) {
-        await _sessionStorage.clearSession();
+      if (_isCredentialRejection(statusCode)) {
+        final attemptedToken = _refreshTokenUsedBy(e.requestOptions);
+        if (attemptedToken != null) {
+          await _clearSessionIfStillCurrent(attemptedToken);
+        }
       }
       return null;
     } catch (e) {
@@ -123,6 +141,26 @@ class AuthRefreshService {
         );
       }
       return null;
+    }
+  }
+
+  bool _isCredentialRejection(int? statusCode) {
+    return statusCode == 400 || statusCode == 401 || statusCode == 403;
+  }
+
+  String? _refreshTokenUsedBy(RequestOptions options) {
+    final body = options.data;
+    if (body is Map) {
+      final value = body['refreshToken'];
+      if (value is String && value.isNotEmpty) return value;
+    }
+    return null;
+  }
+
+  Future<void> _clearSessionIfStillCurrent(String attemptedToken) async {
+    final currentSession = await _sessionStorage.getSession();
+    if (currentSession?.refreshToken == attemptedToken) {
+      await _sessionStorage.clearSession();
     }
   }
 }
