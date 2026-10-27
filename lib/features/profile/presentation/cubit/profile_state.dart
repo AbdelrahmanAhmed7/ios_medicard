@@ -12,7 +12,13 @@ class ProfileState with _$ProfileState {
     ProfileData data, [
     ProfileSummaryData? summary,
   ]) = _Success;
-  const factory ProfileState.updating(ProfileData data) = _Updating;
-  const factory ProfileState.updated(ProfileData data) = _Updated;
+  const factory ProfileState.updating(
+    ProfileData data, [
+    ProfileSummaryData? summary,
+  ]) = _Updating;
+  const factory ProfileState.updated(
+    ProfileData data, [
+    ProfileSummaryData? summary,
+  ]) = _Updated;
   const factory ProfileState.failed(String error) = _Failed;
 }

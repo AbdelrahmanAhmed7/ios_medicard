@@ -70,8 +70,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               loading: () => const ProfileShimmer(),
               success: (data, summary) =>
                   ProfileContent(data: data, summary: summary),
-              updating: (data) => ProfileContent(data: data),
-              updated: (data) => ProfileContent(data: data),
+              updating: (data, summary) =>
+                  ProfileContent(data: data, summary: summary),
+              updated: (data, summary) =>
+                  ProfileContent(data: data, summary: summary),
               failed: (error) => ProfileErrorView(error: error),
             ),
           );

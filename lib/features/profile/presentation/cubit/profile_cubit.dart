@@ -7,6 +7,7 @@ import 'package:medicard/core/constants/api_result.dart';
 import 'package:medicard/core/theming/app_toast.dart';
 import 'package:medicard/core/utils/api_error_parser.dart';
 import '../../data/models/profile_response_model.dart';
+import '../../data/models/profile_summary_response_model.dart';
 import '../../domain/usecases/get_profile_usecase.dart';
 import '../../domain/usecases/get_profile_summary_usecase.dart';
 import '../../domain/usecases/update_profile_v2_usecase.dart';
@@ -25,6 +26,7 @@ class ProfileCubit extends Cubit<ProfileState> {
   final ActivateMemberCardUseCase _activateMemberCardUseCase;
   final LogoutUseCase _logoutUseCase;
   Future<void>? _profileLoad;
+  ProfileSummaryData? _summary;
 
   ProfileCubit(
     this._getProfileUseCase,
@@ -49,8 +51,8 @@ class ProfileCubit extends Cubit<ProfileState> {
 
     final hasProfile = state.maybeWhen(
       success: (_, _) => true,
-      updating: (_) => true,
-      updated: (_) => true,
+      updating: (_, _) => true,
+      updated: (_, _) => true,
       orElse: () => false,
     );
     if (hasProfile && !forceRefresh) {
@@ -77,7 +79,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     // Don't flash loading shimmer when called after an update — the ProfileContent
     // is already visible with the current data. Only show loading on a cold fetch.
     final isUpdating = state.maybeWhen(
-      updating: (_) => true,
+      updating: (_, _) => true,
       orElse: () => false,
     );
     if (!isUpdating) {
@@ -100,7 +102,10 @@ class ProfileCubit extends Cubit<ProfileState> {
           if (kDebugMode) {
             debugPrint('[ProfileCubit] profile loaded successfully');
           }
-          emit(ProfileState.success(profile));
+          // Keep the last known summary visible while its independent request
+          // is refreshed. This prevents points/counts flashing back to zero
+          // after returning from a child page or refreshing profile details.
+          emit(ProfileState.success(profile, _summary));
           // Secondary fetch: must never block or toast; failures stay silent
           // (logged) and null data keeps the zero defaults on screen.
           unawaited(_loadSummary(profile));
@@ -147,7 +152,7 @@ class ProfileCubit extends Cubit<ProfileState> {
       // instead of waiting for the server URL and its stale image cache.
       imageUrl: removeImage ? null : imagePath ?? currentData.imageUrl,
     );
-    emit(ProfileState.updating(optimisticData));
+    emit(ProfileState.updating(optimisticData, _summary));
     try {
       final result = await _updateProfileUseCase.call(
         firstName: firstName,
@@ -171,7 +176,7 @@ class ProfileCubit extends Cubit<ProfileState> {
 
       if (failure != null) {
         showErrorToast(failure);
-        if (!isClosed) emit(ProfileState.success(currentData));
+        if (!isClosed) emit(ProfileState.success(currentData, _summary));
         return false;
       }
 
@@ -188,13 +193,13 @@ class ProfileCubit extends Cubit<ProfileState> {
       // avoids a second network round-trip and keeps the selected local image
       // visible immediately; the next normal profile load reconciles with the
       // backend response.
-      emit(ProfileState.success(optimisticData));
+      emit(ProfileState.success(optimisticData, _summary));
       showSuccessToast('profile.updated_successfully'.tr());
       return true;
     } catch (e) {
       if (isClosed) return false;
       showErrorToast(parseApiError(e));
-      if (!isClosed) emit(ProfileState.success(currentData));
+      if (!isClosed) emit(ProfileState.success(currentData, _summary));
       return false;
     }
   }
@@ -222,7 +227,7 @@ class ProfileCubit extends Cubit<ProfileState> {
 
   Future<bool> deleteProfileImage(ProfileData currentData) async {
     if (isClosed) return false;
-    emit(ProfileState.updating(currentData));
+    emit(ProfileState.updating(currentData, _summary));
     try {
       final result = await _deleteProfileImageUseCase.call();
       if (isClosed) return false;
@@ -235,7 +240,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         if (failure.trim().isNotEmpty) {
           showErrorToast(failure);
         }
-        if (!isClosed) emit(ProfileState.success(currentData));
+        if (!isClosed) emit(ProfileState.success(currentData, _summary));
         return false;
       }
 
@@ -248,7 +253,7 @@ class ProfileCubit extends Cubit<ProfileState> {
       if (message.trim().isNotEmpty) {
         showErrorToast(message);
       }
-      if (!isClosed) emit(ProfileState.success(currentData));
+      if (!isClosed) emit(ProfileState.success(currentData, _summary));
       return false;
     }
   }
@@ -258,7 +263,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     required ProfileData currentData,
   }) async {
     if (isClosed) return false;
-    emit(ProfileState.updating(currentData));
+    emit(ProfileState.updating(currentData, _summary));
     try {
       final result = await _activateMemberCardUseCase.call(
         cardNumber: cardNumber,
@@ -271,7 +276,7 @@ class ProfileCubit extends Cubit<ProfileState> {
       );
       if (failure != null) {
         showErrorToast(failure);
-        if (!isClosed) emit(ProfileState.success(currentData));
+        if (!isClosed) emit(ProfileState.success(currentData, _summary));
         return false;
       }
 
@@ -281,7 +286,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     } catch (e) {
       if (isClosed) return false;
       showErrorToast(parseApiError(e));
-      if (!isClosed) emit(ProfileState.success(currentData));
+      if (!isClosed) emit(ProfileState.success(currentData, _summary));
       return false;
     }
   }
@@ -294,8 +299,8 @@ class ProfileCubit extends Cubit<ProfileState> {
     if (isClosed) return;
     final profile = state.maybeWhen(
       success: (data, _) => data,
-      updating: (data) => data,
-      updated: (data) => data,
+      updating: (data, _) => data,
+      updated: (data, _) => data,
       orElse: () => null,
     );
     // TEMP-PROFILE-REFRESH: remove after verifying on device.
@@ -320,10 +325,13 @@ class ProfileCubit extends Cubit<ProfileState> {
           }
           return;
         }
+        _summary = summary;
         // Re-emit only if the profile hasn't moved on meanwhile (e.g. an
         // update started) so we never clobber fresher state.
         final same = state.maybeWhen(
           success: (data, _) => identical(data, profile),
+          updating: (data, _) => identical(data, profile),
+          updated: (data, _) => identical(data, profile),
           orElse: () => false,
         );
         // TEMP-PROFILE-REFRESH: remove after verifying on device.
@@ -331,7 +339,13 @@ class ProfileCubit extends Cubit<ProfileState> {
           '[TEMP] summary arrived: count=${summary.familyMembersCount} '
           'points=${summary.rewardPoints} same=$same',
         );
-        if (same) emit(ProfileState.success(profile, summary));
+        if (!same) return;
+        state.maybeWhen(
+          success: (data, _) => emit(ProfileState.success(data, summary)),
+          updating: (data, _) => emit(ProfileState.updating(data, summary)),
+          updated: (data, _) => emit(ProfileState.updated(data, summary)),
+          orElse: () {},
+        );
       },
       failure: (message) {
         if (kDebugMode) {

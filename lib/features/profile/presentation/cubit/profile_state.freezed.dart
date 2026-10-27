@@ -135,14 +135,14 @@ return failed(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( ProfileData data,  ProfileSummaryData? summary)?  success,TResult Function( ProfileData data)?  updating,TResult Function( ProfileData data)?  updated,TResult Function( String error)?  failed,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( ProfileData data,  ProfileSummaryData? summary)?  success,TResult Function( ProfileData data,  ProfileSummaryData? summary)?  updating,TResult Function( ProfileData data,  ProfileSummaryData? summary)?  updated,TResult Function( String error)?  failed,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Loading() when loading != null:
 return loading();case _Success() when success != null:
 return success(_that.data,_that.summary);case _Updating() when updating != null:
-return updating(_that.data);case _Updated() when updated != null:
-return updated(_that.data);case _Failed() when failed != null:
+return updating(_that.data,_that.summary);case _Updated() when updated != null:
+return updated(_that.data,_that.summary);case _Failed() when failed != null:
 return failed(_that.error);case _:
   return orElse();
 
@@ -161,14 +161,14 @@ return failed(_that.error);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( ProfileData data,  ProfileSummaryData? summary)  success,required TResult Function( ProfileData data)  updating,required TResult Function( ProfileData data)  updated,required TResult Function( String error)  failed,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( ProfileData data,  ProfileSummaryData? summary)  success,required TResult Function( ProfileData data,  ProfileSummaryData? summary)  updating,required TResult Function( ProfileData data,  ProfileSummaryData? summary)  updated,required TResult Function( String error)  failed,}) {final _that = this;
 switch (_that) {
 case _Initial():
 return initial();case _Loading():
 return loading();case _Success():
 return success(_that.data,_that.summary);case _Updating():
-return updating(_that.data);case _Updated():
-return updated(_that.data);case _Failed():
+return updating(_that.data,_that.summary);case _Updated():
+return updated(_that.data,_that.summary);case _Failed():
 return failed(_that.error);case _:
   throw StateError('Unexpected subclass');
 
@@ -186,14 +186,14 @@ return failed(_that.error);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( ProfileData data,  ProfileSummaryData? summary)?  success,TResult? Function( ProfileData data)?  updating,TResult? Function( ProfileData data)?  updated,TResult? Function( String error)?  failed,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( ProfileData data,  ProfileSummaryData? summary)?  success,TResult? Function( ProfileData data,  ProfileSummaryData? summary)?  updating,TResult? Function( ProfileData data,  ProfileSummaryData? summary)?  updated,TResult? Function( String error)?  failed,}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Loading() when loading != null:
 return loading();case _Success() when success != null:
 return success(_that.data,_that.summary);case _Updating() when updating != null:
-return updating(_that.data);case _Updated() when updated != null:
-return updated(_that.data);case _Failed() when failed != null:
+return updating(_that.data,_that.summary);case _Updated() when updated != null:
+return updated(_that.data,_that.summary);case _Failed() when failed != null:
 return failed(_that.error);case _:
   return null;
 
@@ -338,10 +338,11 @@ as ProfileSummaryData?,
 
 
 class _Updating implements ProfileState {
-  const _Updating(this.data);
+  const _Updating(this.data, [this.summary]);
   
 
  final  ProfileData data;
+ final  ProfileSummaryData? summary;
 
 /// Create a copy of ProfileState
 /// with the given fields replaced by the non-null parameter values.
@@ -353,16 +354,16 @@ _$UpdatingCopyWith<_Updating> get copyWith => __$UpdatingCopyWithImpl<_Updating>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Updating&&(identical(other.data, data) || other.data == data));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Updating&&(identical(other.data, data) || other.data == data)&&(identical(other.summary, summary) || other.summary == summary));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,data);
+int get hashCode => Object.hash(runtimeType,data,summary);
 
 @override
 String toString() {
-  return 'ProfileState.updating(data: $data)';
+  return 'ProfileState.updating(data: $data, summary: $summary)';
 }
 
 
@@ -373,7 +374,7 @@ abstract mixin class _$UpdatingCopyWith<$Res> implements $ProfileStateCopyWith<$
   factory _$UpdatingCopyWith(_Updating value, $Res Function(_Updating) _then) = __$UpdatingCopyWithImpl;
 @useResult
 $Res call({
- ProfileData data
+ ProfileData data, ProfileSummaryData? summary
 });
 
 
@@ -390,10 +391,11 @@ class __$UpdatingCopyWithImpl<$Res>
 
 /// Create a copy of ProfileState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? data = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? data = null,Object? summary = freezed,}) {
   return _then(_Updating(
 null == data ? _self.data : data // ignore: cast_nullable_to_non_nullable
-as ProfileData,
+as ProfileData,freezed == summary ? _self.summary : summary // ignore: cast_nullable_to_non_nullable
+as ProfileSummaryData?,
   ));
 }
 
@@ -404,10 +406,11 @@ as ProfileData,
 
 
 class _Updated implements ProfileState {
-  const _Updated(this.data);
+  const _Updated(this.data, [this.summary]);
   
 
  final  ProfileData data;
+ final  ProfileSummaryData? summary;
 
 /// Create a copy of ProfileState
 /// with the given fields replaced by the non-null parameter values.
@@ -419,16 +422,16 @@ _$UpdatedCopyWith<_Updated> get copyWith => __$UpdatedCopyWithImpl<_Updated>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Updated&&(identical(other.data, data) || other.data == data));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Updated&&(identical(other.data, data) || other.data == data)&&(identical(other.summary, summary) || other.summary == summary));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,data);
+int get hashCode => Object.hash(runtimeType,data,summary);
 
 @override
 String toString() {
-  return 'ProfileState.updated(data: $data)';
+  return 'ProfileState.updated(data: $data, summary: $summary)';
 }
 
 
@@ -439,7 +442,7 @@ abstract mixin class _$UpdatedCopyWith<$Res> implements $ProfileStateCopyWith<$R
   factory _$UpdatedCopyWith(_Updated value, $Res Function(_Updated) _then) = __$UpdatedCopyWithImpl;
 @useResult
 $Res call({
- ProfileData data
+ ProfileData data, ProfileSummaryData? summary
 });
 
 
@@ -456,10 +459,11 @@ class __$UpdatedCopyWithImpl<$Res>
 
 /// Create a copy of ProfileState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? data = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? data = null,Object? summary = freezed,}) {
   return _then(_Updated(
 null == data ? _self.data : data // ignore: cast_nullable_to_non_nullable
-as ProfileData,
+as ProfileData,freezed == summary ? _self.summary : summary // ignore: cast_nullable_to_non_nullable
+as ProfileSummaryData?,
   ));
 }
 
