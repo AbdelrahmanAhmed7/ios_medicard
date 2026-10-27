@@ -12,8 +12,4 @@ class AppAssets {
 
   // home screen assets
   static const String qrCode = 'assets/home/qrcode4.png';
-
-  // onboarding assets
-  static const String onboarding1 = 'assets/onboarding/onboarding_1.png';
-  static const String onboarding2 = 'assets/onboarding/onboarding_2.png';
 }

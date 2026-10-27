@@ -107,7 +107,7 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<AppRefreshCubit>(() => AppRefreshCubit());
 
   // ── 3. Auth session infrastructure ───────────────────────────────────────
-  final authSessionStorage = const AuthSessionStorage();
+  const authSessionStorage = AuthSessionStorage();
   sl.registerLazySingleton<AuthSessionStorage>(() => authSessionStorage);
 
   // Bare Dio for the refresh-token endpoint — no auth interceptor so it
@@ -135,6 +135,7 @@ Future<void> setupServiceLocator() async {
       },
     ),
   );
+  sl.registerLazySingleton<Dio>(() => medicardDio);
 
   // ── 5. Cubit infrastructure ───────────────────────────────────────────────
   sl.registerFactory<LocalizationCubit>(
@@ -193,7 +194,7 @@ Future<void> setupServiceLocator() async {
     () => AddressesRepositoryImpl(sl()),
   );
   sl.registerLazySingleton<ActivateCardRepository>(
-    () => ActivateCardRepositoryImpl(),
+    () => ActivateCardRepositoryImpl(sl<Dio>()),
   );
   sl.registerLazySingleton<LocationService>(() => LocationService());
   sl.registerLazySingleton<LocationRepository>(() => LocationRepository());

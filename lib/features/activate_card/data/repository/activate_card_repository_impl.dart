@@ -1,52 +1,55 @@
-import 'dart:convert';
 import 'package:dartz/dartz.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+
 import '../../../../core/utils/api_error_parser.dart';
 import '../../domain/repository/activate_card_repository.dart';
 import '../models/activate_card_request_model.dart';
 import '../models/activate_card_response_model.dart';
 
 class ActivateCardRepositoryImpl implements ActivateCardRepository {
-  static const String baseUrl = 'https://medicard-api-v2.medicardeg.com';
+  final Dio _dio;
+
+  ActivateCardRepositoryImpl(this._dio);
 
   @override
   Future<Either<String, ActivateCardResponseModel>> activateCard(
     ActivateCardRequestModel request,
   ) async {
     try {
-      final response = await http
-          .post(
-            Uri.parse('$baseUrl/api/CardActivation/activate'),
-            headers: {'accept': '*/*', 'content-type': 'application/json'},
-            body: json.encode(request.toJson()),
-          )
-          .timeout(const Duration(seconds: 30));
+      final response = await _dio.post(
+        'CardActivation/activate',
+        data: request.toJson(),
+      );
 
-      final decodedJson = json.decode(response.body);
-      if (decodedJson is! Map<String, dynamic>) {
-        return Left(_backendMessageFrom(decodedJson) ?? parseApiError(''));
+      final dynamic data = response.data;
+      if (data is! Map<String, dynamic>) {
+        return Left(_backendMessageFrom(data) ?? parseApiError(''));
       }
 
-      if (response.statusCode < 200 || response.statusCode >= 300) {
-        return Left(_backendMessageFrom(decodedJson) ?? parseApiError(''));
+      if (data['succeeded'] == false) {
+        return Left(_backendMessageFrom(data) ?? parseApiError(''));
       }
 
-      if (decodedJson['succeeded'] == false) {
-        return Left(_backendMessageFrom(decodedJson) ?? parseApiError(''));
-      }
-
-      final decodedResponse = ActivateCardResponseModel.fromJson(decodedJson);
+      final decodedResponse = ActivateCardResponseModel.fromJson(data);
 
       if (decodedResponse.succeeded) {
         return Right(decodedResponse);
       } else {
         final errorMessage =
-            _backendMessageFrom(decodedJson) ??
+            _backendMessageFrom(data) ??
             (decodedResponse.message.isNotEmpty
                 ? decodedResponse.message
                 : parseApiError(''));
         return Left(errorMessage);
       }
+    } on DioException catch (e) {
+      if (e.response?.data != null) {
+        final backendMessage = _backendMessageFrom(e.response!.data);
+        if (backendMessage != null && backendMessage.isNotEmpty) {
+          return Left(backendMessage);
+        }
+      }
+      return Left(parseApiError(e));
     } catch (e) {
       return Left(parseApiError(e));
     }
@@ -95,6 +98,6 @@ class ActivateCardRepositoryImpl implements ActivateCardRepository {
           .join('\n');
     }
 
-    return value.toString().trim();
+    return '';
   }
 }
