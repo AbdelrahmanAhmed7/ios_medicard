@@ -39,6 +39,9 @@ class InvoiceDetailsDto {
   final String? familyLastName;
   final InvoiceReviewDto? review;
   final InvoiceServiceItemsPageDto? items;
+  final String? providerName;
+  final String? branchName;
+  final String? providerImageUrl;
 
   const InvoiceDetailsDto({
     this.invoiceId,
@@ -53,6 +56,9 @@ class InvoiceDetailsDto {
     this.familyLastName,
     this.review,
     this.items,
+    this.providerName,
+    this.branchName,
+    this.providerImageUrl,
   });
 
   factory InvoiceDetailsDto.fromJson(Map<String, dynamic> json) {
@@ -67,6 +73,9 @@ class InvoiceDetailsDto {
       familyId: (json['familyId'] as num?)?.toInt(),
       familyFirstName: json['familyFirstName'] as String?,
       familyLastName: json['familyLastName'] as String?,
+      providerName: json['providerName'] as String?,
+      branchName: json['branchName'] as String?,
+      providerImageUrl: json['providerImageUrl'] as String?,
       review: json['review'] is Map<String, dynamic>
           ? InvoiceReviewDto.fromJson(json['review'] as Map<String, dynamic>)
           : null,

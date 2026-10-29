@@ -11,6 +11,9 @@ import 'package:medicard/core/constants/api_result.dart';
 import 'package:medicard/core/di/service_locator.dart';
 import 'package:medicard/core/routing/app_router.dart';
 import 'package:medicard/core/utils/platform_type.dart';
+import 'package:medicard/features/activity/domain/models/invoice_details.dart';
+import 'package:medicard/features/activity/domain/models/invoice_item.dart';
+import 'package:medicard/features/activity/domain/repositories/invoice_repository.dart';
 import 'package:medicard/medicard_network/repository/medicard_network_repository.dart';
 import 'package:medicard/network/data/provider_page_response_model.dart';
 import 'package:medicard/features/notifications/data/domain/notification_repo.dart';
@@ -623,15 +626,23 @@ class PushNotificationService {
     _navigateFromPayload(message.data);
   }
 
-  /// Deep-links a push payload. Priority: direct `ProviderId` →
-  /// provider page; else `PackageId` → fetch its provider (new backend
-  /// field) → provider page with the package sheet auto-opened.
+  /// Deep-links a push payload. Priority: direct `InvoiceId` →
+  /// invoice details; `ProviderId` → provider page; `PackageId` → fetch its
+  /// provider → provider page with the package sheet auto-opened.
   /// Works from any app state via the static router since
   /// these handlers have no BuildContext.
-  ///
-  /// NOTE: `PackageId`/`ServiceId` alone have no standalone destination —
-  /// package details only open as a sheet inside the provider page.
   void _navigateFromPayload(Map<String, dynamic> data) {
+    final rawInvoice =
+        data['InvoiceId'] ?? data['invoiceId'] ?? data['invoice_id'];
+    final invoiceId = _intOrNull(rawInvoice);
+    if (invoiceId != null) {
+      if (kDebugMode) {
+        debugPrint('[Push] opening invoice $invoiceId from notification');
+      }
+      unawaited(openNotificationInvoice(invoiceId));
+      return;
+    }
+
     final raw = data['ProviderId'] ?? data['providerId'];
     final providerId = raw is int ? raw : int.tryParse('${raw ?? ''}');
     if (providerId != null) {
@@ -647,14 +658,76 @@ class PushNotificationService {
     if (packageId == null) {
       if (kDebugMode) {
         debugPrint(
-          '[Push] tap has no ProviderId '
-          '(package=${data['PackageId'] ?? data['packageId']}, '
-          'service=${data['ServiceId'] ?? data['serviceId']}), staying put',
+          '[Push] tap has no recognized target '
+          '(invoice=${data['InvoiceId'] ?? data['invoiceId']}, '
+          'provider=${data['ProviderId'] ?? data['providerId']}, '
+          'package=${data['PackageId'] ?? data['packageId']}), staying put',
         );
       }
       return;
     }
     unawaited(_openPackageFromNotification(packageId));
+  }
+
+  /// Deep-links an invoice from notification: calls the get-invoice-by-id endpoint,
+  /// maps the details, and navigates to the invoice details screen.
+  static Future<bool> openNotificationInvoice(int invoiceId) async {
+    try {
+      final ApiResult<InvoiceDetails> result =
+          await sl<InvoiceRepository>().getInvoiceDetails(invoiceId);
+
+      return result.when(
+        success: (details) {
+          final invoiceItem = InvoiceItem(
+            invoiceId: details.invoiceId ?? invoiceId,
+            providerName: details.providerName ?? '',
+            branchName: details.branchName ?? '',
+            status: details.status ?? '',
+            date: details.date ?? DateTime.now(),
+            providerImageUrl: details.providerImageUrl,
+            isReviewed: details.review != null,
+            points: null,
+            isFromPackage: false,
+            priceAfter: details.totalAfter,
+            priceBefore: details.totalBefore,
+            discountPercentage: details.discountPercentage,
+            familyId: details.familyId,
+            beneficiaryName: details.beneficiaryName,
+          );
+
+          AppRouter.current?.push(
+            '/invoice-details',
+            extra: {
+              'invoice': invoiceItem,
+              'details': details,
+              'invoiceId': invoiceId,
+              'tab': _tabFromStatus(details.status),
+            },
+          );
+          return true;
+        },
+        failure: (error) {
+          if (kDebugMode) {
+            debugPrint('[Push] getInvoiceDetails failed for $invoiceId: $error');
+          }
+          return false;
+        },
+      );
+    } catch (e) {
+      if (kDebugMode) debugPrint('[Push] invoice resolve failed: $e');
+      return false;
+    }
+  }
+
+  static int _tabFromStatus(String? status) {
+    final s = status?.trim().toLowerCase();
+    return switch (s) {
+      'pending' => 1,
+      'paid' => 2,
+      'used' || 'completed' => 3,
+      'canceled' || 'cancelled' => 4,
+      _ => 1,
+    };
   }
 
   /// Shared package deep-link: resolves the package's provider, then opens

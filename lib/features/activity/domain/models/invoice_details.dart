@@ -13,6 +13,9 @@ class InvoiceDetails {
   final String? beneficiaryName;
   final InvoiceReview? review;
   final List<InvoiceServiceItem> services;
+  final String? providerName;
+  final String? branchName;
+  final String? providerImageUrl;
 
   const InvoiceDetails({
     required this.invoiceId,
@@ -29,6 +32,9 @@ class InvoiceDetails {
     this.beneficiaryName,
     this.review,
     required this.services,
+    this.providerName,
+    this.branchName,
+    this.providerImageUrl,
   });
 
   bool get canContinuePayment {

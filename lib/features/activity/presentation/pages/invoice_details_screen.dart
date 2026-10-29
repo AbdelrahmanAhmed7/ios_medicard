@@ -21,13 +21,27 @@ import '../../../../core/utils/image_url_resolver.dart';
 class InvoiceDetailsScreen extends StatelessWidget {
   final InvoiceItem invoice;
   final int tab;
+  final InvoiceDetails? initialDetails;
 
-  const InvoiceDetailsScreen({super.key, required this.invoice, this.tab = 0});
+  const InvoiceDetailsScreen({
+    super.key,
+    required this.invoice,
+    this.tab = 0,
+    this.initialDetails,
+  });
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => sl<InvoiceDetailsCubit>()..loadDetails(invoice.invoiceId),
+      create: (_) {
+        final cubit = sl<InvoiceDetailsCubit>();
+        if (initialDetails != null) {
+          cubit.emitLoaded(initialDetails!);
+        } else {
+          cubit.loadDetails(invoice.invoiceId);
+        }
+        return cubit;
+      },
       child: Scaffold(
         backgroundColor: Colors.white,
         body: Column(
@@ -163,12 +177,20 @@ class _DetailsBody extends StatelessWidget {
         ),
         SizedBox(height: 14.h),
         // ── Date + branch ────────────────────────────────────────────
-        _MetaRow(date: displayedDate, branch: invoice.branchName),
+        _MetaRow(
+          date: displayedDate,
+          branch: details.branchName?.trim().isNotEmpty == true
+              ? details.branchName!
+              : invoice.branchName,
+        ),
         SizedBox(height: 12.h),
         // ── Provider ─────────────────────────────────────────────────
         _ProviderCard(
           invoice: invoice,
           beneficiaryName: details.beneficiaryName,
+          providerName: details.providerName,
+          branchName: details.branchName,
+          providerImageUrl: details.providerImageUrl,
         ),
         if (_hasFamilyData(details)) ...[
           SizedBox(height: 12.h),
@@ -395,12 +417,14 @@ class _MetaRow extends StatelessWidget {
           label: 'activity.date'.tr(),
           value: date,
         ),
-        SizedBox(height: 10.h),
-        _MetaItem(
-          icon: Icons.location_on_outlined,
-          label: 'activity.branch'.tr(),
-          value: branch,
-        ),
+        if (branch.trim().isNotEmpty) ...[
+          SizedBox(height: 10.h),
+          _MetaItem(
+            icon: Icons.location_on_outlined,
+            label: 'activity.branch'.tr(),
+            value: branch,
+          ),
+        ],
       ],
     );
   }
@@ -455,16 +479,37 @@ class _MetaItem extends StatelessWidget {
 class _ProviderCard extends StatelessWidget {
   final InvoiceItem invoice;
   final String? beneficiaryName;
+  final String? providerName;
+  final String? branchName;
+  final String? providerImageUrl;
 
-  const _ProviderCard({required this.invoice, this.beneficiaryName});
+  const _ProviderCard({
+    required this.invoice,
+    this.beneficiaryName,
+    this.providerName,
+    this.branchName,
+    this.providerImageUrl,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final imageUrl = resolveImageUrl(invoice.providerImageUrl);
+    final effectiveImageUrl = providerImageUrl?.trim().isNotEmpty == true
+        ? providerImageUrl
+        : invoice.providerImageUrl;
+    final imageUrl = resolveImageUrl(effectiveImageUrl);
     final beneficiary = beneficiaryName?.trim();
     final displayBeneficiary = beneficiary != null && beneficiary.isNotEmpty
         ? beneficiary
         : 'cart.card_owner'.tr();
+
+    final effectiveProviderName = providerName?.trim().isNotEmpty == true
+        ? providerName!
+        : (invoice.providerName.trim().isNotEmpty
+            ? invoice.providerName
+            : 'activity.invoice_details_title'.tr());
+    final effectiveBranchName = branchName?.trim().isNotEmpty == true
+        ? branchName!
+        : invoice.branchName;
 
     return Container(
       padding: EdgeInsets.all(12.r),
@@ -504,7 +549,7 @@ class _ProviderCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      invoice.providerName,
+                      effectiveProviderName,
                       style: AppTextStyles.of(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w700,
@@ -513,16 +558,18 @@ class _ProviderCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: 2.h),
-                    Text(
-                      invoice.branchName,
-                      style: AppTextStyles.of(
-                        fontSize: 13.sp,
-                        color: const Color(0xFF6B7280),
+                    if (effectiveBranchName.trim().isNotEmpty) ...[
+                      SizedBox(height: 2.h),
+                      Text(
+                        effectiveBranchName,
+                        style: AppTextStyles.of(
+                          fontSize: 13.sp,
+                          color: const Color(0xFF6B7280),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    ],
                   ],
                 ),
               ),
@@ -964,14 +1011,16 @@ class _DetailsActionsState extends State<_DetailsActions> {
   bool _isCanceling = false;
   bool _hasReviewedLocally = false;
 
-  bool get _canCancel => widget.tab == 1;
+  bool get _canCancel =>
+      widget.tab == 1 ||
+      widget.invoice.isPending ||
+      widget.details.status?.toLowerCase() == 'pending';
 
-  // Reflects backend status: hide the button once the invoice is reviewed
-  // (list flag or an in-app submit), and rely on the invoice status itself
-  // in addition to the entry tab so stale tab indexes can't show/hide it
-  // incorrectly.
   bool get _canReview =>
-      (widget.tab == 3 || widget.invoice.isUsed) &&
+      (widget.tab == 3 ||
+          widget.invoice.isUsed ||
+          widget.details.status?.toLowerCase() == 'used' ||
+          widget.details.status?.toLowerCase() == 'completed') &&
       !widget.invoice.isReviewed &&
       widget.details.review == null &&
       !_hasReviewedLocally;

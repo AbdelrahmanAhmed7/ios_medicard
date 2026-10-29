@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/auth/auth_refresh_service.dart';
 import '../../core/auth/auth_session_storage.dart';
 import '../../features/activate_card/presentation/pages/activate_card_screen.dart';
+import '../../features/activity/domain/models/invoice_details.dart';
 import '../../features/activity/domain/models/invoice_item.dart';
 import '../../features/activity/presentation/pages/invoice_details_screen.dart';
 import '../../features/auth/presentation/cubit/forgot_password_cubit.dart';
@@ -594,9 +595,34 @@ class AppRouter {
           path: '/invoice-details',
           builder: (context, state) {
             final extra = state.extra as Map<String, dynamic>;
-            final invoice = extra['invoice'] as InvoiceItem;
+            final invoice = extra['invoice'] as InvoiceItem?;
+            final details = extra['details'] as InvoiceDetails?;
+            final invoiceId =
+                extra['invoiceId'] as int? ??
+                invoice?.invoiceId ??
+                details?.invoiceId ??
+                0;
             final tab = extra['tab'] as int? ?? 0;
-            return InvoiceDetailsScreen(invoice: invoice, tab: tab);
+            final effectiveInvoice = invoice ??
+                InvoiceItem(
+                  invoiceId: invoiceId,
+                  providerName: details?.providerName ?? '',
+                  branchName: details?.branchName ?? '',
+                  status: details?.status ?? '',
+                  date: details?.date ?? DateTime.now(),
+                  providerImageUrl: details?.providerImageUrl,
+                  isReviewed: details?.review != null,
+                  priceAfter: details?.totalAfter,
+                  priceBefore: details?.totalBefore,
+                  discountPercentage: details?.discountPercentage,
+                  familyId: details?.familyId,
+                  beneficiaryName: details?.beneficiaryName,
+                );
+            return InvoiceDetailsScreen(
+              invoice: effectiveInvoice,
+              tab: tab,
+              initialDetails: details,
+            );
           },
         ),
         GoRoute(

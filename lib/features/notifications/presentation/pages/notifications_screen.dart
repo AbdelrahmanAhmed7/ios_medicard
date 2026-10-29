@@ -80,6 +80,31 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
 
     final data = notification.data;
+    final rawInvoice = data == null
+        ? null
+        : (data['InvoiceId'] ?? data['invoiceId'] ?? data['invoice_id']);
+    final invoiceId = rawInvoice is int
+        ? rawInvoice
+        : int.tryParse('${rawInvoice ?? ''}');
+    if (invoiceId != null && context.mounted) {
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const Center(
+          child: CircularProgressIndicator(color: Color(0xFF3872B1)),
+        ),
+      );
+      final opened = await PushNotificationService.openNotificationInvoice(
+        invoiceId,
+      );
+      if (!context.mounted) return;
+      Navigator.of(context).pop();
+      if (!opened && context.mounted) {
+        showErrorToast(context.tr('errors.something_went_wrong'));
+      }
+      return;
+    }
+
     final rawProvider = data == null
         ? null
         : (data['ProviderId'] ?? data['providerId']);

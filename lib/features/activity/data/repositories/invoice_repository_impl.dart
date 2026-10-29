@@ -317,6 +317,9 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
                   ),
                 )
                 .toList(),
+            providerName: data.providerName,
+            branchName: data.branchName,
+            providerImageUrl: data.providerImageUrl,
           ),
         );
       }

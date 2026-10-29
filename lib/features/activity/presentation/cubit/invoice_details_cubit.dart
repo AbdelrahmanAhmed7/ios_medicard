@@ -20,6 +20,11 @@ class InvoiceDetailsCubit extends Cubit<InvoiceDetailsState> {
     this._createReview,
   ) : super(const InvoiceDetailsInitial());
 
+  void emitLoaded(InvoiceDetails details) {
+    if (isClosed) return;
+    emit(InvoiceDetailsLoaded(details));
+  }
+
   Future<void> loadDetails(int invoiceId) async {
     if (isClosed) return;
     emit(const InvoiceDetailsLoading());
