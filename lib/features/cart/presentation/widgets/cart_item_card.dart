@@ -4,10 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
+import '../../../../core/utils/price_formatter.dart';
 import '../../domain/models/cart_item.dart';
 import '../cubit/cart_cubit.dart';
 import '../cubit/cart_state.dart';
-import 'checkout_summary_row.dart';
 
 /// Borderless divider-separated row used inside provider group sections.
 class CartItemCard extends StatelessWidget {
@@ -164,12 +164,16 @@ class _PriceLine extends StatelessWidget {
         ),
       );
     }
+    final hasValidBefore =
+        item.priceBefore != null &&
+        item.priceBefore! > (item.priceAfter ?? 0) &&
+        item.priceBefore! > 0;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (item.priceBefore != null)
+        if (hasValidBefore)
           Text(
-            'cart.egp_amount'.tr(args: [checkoutMoney(item.priceBefore!)]),
+            formatPrice(item.priceBefore!, showFreeWhenZero: false),
             style: AppTextStyles.of(
               fontSize: 12.sp,
               color: const Color(0xFF94A3B8),
@@ -178,11 +182,10 @@ class _PriceLine extends StatelessWidget {
                   : TextDecoration.none,
             ),
           ),
-        if (item.priceBefore != null && item.priceAfter != null)
-          SizedBox(width: 6.w),
+        if (hasValidBefore && item.priceAfter != null) SizedBox(width: 6.w),
         if (item.priceAfter != null)
           Text(
-            'cart.egp_amount'.tr(args: [checkoutMoney(item.priceAfter!)]),
+            formatPrice(item.priceAfter!),
             style: AppTextStyles.of(
               fontSize: 15.sp,
               fontWeight: FontWeight.bold,

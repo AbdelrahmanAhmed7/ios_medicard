@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
+import '../../../../core/utils/price_formatter.dart';
 import '../../domain/models/provider_covered_service.dart';
 import '../cubit/cart_state.dart';
 import 'checkout_pricing.dart';
@@ -476,9 +477,9 @@ class _ItemPrice extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        if (hasDiscount)
+        if (hasDiscount && (priceBefore ?? 0) > 0)
           Text(
-            'cart.egp_amount'.tr(args: [checkoutMoney(priceBefore!)]),
+            formatPrice(priceBefore, showFreeWhenZero: false),
             style: AppTextStyles.of(
               fontSize: 10.5.sp,
               color: const Color(0xFF94A3B8),
@@ -486,7 +487,7 @@ class _ItemPrice extends StatelessWidget {
             ),
           ),
         Text(
-          'cart.egp_amount'.tr(args: [checkoutMoney(effectivePrice)]),
+          formatPrice(effectivePrice),
           style: AppTextStyles.of(
             fontSize: 13.sp,
             fontWeight: FontWeight.w700,
@@ -545,9 +546,7 @@ class _PriceBreakdown extends StatelessWidget {
         children: [
           CheckoutSummaryRow(
             label: 'cart.subtotal'.tr(),
-            value: 'cart.egp_amount'.tr(
-              args: [checkoutMoney(pricing.subtotal)],
-            ),
+            value: formatPrice(pricing.subtotal),
           ),
           if (pricing.discount > 0)
             CheckoutSummaryRow(
@@ -578,7 +577,7 @@ class _TotalPanel extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 12.h),
       child: CheckoutSummaryRow(
         label: 'cart.total_to_pay'.tr(),
-        value: 'cart.egp_amount'.tr(args: [checkoutMoney(total)]),
+        value: formatPrice(total),
         valueColor: const Color(0xFF2563A9),
         isBold: true,
       ),

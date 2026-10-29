@@ -163,21 +163,23 @@ class _ServicePrice extends StatelessWidget {
     final before = (service as dynamic).priceBefore as num?;
     final after = (service as dynamic).priceAfter as num?;
     if (before == null && after == null) return const SizedBox.shrink();
+    final hasValidBefore =
+        before != null && before > (after ?? 0) && before > 0;
     return Row(
       children: [
-        if (before != null)
+        if (hasValidBefore)
           Text(
-            'cart.egp_amount'.tr(args: [formatPrice(before.toDouble())]),
+            formatPrice(before, showFreeWhenZero: false),
             style: AppTextStyles.of(
               fontSize: 12.sp,
               color: const Color(0xFF94A3B8),
               decoration: after != null ? TextDecoration.lineThrough : null,
             ),
           ),
-        if (before != null && after != null) SizedBox(width: 6.w),
+        if (hasValidBefore && after != null) SizedBox(width: 6.w),
         if (after != null)
           Text(
-            'cart.egp_amount'.tr(args: [formatPrice(after.toDouble())]),
+            formatPrice(after),
             style: AppTextStyles.of(
               fontSize: 15.sp,
               fontWeight: FontWeight.w700,

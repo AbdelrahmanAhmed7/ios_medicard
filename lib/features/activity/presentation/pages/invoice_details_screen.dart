@@ -17,6 +17,7 @@ import '../cubit/invoice_details_cubit.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 import '../../../../core/utils/image_url_resolver.dart';
+import '../../../../core/utils/price_formatter.dart';
 
 class InvoiceDetailsScreen extends StatelessWidget {
   final InvoiceItem invoice;
@@ -167,7 +168,7 @@ class _DetailsBody extends StatelessWidget {
         SizedBox(height: 6.h),
         // ── Big total ────────────────────────────────────────────────
         Text(
-          'cart.egp_amount'.tr(args: [_money(details.totalAfter)]),
+          formatPrice(details.totalAfter),
           style: AppTextStyles.of(
             fontSize: 32.sp,
             fontWeight: FontWeight.w800,
@@ -783,7 +784,7 @@ class _ServicesCard extends StatelessWidget {
           const Divider(height: 24, color: Color(0xFFEEF1F5)),
           _TotalRow(
             label: 'cart.subtotal'.tr(),
-            value: 'cart.egp_amount'.tr(args: [_money(totalBefore)]),
+            value: formatPrice(totalBefore),
           ),
           SizedBox(height: 8.h),
           _TotalRow(
@@ -794,7 +795,7 @@ class _ServicesCard extends StatelessWidget {
           SizedBox(height: 8.h),
           _TotalRow(
             label: 'cart.total_amount'.tr(),
-            value: 'cart.egp_amount'.tr(args: [_money(totalAfter)]),
+            value: formatPrice(totalAfter),
             isTotal: true,
           ),
         ],
@@ -902,7 +903,7 @@ class _ServiceTableRow extends StatelessWidget {
         Expanded(
           flex: 4,
           child: Text(
-            'cart.egp_amount'.tr(args: [_money(service.priceAfter)]),
+            formatPrice(service.priceAfter),
             textAlign: TextAlign.end,
             style: AppTextStyles.of(
               fontSize: 13.sp,

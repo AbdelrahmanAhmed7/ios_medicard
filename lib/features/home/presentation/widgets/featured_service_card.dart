@@ -190,17 +190,20 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                           key: const ValueKey('featured-package-footer'),
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Text(
-                              'cart.egp_amount'.tr(
-                                args: ['${service.originalPrice.toInt()}'],
+                            if (service.originalPrice >
+                                    service.discountedPrice &&
+                                service.originalPrice > 0) ...[
+                              Text(
+                                formatPrice(
+                                  service.originalPrice,
+                                  showFreeWhenZero: false,
+                                ),
+                                style: HomeHorizontalCardStyle.priceBeforeText,
                               ),
-                              style: HomeHorizontalCardStyle.priceBeforeText,
-                            ),
-                            const SizedBox(width: 6),
+                              const SizedBox(width: 6),
+                            ],
                             Text(
-                              'cart.egp_amount'.tr(
-                                args: ['${service.discountedPrice.toInt()}'],
-                              ),
+                              formatPrice(service.discountedPrice),
                               style: HomeHorizontalCardStyle.priceAfterText,
                             ),
                             const Spacer(),

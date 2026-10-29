@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
+import '../../../../core/utils/price_formatter.dart';
 import '../../../../core/widgets/provider_logo.dart';
 import '../../domain/models/cart.dart';
 import '../../domain/models/cart_item.dart';
@@ -243,12 +244,8 @@ class _OrderCard extends StatelessWidget {
                   Text(
                     item.priceAfter == null && item.priceBefore == null
                         ? 'cart.price_unavailable'.tr()
-                        : 'cart.egp_amount'.tr(
-                            args: [
-                              checkoutMoney(
-                                item.priceAfter ?? item.priceBefore ?? 0,
-                              ),
-                            ],
+                        : formatPrice(
+                            item.priceAfter ?? item.priceBefore ?? 0,
                           ),
                     style: AppTextStyles.of(
                       fontSize: 13.sp,

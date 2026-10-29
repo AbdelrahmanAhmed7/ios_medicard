@@ -5,12 +5,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 import '../../../../core/theming/app_toast.dart';
+import '../../../../core/utils/price_formatter.dart';
 import '../../../../core/widgets/provider_logo.dart';
 import '../../domain/models/cart_item.dart';
 import '../../domain/models/provider_option.dart';
 import '../cubit/cart_cubit.dart';
 import '../cubit/cart_state.dart';
-import 'checkout_summary_row.dart';
 
 /// Quick provider picker used when a single service is still waiting for a
 /// provider. The user always makes the choice; nothing is preselected.
@@ -309,9 +309,7 @@ class _ProviderTile extends StatelessWidget {
               Text(
                 provider.hasMissingPrices
                     ? 'cart.price_unavailable'.tr()
-                    : 'cart.egp_amount'.tr(
-                        args: [checkoutMoney(provider.totalPriceAfter)],
-                      ),
+                    : formatPrice(provider.totalPriceAfter),
                 style: AppTextStyles.of(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w700,

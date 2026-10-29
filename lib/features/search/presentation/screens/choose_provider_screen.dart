@@ -1,20 +1,20 @@
-import 'package:medicard/core/widgets/app_simple_header.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:medicard/core/widgets/app_simple_header.dart';
 
-import '../../../cart/domain/models/provider_option.dart';
+import '../../../../core/theming/app_text_styles.dart';
+import '../../../../core/theming/app_toast.dart';
+import '../../../../core/utils/price_formatter.dart';
 import '../../../cart/domain/models/cart_item.dart';
+import '../../../cart/domain/models/provider_option.dart';
 import '../../../cart/presentation/cubit/cart_cubit.dart';
 import '../../../cart/presentation/cubit/cart_state.dart';
 import '../../../cart/presentation/widgets/order_steps_indicator.dart';
 import '../../../cart/presentation/widgets/provider_selection_summary.dart';
-
-import '../../../../core/theming/app_text_styles.dart';
-import '../../../../core/theming/app_toast.dart';
 
 class ChooseProviderScreen extends StatefulWidget {
   /// Reuse the existing cart when the user explicitly reviews their services.
@@ -403,10 +403,13 @@ class _ProviderCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        if (service.priceBefore != null) ...[
+                        if (service.priceBefore != null &&
+                            service.priceBefore! > (service.priceAfter ?? 0) &&
+                            service.priceBefore! > 0) ...[
                           Text(
-                            'cart.egp_amount'.tr(
-                              args: [_money(service.priceBefore!)],
+                            formatPrice(
+                              service.priceBefore,
+                              showFreeWhenZero: false,
                             ),
                             style: AppTextStyles.of(
                               fontSize: 11.sp,
@@ -420,14 +423,10 @@ class _ProviderCard extends StatelessWidget {
                           service.priceAfter == null &&
                                   service.priceBefore == null
                               ? 'cart.price_unavailable'.tr()
-                              : 'cart.egp_amount'.tr(
-                                  args: [
-                                    _money(
-                                      service.priceAfter ??
-                                          service.priceBefore ??
-                                          0,
-                                    ),
-                                  ],
+                              : formatPrice(
+                                  service.priceAfter ??
+                                      service.priceBefore ??
+                                      0,
                                 ),
                           style: AppTextStyles.of(
                             fontSize: 13.sp,
@@ -494,10 +493,12 @@ class _ProviderCard extends StatelessWidget {
                       children: [
                         if (!provider.hasMissingPrices &&
                             provider.totalPriceBefore >
-                                provider.totalPriceAfter)
+                                provider.totalPriceAfter &&
+                            provider.totalPriceBefore > 0)
                           Text(
-                            'cart.egp_amount'.tr(
-                              args: [_money(provider.totalPriceBefore)],
+                            formatPrice(
+                              provider.totalPriceBefore,
+                              showFreeWhenZero: false,
                             ),
                             style: AppTextStyles.of(
                               fontSize: 12.sp,
@@ -508,9 +509,7 @@ class _ProviderCard extends StatelessWidget {
                         Text(
                           provider.hasMissingPrices
                               ? 'cart.price_unavailable'.tr()
-                              : 'cart.egp_amount'.tr(
-                                  args: [_money(provider.totalPriceAfter)],
-                                ),
+                              : formatPrice(provider.totalPriceAfter),
                           style: AppTextStyles.of(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.bold,
@@ -575,9 +574,7 @@ class _ChooseProviderBottomBar extends StatelessWidget {
               Text(
                 provider.hasMissingPrices
                     ? 'cart.price_unavailable'.tr()
-                    : 'cart.egp_amount'.tr(
-                        args: [_money(provider.totalPriceAfter)],
-                      ),
+                    : formatPrice(provider.totalPriceAfter),
                 style: AppTextStyles.of(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.bold,
@@ -790,10 +787,4 @@ class _ErrorView extends StatelessWidget {
       ),
     );
   }
-}
-
-/// Same rule as the checkout/invoice totals: whole for integers, two
-/// decimals otherwise — so this screen never disagrees with checkout.
-String _money(double value) {
-  return value % 1 == 0 ? value.toStringAsFixed(0) : value.toStringAsFixed(2);
 }

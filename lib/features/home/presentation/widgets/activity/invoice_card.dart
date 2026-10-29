@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../../core/theming/app_text_styles.dart';
 import '../../../../../core/utils/image_url_resolver.dart';
+import '../../../../../core/utils/price_formatter.dart';
 import '../../../../../core/widgets/auth_shared_widgets.dart';
 import '../../../../../features/activity/domain/models/invoice_item.dart';
 import '../../../../../features/activity/presentation/cubit/activity_cubit.dart';
@@ -186,9 +187,7 @@ class InvoiceCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'cart.egp_amount'.tr(
-                          args: [_apiNumber(item.priceAfter!)],
-                        ),
+                        formatPrice(item.priceAfter),
                         style: AppTextStyles.of(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w700,
@@ -205,11 +204,14 @@ class InvoiceCard extends StatelessWidget {
               spacing: 8.w,
               runSpacing: 8.h,
               children: [
-                if (item.priceBefore != null)
+                if (item.priceBefore != null &&
+                    item.priceBefore! > (item.priceAfter ?? 0) &&
+                    item.priceBefore! > 0)
                   _InvoiceFact(
                     label: 'activity.price_before'.tr(),
-                    value: 'cart.egp_amount'.tr(
-                      args: [_apiNumber(item.priceBefore!)],
+                    value: formatPrice(
+                      item.priceBefore,
+                      showFreeWhenZero: false,
                     ),
                   ),
                 if (item.discountPercentage != null)

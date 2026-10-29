@@ -155,9 +155,15 @@ class ProviderPackageCard extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              if (packageData.priceBefore != null)
+                              if (packageData.priceBefore != null &&
+                                  packageData.priceBefore! >
+                                      (packageData.priceAfter ?? 0) &&
+                                  packageData.priceBefore! > 0)
                                 Text(
-                                  '${formatPrice(packageData.priceBefore)} EGP',
+                                  formatPrice(
+                                    packageData.priceBefore,
+                                    showFreeWhenZero: false,
+                                  ),
                                   style: AppTextStyles.of(
                                     fontSize: 10.5.sp,
                                     color: const Color(0xFF94A3B8),
@@ -168,7 +174,7 @@ class ProviderPackageCard extends StatelessWidget {
                                 ),
                               if (packageData.priceAfter != null)
                                 Text(
-                                  '${formatPrice(packageData.priceAfter)} EGP',
+                                  formatPrice(packageData.priceAfter),
                                   style: AppTextStyles.of(
                                     fontSize: 13.sp,
                                     fontWeight: FontWeight.w600,

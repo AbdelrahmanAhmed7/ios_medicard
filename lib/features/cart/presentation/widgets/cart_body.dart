@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
+import '../../../../core/utils/price_formatter.dart';
 import '../../../../core/widgets/provider_logo.dart';
 import '../../../../network/data/provider_page_response_model.dart';
 import '../../domain/models/cart_item.dart';
@@ -12,7 +13,6 @@ import '../cubit/cart_cubit.dart';
 import '../cubit/cart_state.dart';
 import 'cart_item_card.dart';
 import 'cart_sync_warning.dart';
-import 'checkout_summary_row.dart';
 import 'provider_checkout_notice.dart';
 import 'provider_quick_pick_sheet.dart';
 
@@ -199,7 +199,7 @@ class _CartSummaryCard extends StatelessWidget {
                 Text(
                   total == null
                       ? 'cart.price_after_place'.tr()
-                      : 'cart.egp_amount'.tr(args: [checkoutMoney(total!)]),
+                      : formatPrice(total),
                   style: AppTextStyles.of(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w700,
@@ -533,7 +533,7 @@ class _ProviderGroupSection extends StatelessWidget {
                 Text(
                   hasMissingPrice
                       ? 'cart.price_unavailable'.tr()
-                      : 'cart.egp_amount'.tr(args: [checkoutMoney(subtotal)]),
+                      : formatPrice(subtotal),
                   style: AppTextStyles.of(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w700,

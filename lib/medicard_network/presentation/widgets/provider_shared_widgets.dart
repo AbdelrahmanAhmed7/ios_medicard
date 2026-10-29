@@ -12,10 +12,7 @@ import '../../logic/provider_page_state.dart';
 /// Shared stateless building blocks for the provider page sections.
 /// Extracted verbatim from provider_page_screen.dart (mechanical move).
 
-String formatPrice(double? price) {
-  if (price == null) return '';
-  return price % 1 == 0 ? price.toStringAsFixed(0) : price.toStringAsFixed(2);
-}
+export '../../../core/utils/price_formatter.dart' show PriceFormatter, formatPrice;
 
 String packageImageUrl(String value) {
   final trimmed = value.trim();

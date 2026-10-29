@@ -1,16 +1,18 @@
-import 'package:medicard/core/widgets/app_header_back_button.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:medicard/core/widgets/app_header_back_button.dart';
 
-import '../../../../core/services/url_launcher_service.dart';
 import '../../../../core/cubit/app_refresh_cubit.dart';
 import '../../../../core/di/service_locator.dart';
+import '../../../../core/services/url_launcher_service.dart';
 import '../../../../core/theming/app_text_styles.dart';
 import '../../../../core/theming/app_toast.dart';
+import '../../../../core/utils/price_formatter.dart';
 import '../../../../network/data/provider_page_response_model.dart';
+import '../../../home/presentation/widgets/order_placed_dialog.dart';
 import '../cubit/cart_cubit.dart';
 import '../cubit/cart_state.dart';
 import '../widgets/checkout_branch_selector.dart';
@@ -21,9 +23,6 @@ import '../widgets/checkout_payment_dropdown.dart';
 import '../widgets/checkout_payment_summary.dart';
 import '../widgets/checkout_pricing.dart';
 import '../widgets/checkout_section_title.dart';
-import '../widgets/checkout_summary_row.dart';
-
-import '../../../home/presentation/widgets/order_placed_dialog.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final int? initialProviderId;
@@ -317,9 +316,7 @@ class _CheckoutPayBar extends StatelessWidget {
                           ),
                           SizedBox(height: 2.h),
                           Text(
-                            'cart.egp_amount'.tr(
-                              args: [checkoutMoney(pricing.total)],
-                            ),
+                            formatPrice(pricing.total),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: AppTextStyles.of(

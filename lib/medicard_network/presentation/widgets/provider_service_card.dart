@@ -117,10 +117,14 @@ class ProviderServiceCard extends StatelessWidget {
                       SizedBox(height: 13.h),
                       Row(
                         children: [
-                          if (service.priceBefore != null) ...[
+                          if (service.priceBefore != null &&
+                              service.priceBefore! >
+                                  (service.priceAfter ?? 0) &&
+                              service.priceBefore! > 0) ...[
                             Text(
-                              'cart.egp_amount'.tr(
-                                args: [formatPrice(service.priceBefore)],
+                              formatPrice(
+                                service.priceBefore,
+                                showFreeWhenZero: false,
                               ),
                               style: AppTextStyles.of(
                                 fontSize: 12.sp,
@@ -132,9 +136,7 @@ class ProviderServiceCard extends StatelessWidget {
                           ],
                           if (service.priceAfter != null)
                             Text(
-                              'cart.egp_amount'.tr(
-                                args: [formatPrice(service.priceAfter)],
-                              ),
+                              formatPrice(service.priceAfter),
                               style: AppTextStyles.of(
                                 fontSize: 16.sp,
                                 fontWeight: FontWeight.w500,

@@ -634,16 +634,18 @@ class _PackageCheckoutBar extends StatelessWidget {
         SizedBox(height: 2.h),
         if (currentPrice != null)
           Text(
-            'cart.egp_amount'.tr(args: [formatPrice(currentPrice)]),
+            formatPrice(currentPrice),
             style: AppTextStyles.of(
               color: const Color(0xFF1F6BC1),
               fontSize: 18.sp,
               fontWeight: FontWeight.w700,
             ),
           ),
-        if (hasBothPrices)
+        if (hasBothPrices &&
+            (priceBefore ?? 0) > (currentPrice ?? 0) &&
+            (priceBefore ?? 0) > 0)
           Text(
-            'cart.egp_amount'.tr(args: [formatPrice(priceBefore)]),
+            formatPrice(priceBefore, showFreeWhenZero: false),
             style: AppTextStyles.of(
               color: const Color(0xFF94A3B8),
               fontSize: 11.sp,
