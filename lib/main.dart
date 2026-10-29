@@ -245,7 +245,7 @@ class _MyAppState extends State<MyApp> {
                   return Stack(
                     children: [
                       child!,
-                      const RepaintBoundary(child: FloatingCartButton()),
+                      const FloatingCartButton(),
                     ],
                   );
                 },
