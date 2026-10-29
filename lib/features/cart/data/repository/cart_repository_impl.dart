@@ -47,9 +47,15 @@ class CartRepositoryImpl implements CartRepository {
   }
 
   Cart _mapCartDtoToDomain(CartDto dto) {
+    final items =
+        (dto.data?.items ?? []).map(_mapCartItemDtoToDomain).toList();
+    final serverCount = dto.data?.totalCount ?? 0;
+    final totalCount = items.isEmpty
+        ? 0
+        : (serverCount > 0 ? serverCount : items.length);
     return Cart(
-      items: (dto.data?.items ?? []).map(_mapCartItemDtoToDomain).toList(),
-      totalCount: dto.data?.totalCount ?? 0,
+      items: items,
+      totalCount: totalCount,
       categoryCounters: (dto.data?.categoryCounters ?? [])
           .map(_mapCategoryCounterDtoToDomain)
           .toList(),

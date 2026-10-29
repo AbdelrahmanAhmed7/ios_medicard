@@ -45,7 +45,11 @@ class Cart {
 
     return Cart(
       items: nextItems,
-      totalCount: totalCount - removedItems.length,
+      totalCount: nextItems.isEmpty
+          ? 0
+          : (totalCount - removedItems.length > 0
+              ? totalCount - removedItems.length
+              : 0),
       categoryCounters: nextCounters,
     );
   }
@@ -77,7 +81,11 @@ class Cart {
 
     return Cart(
       items: nextItems,
-      totalCount: totalCount - removedItems.length,
+      totalCount: nextItems.isEmpty
+          ? 0
+          : (totalCount - removedItems.length > 0
+              ? totalCount - removedItems.length
+              : 0),
       categoryCounters: nextCounters,
     );
   }

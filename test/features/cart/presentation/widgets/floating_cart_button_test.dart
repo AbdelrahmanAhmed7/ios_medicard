@@ -112,6 +112,40 @@ void main() {
       expect(find.byIcon(Icons.shopping_cart_outlined), findsNothing);
     },
   );
+
+  testWidgets(
+    'resets count and hides when cartCleared event is emitted',
+    (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(375, 812);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.view.resetPhysicalSize);
+
+      SharedPreferences.setMockInitialValues({});
+      await sl.reset();
+      addTearDown(sl.reset);
+
+      final repository = _FakeCartRepository();
+      final syncService = CartSyncService();
+      sl.registerSingleton<CartRepository>(repository);
+      sl.registerSingleton<CartSyncService>(syncService);
+      AppRouter.currentLocation.value = '/medicard-home';
+      addTearDown(() => AppRouter.currentLocation.value = '');
+
+      final keyboardInset = ValueNotifier<double>(0);
+      addTearDown(keyboardInset.dispose);
+      await tester.pumpWidget(_testApp(keyboardInset));
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.shopping_cart_outlined), findsOneWidget);
+
+      syncService.cartCleared();
+      await tester.pump();
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.shopping_cart_outlined), findsNothing);
+    },
+  );
 }
 
 Widget _testApp(ValueNotifier<double> keyboardInset) {

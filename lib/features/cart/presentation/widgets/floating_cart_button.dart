@@ -38,13 +38,27 @@ class _FloatingCartButtonState extends State<FloatingCartButton> {
   bool _placementChangedByUser = false;
   int _count = 0;
   StreamSubscription<CartSyncEvent>? _syncSub;
+  bool _wasLastLocationHidden = false;
 
   @override
   void initState() {
     super.initState();
     AppRouter.currentLocation.addListener(_onLocationChanged);
-    _syncSub = sl<CartSyncService>().stream.listen((_) => _refreshCount());
+    _syncSub = sl<CartSyncService>().stream.listen(_onCartSyncEvent);
     unawaited(_restorePlacement());
+    _refreshCount();
+  }
+
+  void _onCartSyncEvent(CartSyncEvent event) {
+    if (event.cartCleared) {
+      if (mounted && _count != 0) setState(() => _count = 0);
+      return;
+    }
+    if (event.selectedServiceIds != null) {
+      final newCount = event.selectedServiceIds!.length;
+      if (mounted && _count != newCount) setState(() => _count = newCount);
+      return;
+    }
     _refreshCount();
   }
 
@@ -109,19 +123,23 @@ class _FloatingCartButtonState extends State<FloatingCartButton> {
       if (!mounted) return;
       final location = AppRouter.currentLocation.value;
       if (_isSessionlessRoute(location)) {
+        _wasLastLocationHidden = false;
         if (_count != 0) setState(() => _count = 0);
         return;
       }
-      if (_isHiddenRoute(location)) {
-        setState(() {});
-        return;
-      }
+      final isHidden = _isHiddenRoute(location);
+      final returningFromHidden = _wasLastLocationHidden && !isHidden;
+      _wasLastLocationHidden = isHidden;
+
       setState(() {});
 
-      // Only re-fetch if count is 0 or if at least 60s elapsed since last fetch.
-      // Active cart modifications already publish events to CartSyncService.
+      if (isHidden) return;
+
+      // Always re-fetch when popping back from the cart or checkout flow,
+      // when count is 0, or if at least 60s elapsed since last fetch.
       final now = DateTime.now();
-      final shouldFetch = _lastFetchTime == null ||
+      final shouldFetch = returningFromHidden ||
+          _lastFetchTime == null ||
           _count == 0 ||
           now.difference(_lastFetchTime!) > const Duration(seconds: 60);
 
@@ -152,11 +170,6 @@ class _FloatingCartButtonState extends State<FloatingCartButton> {
       if (mounted && _count != 0) setState(() => _count = 0);
       return;
     }
-
-    // Keep the last known count while the button is only visually hidden
-    // inside the purchase flow. That lets it reappear immediately on pop;
-    // the visible destination then refreshes it from the server.
-    if (_isHiddenRoute(location)) return;
 
     final generation = ++_refreshGeneration;
     try {
