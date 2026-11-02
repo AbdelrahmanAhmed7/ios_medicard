@@ -22,6 +22,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class _FakeMedicardNetworkRepository implements MedicardNetworkRepository {
   int servicesCalls = 0;
+  int serviceCount = 2;
   String? lastSearch;
 
   @override
@@ -54,10 +55,18 @@ class _FakeMedicardNetworkRepository implements MedicardNetworkRepository {
       ProviderServicesResponse(
         succeeded: true,
         data: ProviderServicesData(
-          items: [
-            ProviderService(id: 1, serviceName: 'CBC', priceAfter: 150),
-            ProviderService(id: 2, serviceName: 'Lipid', priceAfter: 250),
-          ],
+          items: List.generate(
+            serviceCount,
+            (index) => ProviderService(
+              id: index + 1,
+              serviceName: switch (index) {
+                0 => 'CBC',
+                1 => 'Lipid',
+                _ => 'Service $index',
+              },
+              priceAfter: 150,
+            ),
+          ),
           totalPages: 1,
         ),
       ),
@@ -149,13 +158,17 @@ void main() {
     testWidgets('search keeps focus, text, and cards after debounce', (
       tester,
     ) async {
+      repo.serviceCount = 60;
       await tester.pumpWidget(
         _testApp(const ProviderPageScreen(providerId: 7)),
       );
       await tester.pumpAndSettle();
 
       // Initial load: page + services.
-      expect(find.byType(ProviderServiceCard), findsNWidgets(2));
+      expect(
+        find.byType(ProviderServiceCard).evaluate().length,
+        lessThan(repo.serviceCount),
+      );
       final initialCalls = repo.servicesCalls;
       expect(initialCalls, greaterThanOrEqualTo(1));
 
@@ -182,7 +195,10 @@ void main() {
       expect(repo.lastSearch, 'lab');
 
       // …and the screen is intact: text kept, focus kept, cards kept.
-      expect(find.byType(ProviderServiceCard), findsNWidgets(2));
+      expect(
+        find.byType(ProviderServiceCard).evaluate().length,
+        lessThan(repo.serviceCount),
+      );
       expect(find.text('lab'), findsOneWidget);
       expect(
         tester
@@ -191,6 +207,19 @@ void main() {
             .hasFocus,
         isTrue,
       );
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pumpAndSettle();
+      for (
+        var i = 0;
+        i < 20 && find.text('Service 59').evaluate().isEmpty;
+        i++
+      ) {
+        await tester.drag(find.byType(CustomScrollView), const Offset(0, -500));
+        await tester.pumpAndSettle();
+      }
+
+      expect(find.text('Service 59'), findsOneWidget);
+      expect(tester.takeException(), isNull);
     });
 
     test('view dropdown style resolves the brand interaction colors', () {

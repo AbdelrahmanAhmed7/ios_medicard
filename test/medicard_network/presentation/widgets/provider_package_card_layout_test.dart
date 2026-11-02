@@ -120,16 +120,13 @@ void main() {
           home: Scaffold(
             body: BlocProvider<ProviderPageCubit>.value(
               value: cubit,
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 398),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      PackagesSection(state: state, selectedBranch: null),
-                    ],
+              child: CustomScrollView(
+                slivers: [
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    sliver: PackagesSection(state: state, selectedBranch: null),
                   ),
-                ),
+                ],
               ),
             ),
           ),
@@ -138,10 +135,11 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    final grid = find.byKey(const ValueKey('provider-packages-grid'));
-    expect(grid, findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('provider-packages-grid')),
+      findsOneWidget,
+    );
     expect(find.byType(ProviderPackageCard), findsOneWidget);
-    expect(tester.getTopLeft(grid).dx, 16);
     expect(tester.getTopLeft(find.byType(ProviderPackageCard)).dx, 16);
     expect(tester.takeException(), isNull);
   });

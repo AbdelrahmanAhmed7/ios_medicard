@@ -171,7 +171,6 @@ class _BranchesScreenState extends State<BranchesScreen> {
                 : ListView.separated(
                     padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 16.h),
                     itemCount: filtered.length,
-                    physics: const BouncingScrollPhysics(),
                     separatorBuilder: (_, _) => SizedBox(height: 12.h),
                     itemBuilder: (_, index) => _BranchCard(
                       branch: filtered[index],

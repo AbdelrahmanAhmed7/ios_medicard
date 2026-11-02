@@ -340,9 +340,7 @@ class _HomeBodyState extends State<_HomeBody> {
     bool showQuickActions = true,
   }) {
     return CustomScrollView(
-      physics: const AlwaysScrollableScrollPhysics(
-        parent: BouncingScrollPhysics(),
-      ),
+      physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
         const SliverToBoxAdapter(child: HomeHeader()),
         if (isRefreshing)

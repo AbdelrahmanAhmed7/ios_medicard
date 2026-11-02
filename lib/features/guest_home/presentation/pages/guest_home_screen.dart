@@ -103,9 +103,7 @@ class _GuestHomeScreenState extends State<GuestHomeScreen> {
       backgroundColor: Colors.white,
       color: const Color(0xFF3872B1),
       child: CustomScrollView(
-        physics: const AlwaysScrollableScrollPhysics(
-          parent: BouncingScrollPhysics(),
-        ),
+        physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
           const SliverToBoxAdapter(child: _GuestHomeHeader()),
           const SliverToBoxAdapter(

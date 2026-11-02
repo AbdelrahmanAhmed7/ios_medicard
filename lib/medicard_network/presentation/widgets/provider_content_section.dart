@@ -16,8 +16,8 @@ import 'provider_review_card.dart';
 import 'provider_service_card.dart';
 import 'provider_shared_widgets.dart';
 
-/// Switches between services / packages / reviews bodies. Rebuilds only when
-/// the content slice changes (see [_isContentSliceChanged] on the screen).
+/// Sliver content for the selected provider view. Lists stay lazy in the
+/// screen's single scrollable instead of measuring nested shrink-wrapped lists.
 class ProviderContentSection extends StatelessWidget {
   final ProviderBranch? selectedBranch;
 
@@ -43,20 +43,23 @@ class ProviderContentSection extends StatelessWidget {
           content = ReviewsSection(state: state);
         }
 
-        if (title == null) return content;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: AppTextStyles.of(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF111827),
-                height: 1.3,
+        return SliverMainAxisGroup(
+          slivers: [
+            if (title != null)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: 8.h),
+                  child: Text(
+                    title,
+                    style: AppTextStyles.of(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF111827),
+                      height: 1.3,
+                    ),
+                  ),
+                ),
               ),
-            ),
-            SizedBox(height: 8.h),
             content,
           ],
         );
@@ -65,8 +68,7 @@ class ProviderContentSection extends StatelessWidget {
   }
 }
 
-/// Category chips row + the selected tab's services. Pure given [state];
-/// the cubit comes from context for actions.
+/// Category chips row + the selected tab's services.
 class CategoryTabsSection extends StatelessWidget {
   final ProviderPageState state;
 
@@ -76,38 +78,39 @@ class CategoryTabsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.read<ProviderPageCubit>();
     if (state.isProviderLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const SliverToBoxAdapter(
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 16),
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      );
     }
 
     if (state.categoryTabs.isEmpty) {
       return ProviderServicesBody(state: state);
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // ── Tab chips row ────────────────────────────────────────────────
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: List.generate(state.categoryTabs.length, (i) {
-              final tab = state.categoryTabs[i];
-              final isSelected = i == state.selectedCategoryIndex;
-              return Padding(
-                padding: EdgeInsetsDirectional.only(end: 10.w),
-                child: CategoryTabChip(
-                  tab: tab,
-                  isSelected: isSelected,
-                  onTap: () => cubit.selectCategoryTab(i),
-                ),
-              );
-            }),
+    return SliverMainAxisGroup(
+      slivers: [
+        SliverToBoxAdapter(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: List.generate(state.categoryTabs.length, (index) {
+                final tab = state.categoryTabs[index];
+                return Padding(
+                  padding: EdgeInsetsDirectional.only(end: 10.w),
+                  child: CategoryTabChip(
+                    tab: tab,
+                    isSelected: index == state.selectedCategoryIndex,
+                    onTap: () => cubit.selectCategoryTab(index),
+                  ),
+                );
+              }),
+            ),
           ),
         ),
-
-        SizedBox(height: 12.h),
-
-        // ── Services for selected tab ────────────────────────────────────
+        SliverToBoxAdapter(child: SizedBox(height: 12.h)),
         TabServicesBody(state: state),
       ],
     );
@@ -124,51 +127,57 @@ class ProviderServicesBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.read<ProviderPageCubit>();
     if (state.isServicesLoading) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 16),
-        child: Center(
-          child: CircularProgressIndicator(color: Color(0xFF3872B1)),
+      return const SliverToBoxAdapter(
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 16),
+          child: Center(
+            child: CircularProgressIndicator(color: Color(0xFF3872B1)),
+          ),
         ),
       );
     }
 
     if (state.servicesError != null) {
-      return ErrorStateWidget(
-        error: state.servicesError!,
-        onRetry: () => cubit.loadProviderServices(reset: true),
+      return SliverToBoxAdapter(
+        child: ErrorStateWidget(
+          error: state.servicesError!,
+          onRetry: () => cubit.loadProviderServices(reset: true),
+        ),
       );
     }
 
     if (state.services.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 40.h),
-          child: Text(
-            'provider_page.no_services_found'.tr(),
-            style: AppTextStyles.of(
-              color: const Color(0xFF64748B),
-              fontSize: 14.sp,
+      return SliverFillRemaining(
+        hasScrollBody: false,
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 40.h),
+            child: Text(
+              'provider_page.no_services_found'.tr(),
+              style: AppTextStyles.of(
+                color: const Color(0xFF64748B),
+                fontSize: 14.sp,
+              ),
             ),
           ),
         ),
       );
     }
 
-    return Column(
-      children: [
-        ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
+    return SliverMainAxisGroup(
+      slivers: [
+        SliverList.separated(
           itemCount: state.services.length,
           separatorBuilder: (_, _) => SizedBox(height: 12.h),
-          itemBuilder: (context, index) {
-            return ProviderServiceCard(service: state.services[index]);
-          },
+          itemBuilder: (context, index) =>
+              ProviderServiceCard(service: state.services[index]),
         ),
         if (state.isServicesLoadingMore)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 16),
-            child: Center(child: CircularProgressIndicator()),
+          const SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: Center(child: CircularProgressIndicator()),
+            ),
           ),
       ],
     );
@@ -187,77 +196,88 @@ class TabServicesBody extends StatelessWidget {
     final tab = state.selectedTab;
 
     if (tab == null || tab.isLoading) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 16),
-        child: Center(
-          child: CircularProgressIndicator(color: Color(0xFF3872B1)),
+      return const SliverToBoxAdapter(
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 16),
+          child: Center(
+            child: CircularProgressIndicator(color: Color(0xFF3872B1)),
+          ),
         ),
       );
     }
 
     if (tab.error != null) {
-      return ErrorStateWidget(
-        error: tab.error!,
-        onRetry: () => cubit.retryTabLoad(state.selectedCategoryIndex),
+      return SliverToBoxAdapter(
+        child: ErrorStateWidget(
+          error: tab.error!,
+          onRetry: () => cubit.retryTabLoad(state.selectedCategoryIndex),
+        ),
       );
     }
 
     final rawItems = tab.services?.items ?? [];
-    // The category endpoint has no search: filter loaded items locally.
     final query = state.searchQuery?.trim().toLowerCase() ?? '';
     final items = query.isEmpty
         ? rawItems
-        : rawItems.where((s) {
-            final name = (s.serviceName as String?)?.toLowerCase() ?? '';
+        : rawItems.where((service) {
+            final name = (service.serviceName as String?)?.toLowerCase() ?? '';
             return name.contains(query);
           }).toList();
 
     if (items.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 40.h),
-          child: Text(
-            'provider_page.no_services_found'.tr(),
-            style: AppTextStyles.of(
-              color: const Color(0xFF64748B),
-              fontSize: 14.sp,
+      return SliverFillRemaining(
+        hasScrollBody: false,
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 40.h),
+            child: Text(
+              'provider_page.no_services_found'.tr(),
+              style: AppTextStyles.of(
+                color: const Color(0xFF64748B),
+                fontSize: 14.sp,
+              ),
             ),
           ),
         ),
       );
     }
 
-    // Plain Column (not a nested shrink-wrap ListView) so the list takes
-    // exactly its children's height — no phantom gap above the cards.
-    return Column(
-      children: [
-        for (var i = 0; i < items.length; i++) ...[
-          CategoryServiceCard(service: items[i], categoryId: tab.categoryId),
-          if (i < items.length - 1) SizedBox(height: 12.h),
-        ],
-        if (tab.hasMore && query.isEmpty) ...[
-          SizedBox(height: 12.h),
-          OutlinedButton(
-            onPressed: tab.isLoading
-                ? null
-                : () => cubit.loadMoreCategoryServices(),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: const Color(0xFF3872B1),
-              side: const BorderSide(color: Color(0xFF3872B1)),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              minimumSize: Size(double.infinity, 46.h),
-            ),
-            child: tab.isLoading
-                ? SizedBox(
-                    width: 20.r,
-                    height: 20.r,
-                    child: const CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Text('common.load_more'.tr()),
+    return SliverMainAxisGroup(
+      slivers: [
+        SliverList.separated(
+          itemCount: items.length,
+          separatorBuilder: (_, _) => SizedBox(height: 12.h),
+          itemBuilder: (context, index) => CategoryServiceCard(
+            service: items[index],
+            categoryId: tab.categoryId,
           ),
-        ],
+        ),
+        if (tab.hasMore && query.isEmpty)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.only(top: 12.h),
+              child: OutlinedButton(
+                onPressed: tab.isLoading
+                    ? null
+                    : () => cubit.loadMoreCategoryServices(),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF3872B1),
+                  side: const BorderSide(color: Color(0xFF3872B1)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  minimumSize: Size(double.infinity, 46.h),
+                ),
+                child: tab.isLoading
+                    ? SizedBox(
+                        width: 20.r,
+                        height: 20.r,
+                        child: const CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text('common.load_more'.tr()),
+              ),
+            ),
+          ),
       ],
     );
   }
@@ -278,66 +298,75 @@ class PackagesSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.read<ProviderPageCubit>();
     if (state.isPackagesLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const SliverToBoxAdapter(
+        child: Center(child: CircularProgressIndicator()),
+      );
     }
     if (state.packagesError != null) {
-      return ErrorStateWidget(
-        error: state.packagesError!,
-        onRetry: () => cubit.loadPackages(reset: true),
+      return SliverToBoxAdapter(
+        child: ErrorStateWidget(
+          error: state.packagesError!,
+          onRetry: () => cubit.loadPackages(reset: true),
+        ),
       );
     }
     if (state.packages.isEmpty) {
-      return Center(child: Text('provider_page.no_packages_found'.tr()));
+      return SliverFillRemaining(
+        hasScrollBody: false,
+        child: Center(child: Text('provider_page.no_packages_found'.tr())),
+      );
     }
-    return Column(
-      children: [
-        SizedBox(
-          key: const ValueKey('provider-packages-grid'),
-          width: double.infinity,
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final crossAxisSpacing = 12.w;
-              final cardWidth = (constraints.maxWidth - crossAxisSpacing) / 2;
-              // Keep the grid full-width even when it contains one package.
-              // Without the explicit width, Wrap shrink-wraps that single
-              // card and the parent Column centers the whole section.
-              return Wrap(
-                spacing: crossAxisSpacing,
-                runSpacing: 12.h,
-                children: List.generate(state.packages.length, (index) {
-                  final packageData = state.packages[index];
-                  final packageId = packageData.id;
-                  return SizedBox(
-                    width: cardWidth,
-                    child: ProviderPackageCard(
-                      packageData: packageData,
-                      onDetailsTap: packageId == null
-                          ? null
-                          : () => openPackageDetailsSheet(
-                              context,
-                              cubit,
-                              packageData,
-                              selectedBranch,
-                            ),
-                      onQuickAdd: packageId == null
-                          ? null
-                          : () => createPackageInvoice(
-                              context,
-                              cubit,
-                              packageId,
-                              selectedBranch,
-                            ),
-                    ),
-                  );
-                }),
-              );
-            },
-          ),
+
+    return SliverMainAxisGroup(
+      slivers: [
+        SliverLayoutBuilder(
+          builder: (context, constraints) {
+            final crossAxisSpacing = 12.w;
+            final cardWidth =
+                (constraints.crossAxisExtent - crossAxisSpacing) / 2;
+            return SliverGrid(
+              key: const ValueKey('provider-packages-grid'),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: crossAxisSpacing,
+                mainAxisSpacing: 12.h,
+                mainAxisExtent: ProviderPackageCard.preferredHeightForWidth(
+                  context,
+                  cardWidth,
+                ),
+              ),
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final packageData = state.packages[index];
+                final packageId = packageData.id;
+                return ProviderPackageCard(
+                  packageData: packageData,
+                  onDetailsTap: packageId == null
+                      ? null
+                      : () => openPackageDetailsSheet(
+                          context,
+                          cubit,
+                          packageData,
+                          selectedBranch,
+                        ),
+                  onQuickAdd: packageId == null
+                      ? null
+                      : () => createPackageInvoice(
+                          context,
+                          cubit,
+                          packageId,
+                          selectedBranch,
+                        ),
+                );
+              }, childCount: state.packages.length),
+            );
+          },
         ),
         if (state.isPackagesLoadingMore)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 16),
-            child: Center(child: CircularProgressIndicator()),
+          const SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: Center(child: CircularProgressIndicator()),
+            ),
           ),
       ],
     );
@@ -354,33 +383,40 @@ class ReviewsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.read<ProviderPageCubit>();
     if (state.isReviewsLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const SliverFillRemaining(
+        hasScrollBody: false,
+        child: Center(child: CircularProgressIndicator()),
+      );
     }
     if (state.reviewsError != null) {
-      return ErrorStateWidget(
-        error: state.reviewsError!,
-        onRetry: () => cubit.loadReviews(reset: true),
+      return SliverToBoxAdapter(
+        child: ErrorStateWidget(
+          error: state.reviewsError!,
+          onRetry: () => cubit.loadReviews(reset: true),
+        ),
       );
     }
     if (state.reviews.isEmpty) {
-      return Center(child: Text('provider_page.no_reviews_found'.tr()));
+      return SliverFillRemaining(
+        hasScrollBody: false,
+        child: Center(child: Text('provider_page.no_reviews_found'.tr())),
+      );
     }
 
-    return Column(
-      children: [
-        ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
+    return SliverMainAxisGroup(
+      slivers: [
+        SliverList.separated(
           itemCount: state.reviews.length,
           separatorBuilder: (_, _) => SizedBox(height: 12.h),
-          itemBuilder: (context, index) {
-            return ProviderReviewCard(review: state.reviews[index]);
-          },
+          itemBuilder: (context, index) =>
+              ProviderReviewCard(review: state.reviews[index]),
         ),
         if (state.isReviewsLoadingMore)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 16),
-            child: Center(child: CircularProgressIndicator()),
+          const SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: Center(child: CircularProgressIndicator()),
+            ),
           ),
       ],
     );

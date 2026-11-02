@@ -273,9 +273,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           context.read<NotificationCubit>().getNotifications(silent: true),
       child: ListView.builder(
         controller: _scrollController,
-        physics: const AlwaysScrollableScrollPhysics(
-          parent: BouncingScrollPhysics(),
-        ),
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.only(bottom: 24.h),
         itemCount: visibleItems.length + 1 + (state.isLoadingMore ? 1 : 0),
         itemBuilder: (context, index) {
@@ -448,7 +446,6 @@ class _NotificationControls extends StatelessWidget {
         Expanded(
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
             padding: EdgeInsetsDirectional.fromSTEB(8.w, 4.h, 8.w, 4.h),
             child: Row(
               children: [

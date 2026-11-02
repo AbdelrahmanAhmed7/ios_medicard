@@ -70,32 +70,33 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                               cubit.state,
                               cubit,
                             ),
-                        child: SingleChildScrollView(
-                          physics: const BouncingScrollPhysics(),
-                          child: Column(
-                            children: [
-                              ProviderDetailsSection(
+                        child: CustomScrollView(
+                          slivers: [
+                            SliverToBoxAdapter(
+                              child: ProviderDetailsSection(
                                 selectedBranch: _selectedBranch,
                                 onBranchTap: _openBranchSelector,
                               ),
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(
-                                  16.w,
-                                  8.h,
-                                  16.w,
-                                  16.h,
-                                ),
-                                child: Column(
-                                  children: [
-                                    const ProviderSearchRow(),
-                                    ProviderContentSection(
-                                      selectedBranch: _selectedBranch,
-                                    ),
-                                  ],
-                                ),
+                            ),
+                            SliverPadding(
+                              padding: EdgeInsets.fromLTRB(
+                                16.w,
+                                8.h,
+                                16.w,
+                                16.h,
                               ),
-                            ],
-                          ),
+                              sliver: SliverMainAxisGroup(
+                                slivers: [
+                                  const SliverToBoxAdapter(
+                                    child: ProviderSearchRow(),
+                                  ),
+                                  ProviderContentSection(
+                                    selectedBranch: _selectedBranch,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -115,6 +116,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
     ProviderPageCubit cubit,
   ) {
     if (scrollInfo is! ScrollUpdateNotification) return false;
+    if (scrollInfo.depth != 0) return false;
     if (scrollInfo.metrics.pixels < scrollInfo.metrics.maxScrollExtent - 200) {
       return false;
     }

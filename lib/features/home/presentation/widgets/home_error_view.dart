@@ -42,7 +42,6 @@ class HomeErrorView extends StatelessWidget {
           final isCompact = constraints.maxHeight < 560;
           return Center(
             child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
               padding: EdgeInsets.symmetric(
                 horizontal: constraints.maxWidth < 360 ? 20 : 32,
                 vertical: isCompact ? 24 : 40,
