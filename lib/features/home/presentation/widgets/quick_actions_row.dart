@@ -33,27 +33,36 @@ class QuickActionsRow extends StatelessWidget {
                     height: 96,
                     child: InkWell(
                       borderRadius: BorderRadius.circular(16),
-                      onTap: () => _onActionTap(context, action),
+                      onTap: action.enabled
+                          ? () => _onActionTap(context, action)
+                          : null,
                       child: Ink(
                         decoration: BoxDecoration(
-                          color: const Color(0xFFEEF3FB),
+                          color: action.enabled
+                              ? const Color(0xFFEEF3FB)
+                              : const Color(0xFFF3F4F6),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Image.asset(
-                              action.assetPath,
-                              width: 34,
-                              height: 34,
-                            ),
+                            if (action.assetPath case final assetPath?)
+                              Image.asset(assetPath, width: 34, height: 34)
+                            else if (action.icon case final icon?)
+                              Icon(
+                                icon,
+                                size: 34,
+                                color: const Color(0xFF9CA3AF),
+                              ),
                             const SizedBox(height: 8),
                             Text(
                               action.labelKey.tr(),
                               style: AppTextStyles.of(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
-                                color: const Color(0xFF1A1A2E),
+                                color: action.enabled
+                                    ? const Color(0xFF1A1A2E)
+                                    : const Color(0xFF9CA3AF),
                               ),
                               textAlign: TextAlign.center,
                               maxLines: 1,
@@ -86,6 +95,8 @@ class QuickActionsRow extends StatelessWidget {
           '/search/providers',
           extra: {'enableCartFeatures': !isGuest},
         );
+        break;
+      case 'home.medicine':
         break;
     }
   }
