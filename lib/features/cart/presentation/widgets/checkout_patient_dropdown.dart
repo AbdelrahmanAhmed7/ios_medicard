@@ -43,6 +43,9 @@ class CheckoutPatientDropdown extends StatelessWidget {
               fontWeight: FontWeight.w500,
               color: const Color(0xFF111827),
             ),
+            dropdownColor: AppDropdownTheme.menuColor,
+            elevation: AppDropdownTheme.menuElevation.toInt(),
+            borderRadius: AppDropdownTheme.dropdownBorderRadius,
             icon: const Icon(
               Icons.keyboard_arrow_down_rounded,
               color: Color(0xFF6B7280),

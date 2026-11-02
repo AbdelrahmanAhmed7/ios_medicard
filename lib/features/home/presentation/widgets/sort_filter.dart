@@ -191,9 +191,15 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
             value: value,
             hint: Text(
               hint,
-              style: AppTextStyles.of(fontSize: 13, color: const Color(0xFF6B7280)),
+              style: AppTextStyles.of(
+                fontSize: 13,
+                color: const Color(0xFF6B7280),
+              ),
             ),
             isExpanded: true,
+            dropdownColor: AppDropdownTheme.menuColor,
+            elevation: AppDropdownTheme.menuElevation.toInt(),
+            borderRadius: AppDropdownTheme.dropdownBorderRadius,
             icon: const Icon(
               Icons.keyboard_arrow_down_rounded,
               color: Color(0xFF6B7280),

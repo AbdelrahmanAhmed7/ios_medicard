@@ -305,6 +305,9 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
           color: Colors.black,
           fontWeight: FontWeight.w500,
         ),
+        dropdownColor: AppDropdownTheme.menuColor,
+        elevation: AppDropdownTheme.menuElevation.toInt(),
+        borderRadius: AppDropdownTheme.dropdownBorderRadius,
         icon: Icon(
           Icons.keyboard_arrow_down_rounded,
           color: Colors.grey.shade500,
@@ -352,6 +355,9 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
           color: Colors.black,
           fontWeight: FontWeight.w500,
         ),
+        dropdownColor: AppDropdownTheme.menuColor,
+        elevation: AppDropdownTheme.menuElevation.toInt(),
+        borderRadius: AppDropdownTheme.dropdownBorderRadius,
         icon: Icon(
           Icons.keyboard_arrow_down_rounded,
           color: Colors.grey.shade500,

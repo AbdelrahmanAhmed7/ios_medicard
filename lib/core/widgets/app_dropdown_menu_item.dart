@@ -4,12 +4,41 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../theming/app_colors.dart';
 import '../theming/app_text_styles.dart';
 
-/// Keeps hover and keyboard-focus feedback consistent across every app
-/// dropdown without changing the hover treatment of unrelated controls.
+/// Shared surface and interaction theme for dropdowns throughout the app.
 class AppDropdownTheme extends StatelessWidget {
   final Widget child;
 
   const AppDropdownTheme({super.key, required this.child});
+
+  static const Color menuColor = Colors.white;
+  static const double menuRadius = 12;
+  static const double menuElevation = 4;
+  static const BorderRadius dropdownBorderRadius = BorderRadius.all(
+    Radius.circular(menuRadius),
+  );
+  static const RoundedRectangleBorder menuShape = RoundedRectangleBorder(
+    borderRadius: dropdownBorderRadius,
+    side: BorderSide(color: AppColors.lineClr),
+  );
+
+  static MenuStyle get menuStyle => const MenuStyle(
+    backgroundColor: WidgetStatePropertyAll(menuColor),
+    elevation: WidgetStatePropertyAll(menuElevation),
+    padding: WidgetStatePropertyAll(EdgeInsets.zero),
+    shape: WidgetStatePropertyAll(menuShape),
+  );
+
+  static TextStyle menuItemTextStyle({
+    bool selected = false,
+    double? fontSize,
+    FontWeight? fontWeight,
+    Color? color,
+  }) => AppTextStyles.of(
+    fontSize: (fontSize ?? 14).sp,
+    fontWeight: fontWeight ?? (selected ? FontWeight.w600 : FontWeight.w500),
+    color: color ?? (selected ? AppColors.brandBlueClr : AppColors.inkClr),
+    height: 1.3,
+  );
 
   /// Explicit state colors for Material 3 menu entries such as
   /// [MenuItemButton]. Unlike an ambient theme, this style travels with the
@@ -39,6 +68,7 @@ class AppDropdownTheme extends StatelessWidget {
       data: theme.copyWith(
         hoverColor: AppColors.dropdownHoverClr,
         focusColor: AppColors.dropdownFocusClr,
+        canvasColor: menuColor,
       ),
       child: child,
     );
@@ -60,19 +90,18 @@ class AppDropdownMenuItem<T> extends DropdownMenuItem<T> {
     super.enabled = true,
     super.onTap,
     super.alignment,
-    double fontSize = 15,
-    FontWeight fontWeight = FontWeight.w500,
-    Color color = AppColors.inkClr,
+    double? fontSize,
+    FontWeight? fontWeight,
+    Color? color,
   }) : super(
          child: Text(
            label,
            maxLines: 1,
            overflow: TextOverflow.ellipsis,
-           style: AppTextStyles.of(
-             fontSize: fontSize.sp,
+           style: AppDropdownTheme.menuItemTextStyle(
+             fontSize: fontSize,
              fontWeight: fontWeight,
              color: color,
-             height: 1.3,
            ),
          ),
        );

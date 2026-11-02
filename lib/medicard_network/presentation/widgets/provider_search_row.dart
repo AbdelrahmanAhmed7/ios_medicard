@@ -31,20 +31,10 @@ class ProviderSearchRow extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: Container(
-                    height: 44.h,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12.r),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
-                    ),
-                    child: UnifiedSearchField(
-                      onChanged: (query) => cubit.updateSearchQuery(query),
-                      hintText: 'provider_page.search_services'.tr(),
-                      borderRadius: 12.r,
-                      useShadow: false,
-                      transparentBackground: false,
-                    ),
+                  child: UnifiedSearchField(
+                    onChanged: (query) => cubit.updateSearchQuery(query),
+                    hintText: 'provider_page.search_services'.tr(),
+                    useShadow: false,
                   ),
                 ),
                 SizedBox(width: 12.w),
@@ -59,19 +49,7 @@ class ProviderSearchRow extends StatelessWidget {
                   child: AppDropdownTheme(
                     child: MenuAnchor(
                       alignmentOffset: Offset(0, 8.h),
-                      style: MenuStyle(
-                        backgroundColor: const WidgetStatePropertyAll(
-                          Colors.white,
-                        ),
-                        elevation: const WidgetStatePropertyAll(4),
-                        padding: const WidgetStatePropertyAll(EdgeInsets.zero),
-                        shape: WidgetStatePropertyAll(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.r),
-                            side: const BorderSide(color: Color(0xFFE2E8F0)),
-                          ),
-                        ),
-                      ),
+                      style: AppDropdownTheme.menuStyle,
                       menuChildren: [
                         MenuItemButton(
                           style:
@@ -92,17 +70,10 @@ class ProviderSearchRow extends StatelessWidget {
                           },
                           child: Text(
                             'provider_page.services'.tr(),
-                            style: AppTextStyles.of(
-                              color:
-                                  state.catalogView == ProviderViewType.services
-                                  ? AppColors.brandBlueClr
-                                  : AppColors.inkClr,
-                              fontSize: 14.sp,
-                              fontWeight:
-                                  state.catalogView == ProviderViewType.services
-                                  ? FontWeight.w600
-                                  : FontWeight.w500,
-                              height: 1.3,
+                            style: AppDropdownTheme.menuItemTextStyle(
+                              selected:
+                                  state.catalogView ==
+                                  ProviderViewType.services,
                             ),
                           ),
                         ),
@@ -125,17 +96,10 @@ class ProviderSearchRow extends StatelessWidget {
                           },
                           child: Text(
                             'provider_page.packages'.tr(),
-                            style: AppTextStyles.of(
-                              color:
-                                  state.catalogView == ProviderViewType.packages
-                                  ? AppColors.brandBlueClr
-                                  : AppColors.inkClr,
-                              fontSize: 14.sp,
-                              fontWeight:
-                                  state.catalogView == ProviderViewType.packages
-                                  ? FontWeight.w600
-                                  : FontWeight.w500,
-                              height: 1.3,
+                            style: AppDropdownTheme.menuItemTextStyle(
+                              selected:
+                                  state.catalogView ==
+                                  ProviderViewType.packages,
                             ),
                           ),
                         ),

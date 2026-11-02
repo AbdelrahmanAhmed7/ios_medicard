@@ -38,6 +38,9 @@ class EditProfileGenderDropdown extends StatelessWidget {
           fontWeight: FontWeight.w500,
           height: 1.3,
         ),
+        dropdownColor: AppDropdownTheme.menuColor,
+        elevation: AppDropdownTheme.menuElevation.toInt(),
+        borderRadius: AppDropdownTheme.dropdownBorderRadius,
         icon: const Icon(
           Icons.keyboard_arrow_down_rounded,
           color: Color(0xFF64748B),

@@ -345,6 +345,9 @@ class _LookupDropdown extends StatelessWidget {
                   value: value,
                   items: items,
                   onChanged: isDisabled ? null : onChanged,
+                  dropdownColor: AppDropdownTheme.menuColor,
+                  elevation: AppDropdownTheme.menuElevation.toInt(),
+                  borderRadius: AppDropdownTheme.dropdownBorderRadius,
                   style: AppTextStyles.of(
                     fontSize: 13.sp,
                     color: const Color(0xFF1A1A2E),
