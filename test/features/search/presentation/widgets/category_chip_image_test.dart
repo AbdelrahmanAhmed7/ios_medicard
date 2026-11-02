@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:medicard/core/utils/image_url_resolver.dart';
 import 'package:medicard/features/search/data/models/category_model.dart';
 import 'package:medicard/features/search/presentation/widgets/category_chip.dart';
 

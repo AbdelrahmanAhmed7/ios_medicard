@@ -5,14 +5,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../core/services/url_launcher_service.dart';
 import '../../../core/theming/app_text_styles.dart';
-import '../../../core/utils/image_url_resolver.dart';
+import '../../../core/widgets/category_image.dart';
 import '../../../network/data/provider_page_response_model.dart';
 import '../../logic/provider_page_state.dart';
 
 /// Shared stateless building blocks for the provider page sections.
 /// Extracted verbatim from provider_page_screen.dart (mechanical move).
 
-export '../../../core/utils/price_formatter.dart' show PriceFormatter, formatPrice;
+export '../../../core/utils/price_formatter.dart'
+    show PriceFormatter, formatPrice;
 
 String packageImageUrl(String value) {
   final trimmed = value.trim();
@@ -471,6 +472,7 @@ class CategoryTabChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final imageUrl = tab.imageUrl?.trim();
     return GestureDetector(
       onTap: onTap,
       child: Stack(
@@ -494,15 +496,20 @@ class CategoryTabChip extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Category image when the backend provides one.
-                if (tab.imageUrl != null && tab.imageUrl!.isNotEmpty) ...[
+                if (imageUrl != null && imageUrl.isNotEmpty) ...[
                   ClipOval(
                     child: SizedBox(
                       width: 22.r,
                       height: 22.r,
-                      child: CachedNetworkImage(
-                        imageUrl: resolveImageUrl(tab.imageUrl) ?? '',
-                        fit: BoxFit.fill,
-                        errorWidget: (_, _, _) => const SizedBox.shrink(),
+                      child: CategoryImage(
+                        imageUrl: imageUrl,
+                        width: 22.r,
+                        height: 22.r,
+                        errorWidget: _categoryImageError(isSelected),
+                        placeholder: const SizedBox.shrink(),
+                        svgColor: isSelected
+                            ? Colors.white
+                            : const Color(0xFF3872B1),
                       ),
                     ),
                   ),
@@ -570,3 +577,9 @@ class CategoryTabChip extends StatelessWidget {
     );
   }
 }
+
+Widget _categoryImageError(bool isSelected) => Icon(
+  Icons.image_not_supported_outlined,
+  size: 16.r,
+  color: isSelected ? Colors.white : const Color(0xFF3872B1),
+);

@@ -12,3 +12,8 @@ String? resolveImageUrl(String? url) {
   final normalized = trimmed.startsWith('/') ? trimmed.substring(1) : trimmed;
   return 'https://medicard-api-v2.medicardeg.com/$normalized';
 }
+
+bool isSvgImageUrl(String url) {
+  final path = Uri.tryParse(url)?.path ?? url;
+  return path.toLowerCase().endsWith('.svg');
+}
