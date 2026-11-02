@@ -2,11 +2,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:async';
 
 import '../../core/constants/api_result.dart';
-import '../../core/constants/constants.dart';
 import '../../core/auth/auth_session.dart';
 import '../../core/auth/auth_session_storage.dart';
 import '../../core/auth/jwt_helper.dart';
-import '../../core/helpers/shared_pref_helper.dart';
 import '../../core/network/dio_factory.dart';
 import '../../core/utils/api_error_parser.dart';
 import '../../core/utils/platform_type.dart';
@@ -39,33 +37,36 @@ class MedicardLoginCubit extends Cubit<MedicardLoginState> {
       final result = await _loginCardUseCase.call(request);
       if (isClosed) return;
 
-      result.when(
+      await result.when<Future<void>>(
         success: (response) async {
           final data = response.data;
           final token = data?.token;
-          if (token != null && token.isNotEmpty) {
-            await SharedPrefHelper.setSecuredString(
-              SharedPrefKeys.userToken,
-              token,
-            );
-            await const AuthSessionStorage().saveSession(
-              AuthSession(
-                accessToken: token,
-                refreshToken: data?.refreshToken ?? '',
-                accessTokenExpiresAt:
-                    data?.expiresAt ?? getJwtExpiryDate(token),
-                refreshTokenExpiresAt: data?.refreshTokenExpiresAt,
-              ),
-            );
-            DioFactory.setTokenIntoHeaderAfterLogin(token);
-            // The FCM token may have arrived before login (or rotated); bind
-            // this device to the user now so pushes can reach it.
-            unawaited(PushNotificationService.instance.registerDeviceToken());
+          final refreshToken = data?.refreshToken;
+          if (token == null ||
+              token.isEmpty ||
+              refreshToken == null ||
+              refreshToken.isEmpty) {
+            if (isClosed) return;
+            emit(MedicardLoginState.failed(error: parseApiError('')));
+            return;
           }
+
+          await const AuthSessionStorage().saveSession(
+            AuthSession(
+              accessToken: token,
+              refreshToken: refreshToken,
+              accessTokenExpiresAt: data?.expiresAt ?? getJwtExpiryDate(token),
+              refreshTokenExpiresAt: data?.refreshTokenExpiresAt,
+            ),
+          );
+          DioFactory.setTokenIntoHeaderAfterLogin(token);
+          // The FCM token may have arrived before login (or rotated); bind
+          // this device to the user now so pushes can reach it.
+          unawaited(PushNotificationService.instance.registerDeviceToken());
           if (isClosed) return;
           emit(MedicardLoginState.success(response));
         },
-        failure: (message) {
+        failure: (message) async {
           if (isClosed) return;
           emit(MedicardLoginState.failed(error: message));
         },

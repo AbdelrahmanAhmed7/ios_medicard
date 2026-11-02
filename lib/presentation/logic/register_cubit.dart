@@ -46,7 +46,7 @@ class RegisterCubit extends Cubit<RegisterState> {
       final result = await _registerUseCase.call(request);
       if (isClosed) return;
 
-      result.when(
+      await result.when<Future<void>>(
         success: (response) async {
           final data = response.data;
           final token = data?.token;
@@ -79,7 +79,7 @@ class RegisterCubit extends Cubit<RegisterState> {
           if (isClosed) return;
           emit(RegisterState.success(response));
         },
-        failure: (message) {
+        failure: (message) async {
           if (isClosed) return;
           emit(RegisterState.failed(error: message));
         },
