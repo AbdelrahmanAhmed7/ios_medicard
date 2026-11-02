@@ -26,7 +26,8 @@ class ProviderCard extends StatelessWidget {
         }
       },
       child: Container(
-        height: 150.h,
+        key: ValueKey('provider_card_${provider.providerId}'),
+        constraints: BoxConstraints(minHeight: 124.h),
         margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -41,12 +42,12 @@ class ProviderCard extends StatelessWidget {
           ],
         ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _buildImageSection(),
             Expanded(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(12.w, 13.h, 12.w, 13.h),
+                padding: EdgeInsets.fromLTRB(12.w, 10.h, 12.w, 10.h),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,13 +75,13 @@ class ProviderCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    SizedBox(height: 7.h),
+                    SizedBox(height: 5.h),
                     if ((provider.maxDiscountPercentage ?? 0) > 0) ...[
                       _DiscountChipsRow(
                         categoryName: provider.categoryName,
                         maxDiscount: provider.maxDiscountPercentage,
                       ),
-                      SizedBox(height: 7.h),
+                      SizedBox(height: 5.h),
                     ],
                     _LocationAndContactRow(provider: provider),
                   ],
@@ -97,6 +98,7 @@ class ProviderCard extends StatelessWidget {
     return SizedBox(
       key: ValueKey('provider_image_${provider.providerId}'),
       width: 108.w,
+      height: 108.h,
       child: Padding(
         padding: EdgeInsets.all(8.r),
         child: ClipRRect(

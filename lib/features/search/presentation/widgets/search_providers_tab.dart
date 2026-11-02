@@ -16,48 +16,51 @@ class SearchProvidersTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const _ProviderCategoryStrip(),
+        Expanded(child: _ResultsBody(scrollController: scrollController)),
+      ],
+    );
+  }
+}
+
+class _ProviderCategoryStrip extends StatelessWidget {
+  const _ProviderCategoryStrip();
+
+  @override
+  Widget build(BuildContext context) {
     return BlocBuilder<SearchCubit, SearchState>(
-      buildWhen: (p, c) =>
-          p.categories != c.categories ||
-          p.selectedCategoryId != c.selectedCategoryId ||
-          p.providerCategoryCounts != c.providerCategoryCounts ||
-          p.items != c.items ||
-          p.isLoading != c.isLoading ||
-          p.isLoadingMore != c.isLoadingMore ||
-          p.error != c.error,
+      buildWhen: (previous, current) =>
+          previous.categories != current.categories ||
+          previous.selectedCategoryId != current.selectedCategoryId,
       builder: (context, state) {
-        return Column(
-          children: [
-            if (state.categories.isNotEmpty)
-              Container(
-                color: Colors.white,
-                padding: EdgeInsets.symmetric(vertical: 10.h),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: Row(
-                    children: [
-                      CategoryChip(
-                        category: null,
-                        isSelected: state.selectedCategoryId == null,
-                        onTap: () =>
-                            context.read<SearchCubit>().selectCategory(null),
-                      ),
-                      ...state.categories.map(
-                        (cat) => CategoryChip(
-                          category: cat,
-                          isSelected: state.selectedCategoryId == cat.id,
-                          onTap: () => context
-                              .read<SearchCubit>()
-                              .selectCategory(cat.id),
-                        ),
-                      ),
-                    ],
+        if (state.categories.isEmpty) return const SizedBox.shrink();
+
+        return Container(
+          color: Colors.white,
+          padding: EdgeInsets.symmetric(vertical: 10.h),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: Row(
+              children: [
+                CategoryChip(
+                  category: null,
+                  isSelected: state.selectedCategoryId == null,
+                  onTap: () => context.read<SearchCubit>().selectCategory(null),
+                ),
+                ...state.categories.map(
+                  (category) => CategoryChip(
+                    category: category,
+                    isSelected: state.selectedCategoryId == category.id,
+                    onTap: () =>
+                        context.read<SearchCubit>().selectCategory(category.id),
                   ),
                 ),
-              ),
-            Expanded(child: _ResultsBody(scrollController: scrollController)),
-          ],
+              ],
+            ),
+          ),
         );
       },
     );
