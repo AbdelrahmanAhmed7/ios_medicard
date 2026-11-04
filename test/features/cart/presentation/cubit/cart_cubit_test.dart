@@ -1035,6 +1035,26 @@ class _FakeCartRepository implements CartRepository {
   }
 
   @override
+  Future<ApiResult<List<ProviderOption>>> getMedicinePharmacies() async {
+    return ApiResult.success(chooseProviders);
+  }
+
+  @override
+  Future<ApiResult<void>> updateMedicineProvider({
+    required int providerId,
+  }) async {
+    for (final item in List<CartItem>.from(cart.items)) {
+      final result = await updateCartProvider(
+        cartId: item.cartItemId,
+        providerId: providerId,
+      );
+      final failed = result.when(success: (_) => false, failure: (_) => true);
+      if (failed) return result;
+    }
+    return const ApiResult.success(null);
+  }
+
+  @override
   Future<ApiResult<void>> removeFromCart(int serviceId) async {
     removeCalls.add(serviceId);
     final result = removeResults[serviceId] ?? const ApiResult.success(null);

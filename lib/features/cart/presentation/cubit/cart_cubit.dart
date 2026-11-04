@@ -20,6 +20,8 @@ import '../../domain/repository/cart_repository.dart';
 import '../../domain/services/cart_sync_service.dart';
 import 'cart_state.dart';
 
+part 'cart_cubit_provider_assignment.dart';
+
 /// Outcome of [CartCubit.reconcileUnknownInvoiceOutcome].
 enum UnknownInvoiceResolution {
   /// Snapshot items are gone from the server cart: the invoice exists.
@@ -114,6 +116,8 @@ class CartCubit extends Cubit<CartState> {
       }
     });
   }
+
+  void _emitCartState(CartState nextState) => emit(nextState);
 
   @override
   Future<void> close() {
@@ -424,47 +428,6 @@ class CartCubit extends Cubit<CartState> {
         emit(state.copyWith(cartError: error, isCartLoading: false));
       },
     );
-  }
-
-  // ── Choose Providers ────────────────────────────────────────────────────────
-
-  Future<void> loadProviders() async {
-    emit(
-      state.copyWith(
-        isProvidersLoading: true,
-        resetProvidersError: true,
-        resetSelectedProvider: true,
-      ),
-    );
-    final result = await _getAvailableProviders();
-    if (isClosed) return;
-    result.when(
-      success: (providers) {
-        emit(
-          state.copyWith(
-            providers: providers,
-            isProvidersLoading: false,
-            resetSelectedProvider: true,
-          ),
-        );
-      },
-      failure: (error) {
-        emit(state.copyWith(providersError: error, isProvidersLoading: false));
-      },
-    );
-  }
-
-  void selectProvider(ProviderOption provider) {
-    emit(state.copyWith(selectedProvider: provider));
-  }
-
-  Future<ApiResult<List<ProviderOption>>> _getAvailableProviders() {
-    final items = state.cart?.items ?? const <CartItem>[];
-    final isMedicine =
-        items.isNotEmpty && items.every((item) => item.categoryId == 1);
-    return isMedicine
-        ? _repository.getMedicinePharmacies()
-        : _repository.getChooseProviders();
   }
 
   void selectCheckoutBranch(ProviderBranch branch) {
@@ -1034,215 +997,5 @@ class CartCubit extends Cubit<CartState> {
     } finally {
       _invoiceSubmissionInFlight = false;
     }
-  }
-
-  /// Assigns [provider] to every covered cart item that has no provider yet.
-  ///
-  /// A provider option may also describe items that are already assigned to
-  /// that same provider (the cart and choose-providers endpoints both return
-  /// those items). In that case there is nothing to update, but the selection
-  /// is still valid and checkout should continue for the existing group.
-  Future<bool> assignProvider(ProviderOption provider) async {
-    if (isClosed || _providerAssignmentInFlight) return false;
-    _providerAssignmentInFlight = true;
-    _cartMutationGeneration++;
-    try {
-      emit(
-        state.copyWith(
-          selectedProvider: provider,
-          isAssigningProvider: true,
-          isCartLoading: false,
-          resetAssignProviderError: true,
-        ),
-      );
-
-      final cartItemsById = state.cart == null
-          ? null
-          : {for (final item in state.cart!.items) item.cartItemId: item};
-      final alreadyAssignedToProvider = provider.coveredServices.where(
-        (service) =>
-            service.cartItemId != 0 &&
-            cartItemsById?[service.cartItemId]?.providerId ==
-                provider.providerId,
-      );
-      final medicineCart =
-          state.cart?.items.isNotEmpty == true &&
-          state.cart!.items.every((item) => item.categoryId == 1);
-      if (medicineCart) {
-        final result = await _repository.updateMedicineProvider(
-          providerId: provider.providerId,
-        );
-        if (isClosed) return false;
-        final failed = result.when(success: (_) => null, failure: (e) => e);
-        if (failed != null) {
-          emit(
-            state.copyWith(
-              isAssigningProvider: false,
-              assignProviderError: failed,
-            ),
-          );
-          return false;
-        }
-        final refreshed = await _repository.getCart();
-        if (isClosed) return false;
-        refreshed.when(
-          success: (cart) {
-            emit(
-              state.copyWith(
-                cart: cart,
-                selectedProvider: provider,
-                checkoutProvider: provider,
-                isAssigningProvider: false,
-                resetAssignProviderError: true,
-              ),
-            );
-            _broadcastCartSnapshot(cart);
-          },
-          failure: (error) => emit(
-            state.copyWith(
-              isAssigningProvider: false,
-              assignProviderError: error,
-            ),
-          ),
-        );
-        return true;
-      }
-      final servicesToUpdate = provider.coveredServices
-          .where(
-            (service) =>
-                service.cartItemId != 0 &&
-                (cartItemsById == null ||
-                    cartItemsById[service.cartItemId]?.providerId == null),
-          )
-          .toList(growable: false);
-      if (servicesToUpdate.isEmpty) {
-        if (alreadyAssignedToProvider.isNotEmpty) {
-          emit(
-            state.copyWith(
-              selectedProvider: provider,
-              checkoutProvider: provider,
-              isAssigningProvider: false,
-              resetAssignProviderError: true,
-            ),
-          );
-          return true;
-        }
-        emit(
-          state.copyWith(
-            isAssigningProvider: false,
-            assignProviderError: 'cart.no_eligible_unassigned_items'.tr(),
-          ),
-        );
-        return false;
-      }
-
-      final confirmedServices = <ProviderCoveredService>[];
-      for (final service in servicesToUpdate) {
-        final result = await _repository.updateCartProvider(
-          cartId: service.cartItemId,
-          providerId: provider.providerId,
-        );
-        if (isClosed) return false;
-
-        final failed = result.when(
-          success: (_) {
-            confirmedServices.add(service);
-            _cartMutationGeneration++;
-            final item = state.cart?.items
-                .where((item) => item.cartItemId == service.cartItemId)
-                .firstOrNull;
-            if (item != null) {
-              _confirmedProviderAssignments[item.cartItemId] = item.copyWith(
-                providerId: provider.providerId,
-                providerName: provider.providerName,
-                priceBefore: service.priceBefore,
-                priceAfter: service.priceAfter,
-                discountPercentage: service.discountPercentage,
-              );
-            }
-            return null;
-          },
-          failure: (error) => error,
-        );
-        if (failed != null) {
-          final reconciled = await _reconcileAssignedServices(
-            provider,
-            confirmedServices,
-          );
-          if (isClosed) return false;
-          emit(
-            state.copyWith(
-              cart: reconciled,
-              isAssigningProvider: false,
-              assignProviderError: failed,
-            ),
-          );
-          if (reconciled != null) _broadcastCartSnapshot(reconciled);
-          return false;
-        }
-      }
-
-      final nextCart = await _reconcileAssignedServices(
-        provider,
-        confirmedServices,
-      );
-      if (isClosed) return false;
-      emit(
-        state.copyWith(
-          cart: nextCart,
-          isAssigningProvider: false,
-          checkoutProvider: provider,
-          resetAssignProviderError: true,
-        ),
-      );
-      if (nextCart != null) _broadcastCartSnapshot(nextCart);
-      return true;
-    } catch (error) {
-      if (!isClosed) {
-        emit(
-          state.copyWith(
-            isAssigningProvider: false,
-            assignProviderError: parseApiError(error),
-          ),
-        );
-      }
-      return false;
-    } finally {
-      _providerAssignmentInFlight = false;
-    }
-  }
-
-  Future<Cart?> _reconcileAssignedServices(
-    ProviderOption provider,
-    List<ProviderCoveredService> confirmedServices,
-  ) async {
-    final requestGeneration = ++_cartRequestGeneration;
-    final mutationGeneration = _cartMutationGeneration;
-    final refreshedCart = await _repository.getCart();
-    if (isClosed ||
-        requestGeneration != _cartRequestGeneration ||
-        mutationGeneration != _cartMutationGeneration) {
-      return state.cart;
-    }
-    return refreshedCart.when(
-      success: _preserveConfirmedProviders,
-      failure: (_) {
-        if (confirmedServices.isEmpty) return state.cart;
-        return state.cart?.assignProvider(
-          ProviderOption(
-            providerId: provider.providerId,
-            providerName: provider.providerName,
-            providerImageUrl: provider.providerImageUrl,
-            coveredCount: confirmedServices.length,
-            uncoveredCount: provider.uncoveredCount,
-            totalCount: provider.totalCount,
-            totalPriceBefore: provider.totalPriceBefore,
-            totalPriceAfter: provider.totalPriceAfter,
-            coveredServices: confirmedServices,
-            uncoveredServices: provider.uncoveredServices,
-          ),
-        );
-      },
-    );
   }
 }
