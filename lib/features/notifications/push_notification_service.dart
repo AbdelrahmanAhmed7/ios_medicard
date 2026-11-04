@@ -652,9 +652,7 @@ class PushNotificationService {
       AppRouter.current?.push('/provider-page', extra: providerId);
       return;
     }
-    final packageId = _intOrNull(
-      data['PackageId'] ?? data['packageId'],
-    );
+    final packageId = _intOrNull(data['PackageId'] ?? data['packageId']);
     if (packageId == null) {
       if (kDebugMode) {
         debugPrint(
@@ -673,10 +671,10 @@ class PushNotificationService {
   /// maps the details, and navigates to the invoice details screen.
   static Future<bool> openNotificationInvoice(int invoiceId) async {
     try {
-      final ApiResult<InvoiceDetails> result =
-          await sl<InvoiceRepository>().getInvoiceDetails(invoiceId);
+      final ApiResult<InvoiceDetails> result = await sl<InvoiceRepository>()
+          .getInvoiceDetails(invoiceId);
 
-      return result.when(
+      return await result.when(
         success: (details) {
           final invoiceItem = InvoiceItem(
             invoiceId: details.invoiceId ?? invoiceId,
@@ -708,7 +706,9 @@ class PushNotificationService {
         },
         failure: (error) {
           if (kDebugMode) {
-            debugPrint('[Push] getInvoiceDetails failed for $invoiceId: $error');
+            debugPrint(
+              '[Push] getInvoiceDetails failed for $invoiceId: $error',
+            );
           }
           return false;
         },
@@ -737,17 +737,15 @@ class PushNotificationService {
     try {
       final ApiResult<PackageDetailsResponse> result =
           await sl<MedicardNetworkRepository>().getPackageDetails(
-        packageId: packageId,
-      );
+            packageId: packageId,
+          );
       final resolvedProviderId = result.maybeWhen(
         success: (response) => response.data?.providerId,
         orElse: () => null,
       );
       if (resolvedProviderId == null) {
         if (kDebugMode) {
-          debugPrint(
-            '[Push] package $packageId has no providerId yet',
-          );
+          debugPrint('[Push] package $packageId has no providerId yet');
         }
         return false;
       }
