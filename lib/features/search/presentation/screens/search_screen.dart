@@ -21,6 +21,7 @@ class SearchScreen extends StatefulWidget {
   final double? userLongitude;
   final int? categoryId;
   final int initialTabIndex;
+  final int? initialServiceCategoryId;
   final bool enableCartFeatures;
 
   const SearchScreen({
@@ -29,6 +30,7 @@ class SearchScreen extends StatefulWidget {
     this.userLongitude,
     this.categoryId,
     this.initialTabIndex = 0,
+    this.initialServiceCategoryId,
     this.enableCartFeatures = true,
   });
 
@@ -73,7 +75,9 @@ class _SearchScreenState extends State<SearchScreen>
     if (!_scrollController.hasClients) return;
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
-      context.read<SearchCubit>().loadMore();
+      if (_tabController.index == 0) {
+        context.read<SearchCubit>().loadMore();
+      }
     }
   }
 
@@ -168,7 +172,9 @@ class _SearchScreenState extends State<SearchScreen>
                   builder: (context, hasActiveFilters) => SearchAppBar(
                     controller: _searchController,
                     onChanged: _onSearchChanged,
-                    onFilterTap: onServicesTab ? null : _openFilterSheet,
+                    onFilterTap: onServicesTab || _tabController.index == 2
+                        ? null
+                        : _openFilterSheet,
                     hasActiveFilters: hasActiveFilters,
                   ),
                 );
@@ -242,6 +248,7 @@ class _SearchScreenState extends State<SearchScreen>
                   if (_showServicesTab)
                     SearchServicesTab(
                       enableCartFeatures: widget.enableCartFeatures,
+                      initialCategoryId: widget.initialServiceCategoryId,
                     ),
                 ],
               ),

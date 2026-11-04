@@ -13,8 +13,13 @@ import 'search_shimmer.dart';
 
 class SearchServicesTab extends StatefulWidget {
   final bool enableCartFeatures;
+  final int? initialCategoryId;
 
-  const SearchServicesTab({super.key, required this.enableCartFeatures});
+  const SearchServicesTab({
+    super.key,
+    required this.enableCartFeatures,
+    this.initialCategoryId,
+  });
 
   @override
   State<SearchServicesTab> createState() => _ServicesTabState();
@@ -139,10 +144,12 @@ class _ServicesTabState extends State<SearchServicesTab> {
       return;
     }
 
-    final firstCategoryId = state.serviceCategories
-        .map((category) => category.id)
-        .whereType<int>()
-        .firstOrNull;
+    final firstCategoryId =
+        widget.initialCategoryId ??
+        state.serviceCategories
+            .map((category) => category.id)
+            .whereType<int>()
+            .firstOrNull;
     if (firstCategoryId == null) return;
 
     _didAutoSelectCategory = true;
@@ -375,7 +382,7 @@ class _ServicesHeader extends StatelessWidget {
   }
 }
 
-class _ServiceCardConnector extends StatelessWidget {
+class _ServiceCardConnector extends StatefulWidget {
   final int serviceId;
   final int categoryId;
   final String? serviceNameAr;
@@ -392,30 +399,65 @@ class _ServiceCardConnector extends StatelessWidget {
   });
 
   @override
+  State<_ServiceCardConnector> createState() => _ServiceCardConnectorState();
+}
+
+class _ServiceCardConnectorState extends State<_ServiceCardConnector> {
+  int quantity = 1;
+
+  @override
   Widget build(BuildContext context) {
     return BlocSelector<SearchCubit, SearchState, bool>(
-      selector: (state) => state.pendingServiceIds.contains(serviceId),
+      selector: (state) => state.pendingServiceIds.contains(widget.serviceId),
       builder: (context, isPending) {
         return _ServiceCard(
-          serviceId: serviceId,
-          serviceNameAr: serviceNameAr,
-          serviceNameEn: serviceNameEn,
-          isSelected: isSelected,
+          serviceId: widget.serviceId,
+          serviceNameAr: widget.serviceNameAr,
+          serviceNameEn: widget.serviceNameEn,
+          isSelected: widget.isSelected,
           isPending: isPending,
+          isMedicine: widget.categoryId == 1,
+          quantity: quantity,
+          onIncrement: () {
+            if (!widget.isSelected || isPending || widget.categoryId != 1) {
+              return;
+            }
+            final next = quantity + 1;
+            setState(() => quantity = next);
+            context.read<SearchCubit>().updateMedicineQuantity(
+              serviceId: widget.serviceId,
+              quantity: next,
+            );
+          },
+          onDecrement: () {
+            if (!widget.isSelected ||
+                isPending ||
+                widget.categoryId != 1 ||
+                quantity <= 1) {
+              return;
+            }
+            final next = quantity - 1;
+            setState(() => quantity = next);
+            context.read<SearchCubit>().updateMedicineQuantity(
+              serviceId: widget.serviceId,
+              quantity: next,
+            );
+          },
           onToggle: () {
             if (!context.read<SearchCubit>().enableCartFeatures) {
               showLoginRequiredMessage(context);
               return;
             }
-            if (isSelected) {
+            if (widget.isSelected) {
               context.read<SearchCubit>().removeServiceFromCart(
-                serviceId: serviceId,
-                categoryId: categoryId,
+                serviceId: widget.serviceId,
+                categoryId: widget.categoryId,
               );
             } else {
               context.read<SearchCubit>().addServiceToCart(
-                serviceId: serviceId,
-                categoryId: categoryId,
+                serviceId: widget.serviceId,
+                categoryId: widget.categoryId,
+                quantity: widget.categoryId == 1 ? quantity : 1,
               );
             }
           },
@@ -431,6 +473,10 @@ class _ServiceCard extends StatelessWidget {
   final String? serviceNameEn;
   final bool isSelected;
   final bool isPending;
+  final bool isMedicine;
+  final int quantity;
+  final VoidCallback onIncrement;
+  final VoidCallback onDecrement;
   final VoidCallback onToggle;
 
   const _ServiceCard({
@@ -439,6 +485,10 @@ class _ServiceCard extends StatelessWidget {
     required this.serviceNameEn,
     required this.isSelected,
     required this.isPending,
+    required this.isMedicine,
+    required this.quantity,
+    required this.onIncrement,
+    required this.onDecrement,
     required this.onToggle,
   });
 
@@ -560,42 +610,86 @@ class _ServiceCard extends StatelessWidget {
             ),
           ),
           SizedBox(width: 12.w),
-          GestureDetector(
-            onTap: isPending ? null : onToggle,
-            child: Container(
-              width: 34.r,
-              height: 34.r,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isSelected && !isPending
-                    ? const Color(0xFF3872B1)
-                    : Colors.transparent,
-                border: Border.all(color: const Color(0xFF3872B1), width: 1.8),
-              ),
-              child: Center(
-                child: isPending
-                    ? SizedBox(
-                        width: 16.r,
-                        height: 16.r,
-                        child: const CircularProgressIndicator(
-                          strokeWidth: 1.8,
-                          color: Color(0xFF3872B1),
+          if (isMedicine && isSelected && !isPending)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _QuantityButton(icon: Icons.remove, onTap: onDecrement),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w),
+                  child: Text(
+                    '$quantity',
+                    style: AppTextStyles.of(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                _QuantityButton(icon: Icons.add, onTap: onIncrement),
+              ],
+            )
+          else
+            GestureDetector(
+              onTap: isPending ? null : onToggle,
+              child: Container(
+                width: 34.r,
+                height: 34.r,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isSelected && !isPending
+                      ? const Color(0xFF3872B1)
+                      : Colors.transparent,
+                  border: Border.all(
+                    color: const Color(0xFF3872B1),
+                    width: 1.8,
+                  ),
+                ),
+                child: Center(
+                  child: isPending
+                      ? SizedBox(
+                          width: 16.r,
+                          height: 16.r,
+                          child: const CircularProgressIndicator(
+                            strokeWidth: 1.8,
+                            color: Color(0xFF3872B1),
+                          ),
+                        )
+                      : Icon(
+                          isSelected ? Icons.check : Icons.add,
+                          color: isSelected
+                              ? Colors.white
+                              : const Color(0xFF3872B1),
+                          size: 18.sp,
                         ),
-                      )
-                    : Icon(
-                        isSelected ? Icons.check : Icons.add,
-                        color: isSelected
-                            ? Colors.white
-                            : const Color(0xFF3872B1),
-                        size: 18.sp,
-                      ),
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
   }
+}
+
+class _QuantityButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _QuantityButton({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) => GestureDetector(
+    onTap: onTap,
+    child: Container(
+      width: 30.r,
+      height: 30.r,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: const Color(0xFFEFF6FF),
+        border: Border.all(color: const Color(0xFF3872B1)),
+      ),
+      child: Icon(icon, size: 17.sp, color: const Color(0xFF3872B1)),
+    ),
+  );
 }
 
 class _ReviewServicesBar extends StatelessWidget {

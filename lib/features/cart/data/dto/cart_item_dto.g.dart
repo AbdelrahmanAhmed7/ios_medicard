@@ -17,7 +17,10 @@ CartItemDto _$CartItemDtoFromJson(Map<String, dynamic> json) => CartItemDto(
   providerImageUrl: json['providerImageUrl'] as String?,
   priceAfter: (json['priceAfter'] as num?)?.toDouble(),
   priceBefore: (json['priceBefore'] as num?)?.toDouble(),
+  lineTotalAfter: (json['lineTotalAfter'] as num?)?.toDouble(),
+  lineTotalBefore: (json['lineTotalBefore'] as num?)?.toDouble(),
   discountPercentage: (json['discountPercentage'] as num?)?.toDouble(),
+  quantity: (json['quantity'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$CartItemDtoToJson(CartItemDto instance) =>
@@ -32,5 +35,8 @@ Map<String, dynamic> _$CartItemDtoToJson(CartItemDto instance) =>
       'providerImageUrl': instance.providerImageUrl,
       'priceAfter': instance.priceAfter,
       'priceBefore': instance.priceBefore,
+      'lineTotalAfter': instance.lineTotalAfter,
+      'lineTotalBefore': instance.lineTotalBefore,
       'discountPercentage': instance.discountPercentage,
+      'quantity': instance.quantity,
     };

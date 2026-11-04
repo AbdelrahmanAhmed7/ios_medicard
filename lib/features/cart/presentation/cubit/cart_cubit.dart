@@ -291,6 +291,22 @@ class CartCubit extends Cubit<CartState> {
     );
   }
 
+  Future<void> updateMedicineQuantity({
+    required int serviceId,
+    required int quantity,
+  }) async {
+    if (isClosed || quantity < 1) return;
+    final result = await _repository.updateMedicineQuantity(
+      serviceId: serviceId,
+      quantity: quantity,
+    );
+    if (isClosed) return;
+    result.when(
+      success: (_) => loadCart(),
+      failure: (error) => emit(state.copyWith(cartError: error)),
+    );
+  }
+
   Future<void> loadCart() async {
     if (isClosed) return;
     final requestGeneration = ++_cartRequestGeneration;
@@ -361,7 +377,7 @@ class CartCubit extends Cubit<CartState> {
       );
     }
 
-    final providersResult = await _repository.getChooseProviders();
+    final providersResult = await _getAvailableProviders();
     if (isClosed) return;
     providersResult.when(
       success: (providers) {
@@ -420,7 +436,7 @@ class CartCubit extends Cubit<CartState> {
         resetSelectedProvider: true,
       ),
     );
-    final result = await _repository.getChooseProviders();
+    final result = await _getAvailableProviders();
     if (isClosed) return;
     result.when(
       success: (providers) {
@@ -440,6 +456,15 @@ class CartCubit extends Cubit<CartState> {
 
   void selectProvider(ProviderOption provider) {
     emit(state.copyWith(selectedProvider: provider));
+  }
+
+  Future<ApiResult<List<ProviderOption>>> _getAvailableProviders() {
+    final items = state.cart?.items ?? const <CartItem>[];
+    final isMedicine =
+        items.isNotEmpty && items.every((item) => item.categoryId == 1);
+    return isMedicine
+        ? _repository.getMedicinePharmacies()
+        : _repository.getChooseProviders();
   }
 
   void selectCheckoutBranch(ProviderBranch branch) {
@@ -611,7 +636,7 @@ class CartCubit extends Cubit<CartState> {
   }
 
   Future<ProviderOption?> _freshProviderOption(int providerId) async {
-    final result = await _repository.getChooseProviders();
+    final result = await _getAvailableProviders();
     if (isClosed) return null;
     return result.when<ProviderOption?>(
       success: (providers) {
@@ -1040,6 +1065,48 @@ class CartCubit extends Cubit<CartState> {
             cartItemsById?[service.cartItemId]?.providerId ==
                 provider.providerId,
       );
+      final medicineCart =
+          state.cart?.items.isNotEmpty == true &&
+          state.cart!.items.every((item) => item.categoryId == 1);
+      if (medicineCart) {
+        final result = await _repository.updateMedicineProvider(
+          providerId: provider.providerId,
+        );
+        if (isClosed) return false;
+        final failed = result.when(success: (_) => null, failure: (e) => e);
+        if (failed != null) {
+          emit(
+            state.copyWith(
+              isAssigningProvider: false,
+              assignProviderError: failed,
+            ),
+          );
+          return false;
+        }
+        final refreshed = await _repository.getCart();
+        if (isClosed) return false;
+        refreshed.when(
+          success: (cart) {
+            emit(
+              state.copyWith(
+                cart: cart,
+                selectedProvider: provider,
+                checkoutProvider: provider,
+                isAssigningProvider: false,
+                resetAssignProviderError: true,
+              ),
+            );
+            _broadcastCartSnapshot(cart);
+          },
+          failure: (error) => emit(
+            state.copyWith(
+              isAssigningProvider: false,
+              assignProviderError: error,
+            ),
+          ),
+        );
+        return true;
+      }
       final servicesToUpdate = provider.coveredServices
           .where(
             (service) =>

@@ -53,7 +53,8 @@ class CartBody extends StatelessWidget {
             .where(
               (item) =>
                   item.providerId != null &&
-                  (item.priceAfter != null || item.priceBefore != null),
+                  (item.totalPriceAfter != null ||
+                      item.totalPriceBefore != null),
             )
             .toList();
 
@@ -70,7 +71,8 @@ class CartBody extends StatelessWidget {
                   ? null
                   : pricedItems.fold<double>(
                       0,
-                      (sum, i) => sum + (i.priceAfter ?? i.priceBefore ?? 0),
+                      (sum, i) =>
+                          sum + (i.totalPriceAfter ?? i.totalPriceBefore ?? 0),
                     ),
               hasIncompletePrices: pricedItems.length != items.length,
               isBusy: isBusy,
@@ -448,10 +450,10 @@ class _ProviderGroupSection extends StatelessWidget {
         '';
     final subtotal = items.fold<double>(
       0,
-      (sum, i) => sum + (i.priceAfter ?? i.priceBefore ?? 0),
+      (sum, i) => sum + (i.totalPriceAfter ?? i.totalPriceBefore ?? 0),
     );
     final hasMissingPrice = items.any(
-      (item) => item.priceAfter == null && item.priceBefore == null,
+      (item) => item.totalPriceAfter == null && item.totalPriceBefore == null,
     );
     return Container(
       margin: EdgeInsets.only(bottom: 16.h),

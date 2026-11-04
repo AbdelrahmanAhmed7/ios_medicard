@@ -78,6 +78,9 @@ class _ChooseProviderScreenState extends State<ChooseProviderScreen> {
             .map((provider) => provider.forItems(remaining))
             .where((provider) => provider.coveredCount > 0)
             .toList();
+        final isMedicine =
+            remaining.isNotEmpty &&
+            remaining.every((item) => item.categoryId == 1);
         final selected = providers
             .where(
               (provider) =>
@@ -93,7 +96,11 @@ class _ChooseProviderScreenState extends State<ChooseProviderScreen> {
             children: [
               AppSimpleHeader(
                 title:
-                    (showSummary ? 'cart.your_orders' : 'cart.choose_provider')
+                    (showSummary
+                            ? 'cart.your_orders'
+                            : isMedicine
+                            ? 'cart.choose_pharmacy'
+                            : 'cart.choose_provider')
                         .tr(),
                 onBack: _reviewCart,
                 subtitle: !showSummary && providers.isNotEmpty
@@ -112,7 +119,10 @@ class _ChooseProviderScreenState extends State<ChooseProviderScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'cart.choose_provider_hint'.tr(),
+                        (isMedicine
+                                ? 'cart.choose_pharmacy_hint'
+                                : 'cart.choose_provider_hint')
+                            .tr(),
                         style: AppTextStyles.of(
                           fontSize: 14.sp,
                           color: const Color(0xFF64748B),

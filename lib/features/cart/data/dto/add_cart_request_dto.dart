@@ -9,6 +9,7 @@ class AddCartRequestDto {
   final int? providerId;
   final String? cardNumber;
   final double? price;
+  final int? quantity;
 
   const AddCartRequestDto({
     required this.serviceId,
@@ -16,6 +17,7 @@ class AddCartRequestDto {
     this.providerId,
     this.cardNumber,
     this.price,
+    this.quantity,
   });
 
   factory AddCartRequestDto.fromJson(Map<String, dynamic> json) =>

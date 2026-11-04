@@ -472,6 +472,7 @@ class SearchCubit extends Cubit<SearchState> {
   Future<void> addServiceToCart({
     required int serviceId,
     required int categoryId,
+    int quantity = 1,
   }) async {
     if (isClosed) return;
     if (!_enableCartFeatures) {
@@ -504,13 +505,19 @@ class SearchCubit extends Cubit<SearchState> {
       ),
     );
 
-    final result = await _cartRepository.addToCart(
-      serviceId: serviceId,
-      categoryId: categoryId,
-      providerId: null,
-      cardNumber: null,
-      price: null,
-    );
+    final result = categoryId == 1
+        ? await _cartRepository.addMedicineToCart(
+            serviceId: serviceId,
+            categoryId: categoryId,
+            quantity: quantity,
+          )
+        : await _cartRepository.addToCart(
+            serviceId: serviceId,
+            categoryId: categoryId,
+            providerId: null,
+            cardNumber: null,
+            price: null,
+          );
 
     if (isClosed) return;
     final pending = Set<int>.from(state.pendingServiceIds)..remove(serviceId);
@@ -557,6 +564,22 @@ class SearchCubit extends Cubit<SearchState> {
           state.copyWith(pendingServiceIds: pending, cartActionError: message),
         );
       },
+    );
+  }
+
+  Future<void> updateMedicineQuantity({
+    required int serviceId,
+    required int quantity,
+  }) async {
+    if (isClosed || quantity < 1) return;
+    final result = await _cartRepository.updateMedicineQuantity(
+      serviceId: serviceId,
+      quantity: quantity,
+    );
+    if (isClosed) return;
+    result.when(
+      success: (_) => _loadCartCounters(),
+      failure: (message) => emit(state.copyWith(cartActionError: message)),
     );
   }
 

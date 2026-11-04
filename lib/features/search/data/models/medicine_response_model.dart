@@ -1,0 +1,3 @@
+class MedicinePage {
+  const MedicinePage();
+}

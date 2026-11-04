@@ -11,6 +11,9 @@ class InvoiceItem {
   final double? priceAfter;
   final double? priceBefore;
   final double? discountPercentage;
+  final bool isMedicineInvoice;
+  final int? itemsCount;
+  final int? totalQuantity;
   final int? familyId;
   final String? beneficiaryName;
 
@@ -47,6 +50,9 @@ class InvoiceItem {
     this.priceAfter,
     this.priceBefore,
     this.discountPercentage,
+    this.isMedicineInvoice = false,
+    this.itemsCount,
+    this.totalQuantity,
     this.familyId,
     this.beneficiaryName,
   });

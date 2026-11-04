@@ -5,12 +5,20 @@ import '../../data/models/category_model.dart';
 import '../../data/models/category_services_response_model.dart';
 import '../../data/models/lookup_model.dart';
 import '../../data/models/search_response_model.dart';
+import '../../data/models/medicine_response_model.dart';
 import '../../domain/repositories/search_repository.dart';
 
 class SearchRepositoryImpl implements SearchRepository {
   final SearchRemoteDataSource _dataSource;
 
   SearchRepositoryImpl(this._dataSource);
+
+  @override
+  Future<ApiResult<MedicinePage>> searchMedicines({
+    String? search,
+    int? pageNumber,
+    int? pageSize,
+  }) async => const ApiResult.failure('Medicine search is not supported.');
 
   @override
   Future<ApiResult<SearchResponseData>> searchProviders({

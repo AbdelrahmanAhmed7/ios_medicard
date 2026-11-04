@@ -158,11 +158,11 @@ class _OrderCard extends StatelessWidget {
     final hasProviderName = providerName != null && providerName.isNotEmpty;
     final name = hasProviderName ? providerName : 'cart.provider'.tr();
     final missingPrice = items.any(
-      (item) => item.priceAfter == null && item.priceBefore == null,
+      (item) => item.totalPriceAfter == null && item.totalPriceBefore == null,
     );
     final total = items.fold(
       0.0,
-      (sum, item) => sum + (item.priceAfter ?? item.priceBefore ?? 0),
+      (sum, item) => sum + (item.totalPriceAfter ?? item.totalPriceBefore ?? 0),
     );
     return Container(
       key: isSelected ? const ValueKey('selected-provider-order') : null,
@@ -242,10 +242,11 @@ class _OrderCard extends StatelessWidget {
                   ),
                   SizedBox(width: 8.w),
                   Text(
-                    item.priceAfter == null && item.priceBefore == null
+                    item.totalPriceAfter == null &&
+                            item.totalPriceBefore == null
                         ? 'cart.price_unavailable'.tr()
                         : formatPrice(
-                            item.priceAfter ?? item.priceBefore ?? 0,
+                            item.totalPriceAfter ?? item.totalPriceBefore ?? 0,
                           ),
                     style: AppTextStyles.of(
                       fontSize: 13.sp,

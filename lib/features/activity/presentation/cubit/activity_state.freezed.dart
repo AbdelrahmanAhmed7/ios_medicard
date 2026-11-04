@@ -21,7 +21,7 @@ mixin _$ActivityState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ActivityState);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ActivityState);
 }
 
 
@@ -30,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'ActivityState()';
+    return 'ActivityState()';
 }
 
 
@@ -204,7 +204,7 @@ class _Initial implements ActivityState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Initial);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Initial);
 }
 
 
@@ -213,7 +213,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'ActivityState.initial()';
+    return 'ActivityState.initial()';
 }
 
 
@@ -236,7 +236,7 @@ class _Loading implements ActivityState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loading);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loading);
 }
 
 
@@ -245,7 +245,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'ActivityState.loading()';
+    return 'ActivityState.loading()';
 }
 
 
@@ -281,16 +281,18 @@ _$SuccessCopyWith<_Success> get copyWith => __$SuccessCopyWithImpl<_Success>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Success&&const DeepCollectionEquality().equals(other._invoices, _invoices)&&(identical(other.isLoadingMore, isLoadingMore) || other.isLoadingMore == isLoadingMore)&&(identical(other.hasMore, hasMore) || other.hasMore == hasMore));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Success&&const DeepCollectionEquality().equals(other.invoices, _invoices)&&(identical(other.isLoadingMore, isLoadingMore) || other.isLoadingMore == isLoadingMore)&&(identical(other.hasMore, hasMore) || other.hasMore == hasMore));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_invoices),isLoadingMore,hasMore);
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_invoices),isLoadingMore,hasMore);
+}
 
 @override
 String toString() {
-  return 'ActivityState.success(invoices: $invoices, isLoadingMore: $isLoadingMore, hasMore: $hasMore)';
+    return 'ActivityState.success(invoices: $invoices, isLoadingMore: $isLoadingMore, hasMore: $hasMore)';
 }
 
 
@@ -349,16 +351,18 @@ _$FailureCopyWith<_Failure> get copyWith => __$FailureCopyWithImpl<_Failure>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Failure&&(identical(other.error, error) || other.error == error));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Failure&&(identical(other.error, error) || other.error == error));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,error);
+int get hashCode {
+    return Object.hash(runtimeType,error);
+}
 
 @override
 String toString() {
-  return 'ActivityState.failure(error: $error)';
+    return 'ActivityState.failure(error: $error)';
 }
 
 

@@ -13,6 +13,7 @@ import 'package:medicard/features/cart/domain/services/cart_sync_service.dart';
 import 'package:medicard/features/search/data/models/category_model.dart';
 import 'package:medicard/features/search/data/models/category_services_response_model.dart';
 import 'package:medicard/features/search/data/models/lookup_model.dart';
+import 'package:medicard/features/search/data/models/medicine_response_model.dart';
 import 'package:medicard/features/search/data/models/search_provider_model.dart';
 import 'package:medicard/features/search/data/models/search_response_model.dart';
 import 'package:medicard/features/search/domain/repositories/search_repository.dart';
@@ -526,6 +527,15 @@ class _FakeSearchRepository implements SearchRepository {
   int? lastSortBy;
 
   @override
+  Future<ApiResult<MedicinePage>> searchMedicines({
+    String? search,
+    int? pageNumber,
+    int? pageSize,
+  }) async {
+    return const ApiResult.success(MedicinePage());
+  }
+
+  @override
   Future<ApiResult<SearchResponseData>> searchProviders({
     String? keyword,
     int? categoryId,
@@ -680,6 +690,27 @@ class _FakeCartRepository implements CartRepository {
   Future<ApiResult<void>> removeFromCart(int serviceId) async {
     return removeResults[serviceId] ?? const ApiResult.success(null);
   }
+
+  @override
+  Future<ApiResult<void>> updateMedicineQuantity({
+    required int serviceId,
+    required int quantity,
+  }) async => const ApiResult.success(null);
+
+  @override
+  Future<ApiResult<void>> addMedicineToCart({
+    required int serviceId,
+    required int categoryId,
+    required int quantity,
+  }) async => const ApiResult.success(null);
+
+  @override
+  Future<ApiResult<List<ProviderOption>>> getMedicinePharmacies() async =>
+      const ApiResult.success([]);
+
+  @override
+  Future<ApiResult<void>> updateMedicineProvider({required int providerId}) async =>
+      const ApiResult.success(null);
 
   @override
   Future<ApiResult<CategoryServices>> getCategoryServices(

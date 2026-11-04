@@ -82,7 +82,13 @@ class _ProviderQuickPickSheet extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            'cart.choose_provider'.tr(),
+                            (remaining.isNotEmpty &&
+                                        remaining.every(
+                                          (item) => item.categoryId == 1,
+                                        )
+                                    ? 'cart.choose_pharmacy'
+                                    : 'cart.choose_provider')
+                                .tr(),
                             style: AppTextStyles.of(
                               fontSize: 18.sp,
                               fontWeight: FontWeight.w700,

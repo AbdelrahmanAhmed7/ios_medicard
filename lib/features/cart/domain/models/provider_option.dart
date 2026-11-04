@@ -45,6 +45,20 @@ class ProviderOption {
   /// The API may include services already assigned to another order.
   ProviderOption forItems(Iterable<CartItem> items) {
     final requested = items.toList(growable: false);
+    if (coveredServices.isEmpty && requested.isNotEmpty) {
+      return ProviderOption(
+        providerId: providerId,
+        providerName: providerName,
+        providerImageUrl: providerImageUrl,
+        coveredCount: requested.length,
+        uncoveredCount: 0,
+        totalCount: requested.length,
+        totalPriceBefore: totalPriceBefore,
+        totalPriceAfter: totalPriceAfter,
+        coveredServices: const [],
+        uncoveredServices: const [],
+      );
+    }
     final available = {
       for (final service in coveredServices) service.cartItemId: service,
     };

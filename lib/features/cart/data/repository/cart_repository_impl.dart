@@ -12,6 +12,7 @@ import '../dto/category_service_dto.dart';
 import '../dto/category_services_dto.dart';
 import '../dto/choose_providers_dto.dart';
 import '../dto/update_cart_provider_request_dto.dart';
+import '../dto/update_medicine_quantity_request_dto.dart';
 import '../../domain/models/cart.dart';
 import '../../domain/models/cart_item.dart';
 import '../../domain/models/category_counter.dart';
@@ -47,8 +48,7 @@ class CartRepositoryImpl implements CartRepository {
   }
 
   Cart _mapCartDtoToDomain(CartDto dto) {
-    final items =
-        (dto.data?.items ?? []).map(_mapCartItemDtoToDomain).toList();
+    final items = (dto.data?.items ?? []).map(_mapCartItemDtoToDomain).toList();
     final serverCount = dto.data?.totalCount ?? 0;
     final totalCount = items.isEmpty
         ? 0
@@ -74,7 +74,10 @@ class CartRepositoryImpl implements CartRepository {
       providerImageUrl: dto.providerImageUrl,
       priceAfter: dto.priceAfter,
       priceBefore: dto.priceBefore,
+      lineTotalAfter: dto.lineTotalAfter,
+      lineTotalBefore: dto.lineTotalBefore,
       discountPercentage: dto.discountPercentage,
+      quantity: dto.quantity ?? 1,
     );
   }
 
@@ -156,6 +159,72 @@ class CartRepositoryImpl implements CartRepository {
                 errors: response.errors,
                 message: response.message,
                 fallback: 'Failed to add item to cart.',
+              ),
+            );
+    } catch (error) {
+      return ApiResult.failure(parseApiError(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<void>> addMedicineToCart({
+    required int serviceId,
+    required int categoryId,
+    required int quantity,
+  }) async {
+    try {
+      final token = await _bearerToken;
+      final response = await _dataSource.addToCart(
+        token,
+        AddCartRequestDto(
+          serviceId: serviceId,
+          categoryId: categoryId,
+          quantity: quantity,
+        ),
+      );
+      return response.succeeded == true
+          ? const ApiResult.success(null)
+          : ApiResult.failure(
+              _failureMessage(
+                errors: response.errors,
+                message: response.message,
+                fallback: 'Failed to add medicine to cart.',
+              ),
+            );
+    } catch (error) {
+      return ApiResult.failure(parseApiError(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<void>> updateMedicineQuantity({
+    required int serviceId,
+    required int quantity,
+  }) async {
+    try {
+      final cartResult = await getCart();
+      final cart = cartResult.when(
+        success: (value) => value,
+        failure: (_) => null,
+      );
+      final item = cart?.items
+          .where((item) => item.serviceId == serviceId)
+          .firstOrNull;
+      if (item == null) {
+        return const ApiResult.failure('Medicine cart item not found.');
+      }
+      final response = await _dataSource.updateMedicineQuantity(
+        await _bearerToken,
+        item.cartItemId,
+        UpdateMedicineQuantityRequestDto(quantity: quantity),
+      );
+      return response.succeeded == true
+          ? const ApiResult.success(null)
+          : ApiResult.failure(
+              _failureMessage(
+                errors: response.errors,
+                message: response.message,
+                fallback: 'Failed to update medicine quantity.',
               ),
             );
     } catch (error) {
@@ -275,6 +344,60 @@ class CartRepositoryImpl implements CartRepository {
           fallback: 'Failed to load providers.',
         ),
       );
+    } catch (error) {
+      return ApiResult.failure(parseApiError(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<List<ProviderOption>>> getMedicinePharmacies() async {
+    try {
+      final response = await _dataSource.getMedicinePharmacies(
+        await _bearerToken,
+        1,
+        10,
+      );
+      if (response.succeeded != true || response.data == null) {
+        return ApiResult.failure(
+          response.message ?? 'Failed to load pharmacies.',
+        );
+      }
+      return ApiResult.success(
+        response.data!.items
+            .where((item) => item.providerId > 0)
+            .map(
+              (item) => ProviderOption(
+                providerId: item.providerId,
+                providerName: item.providerName,
+                providerImageUrl: item.providerImageUrl,
+                coveredCount: item.medicineCount,
+                uncoveredCount: 0,
+                totalCount: item.medicineCount,
+                totalPriceBefore: item.totalPriceBefore,
+                totalPriceAfter: item.totalPriceAfter,
+                coveredServices: const [],
+                uncoveredServices: const [],
+              ),
+            )
+            .toList(),
+      );
+    } catch (error) {
+      return ApiResult.failure(parseApiError(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<void>> updateMedicineProvider({
+    required int providerId,
+  }) async {
+    try {
+      final response = await _dataSource.updateMedicineProvider(
+        await _bearerToken,
+        {'providerId': providerId},
+      );
+      return response.succeeded == true
+          ? const ApiResult.success(null)
+          : ApiResult.failure(response.message ?? 'Failed to select pharmacy.');
     } catch (error) {
       return ApiResult.failure(parseApiError(error));
     }

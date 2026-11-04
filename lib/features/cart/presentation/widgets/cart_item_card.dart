@@ -85,6 +85,41 @@ class CartItemCard extends StatelessWidget {
                         color: Color(0xFF3872B1),
                       ),
                     )
+                  else if (item.categoryId == 1)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _QuantityButton(
+                          icon: Icons.remove,
+                          onTap: item.quantity <= 1
+                              ? null
+                              : () => context
+                                    .read<CartCubit>()
+                                    .updateMedicineQuantity(
+                                      serviceId: item.serviceId,
+                                      quantity: item.quantity - 1,
+                                    ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 7.w),
+                          child: Text(
+                            '${item.quantity}',
+                            style: AppTextStyles.of(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        _QuantityButton(
+                          icon: Icons.add,
+                          onTap: () =>
+                              context.read<CartCubit>().updateMedicineQuantity(
+                                serviceId: item.serviceId,
+                                quantity: item.quantity + 1,
+                              ),
+                        ),
+                      ],
+                    )
                   else
                     GestureDetector(
                       onTap: () => context.read<CartCubit>().removeFromCart(
@@ -118,6 +153,30 @@ class CartItemCard extends StatelessWidget {
       },
     );
   }
+}
+
+class _QuantityButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback? onTap;
+
+  const _QuantityButton({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) => GestureDetector(
+    onTap: onTap,
+    child: Container(
+      width: 28.r,
+      height: 28.r,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: onTap == null
+            ? const Color(0xFFF1F5F9)
+            : const Color(0xFFEFF6FF),
+        border: Border.all(color: const Color(0xFF3872B1)),
+      ),
+      child: Icon(icon, size: 16.sp, color: const Color(0xFF3872B1)),
+    ),
+  );
 }
 
 class _Tag extends StatelessWidget {
@@ -154,7 +213,9 @@ class _PriceLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (item.priceBefore == null && item.priceAfter == null) {
+    final totalPriceBefore = item.totalPriceBefore;
+    final totalPriceAfter = item.totalPriceAfter;
+    if (totalPriceBefore == null && totalPriceAfter == null) {
       return Text(
         'cart.price_unavailable'.tr(),
         style: AppTextStyles.of(
@@ -165,27 +226,27 @@ class _PriceLine extends StatelessWidget {
       );
     }
     final hasValidBefore =
-        item.priceBefore != null &&
-        item.priceBefore! > (item.priceAfter ?? 0) &&
-        item.priceBefore! > 0;
+        totalPriceBefore != null &&
+        totalPriceBefore > (totalPriceAfter ?? 0) &&
+        totalPriceBefore > 0;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         if (hasValidBefore)
           Text(
-            formatPrice(item.priceBefore!, showFreeWhenZero: false),
+            formatPrice(totalPriceBefore, showFreeWhenZero: false),
             style: AppTextStyles.of(
               fontSize: 12.sp,
               color: const Color(0xFF94A3B8),
-              decoration: item.priceAfter != null
+              decoration: totalPriceAfter != null
                   ? TextDecoration.lineThrough
                   : TextDecoration.none,
             ),
           ),
-        if (hasValidBefore && item.priceAfter != null) SizedBox(width: 6.w),
-        if (item.priceAfter != null)
+        if (hasValidBefore && totalPriceAfter != null) SizedBox(width: 6.w),
+        if (totalPriceAfter != null)
           Text(
-            formatPrice(item.priceAfter!),
+            formatPrice(totalPriceAfter),
             style: AppTextStyles.of(
               fontSize: 15.sp,
               fontWeight: FontWeight.bold,

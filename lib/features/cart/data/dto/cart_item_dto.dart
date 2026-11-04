@@ -14,7 +14,10 @@ class CartItemDto {
   final String? providerImageUrl;
   final double? priceAfter;
   final double? priceBefore;
+  final double? lineTotalAfter;
+  final double? lineTotalBefore;
   final double? discountPercentage;
+  final int? quantity;
 
   const CartItemDto({
     this.cartItemId,
@@ -27,7 +30,10 @@ class CartItemDto {
     this.providerImageUrl,
     this.priceAfter,
     this.priceBefore,
+    this.lineTotalAfter,
+    this.lineTotalBefore,
     this.discountPercentage,
+    this.quantity,
   });
 
   factory CartItemDto.fromJson(Map<String, dynamic> json) =>

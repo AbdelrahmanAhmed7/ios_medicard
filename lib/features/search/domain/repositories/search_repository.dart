@@ -3,8 +3,14 @@ import '../../data/models/category_model.dart';
 import '../../data/models/category_services_response_model.dart';
 import '../../data/models/lookup_model.dart';
 import '../../data/models/search_response_model.dart';
+import '../../data/models/medicine_response_model.dart';
 
 abstract class SearchRepository {
+  Future<ApiResult<MedicinePage>> searchMedicines({
+    String? search,
+    int? pageNumber,
+    int? pageSize,
+  });
   Future<ApiResult<SearchResponseData>> searchProviders({
     String? keyword,
     int? categoryId,

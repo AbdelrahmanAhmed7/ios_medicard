@@ -98,6 +98,9 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
                 priceAfter: dto.priceAfter,
                 priceBefore: dto.priceBefore,
                 discountPercentage: dto.discountPercentage,
+                isMedicineInvoice: dto.isMedicineInvoice ?? false,
+                itemsCount: dto.itemsCount,
+                totalQuantity: dto.totalQuantity,
                 familyId: dto.familyId,
                 beneficiaryName: _beneficiaryName(
                   firstName: dto.familyFirstName,

@@ -118,7 +118,11 @@ class InvoiceCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        item.providerName,
+                        item.providerName.trim().isNotEmpty
+                            ? item.providerName
+                            : item.isMedicineInvoice
+                            ? 'activity.medicine_invoice'.tr()
+                            : 'activity.invoice_details_title'.tr(),
                         style: AppTextStyles.of(
                           fontSize: 16.5.sp,
                           fontWeight: FontWeight.w700,
@@ -228,6 +232,21 @@ class InvoiceCard extends StatelessWidget {
                   _InvoiceFact(
                     label: 'activity.from_package'.tr(),
                     value: 'activity.yes'.tr(),
+                  ),
+                if (item.isMedicineInvoice)
+                  _InvoiceFact(
+                    label: 'activity.invoice_type'.tr(),
+                    value: 'activity.medicine_invoice'.tr(),
+                  ),
+                if (item.itemsCount != null)
+                  _InvoiceFact(
+                    label: 'activity.items_count'.tr(),
+                    value: '${item.itemsCount}',
+                  ),
+                if (item.totalQuantity != null)
+                  _InvoiceFact(
+                    label: 'activity.total_quantity'.tr(),
+                    value: '${item.totalQuantity}',
                   ),
                 _InvoiceFact(
                   label: 'activity.reviewed'.tr(),

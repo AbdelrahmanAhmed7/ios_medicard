@@ -7,6 +7,8 @@ import '../dto/category_services_dto.dart';
 import '../dto/choose_providers_dto.dart';
 import '../dto/update_cart_provider_request_dto.dart';
 import '../dto/update_cart_provider_response_dto.dart';
+import '../dto/update_medicine_quantity_request_dto.dart';
+import '../dto/medicine_pharmacies_dto.dart';
 
 part 'cart_remote_data_source.g.dart';
 
@@ -30,6 +32,13 @@ abstract class CartRemoteDataSource {
     @Query('ServiceId') int serviceId,
   );
 
+  @PUT('Cart/medicines/{cartItemId}/quantity')
+  Future<UpdateCartProviderResponseDto> updateMedicineQuantity(
+    @Header('Authorization') String token,
+    @Path('cartItemId') int cartItemId,
+    @Body() UpdateMedicineQuantityRequestDto request,
+  );
+
   @GET('Cart/category/{categoryId}/services')
   Future<CategoryServicesDto> getCategoryServices(
     @Header('Authorization') String token,
@@ -44,6 +53,19 @@ abstract class CartRemoteDataSource {
   @GET('Cart/choose-providers')
   Future<ChooseProvidersDto> getChooseProviders(
     @Header('Authorization') String token,
+  );
+
+  @GET('Cart/medicines/choose-pharmacies')
+  Future<MedicinePharmaciesDto> getMedicinePharmacies(
+    @Header('Authorization') String token,
+    @Query('pageNumber') int pageNumber,
+    @Query('pageSize') int pageSize,
+  );
+
+  @PUT('Cart/medicines/provider')
+  Future<UpdateCartProviderResponseDto> updateMedicineProvider(
+    @Header('Authorization') String token,
+    @Body() Map<String, dynamic> body,
   );
 
   @PUT('https://medicard-api-v2.medicardeg.com/update')

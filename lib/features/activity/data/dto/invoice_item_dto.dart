@@ -16,6 +16,9 @@ class InvoiceItemDto {
   final double? priceAfter;
   final double? priceBefore;
   final double? discountPercentage;
+  final bool? isMedicineInvoice;
+  final int? itemsCount;
+  final int? totalQuantity;
   final int? familyId;
   final String? familyFirstName;
   final String? familyLastName;
@@ -33,6 +36,9 @@ class InvoiceItemDto {
     this.priceAfter,
     this.priceBefore,
     this.discountPercentage,
+    this.isMedicineInvoice,
+    this.itemsCount,
+    this.totalQuantity,
     this.familyId,
     this.familyFirstName,
     this.familyLastName,

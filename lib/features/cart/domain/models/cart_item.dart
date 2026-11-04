@@ -9,7 +9,15 @@ class CartItem {
   final String? providerImageUrl;
   final double? priceAfter;
   final double? priceBefore;
+  final double? lineTotalAfter;
+  final double? lineTotalBefore;
   final double? discountPercentage;
+  final int quantity;
+
+  double? get totalPriceAfter =>
+      lineTotalAfter ?? (priceAfter == null ? null : priceAfter! * quantity);
+  double? get totalPriceBefore =>
+      lineTotalBefore ?? (priceBefore == null ? null : priceBefore! * quantity);
 
   const CartItem({
     required this.cartItemId,
@@ -22,7 +30,10 @@ class CartItem {
     this.providerImageUrl,
     this.priceAfter,
     this.priceBefore,
+    this.lineTotalAfter,
+    this.lineTotalBefore,
     this.discountPercentage,
+    this.quantity = 1,
   });
 
   CartItem copyWith({
@@ -31,8 +42,12 @@ class CartItem {
     String? providerImageUrl,
     double? priceAfter,
     double? priceBefore,
+    double? lineTotalAfter,
+    double? lineTotalBefore,
     double? discountPercentage,
+    int? quantity,
   }) {
+    final quantityChanged = quantity != null && quantity != this.quantity;
     return CartItem(
       cartItemId: cartItemId,
       serviceId: serviceId,
@@ -44,7 +59,12 @@ class CartItem {
       providerImageUrl: providerImageUrl ?? this.providerImageUrl,
       priceAfter: priceAfter ?? this.priceAfter,
       priceBefore: priceBefore ?? this.priceBefore,
+      lineTotalAfter:
+          lineTotalAfter ?? (quantityChanged ? null : this.lineTotalAfter),
+      lineTotalBefore:
+          lineTotalBefore ?? (quantityChanged ? null : this.lineTotalBefore),
       discountPercentage: discountPercentage ?? this.discountPercentage,
+      quantity: quantity ?? this.quantity,
     );
   }
 }
