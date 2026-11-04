@@ -21,7 +21,7 @@ mixin _$AddressesState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AddressesState);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AddressesState);
 }
 
 
@@ -30,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'AddressesState()';
+    return 'AddressesState()';
 }
 
 
@@ -216,7 +216,7 @@ class _Initial implements AddressesState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Initial);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Initial);
 }
 
 
@@ -225,7 +225,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'AddressesState.initial()';
+    return 'AddressesState.initial()';
 }
 
 
@@ -248,7 +248,7 @@ class _Loading implements AddressesState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loading);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loading);
 }
 
 
@@ -257,7 +257,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'AddressesState.loading()';
+    return 'AddressesState.loading()';
 }
 
 
@@ -291,16 +291,18 @@ _$SuccessCopyWith<_Success> get copyWith => __$SuccessCopyWithImpl<_Success>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Success&&const DeepCollectionEquality().equals(other._addresses, _addresses));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Success&&const DeepCollectionEquality().equals(other.addresses, _addresses));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_addresses));
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_addresses));
+}
 
 @override
 String toString() {
-  return 'AddressesState.success(addresses: $addresses)';
+    return 'AddressesState.success(addresses: $addresses)';
 }
 
 
@@ -357,16 +359,18 @@ _$FailedCopyWith<_Failed> get copyWith => __$FailedCopyWithImpl<_Failed>(this, _
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Failed&&(identical(other.error, error) || other.error == error));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Failed&&(identical(other.error, error) || other.error == error));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,error);
+int get hashCode {
+    return Object.hash(runtimeType,error);
+}
 
 @override
 String toString() {
-  return 'AddressesState.failed(error: $error)';
+    return 'AddressesState.failed(error: $error)';
 }
 
 
@@ -418,7 +422,7 @@ class _Deleting implements AddressesState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Deleting);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Deleting);
 }
 
 
@@ -427,7 +431,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'AddressesState.deleting()';
+    return 'AddressesState.deleting()';
 }
 
 
@@ -450,7 +454,7 @@ class _Deleted implements AddressesState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Deleted);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Deleted);
 }
 
 
@@ -459,7 +463,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'AddressesState.deleted()';
+    return 'AddressesState.deleted()';
 }
 
 

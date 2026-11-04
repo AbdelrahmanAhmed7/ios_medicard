@@ -21,7 +21,7 @@ mixin _$FamilyMembersState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FamilyMembersState);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is FamilyMembersState);
 }
 
 
@@ -30,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'FamilyMembersState()';
+    return 'FamilyMembersState()';
 }
 
 
@@ -240,7 +240,7 @@ class _Initial implements FamilyMembersState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Initial);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Initial);
 }
 
 
@@ -249,7 +249,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'FamilyMembersState.initial()';
+    return 'FamilyMembersState.initial()';
 }
 
 
@@ -272,7 +272,7 @@ class _Loading implements FamilyMembersState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loading);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loading);
 }
 
 
@@ -281,7 +281,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'FamilyMembersState.loading()';
+    return 'FamilyMembersState.loading()';
 }
 
 
@@ -315,16 +315,18 @@ _$SuccessCopyWith<_Success> get copyWith => __$SuccessCopyWithImpl<_Success>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Success&&const DeepCollectionEquality().equals(other._members, _members));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Success&&const DeepCollectionEquality().equals(other.members, _members));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_members));
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_members));
+}
 
 @override
 String toString() {
-  return 'FamilyMembersState.success(members: $members)';
+    return 'FamilyMembersState.success(members: $members)';
 }
 
 
@@ -381,16 +383,18 @@ _$FailedCopyWith<_Failed> get copyWith => __$FailedCopyWithImpl<_Failed>(this, _
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Failed&&(identical(other.error, error) || other.error == error));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Failed&&(identical(other.error, error) || other.error == error));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,error);
+int get hashCode {
+    return Object.hash(runtimeType,error);
+}
 
 @override
 String toString() {
-  return 'FamilyMembersState.failed(error: $error)';
+    return 'FamilyMembersState.failed(error: $error)';
 }
 
 
@@ -442,7 +446,7 @@ class _Creating implements FamilyMembersState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Creating);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Creating);
 }
 
 
@@ -451,7 +455,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'FamilyMembersState.creating()';
+    return 'FamilyMembersState.creating()';
 }
 
 
@@ -474,7 +478,7 @@ class _Created implements FamilyMembersState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Created);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Created);
 }
 
 
@@ -483,7 +487,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'FamilyMembersState.created()';
+    return 'FamilyMembersState.created()';
 }
 
 
@@ -506,7 +510,7 @@ class _Updating implements FamilyMembersState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Updating);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Updating);
 }
 
 
@@ -515,7 +519,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'FamilyMembersState.updating()';
+    return 'FamilyMembersState.updating()';
 }
 
 
@@ -538,7 +542,7 @@ class _Updated implements FamilyMembersState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Updated);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Updated);
 }
 
 
@@ -547,7 +551,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'FamilyMembersState.updated()';
+    return 'FamilyMembersState.updated()';
 }
 
 
@@ -570,7 +574,7 @@ class _Deleting implements FamilyMembersState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Deleting);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Deleting);
 }
 
 
@@ -579,7 +583,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'FamilyMembersState.deleting()';
+    return 'FamilyMembersState.deleting()';
 }
 
 
@@ -602,7 +606,7 @@ class _Deleted implements FamilyMembersState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Deleted);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Deleted);
 }
 
 
@@ -611,7 +615,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'FamilyMembersState.deleted()';
+    return 'FamilyMembersState.deleted()';
 }
 
 

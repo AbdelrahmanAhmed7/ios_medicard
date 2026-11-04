@@ -21,7 +21,7 @@ mixin _$ECardState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ECardState);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ECardState);
 }
 
 
@@ -30,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'ECardState()';
+    return 'ECardState()';
 }
 
 
@@ -204,7 +204,7 @@ class _Initial implements ECardState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Initial);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Initial);
 }
 
 
@@ -213,7 +213,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'ECardState.initial()';
+    return 'ECardState.initial()';
 }
 
 
@@ -236,7 +236,7 @@ class _Loading implements ECardState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loading);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loading);
 }
 
 
@@ -245,7 +245,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'ECardState.loading()';
+    return 'ECardState.loading()';
 }
 
 
@@ -273,16 +273,18 @@ _$LoadedCopyWith<_Loaded> get copyWith => __$LoadedCopyWithImpl<_Loaded>(this, _
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loaded&&(identical(other.data, data) || other.data == data));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loaded&&(identical(other.data, data) || other.data == data));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,data);
+int get hashCode {
+    return Object.hash(runtimeType,data);
+}
 
 @override
 String toString() {
-  return 'ECardState.loaded(data: $data)';
+    return 'ECardState.loaded(data: $data)';
 }
 
 
@@ -339,16 +341,18 @@ _$FailedCopyWith<_Failed> get copyWith => __$FailedCopyWithImpl<_Failed>(this, _
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Failed&&(identical(other.error, error) || other.error == error));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Failed&&(identical(other.error, error) || other.error == error));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,error);
+int get hashCode {
+    return Object.hash(runtimeType,error);
+}
 
 @override
 String toString() {
-  return 'ECardState.failed(error: $error)';
+    return 'ECardState.failed(error: $error)';
 }
 
 

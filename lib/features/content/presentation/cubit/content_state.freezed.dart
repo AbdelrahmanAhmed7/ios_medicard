@@ -21,7 +21,7 @@ mixin _$ContentState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ContentState);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ContentState);
 }
 
 
@@ -30,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'ContentState()';
+    return 'ContentState()';
 }
 
 
@@ -204,7 +204,7 @@ class _Initial implements ContentState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Initial);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Initial);
 }
 
 
@@ -213,7 +213,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'ContentState.initial()';
+    return 'ContentState.initial()';
 }
 
 
@@ -236,7 +236,7 @@ class _Loading implements ContentState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loading);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loading);
 }
 
 
@@ -245,7 +245,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'ContentState.loading()';
+    return 'ContentState.loading()';
 }
 
 
@@ -273,16 +273,18 @@ _$SuccessCopyWith<_Success> get copyWith => __$SuccessCopyWithImpl<_Success>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Success&&(identical(other.data, data) || other.data == data));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Success&&(identical(other.data, data) || other.data == data));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,data);
+int get hashCode {
+    return Object.hash(runtimeType,data);
+}
 
 @override
 String toString() {
-  return 'ContentState.success(data: $data)';
+    return 'ContentState.success(data: $data)';
 }
 
 
@@ -339,16 +341,18 @@ _$FailedCopyWith<_Failed> get copyWith => __$FailedCopyWithImpl<_Failed>(this, _
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Failed&&(identical(other.error, error) || other.error == error));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Failed&&(identical(other.error, error) || other.error == error));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,error);
+int get hashCode {
+    return Object.hash(runtimeType,error);
+}
 
 @override
 String toString() {
-  return 'ContentState.failed(error: $error)';
+    return 'ContentState.failed(error: $error)';
 }
 
 

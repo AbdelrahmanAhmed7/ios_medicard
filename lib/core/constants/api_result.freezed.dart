@@ -21,7 +21,7 @@ mixin _$ApiResult<T> {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ApiResult<T>);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is ApiResult<T>);
 }
 
 
@@ -30,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'ApiResult<$T>()';
+    return 'ApiResult<$T>()';
 }
 
 
@@ -197,16 +197,18 @@ $SuccessCopyWith<T, Success<T>> get copyWith => _$SuccessCopyWithImpl<T, Success
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Success<T>&&const DeepCollectionEquality().equals(other.data, data));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is Success<T>&&const DeepCollectionEquality().equals(other.data, data));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(data));
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(data));
+}
 
 @override
 String toString() {
-  return 'ApiResult<$T>.success(data: $data)';
+    return 'ApiResult<$T>.success(data: $data)';
 }
 
 
@@ -263,16 +265,18 @@ $FailureCopyWith<T, Failure<T>> get copyWith => _$FailureCopyWithImpl<T, Failure
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Failure<T>&&(identical(other.message, message) || other.message == message));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is Failure<T>&&(identical(other.message, message) || other.message == message));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message);
+int get hashCode {
+    return Object.hash(runtimeType,message);
+}
 
 @override
 String toString() {
-  return 'ApiResult<$T>.failure(message: $message)';
+    return 'ApiResult<$T>.failure(message: $message)';
 }
 
 

@@ -21,7 +21,7 @@ mixin _$MedicardLoginState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MedicardLoginState);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is MedicardLoginState);
 }
 
 
@@ -30,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'MedicardLoginState()';
+    return 'MedicardLoginState()';
 }
 
 
@@ -204,7 +204,7 @@ class Initial implements MedicardLoginState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Initial);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is Initial);
 }
 
 
@@ -213,7 +213,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'MedicardLoginState.initial()';
+    return 'MedicardLoginState.initial()';
 }
 
 
@@ -236,7 +236,7 @@ class Loading implements MedicardLoginState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Loading);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is Loading);
 }
 
 
@@ -245,7 +245,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'MedicardLoginState.loading()';
+    return 'MedicardLoginState.loading()';
 }
 
 
@@ -273,16 +273,18 @@ $SuccessCopyWith<Success> get copyWith => _$SuccessCopyWithImpl<Success>(this, _
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Success&&(identical(other.response, response) || other.response == response));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is Success&&(identical(other.response, response) || other.response == response));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,response);
+int get hashCode {
+    return Object.hash(runtimeType,response);
+}
 
 @override
 String toString() {
-  return 'MedicardLoginState.success(response: $response)';
+    return 'MedicardLoginState.success(response: $response)';
 }
 
 
@@ -339,16 +341,18 @@ $FailedCopyWith<Failed> get copyWith => _$FailedCopyWithImpl<Failed>(this, _$ide
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Failed&&(identical(other.error, error) || other.error == error));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is Failed&&(identical(other.error, error) || other.error == error));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,error);
+int get hashCode {
+    return Object.hash(runtimeType,error);
+}
 
 @override
 String toString() {
-  return 'MedicardLoginState.failed(error: $error)';
+    return 'MedicardLoginState.failed(error: $error)';
 }
 
 
