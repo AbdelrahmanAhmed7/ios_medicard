@@ -284,6 +284,7 @@
     "services": "Services",
     "providers": "Providers",
     "medicine": "Medicine",
+    "no_medicines_found": "No medicines found",
     "discover_offers": "Discover offers",
     "nearest_providers": "Nearest Providers",
     "pending_appointments": "Pending Appointments",
@@ -309,6 +310,15 @@
     "nav_home": "Home",
     "nav_invoices": "Invoices",
     "nav_profile": "Profile"
+  },
+  "manual_prescription": {
+    "title": "Upload Prescription",
+    "choose_image": "Choose prescription image",
+    "take_photo": "Take a photo",
+    "text_label": "Description",
+    "text_hint": "Write a short description",
+    "submit": "Upload Prescription",
+    "upload_success": "Prescription uploaded successfully"
   },
   "guest_home": {
     "welcome_title": "Welcome to Medicard",
@@ -419,6 +429,8 @@
     "no_branches_found": "No branches found"
   },
   "cart": {
+    "choose_pharmacy": "Choose Pharmacy",
+    "choose_pharmacy_hint": "Select a pharmacy for your medicine order.",
     "title": "Cart",
     "view_cart": "View Cart",
     "choose_provider": "Choose a provider",
@@ -530,6 +542,10 @@
     "provider_saved_toast": "Provider saved"
   },
   "activity": {
+    "medicine_invoice": "Medicine invoice",
+    "invoice_type": "Type",
+    "items_count": "Items",
+    "total_quantity": "Quantity",
     "invoices_subtitle": "Track and manage all your invoices",
     "pending": "Pending",
     "paid": "Paid",

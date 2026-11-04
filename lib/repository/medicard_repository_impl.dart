@@ -93,14 +93,13 @@ class MedicardRepositoryImpl implements MedicardRepository {
   }
 
   String _authFailureMessage(AuthResponseModel response) {
-    final raw =
-        (response.errors != null && response.errors!.isNotEmpty)
-            ? response.errors!.join('\n')
-            : response.message?.isNotEmpty == true
-            ? response.message!
-            : response.data?.message?.isNotEmpty == true
-            ? response.data!.message!
-            : '';
+    final raw = (response.errors != null && response.errors!.isNotEmpty)
+        ? response.errors!.join('\n')
+        : response.message?.isNotEmpty == true
+        ? response.message!
+        : response.data?.message?.isNotEmpty == true
+        ? response.data!.message!
+        : '';
     if (raw.isEmpty) return parseApiError('');
     // Map known backend messages (e.g. "Invalid phone number format..." ->
     // localized phone error, "User not found" -> invalid credentials) so the
@@ -118,6 +117,27 @@ class MedicardRepositoryImpl implements MedicardRepository {
       return _isRegisterSuccess(response)
           ? ApiResult.success(response)
           : ApiResult.failure(_authFailureMessage(response));
+    } catch (error) {
+      return ApiResult.failure(parseApiError(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<void>> createManualPrescription({
+    required String imagePath,
+    String? text,
+  }) async {
+    try {
+      final fileName = imagePath.split(RegExp(r'[\\/]')).last;
+      final response = await _apiService.createManualPrescription(
+        await MultipartFile.fromFile(imagePath, filename: fileName),
+        text,
+      );
+      return response.succeeded
+          ? const ApiResult.success(null)
+          : ApiResult.failure(
+              response.message ?? 'Failed to upload prescription.',
+            );
     } catch (error) {
       return ApiResult.failure(parseApiError(error));
     }

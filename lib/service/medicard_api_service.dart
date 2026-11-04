@@ -29,12 +29,20 @@ import '../features/addresses/data/models/save_user_address_request_model.dart';
 import '../features/addresses/data/models/user_address_operation_response_model.dart';
 import '../features/search/data/models/lookup_response_model.dart';
 import '../features/guest_home/data/models/guest_home_response_model.dart';
+import '../data/manual_prescription_response_model.dart';
 
 part 'medicard_api_service.g.dart';
 
 @RestApi(baseUrl: 'https://medicard-api-v2.medicardeg.com/api/')
 abstract class MedicardApiService {
   factory MedicardApiService(Dio dio, {String baseUrl}) = _MedicardApiService;
+
+  @POST('ManualPrescription')
+  @MultiPart()
+  Future<ManualPrescriptionResponseModel> createManualPrescription(
+    @Part(name: 'Image') MultipartFile image,
+    @Part(name: 'Text') String? text,
+  );
 
   @POST("Auth/register")
   Future<AuthResponseModel> register(@Body() AuthRegisterRequestModel request);

@@ -52,7 +52,9 @@ class QuickActionsRow extends StatelessWidget {
                               Icon(
                                 icon,
                                 size: 34,
-                                color: const Color(0xFF9CA3AF),
+                                color: action.enabled
+                                    ? const Color(0xFF3872B1)
+                                    : const Color(0xFF9CA3AF),
                               ),
                             const SizedBox(height: 8),
                             Text(
@@ -90,13 +92,18 @@ class QuickActionsRow extends StatelessWidget {
           extra: {'enableCartFeatures': !isGuest},
         );
         break;
+      case 'home.upload_prescription':
+        if (isGuest) {
+          context.go('/medicard-login');
+        } else {
+          context.push('/manual-prescription');
+        }
+        break;
       case 'home.providers':
         context.push(
           '/search/providers',
           extra: {'enableCartFeatures': !isGuest},
         );
-        break;
-      case 'home.medicine':
         break;
     }
   }

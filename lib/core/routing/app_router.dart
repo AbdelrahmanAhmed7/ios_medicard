@@ -35,6 +35,7 @@ import '../../features/guest_home/presentation/pages/guest_home_screen.dart';
 import '../../features/help_center/presentation/pages/help_center_screen.dart';
 import '../../features/home/domain/models/appointment_model.dart';
 import '../../features/home/presentation/pages/home_screen.dart';
+import '../../features/home/presentation/pages/manual_prescription_screen.dart';
 import '../../features/home/presentation/widgets/pending_appointment_details_screen.dart';
 import '../../features/notifications/presentation/cubit/notification_cubit.dart';
 import '../../features/notifications/presentation/pages/notifications_screen.dart';
@@ -312,6 +313,10 @@ class AppRouter {
           },
         ),
         GoRoute(
+          path: '/manual-prescription',
+          builder: (context, state) => const ManualPrescriptionScreen(),
+        ),
+        GoRoute(
           path: '/change-password',
           builder: (context, state) {
             return BlocProvider(
@@ -378,6 +383,7 @@ class AppRouter {
             final categoryId = extra?['categoryId'] as int?;
             final enableCartFeatures =
                 extra?['enableCartFeatures'] as bool? ?? true;
+            final serviceCategoryId = extra?['serviceCategoryId'] as int?;
             return MultiBlocProvider(
               providers: [
                 BlocProvider(create: (_) => sl<SearchCubit>()),
@@ -389,6 +395,7 @@ class AppRouter {
                 categoryId: categoryId,
                 initialTabIndex: 1,
                 enableCartFeatures: enableCartFeatures,
+                initialServiceCategoryId: serviceCategoryId,
               ),
             );
           },
@@ -603,7 +610,8 @@ class AppRouter {
                 details?.invoiceId ??
                 0;
             final tab = extra['tab'] as int? ?? 0;
-            final effectiveInvoice = invoice ??
+            final effectiveInvoice =
+                invoice ??
                 InvoiceItem(
                   invoiceId: invoiceId,
                   providerName: details?.providerName ?? '',

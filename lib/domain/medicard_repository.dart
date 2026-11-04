@@ -103,4 +103,9 @@ abstract class MedicardRepository {
     double? latitude,
     double? longitude,
   });
+
+  Future<ApiResult<void>> createManualPrescription({
+    required String imagePath,
+    String? text,
+  });
 }

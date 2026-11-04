@@ -284,6 +284,7 @@
     "services": "الخدمات",
     "providers": "مقدمي الخدمة",
     "medicine": "الدواء",
+    "no_medicines_found": "لم يتم العثور على أدوية",
     "discover_offers": "اكتشف العروض",
     "nearest_providers": "الأقرب إليك",
     "pending_appointments": "المواعيد المعلقة",
@@ -309,6 +310,15 @@
     "nav_home": "الرئيسية",
     "nav_invoices": "الفواتير",
     "nav_profile": "حسابي"
+  },
+  "manual_prescription": {
+    "title": "رفع روشتة",
+    "choose_image": "اختار صورة الروشتة",
+    "take_photo": "تصوير الروشتة",
+    "text_label": "الوصف",
+    "text_hint": "اكتب وصفًا مختصرًا",
+    "submit": "رفع الروشتة",
+    "upload_success": "تم رفع الروشتة بنجاح"
   },
   "guest_home": {
     "welcome_title": "مرحباً بك في ميديكارد",
@@ -421,6 +431,8 @@
     "no_branches_found": "لا توجد فروع مطابقة"
   },
   "cart": {
+    "choose_pharmacy": "اختيار الصيدلية",
+    "choose_pharmacy_hint": "اختار الصيدلية المناسبة لطلب الأدوية.",
     "title": "السلة",
     "view_cart": "عرض السلة",
     "choose_provider": "اختيار مقدم الخدمة",
@@ -458,7 +470,7 @@
     "continue_payment": "استكمال الدفع",
     "pay_with_visa": "ادفع بالفيزا",
     "pay": "تأكيد الطلب",
-    "egp_currency": "جنيه",
+    "egp_currency": "جنيه مصري",
     "items_in_cart": "{} عنصر في السلة",
     "clear_cart": "مسح السلة",
     "clear_cart_question": "مسح السلة؟",
@@ -532,6 +544,10 @@
     "provider_saved_toast": "تم حفظ مقدم الخدمة"
   },
   "activity": {
+    "medicine_invoice": "فاتورة أدوية",
+    "invoice_type": "النوع",
+    "items_count": "الأصناف",
+    "total_quantity": "الكمية",
     "invoices_subtitle": "تابع وأدر جميع فواتيرك",
     "pending": "في الانتظار",
     "paid": "مدفوعة",
