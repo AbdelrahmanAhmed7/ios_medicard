@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:easy_localization/easy_localization.dart';
@@ -6,6 +7,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -27,6 +29,7 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await _configureHighRefreshRate();
 
   await Future.wait([
     EasyLocalization.ensureInitialized(),
@@ -79,6 +82,21 @@ void main() async {
   WidgetsBinding.instance.addPostFrameCallback((_) {
     unawaited(_initializeNonBlockingServices());
   });
+}
+
+/// Requests the highest supported Android refresh rate without making display
+/// configuration a startup requirement. iOS ProMotion is enabled through
+/// CADisableMinimumFrameDurationOnPhone in Runner/Info.plist.
+Future<void> _configureHighRefreshRate() async {
+  if (!Platform.isAndroid) return;
+  try {
+    await FlutterDisplayMode.setHighRefreshRate();
+  } catch (error, stackTrace) {
+    if (kDebugMode) {
+      debugPrint('[Startup] High refresh rate setup skipped: $error');
+      debugPrintStack(stackTrace: stackTrace);
+    }
+  }
 }
 
 Future<void> _initializeNonBlockingServices() async {
