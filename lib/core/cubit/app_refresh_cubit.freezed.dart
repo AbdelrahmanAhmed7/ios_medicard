@@ -13,15 +13,21 @@ part of 'app_refresh_cubit.dart';
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
-mixin _$AppRefreshState {
-
+mixin _$AppRefreshState implements DiagnosticableTreeMixin {
 
 
 
 
 @override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    properties
+    ..add(DiagnosticsProperty('type', 'AppRefreshState'))
+    ;
+}
+
+@override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppRefreshState);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is AppRefreshState);
 }
 
 
@@ -29,8 +35,8 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString() {
-  return 'AppRefreshState()';
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+    return 'AppRefreshState()';
 }
 
 
@@ -187,7 +193,7 @@ return sessionExpired();case _:
 /// @nodoc
 
 
-class _Initial implements AppRefreshState {
+class _Initial with DiagnosticableTreeMixin implements AppRefreshState {
   const _Initial();
   
 
@@ -195,10 +201,16 @@ class _Initial implements AppRefreshState {
 
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    properties
+    ..add(DiagnosticsProperty('type', 'AppRefreshState.initial'))
+    ;
+}
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Initial);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Initial);
 }
 
 
@@ -206,8 +218,8 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString() {
-  return 'AppRefreshState.initial()';
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+    return 'AppRefreshState.initial()';
 }
 
 
@@ -219,7 +231,7 @@ String toString() {
 /// @nodoc
 
 
-class LanguageChanged implements AppRefreshState {
+class LanguageChanged with DiagnosticableTreeMixin implements AppRefreshState {
   const LanguageChanged();
   
 
@@ -227,10 +239,16 @@ class LanguageChanged implements AppRefreshState {
 
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    properties
+    ..add(DiagnosticsProperty('type', 'AppRefreshState.languageChanged'))
+    ;
+}
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is LanguageChanged);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is LanguageChanged);
 }
 
 
@@ -238,8 +256,8 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString() {
-  return 'AppRefreshState.languageChanged()';
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+    return 'AppRefreshState.languageChanged()';
 }
 
 
@@ -251,7 +269,7 @@ String toString() {
 /// @nodoc
 
 
-class SessionExpired implements AppRefreshState {
+class SessionExpired with DiagnosticableTreeMixin implements AppRefreshState {
   const SessionExpired();
   
 
@@ -259,10 +277,16 @@ class SessionExpired implements AppRefreshState {
 
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    properties
+    ..add(DiagnosticsProperty('type', 'AppRefreshState.sessionExpired'))
+    ;
+}
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SessionExpired);
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is SessionExpired);
 }
 
 
@@ -270,8 +294,8 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString() {
-  return 'AppRefreshState.sessionExpired()';
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+    return 'AppRefreshState.sessionExpired()';
 }
 
 
