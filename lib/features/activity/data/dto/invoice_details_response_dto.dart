@@ -140,6 +140,7 @@ class InvoiceServiceItemDto {
   final double? priceBefore;
   final double? priceAfter;
   final double? discountPercentage;
+  final int? quantity;
 
   const InvoiceServiceItemDto({
     this.id,
@@ -149,6 +150,7 @@ class InvoiceServiceItemDto {
     this.priceBefore,
     this.priceAfter,
     this.discountPercentage,
+    this.quantity,
   });
 
   factory InvoiceServiceItemDto.fromJson(Map<String, dynamic> json) {
@@ -160,6 +162,7 @@ class InvoiceServiceItemDto {
       priceBefore: (json['priceBefore'] as num?)?.toDouble(),
       priceAfter: (json['priceAfter'] as num?)?.toDouble(),
       discountPercentage: (json['discountPercentage'] as num?)?.toDouble(),
+      quantity: (json['quantity'] as num?)?.toInt(),
     );
   }
 }

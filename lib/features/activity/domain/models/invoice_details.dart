@@ -75,6 +75,7 @@ class InvoiceServiceItem {
   final double? priceBefore;
   final double? priceAfter;
   final double? discountPercentage;
+  final int? quantity;
 
   /// Uses the backend percentage when available. Some service items return
   /// zero, so only that value falls back to the item's backend prices.
@@ -94,5 +95,6 @@ class InvoiceServiceItem {
     required this.priceBefore,
     required this.priceAfter,
     required this.discountPercentage,
+    this.quantity = 1,
   });
 }

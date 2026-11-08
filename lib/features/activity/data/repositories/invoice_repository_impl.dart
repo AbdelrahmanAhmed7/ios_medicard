@@ -317,6 +317,7 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
                     priceBefore: item.priceBefore,
                     priceAfter: item.priceAfter,
                     discountPercentage: item.discountPercentage,
+                    quantity: item.quantity,
                   ),
                 )
                 .toList(),

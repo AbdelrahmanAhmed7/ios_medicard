@@ -141,6 +141,25 @@ String friendlyApiMessage(String message) {
   final normalized = message.trim();
   final lower = normalized.toLowerCase();
 
+  // Address validation is returned by ASP.NET as field-level English text.
+  // Convert the known messages so a server-side validation failure still has
+  // the same localized wording as the local form validation.
+  if (lower.contains('latitude is required')) {
+    return 'addresses.location_required'.tr();
+  }
+  if (lower.contains('longitude is required')) {
+    return 'addresses.location_required'.tr();
+  }
+  if (lower.contains('building number is required')) {
+    return 'addresses.building_number_required'.tr();
+  }
+  if (lower.contains('floor is required')) {
+    return 'addresses.floor_required'.tr();
+  }
+  if (lower.contains('apartment number is required')) {
+    return 'addresses.apartment_number_required'.tr();
+  }
+
   if (_isGenericMessage(normalized)) {
     return 'errors.request_failed'.tr();
   }
