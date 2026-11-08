@@ -36,6 +36,8 @@
 		<string>MediCard needs access to your camera to take a profile picture.</string>
 		<key>NSLocationWhenInUseUsageDescription</key>
 		<string>MediCard uses your location to show healthcare providers nearest to you.</string>
+		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+		<string>MediCard uses your location to show healthcare providers nearest to you.</string>
 		<key>UIApplicationSceneManifest</key>
 		<dict>
 			<key>UIApplicationSupportsMultipleScenes</key>
