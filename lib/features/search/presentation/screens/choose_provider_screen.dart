@@ -29,6 +29,7 @@ class ChooseProviderScreen extends StatefulWidget {
 class _ChooseProviderScreenState extends State<ChooseProviderScreen> {
   bool _showSummary = false;
   int? _confirmedProviderId;
+  CartOrderKind? _confirmedOrderKind;
 
   void _reviewCart() {
     if (widget.returnToPreviousCart && context.canPop()) {
@@ -38,49 +39,69 @@ class _ChooseProviderScreenState extends State<ChooseProviderScreen> {
     }
   }
 
-  void _continueOrder(int providerId) {
+  void _continueOrder(int providerId, CartOrderKind orderKind) {
     // Keep this route alive: it may own the cubit shared with checkout.
     context.push(
       '/checkout',
-      extra: {'cubit': context.read<CartCubit>(), 'providerId': providerId},
+      extra: {
+        'cubit': context.read<CartCubit>(),
+        'providerId': providerId,
+        'orderKind': orderKind,
+      },
     );
   }
 
   void _onConfirmed(int providerId) {
-    final cart = context.read<CartCubit>().state.cart;
+    final cubit = context.read<CartCubit>();
+    final cart = cubit.state.cart;
+    final orderKind =
+        cubit.state.providerSelectionKind ?? CartOrderKind.services;
     setState(() {
       _confirmedProviderId = providerId;
+      _confirmedOrderKind = orderKind;
       _showSummary = true;
     });
     showSuccessToast('cart.provider_saved_toast'.tr());
     if (cart != null &&
         cart.items.isNotEmpty &&
-        cart.items.every((item) => item.providerId == providerId)) {
-      _continueOrder(providerId);
+        cart.items.every(
+          (item) =>
+              item.providerId == providerId && item.orderKind == orderKind,
+        )) {
+      _continueOrder(providerId, orderKind);
     }
   }
 
   void _chooseRemaining() {
     setState(() => _showSummary = false);
-    context.read<CartCubit>().loadCartAndProviders();
+    final cubit = context.read<CartCubit>();
+    final remaining = cubit.state.cart?.items
+        .where((item) => item.providerId == null)
+        .firstOrNull;
+    cubit.loadCartAndProviders(orderKind: remaining?.orderKind);
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CartCubit, CartState>(
       builder: (context, state) {
-        final remaining =
+        final selectionKind =
+            state.providerSelectionKind ?? CartOrderKind.services;
+        final orderItems =
             state.cart?.items
-                .where((item) => item.providerId == null)
+                .where(
+                  (item) =>
+                      item.orderKind == selectionKind &&
+                      item.providerId == null,
+                )
                 .toList() ??
             <CartItem>[];
+        final remaining = orderItems;
         final providers = state.providers
-            .map((provider) => provider.forItems(remaining))
+            .map((provider) => provider.forItems(orderItems))
             .where((provider) => provider.coveredCount > 0)
             .toList();
-        final isMedicine =
-            remaining.isNotEmpty &&
-            remaining.every((item) => item.categoryId == 1);
+        final isMedicine = selectionKind == CartOrderKind.medicines;
         final selected = providers
             .where(
               (provider) =>
@@ -89,7 +110,7 @@ class _ChooseProviderScreenState extends State<ChooseProviderScreen> {
             .firstOrNull;
         final showSummary =
             state.cart != null &&
-            (_showSummary || (!state.isProvidersLoading && remaining.isEmpty));
+            (_showSummary || (!state.isProvidersLoading && orderItems.isEmpty));
         return Scaffold(
           backgroundColor: Colors.white,
           body: Column(
@@ -156,6 +177,7 @@ class _ChooseProviderScreenState extends State<ChooseProviderScreen> {
                     ? ProviderSelectionSummary(
                         cart: state.cart!,
                         selectedProviderId: _confirmedProviderId,
+                        selectedOrderKind: _confirmedOrderKind,
                         onContinue: _continueOrder,
                         onChooseRemaining: _chooseRemaining,
                         onReviewCart: _reviewCart,
@@ -189,7 +211,9 @@ class _ChooseProviderScreenState extends State<ChooseProviderScreen> {
     if (state.providersError != null || state.cartError != null) {
       return _ErrorView(
         message: state.providersError ?? state.cartError!,
-        onRetry: () => context.read<CartCubit>().loadCartAndProviders(),
+        onRetry: () => context.read<CartCubit>().loadCartAndProviders(
+          orderKind: state.providerSelectionKind,
+        ),
       );
     }
 

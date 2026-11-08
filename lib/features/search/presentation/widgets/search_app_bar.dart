@@ -28,6 +28,7 @@ class _SearchAppBarState extends State<SearchAppBar> {
     'home.search_word_1',
     'home.search_word_2',
     'home.search_word_3',
+    'home.search_word_4',
   ];
 
   late final FocusNode _focusNode;

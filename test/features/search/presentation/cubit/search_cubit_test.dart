@@ -21,6 +21,7 @@ import 'package:medicard/features/search/domain/use_cases/get_categories_use_cas
 import 'package:medicard/features/search/domain/use_cases/get_category_services_use_case.dart';
 import 'package:medicard/features/search/domain/use_cases/get_service_categories_use_case.dart';
 import 'package:medicard/features/search/domain/use_cases/search_providers_use_case.dart';
+import 'package:medicard/features/search/domain/use_cases/search_medicines_use_case.dart';
 import 'package:medicard/features/search/presentation/cubit/search_cubit.dart';
 
 void main() {
@@ -42,6 +43,7 @@ void main() {
       cartSyncService = CartSyncService();
       cubit = SearchCubit(
         SearchProvidersUseCase(searchRepository),
+        SearchMedicinesUseCase(searchRepository),
         GetCategoriesUseCase(searchRepository),
         GetCategoryServicesUseCase(searchRepository),
         GetServiceCategoriesUseCase(searchRepository),
@@ -146,6 +148,37 @@ void main() {
       expect(cubit.state.isLoadingServices, isFalse);
       expect(_serviceSelected(cubit, 2), isTrue);
       expect(cubit.state.categorySelectedCounts[1], 2);
+    });
+
+    test('loads and paginates medicines using the search keyword', () async {
+      searchRepository.medicinePages[1] = const MedicinePage(
+        items: [MedicineModel(id: 165, enName: 'Abo Ali')],
+        pageNumber: 1,
+        pageSize: 1,
+        totalCount: 2,
+        totalPages: 2,
+      );
+      searchRepository.medicinePages[2] = const MedicinePage(
+        items: [MedicineModel(id: 166, enName: 'Captopril')],
+        pageNumber: 2,
+        pageSize: 1,
+        totalCount: 2,
+        totalPages: 2,
+      );
+
+      await cubit.searchMedicines(search: 'cap');
+      await cubit.loadMoreMedicines();
+
+      expect(cubit.state.medicines.map((item) => item.id), [165, 166]);
+      expect(searchRepository.medicineSearches, ['cap', 'cap']);
+    });
+
+    test('adds medicine id to cart as service id in category one', () async {
+      await cubit.addServiceToCart(serviceId: 166, categoryId: 1, quantity: 1);
+
+      expect(cartRepository.addCalls[166], 1);
+      expect(cartRepository.addCategoryIds[166], 1);
+      expect(cubit.state.selectedMedicineIds, contains(166));
     });
 
     test('add service failure preserves loaded data and selection', () async {
@@ -514,6 +547,8 @@ class _FakeSearchRepository implements SearchRepository {
   categoryServiceCompleters = {};
   final Map<int, int> categoryServiceCalls = {};
   final Map<int, SearchResponseData> providerPages = {};
+  final Map<int, MedicinePage> medicinePages = {};
+  final List<String?> medicineSearches = [];
 
   ApiResult<List<CategoryModel>> categoriesResult = const ApiResult.success([]);
   ApiResult<List<CategoryModel>> serviceCategoriesResult =
@@ -532,7 +567,8 @@ class _FakeSearchRepository implements SearchRepository {
     int? pageNumber,
     int? pageSize,
   }) async {
-    return const ApiResult.success(MedicinePage());
+    medicineSearches.add(search);
+    return ApiResult.success(medicinePages[pageNumber] ?? const MedicinePage());
   }
 
   @override
@@ -655,6 +691,7 @@ class _FakeSearchRepository implements SearchRepository {
 
 class _FakeCartRepository implements CartRepository {
   final Map<int, int> addCalls = {};
+  final Map<int, int> addCategoryIds = {};
   final Map<int, ApiResult<void>> addResults = {};
   final Map<int, Completer<ApiResult<void>>> addCompleters = {};
   final Map<int, ApiResult<void>> removeResults = {};
@@ -681,6 +718,7 @@ class _FakeCartRepository implements CartRepository {
     double? price,
   }) {
     addCalls[serviceId] = (addCalls[serviceId] ?? 0) + 1;
+    addCategoryIds[serviceId] = categoryId;
     final completer = addCompleters[serviceId];
     if (completer != null) return completer.future;
     return Future.value(addResults[serviceId] ?? const ApiResult.success(null));
@@ -702,15 +740,22 @@ class _FakeCartRepository implements CartRepository {
     required int serviceId,
     required int categoryId,
     required int quantity,
-  }) async => const ApiResult.success(null);
+  }) {
+    addCalls[serviceId] = (addCalls[serviceId] ?? 0) + 1;
+    addCategoryIds[serviceId] = categoryId;
+    final completer = addCompleters[serviceId];
+    if (completer != null) return completer.future;
+    return Future.value(addResults[serviceId] ?? const ApiResult.success(null));
+  }
 
   @override
   Future<ApiResult<List<ProviderOption>>> getMedicinePharmacies() async =>
       const ApiResult.success([]);
 
   @override
-  Future<ApiResult<void>> updateMedicineProvider({required int providerId}) async =>
-      const ApiResult.success(null);
+  Future<ApiResult<void>> updateMedicineProvider({
+    required int providerId,
+  }) async => const ApiResult.success(null);
 
   @override
   Future<ApiResult<CategoryServices>> getCategoryServices(

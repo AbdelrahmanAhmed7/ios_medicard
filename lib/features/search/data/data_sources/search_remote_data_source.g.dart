@@ -75,6 +75,42 @@ class _SearchRemoteDataSource implements SearchRemoteDataSource {
   }
 
   @override
+  Future<MedicineResponseModel> getMedicines({
+    String? search,
+    int? pageNumber,
+    int? pageSize,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'Search': search,
+      r'PageNumber': pageNumber,
+      r'PageSize': pageSize,
+    };
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<MedicineResponseModel>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            'Medicine',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late MedicineResponseModel _value;
+    try {
+      _value = MedicineResponseModel.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
   Future<CategoryResponseModel> getCategories() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};

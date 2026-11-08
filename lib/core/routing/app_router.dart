@@ -15,6 +15,7 @@ import '../../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../../features/auth/presentation/screens/otp_verification_screen.dart';
 import '../../features/auth/presentation/screens/reset_password_screen.dart';
 import '../../features/cart/presentation/cubit/cart_cubit.dart';
+import '../../features/cart/domain/models/cart_item.dart';
 import '../../features/cart/presentation/pages/cart_screen.dart';
 import '../../features/cart/presentation/pages/checkout_screen.dart';
 import '../../features/ecard/presentation/cubit/ecard_cubit.dart';
@@ -49,6 +50,7 @@ import '../../features/profile/presentation/pages/profile_screen.dart';
 import '../../features/search/presentation/cubit/filter_cubit.dart';
 import '../../features/search/presentation/cubit/search_cubit.dart';
 import '../../features/search/presentation/screens/choose_provider_screen.dart';
+import '../../features/search/presentation/screens/providers_screen.dart';
 import '../../features/search/presentation/screens/search_screen.dart';
 import '../../medicard_network/logic/provider_page_cubit.dart';
 import '../../medicard_network/presentation/pages/branches_screen.dart';
@@ -336,10 +338,7 @@ class AppRouter {
             final enableCartFeatures =
                 extra?['enableCartFeatures'] as bool? ?? true;
             return MultiBlocProvider(
-              providers: [
-                BlocProvider(create: (_) => sl<SearchCubit>()),
-                BlocProvider(create: (_) => sl<FilterCubit>()),
-              ],
+              providers: [BlocProvider(create: (_) => sl<SearchCubit>())],
               child: SearchScreen(
                 userLatitude: lat,
                 userLongitude: lng,
@@ -364,11 +363,10 @@ class AppRouter {
                 BlocProvider(create: (_) => sl<SearchCubit>()),
                 BlocProvider(create: (_) => sl<FilterCubit>()),
               ],
-              child: SearchScreen(
+              child: ProvidersScreen(
                 userLatitude: lat,
                 userLongitude: lng,
                 categoryId: categoryId,
-                initialTabIndex: 0,
                 enableCartFeatures: enableCartFeatures,
               ),
             );
@@ -385,15 +383,12 @@ class AppRouter {
                 extra?['enableCartFeatures'] as bool? ?? true;
             final serviceCategoryId = extra?['serviceCategoryId'] as int?;
             return MultiBlocProvider(
-              providers: [
-                BlocProvider(create: (_) => sl<SearchCubit>()),
-                BlocProvider(create: (_) => sl<FilterCubit>()),
-              ],
+              providers: [BlocProvider(create: (_) => sl<SearchCubit>())],
               child: SearchScreen(
                 userLatitude: lat,
                 userLongitude: lng,
                 categoryId: categoryId,
-                initialTabIndex: 1,
+                initialTabIndex: 0,
                 enableCartFeatures: enableCartFeatures,
                 initialServiceCategoryId: serviceCategoryId,
               ),
@@ -549,6 +544,7 @@ class AppRouter {
               final extra = state.extra as Map<String, dynamic>;
               final cubit = extra['cubit'] as CartCubit?;
               final providerId = extra['providerId'] as int?;
+              final orderKind = extra['orderKind'] as CartOrderKind?;
               final providerName = extra['providerName'] as String?;
               final selectedBranch = extra['selectedBranch'] as ProviderBranch?;
               final packageId = extra['packageId'] as int?;
@@ -567,6 +563,7 @@ class AppRouter {
                   value: cubit,
                   child: CheckoutScreen(
                     initialProviderId: providerId,
+                    orderKind: orderKind,
                     initialProviderName: providerName,
                     initialBranch: selectedBranch,
                     packageId: packageId,
@@ -581,6 +578,7 @@ class AppRouter {
                 create: (_) => sl<CartCubit>(param1: providerId),
                 child: CheckoutScreen(
                   initialProviderId: providerId,
+                  orderKind: orderKind,
                   initialProviderName: providerName,
                   initialBranch: selectedBranch,
                   packageId: packageId,

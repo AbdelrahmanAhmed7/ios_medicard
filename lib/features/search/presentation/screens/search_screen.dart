@@ -7,13 +7,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 import '../../../../core/theming/app_toast.dart';
-import '../cubit/filter_cubit.dart';
-import '../cubit/filter_state.dart';
 import '../cubit/search_cubit.dart';
 import '../cubit/search_state.dart';
-import '../widgets/filter_bottom_sheet.dart';
 import '../widgets/search_app_bar.dart';
-import '../widgets/search_providers_tab.dart';
+import '../widgets/search_medicines_tab.dart';
 import '../widgets/search_services_tab.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -42,18 +39,12 @@ class _SearchScreenState extends State<SearchScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
   Timer? _debounce;
-
-  /// Both providers and services tabs are always shown. Guests browse the
-  /// services tab in read-only mode (no cart selection), backed by the
-  /// public `GuestMobileHome/servicesByCategory` endpoint.
-  bool get _showServicesTab => true;
 
   @override
   void initState() {
     super.initState();
-    final tabCount = _showServicesTab ? 2 : 1;
+    const tabCount = 2;
     _tabController = TabController(
       length: tabCount,
       vsync: this,
@@ -66,19 +57,7 @@ class _SearchScreenState extends State<SearchScreen>
         categoryId: widget.categoryId,
         enableCartFeatures: widget.enableCartFeatures,
       );
-      context.read<FilterCubit>().loadGovernorates();
     });
-    _scrollController.addListener(_onScroll);
-  }
-
-  void _onScroll() {
-    if (!_scrollController.hasClients) return;
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 200) {
-      if (_tabController.index == 0) {
-        context.read<SearchCubit>().loadMore();
-      }
-    }
   }
 
   void _onSearchChanged(String value) {
@@ -88,29 +67,10 @@ class _SearchScreenState extends State<SearchScreen>
     });
   }
 
-  void _openFilterSheet() {
-    final servicesTabIndex = _showServicesTab ? 1 : null;
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => MultiBlocProvider(
-        providers: [
-          BlocProvider.value(value: context.read<SearchCubit>()),
-          BlocProvider.value(value: context.read<FilterCubit>()),
-        ],
-        child: FilterBottomSheet(
-          hideProviderFilters: _tabController.index == servicesTabIndex,
-        ),
-      ),
-    );
-  }
-
   @override
   void dispose() {
     _tabController.dispose();
     _searchController.dispose();
-    _scrollController.dispose();
     _debounce?.cancel();
     super.dispose();
   }
@@ -127,14 +87,6 @@ class _SearchScreenState extends State<SearchScreen>
             final message = state.cartActionError!;
             context.read<SearchCubit>().consumeCartActionError();
             showErrorToast(message);
-          },
-        ),
-        BlocListener<SearchCubit, SearchState>(
-          listenWhen: (previous, current) =>
-              previous.filterError != current.filterError &&
-              current.filterError != null,
-          listener: (context, state) {
-            showErrorToast(state.filterError!);
           },
         ),
         BlocListener<SearchCubit, SearchState>(
@@ -159,26 +111,9 @@ class _SearchScreenState extends State<SearchScreen>
         backgroundColor: Colors.white,
         body: Column(
           children: [
-            AnimatedBuilder(
-              animation: _tabController,
-              builder: (context, _) {
-                final servicesTabIndex = _showServicesTab ? 1 : null;
-                final onServicesTab = _tabController.index == servicesTabIndex;
-                return BlocSelector<FilterCubit, FilterState, bool>(
-                  selector: (state) =>
-                      state.selectedGovernorateId != null ||
-                      state.selectedCityId != null ||
-                      state.selectedSortBy != null,
-                  builder: (context, hasActiveFilters) => SearchAppBar(
-                    controller: _searchController,
-                    onChanged: _onSearchChanged,
-                    onFilterTap: onServicesTab || _tabController.index == 2
-                        ? null
-                        : _openFilterSheet,
-                    hasActiveFilters: hasActiveFilters,
-                  ),
-                );
-              },
+            SearchAppBar(
+              controller: _searchController,
+              onChanged: _onSearchChanged,
             ),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 8.w),
@@ -191,10 +126,7 @@ class _SearchScreenState extends State<SearchScreen>
               child: AnimatedBuilder(
                 animation: _tabController,
                 builder: (context, _) {
-                  final tabs = [
-                    'home.providers'.tr(),
-                    if (_showServicesTab) 'home.services'.tr(),
-                  ];
+                  final tabs = ['home.services'.tr(), 'cart.medicines'.tr()];
                   return Row(
                     children: List.generate(tabs.length, (i) {
                       final isSelected = _tabController.index == i;
@@ -244,12 +176,13 @@ class _SearchScreenState extends State<SearchScreen>
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  SearchProvidersTab(scrollController: _scrollController),
-                  if (_showServicesTab)
-                    SearchServicesTab(
-                      enableCartFeatures: widget.enableCartFeatures,
-                      initialCategoryId: widget.initialServiceCategoryId,
-                    ),
+                  SearchServicesTab(
+                    enableCartFeatures: widget.enableCartFeatures,
+                    initialCategoryId: widget.initialServiceCategoryId,
+                  ),
+                  SearchMedicinesTab(
+                    enableCartFeatures: widget.enableCartFeatures,
+                  ),
                 ],
               ),
             ),

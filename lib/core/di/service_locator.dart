@@ -40,6 +40,7 @@ import '../../features/search/domain/use_cases/get_cities_use_case.dart';
 import '../../features/search/domain/use_cases/get_governorates_use_case.dart';
 import '../../features/search/domain/use_cases/get_service_categories_use_case.dart';
 import '../../features/search/domain/use_cases/search_providers_use_case.dart';
+import '../../features/search/domain/use_cases/search_medicines_use_case.dart';
 import '../../features/search/presentation/cubit/filter_cubit.dart';
 import '../../features/search/presentation/cubit/search_cubit.dart';
 import '../../features/profile/domain/usecases/get_profile_usecase.dart';
@@ -255,6 +256,9 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory<SearchProvidersUseCase>(
     () => SearchProvidersUseCase(sl()),
   );
+  sl.registerFactory<SearchMedicinesUseCase>(
+    () => SearchMedicinesUseCase(sl()),
+  );
   sl.registerFactory<GetCategoriesUseCase>(() => GetCategoriesUseCase(sl()));
   sl.registerFactory<GetServiceCategoriesUseCase>(
     () => GetServiceCategoriesUseCase(sl()),
@@ -318,6 +322,7 @@ Future<void> setupServiceLocator() async {
   // Search cubits
   sl.registerFactory<SearchCubit>(
     () => SearchCubit(
+      sl(),
       sl(),
       sl(),
       sl(),

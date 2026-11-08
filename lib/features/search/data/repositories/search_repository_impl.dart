@@ -18,7 +18,26 @@ class SearchRepositoryImpl implements SearchRepository {
     String? search,
     int? pageNumber,
     int? pageSize,
-  }) async => const ApiResult.failure('Medicine search is not supported.');
+  }) async {
+    try {
+      final response = await _dataSource.getMedicines(
+        search: search,
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+      );
+      return (response.succeeded == true && response.data != null)
+          ? ApiResult.success(response.data!)
+          : ApiResult.failure(
+              _responseMessage(
+                errors: response.errors,
+                message: response.message,
+                fallback: 'Failed to load medicines.',
+              ),
+            );
+    } catch (error) {
+      return ApiResult.failure(parseApiError(error));
+    }
+  }
 
   @override
   Future<ApiResult<SearchResponseData>> searchProviders({

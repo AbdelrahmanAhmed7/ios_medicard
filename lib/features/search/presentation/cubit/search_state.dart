@@ -1,5 +1,6 @@
 import '../../data/models/category_model.dart';
 import '../../data/models/category_services_response_model.dart';
+import '../../data/models/medicine_response_model.dart';
 import '../../data/models/search_provider_model.dart';
 
 class SearchState {
@@ -47,6 +48,15 @@ class SearchState {
   final Set<int> pendingServiceIds;
   final String? cartActionError;
 
+  // Medicines tab data
+  final List<MedicineModel> medicines;
+  final bool isLoadingMedicines;
+  final bool isLoadingMoreMedicines;
+  final String? medicinesError;
+  final int medicinesCurrentPage;
+  final int medicinesTotalPages;
+  final Set<int> selectedMedicineIds;
+
   /// Message shown when the Provider-tab categories could not be loaded.
   final String? categoriesError;
 
@@ -83,6 +93,13 @@ class SearchState {
     this.loadingMoreServiceCategoryIds = const {},
     this.pendingServiceIds = const {},
     this.cartActionError,
+    this.medicines = const [],
+    this.isLoadingMedicines = false,
+    this.isLoadingMoreMedicines = false,
+    this.medicinesError,
+    this.medicinesCurrentPage = 1,
+    this.medicinesTotalPages = 1,
+    this.selectedMedicineIds = const {},
     this.categoriesError,
     this.serviceCategoriesError,
     this.filterError,
@@ -118,6 +135,14 @@ class SearchState {
     Set<int>? pendingServiceIds,
     String? cartActionError,
     bool clearCartActionError = false,
+    List<MedicineModel>? medicines,
+    bool? isLoadingMedicines,
+    bool? isLoadingMoreMedicines,
+    String? medicinesError,
+    bool clearMedicinesError = false,
+    int? medicinesCurrentPage,
+    int? medicinesTotalPages,
+    Set<int>? selectedMedicineIds,
     String? categoriesError,
     bool clearCategoriesError = false,
     String? serviceCategoriesError,
@@ -161,6 +186,16 @@ class SearchState {
       cartActionError: clearCartActionError
           ? null
           : (cartActionError ?? this.cartActionError),
+      medicines: medicines ?? this.medicines,
+      isLoadingMedicines: isLoadingMedicines ?? this.isLoadingMedicines,
+      isLoadingMoreMedicines:
+          isLoadingMoreMedicines ?? this.isLoadingMoreMedicines,
+      medicinesError: clearMedicinesError
+          ? null
+          : (medicinesError ?? this.medicinesError),
+      medicinesCurrentPage: medicinesCurrentPage ?? this.medicinesCurrentPage,
+      medicinesTotalPages: medicinesTotalPages ?? this.medicinesTotalPages,
+      selectedMedicineIds: selectedMedicineIds ?? this.selectedMedicineIds,
       categoriesError: clearCategoriesError
           ? null
           : (categoriesError ?? this.categoriesError),

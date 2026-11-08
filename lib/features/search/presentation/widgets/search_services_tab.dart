@@ -430,10 +430,14 @@ class _ServiceCardConnectorState extends State<_ServiceCardConnector> {
             );
           },
           onDecrement: () {
-            if (!widget.isSelected ||
-                isPending ||
-                widget.categoryId != 1 ||
-                quantity <= 1) {
+            if (!widget.isSelected || isPending || widget.categoryId != 1) {
+              return;
+            }
+            if (quantity <= 1) {
+              context.read<SearchCubit>().removeServiceFromCart(
+                serviceId: widget.serviceId,
+                categoryId: widget.categoryId,
+              );
               return;
             }
             final next = quantity - 1;
@@ -570,9 +574,9 @@ class _ServiceCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.of(
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFF111827),
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF6B7280),
                     ),
                   ),
                 ],
@@ -610,56 +614,82 @@ class _ServiceCard extends StatelessWidget {
             ),
           ),
           SizedBox(width: 12.w),
-          if (isMedicine && isSelected && !isPending)
+          if (isMedicine && isSelected && !isPending) ...[
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _QuantityButton(icon: Icons.remove, onTap: onDecrement),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w),
+                _QuantityButton(
+                  icon: quantity <= 1
+                      ? Icons.delete_outline_rounded
+                      : Icons.remove,
+                  onTap: onDecrement,
+                ),
+                SizedBox(
+                  width: 26.w,
                   child: Text(
                     '$quantity',
+                    textAlign: TextAlign.center,
                     style: AppTextStyles.of(
-                      fontSize: 15.sp,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
                 _QuantityButton(icon: Icons.add, onTap: onIncrement),
+                SizedBox(width: 6.w),
+                InkWell(
+                  onTap: onToggle,
+                  borderRadius: BorderRadius.circular(18.r),
+                  child: Container(
+                    width: 34.r,
+                    height: 34.r,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: const Color(0xFFEAF1F9),
+                      border: Border.all(color: const Color(0xFF3872B1)),
+                    ),
+                    child: Icon(
+                      Icons.close_rounded,
+                      color: const Color(0xFF3872B1),
+                      size: 19.sp,
+                    ),
+                  ),
+                ),
               ],
-            )
-          else
-            GestureDetector(
+            ),
+          ] else
+            InkWell(
               onTap: isPending ? null : onToggle,
+              borderRadius: BorderRadius.circular(18.r),
               child: Container(
-                width: 34.r,
-                height: 34.r,
+                width: 38.r,
+                height: 38.r,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: isSelected && !isPending
                       ? const Color(0xFF3872B1)
-                      : Colors.transparent,
+                      : const Color(0xFFF1F6FC),
                   border: Border.all(
                     color: const Color(0xFF3872B1),
-                    width: 1.8,
+                    width: 1.5,
                   ),
                 ),
                 child: Center(
                   child: isPending
                       ? SizedBox(
-                          width: 16.r,
-                          height: 16.r,
+                          width: 17.r,
+                          height: 17.r,
                           child: const CircularProgressIndicator(
                             strokeWidth: 1.8,
                             color: Color(0xFF3872B1),
                           ),
                         )
                       : Icon(
-                          isSelected ? Icons.check : Icons.add,
+                          isSelected ? Icons.check_rounded : Icons.add_rounded,
                           color: isSelected
                               ? Colors.white
                               : const Color(0xFF3872B1),
-                          size: 18.sp,
+                          size: 19.sp,
                         ),
                 ),
               ),

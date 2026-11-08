@@ -5,6 +5,7 @@ import '../models/category_response_model.dart';
 import '../models/category_services_response_model.dart';
 import '../models/guest_category_services_response_model.dart';
 import '../models/lookup_response_model.dart';
+import '../models/medicine_response_model.dart';
 import '../models/search_response_model.dart';
 
 part 'search_remote_data_source.g.dart';
@@ -25,6 +26,13 @@ abstract class SearchRemoteDataSource {
     @Query('SortBy') int? sortBy,
     @Query('UserLatitude') double? userLatitude,
     @Query('UserLongitude') double? userLongitude,
+    @Query('PageNumber') int? pageNumber,
+    @Query('PageSize') int? pageSize,
+  });
+
+  @GET('Medicine')
+  Future<MedicineResponseModel> getMedicines({
+    @Query('Search') String? search,
     @Query('PageNumber') int? pageNumber,
     @Query('PageSize') int? pageSize,
   });
