@@ -116,6 +116,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       return;
     }
 
+    // Cart deep-link
+    final rawCart = data == null ? null : (data['Cart'] ?? data['cart']);
+    if (rawCart != null && context.mounted) {
+      context.push('/cart');
+      return;
+    }
+
     final rawPackage = data == null
         ? null
         : (data['PackageId'] ?? data['packageId']);

@@ -652,6 +652,19 @@ class PushNotificationService {
       AppRouter.current?.push('/provider-page', extra: providerId);
       return;
     }
+
+    // Cart deep-link: the backend can send either `Cart: ...` or
+    // `Body: Cart` in the notification data payload.
+    final rawCart = data['Cart'] ?? data['cart'];
+    final bodyTarget = (data['Body'] ?? data['body'])?.toString().trim();
+    if (rawCart != null || bodyTarget?.toLowerCase() == 'cart') {
+      if (kDebugMode) {
+        debugPrint('[Push] opening cart from notification');
+      }
+      AppRouter.current?.push('/cart');
+      return;
+    }
+
     final packageId = _intOrNull(data['PackageId'] ?? data['packageId']);
     if (packageId == null) {
       if (kDebugMode) {
@@ -659,9 +672,14 @@ class PushNotificationService {
           '[Push] tap has no recognized target '
           '(invoice=${data['InvoiceId'] ?? data['invoiceId']}, '
           'provider=${data['ProviderId'] ?? data['providerId']}, '
-          'package=${data['PackageId'] ?? data['packageId']}), staying put',
+          'package=${data['PackageId'] ?? data['packageId']}), '
+          'opening notifications',
         );
       }
+      // Notifications without a known deep-link target should still have a
+      // predictable destination instead of leaving the user on the current
+      // screen.
+      AppRouter.current?.push('/notifications');
       return;
     }
     unawaited(_openPackageFromNotification(packageId));

@@ -239,6 +239,9 @@ class _NotificationThumbnail extends StatelessWidget {
 
   IconData _fallbackIcon(Map<String, dynamic>? data) {
     if (data == null) return Icons.notifications_none_rounded;
+    if (data.containsKey('Cart') || data.containsKey('cart')) {
+      return Icons.shopping_cart_outlined;
+    }
     if (data.containsKey('PackageId') || data.containsKey('packageId')) {
       return Icons.local_offer_outlined;
     }
