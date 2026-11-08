@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 import '../../../../core/utils/price_formatter.dart';
+import '../../domain/models/cart_item.dart';
 import '../../domain/models/provider_covered_service.dart';
 import '../cubit/cart_state.dart';
 import 'checkout_pricing.dart';
@@ -19,9 +20,33 @@ class CheckoutPaymentSummary extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = state.checkoutProvider;
     final isPackageCheckout = state.checkoutPackageId != null;
+    final isMedicineCheckout =
+        state.checkoutOrderKind == CartOrderKind.medicines;
     final pricing = CheckoutPricing.fromState(state);
+    final providerServices =
+        provider?.coveredServices ?? const <ProviderCoveredService>[];
     final services = !isPackageCheckout && provider != null
-        ? provider.coveredServices
+        ? (providerServices.isNotEmpty
+              ? providerServices
+              : (state.cart?.items ?? const <CartItem>[])
+                    .where(
+                      (item) =>
+                          item.providerId == provider.providerId &&
+                          item.orderKind == state.checkoutOrderKind,
+                    )
+                    .map(
+                      (item) => ProviderCoveredService(
+                        cartItemId: item.cartItemId,
+                        serviceId: item.serviceId,
+                        serviceName: item.quantity > 1
+                            ? '${item.serviceName} × ${item.quantity}'
+                            : item.serviceName,
+                        priceBefore: item.totalPriceBefore,
+                        priceAfter: item.totalPriceAfter,
+                        discountPercentage: item.discountPercentage,
+                      ),
+                    )
+                    .toList(growable: false))
         : const <ProviderCoveredService>[];
 
     return Container(
@@ -45,6 +70,7 @@ class CheckoutPaymentSummary extends StatelessWidget {
             providerName: provider?.providerName ?? '-',
             providerImageUrl: provider?.providerImageUrl,
             isPackage: isPackageCheckout,
+            isMedicine: isMedicineCheckout,
           ),
           const _SummaryDivider(),
           Padding(
@@ -70,11 +96,13 @@ class _OrderHeader extends StatelessWidget {
   final String providerName;
   final String? providerImageUrl;
   final bool isPackage;
+  final bool isMedicine;
 
   const _OrderHeader({
     required this.providerName,
     required this.providerImageUrl,
     required this.isPackage,
+    required this.isMedicine,
   });
 
   @override
@@ -143,7 +171,12 @@ class _OrderHeader extends StatelessWidget {
               borderRadius: BorderRadius.circular(20.r),
             ),
             child: Text(
-              isPackage ? 'cart.package'.tr() : 'cart.services'.tr(),
+              (isPackage
+                      ? 'cart.package'
+                      : isMedicine
+                      ? 'cart.medicines'
+                      : 'cart.services')
+                  .tr(),
               style: AppTextStyles.of(
                 fontSize: 11.5.sp,
                 color: const Color(0xFF2563A9),

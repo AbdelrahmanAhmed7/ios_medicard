@@ -51,35 +51,6 @@ extension CartCubitSync on CartCubit {
     );
   }
 
-  Future<void> loadCart() async {
-    if (isClosed) return;
-    final requestGeneration = ++_cartRequestGeneration;
-    final mutationGeneration = _cartMutationGeneration;
-    _emitCartState(state.copyWith(isCartLoading: true, resetCartError: true));
-    final result = await _getCartWithRetry();
-    if (isClosed ||
-        requestGeneration != _cartRequestGeneration ||
-        mutationGeneration != _cartMutationGeneration) {
-      return;
-    }
-    result.when(
-      success: (serverCart) {
-        final cart = _preserveConfirmedProviders(serverCart);
-        _emitCartState(
-          state.copyWith(
-            cart: cart,
-            isCartLoading: false,
-            resetCartError: true,
-          ),
-        );
-        _broadcastCartSnapshot(cart);
-      },
-      failure: (error) {
-        _emitCartState(state.copyWith(cartError: error, isCartLoading: false));
-      },
-    );
-  }
-
   Future<ApiResult<Cart>> _getCartWithRetry() async {
     final first = await _repository.getCart();
     final shouldRetry = first.when(success: (_) => false, failure: (_) => true);

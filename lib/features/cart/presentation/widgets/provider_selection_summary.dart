@@ -13,7 +13,8 @@ import 'checkout_summary_row.dart';
 class ProviderSelectionSummary extends StatelessWidget {
   final Cart cart;
   final int? selectedProviderId;
-  final ValueChanged<int> onContinue;
+  final CartOrderKind? selectedOrderKind;
+  final void Function(int providerId, CartOrderKind orderKind) onContinue;
   final VoidCallback onChooseRemaining;
   final VoidCallback onReviewCart;
 
@@ -21,6 +22,7 @@ class ProviderSelectionSummary extends StatelessWidget {
     super.key,
     required this.cart,
     this.selectedProviderId,
+    this.selectedOrderKind,
     required this.onContinue,
     required this.onChooseRemaining,
     required this.onReviewCart,
@@ -31,10 +33,12 @@ class ProviderSelectionSummary extends StatelessWidget {
     final remaining = cart.items
         .where((item) => item.providerId == null)
         .toList();
-    final groups = <int, List<CartItem>>{};
+    final groups = <(CartOrderKind, int), List<CartItem>>{};
     for (final item in cart.items) {
       final id = item.providerId;
-      if (id != null) groups.putIfAbsent(id, () => []).add(item);
+      if (id != null) {
+        groups.putIfAbsent((item.orderKind, id), () => []).add(item);
+      }
     }
     final ids = groups.keys.toList();
 
@@ -61,10 +65,12 @@ class ProviderSelectionSummary extends StatelessWidget {
           SizedBox(height: 16.h),
           _OrderCard(
             items: groups[ids[i]]!,
-            isSelected: ids[i] == selectedProviderId,
+            isSelected:
+                ids[i].$2 == selectedProviderId &&
+                ids[i].$1 == selectedOrderKind,
             orderPosition: ids.length > 1 ? i + 1 : null,
             ordersCount: ids.length,
-            onContinue: () => onContinue(ids[i]),
+            onContinue: () => onContinue(ids[i].$2, ids[i].$1),
           ),
         ],
         if (remaining.isNotEmpty) ...[
@@ -219,6 +225,17 @@ class _OrderCard extends StatelessWidget {
                       style: AppTextStyles.of(
                         fontSize: 17.sp,
                         fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    SizedBox(height: 2.h),
+                    Text(
+                      (items.first.orderKind == CartOrderKind.medicines
+                              ? 'cart.medicines'
+                              : 'cart.services')
+                          .tr(),
+                      style: AppTextStyles.of(
+                        fontSize: 12.sp,
+                        color: const Color(0xFF64748B),
                       ),
                     ),
                   ],

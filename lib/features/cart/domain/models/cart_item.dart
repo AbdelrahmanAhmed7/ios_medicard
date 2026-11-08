@@ -1,3 +1,5 @@
+enum CartOrderKind { services, medicines }
+
 class CartItem {
   final int cartItemId;
   final int serviceId;
@@ -18,6 +20,8 @@ class CartItem {
       lineTotalAfter ?? (priceAfter == null ? null : priceAfter! * quantity);
   double? get totalPriceBefore =>
       lineTotalBefore ?? (priceBefore == null ? null : priceBefore! * quantity);
+  CartOrderKind get orderKind =>
+      categoryId == 1 ? CartOrderKind.medicines : CartOrderKind.services;
 
   const CartItem({
     required this.cartItemId,

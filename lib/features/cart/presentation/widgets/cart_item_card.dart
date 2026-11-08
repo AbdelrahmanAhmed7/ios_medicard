@@ -90,15 +90,23 @@ class CartItemCard extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         _QuantityButton(
-                          icon: Icons.remove,
-                          onTap: item.quantity <= 1
-                              ? null
-                              : () => context
-                                    .read<CartCubit>()
-                                    .updateMedicineQuantity(
-                                      serviceId: item.serviceId,
-                                      quantity: item.quantity - 1,
-                                    ),
+                          icon: item.quantity <= 1
+                              ? Icons.delete_outline_rounded
+                              : Icons.remove,
+                          onTap: () {
+                            final cartCubit = context.read<CartCubit>();
+                            if (item.quantity <= 1) {
+                              cartCubit.removeFromCart(
+                                serviceId: item.serviceId,
+                                categoryId: item.categoryId,
+                              );
+                            } else {
+                              cartCubit.updateMedicineQuantity(
+                                serviceId: item.serviceId,
+                                quantity: item.quantity - 1,
+                              );
+                            }
+                          },
                         ),
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 7.w),

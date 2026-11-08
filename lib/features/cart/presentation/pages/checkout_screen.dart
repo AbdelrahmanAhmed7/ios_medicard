@@ -12,6 +12,7 @@ import '../../../../core/theming/app_text_styles.dart';
 import '../../../../core/theming/app_toast.dart';
 import '../../../../core/utils/price_formatter.dart';
 import '../../../../network/data/provider_page_response_model.dart';
+import '../../domain/models/cart_item.dart';
 import '../../../home/presentation/widgets/order_placed_dialog.dart';
 import '../cubit/cart_cubit.dart';
 import '../cubit/cart_state.dart';
@@ -26,6 +27,7 @@ import '../widgets/checkout_section_title.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final int? initialProviderId;
+  final CartOrderKind? orderKind;
   final String? initialProviderName;
   final ProviderBranch? initialBranch;
   final int? packageId;
@@ -37,6 +39,7 @@ class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({
     super.key,
     this.initialProviderId,
+    this.orderKind,
     this.initialProviderName,
     this.initialBranch,
     this.packageId,
@@ -60,6 +63,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
     WidgetsBinding.instance.addObserver(this);
     context.read<CartCubit>().loadCheckout(
       initialProviderId: widget.initialProviderId,
+      orderKind: widget.orderKind,
       initialProviderName: widget.initialProviderName,
       initialBranch: widget.initialBranch,
       packageId: widget.packageId,
@@ -173,7 +177,8 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                 ),
               ),
               Expanded(child: _buildBody(context, state)),
-              if (state.checkoutProvider != null) _CheckoutPayBar(state: state),
+              if (state.checkoutProvider != null && state.checkoutError == null)
+                _CheckoutPayBar(state: state),
             ],
           );
         },
@@ -193,6 +198,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
         message: state.checkoutError!,
         onRetry: () => context.read<CartCubit>().loadCheckout(
           initialProviderId: widget.initialProviderId,
+          orderKind: widget.orderKind,
           initialProviderName: widget.initialProviderName,
           initialBranch: widget.initialBranch,
           packageId: widget.packageId,
@@ -216,7 +222,8 @@ class _CheckoutScreenState extends State<CheckoutScreen>
         if (state.checkoutPackageId == null &&
             (state.cart?.items.any(
                   (item) =>
-                      item.providerId != state.checkoutProvider?.providerId,
+                      item.providerId != state.checkoutProvider?.providerId ||
+                      item.orderKind != state.checkoutOrderKind,
                 ) ??
                 false)) ...[
           SizedBox(height: 10.h),

@@ -18,6 +18,8 @@ Future<void> showProviderQuickPickSheet(
   BuildContext context, {
   required CartCubit cubit,
   required VoidCallback onViewAll,
+  CartOrderKind? orderKind,
+  List<CartItem>? items,
 }) {
   return showModalBottomSheet<void>(
     context: context,
@@ -25,15 +27,25 @@ Future<void> showProviderQuickPickSheet(
     backgroundColor: Colors.transparent,
     builder: (_) => BlocProvider.value(
       value: cubit,
-      child: _ProviderQuickPickSheet(onViewAll: onViewAll),
+      child: _ProviderQuickPickSheet(
+        onViewAll: onViewAll,
+        orderKind: orderKind,
+        items: items,
+      ),
     ),
   );
 }
 
 class _ProviderQuickPickSheet extends StatelessWidget {
   final VoidCallback onViewAll;
+  final CartOrderKind? orderKind;
+  final List<CartItem>? items;
 
-  const _ProviderQuickPickSheet({required this.onViewAll});
+  const _ProviderQuickPickSheet({
+    required this.onViewAll,
+    this.orderKind,
+    this.items,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -51,9 +63,16 @@ class _ProviderQuickPickSheet extends StatelessWidget {
           ),
           child: BlocBuilder<CartCubit, CartState>(
             builder: (context, state) {
-              final remaining =
+              final selectionKind = orderKind ??
+                  state.providerSelectionKind ??
+                  CartOrderKind.services;
+              final remaining = items ??
                   state.cart?.items
-                      .where((item) => item.providerId == null)
+                      .where(
+                        (item) =>
+                            item.providerId == null &&
+                            item.orderKind == selectionKind,
+                      )
                       .toList() ??
                   const <CartItem>[];
               final providers = state.providers
@@ -82,10 +101,7 @@ class _ProviderQuickPickSheet extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            (remaining.isNotEmpty &&
-                                        remaining.every(
-                                          (item) => item.categoryId == 1,
-                                        )
+                            (selectionKind == CartOrderKind.medicines
                                     ? 'cart.choose_pharmacy'
                                     : 'cart.choose_provider')
                                 .tr(),
@@ -162,9 +178,10 @@ class _ProviderQuickPickSheet extends StatelessWidget {
                           ),
                           SizedBox(height: 10.h),
                           TextButton(
-                            onPressed: () => context
-                                .read<CartCubit>()
-                                .loadCartAndProviders(),
+                            onPressed: () =>
+                                context.read<CartCubit>().loadCartAndProviders(
+                                  orderKind: state.providerSelectionKind,
+                                ),
                             child: Text('common.retry'.tr()),
                           ),
                         ],

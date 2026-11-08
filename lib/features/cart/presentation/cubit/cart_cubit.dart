@@ -100,6 +100,7 @@ class CartCubit extends Cubit<CartState> {
   /// so they cannot be reconciled this way and stay latched).
   Set<int> _unknownOutcomeItemIds = {};
   String _unknownOutcomeProviderName = '';
+  CartOrderKind? _unknownOutcomeOrderKind;
   DateTime? _unknownOutcomeSubmittedAt;
 
   CartCubit(
@@ -132,6 +133,9 @@ class CartCubit extends Cubit<CartState> {
   void _broadcastCartSnapshot(Cart cart, {bool refreshCart = false}) {
     _cartSyncService.selectionSnapshotChanged(
       selectedServiceIds: cart.items.map((item) => item.serviceId),
+      selectedMedicineIds: cart.items
+          .where((item) => item.categoryId == 1)
+          .map((item) => item.serviceId),
       categorySelectedCounts: {
         for (final counter in cart.categoryCounters)
           counter.categoryId: counter.count,
@@ -140,7 +144,36 @@ class CartCubit extends Cubit<CartState> {
     );
   }
 
-  Future<void> loadCartAndProviders() async {
+  Future<void> loadCart() async {
+    if (isClosed) return;
+    final requestGeneration = ++_cartRequestGeneration;
+    final mutationGeneration = _cartMutationGeneration;
+    _emitCartState(state.copyWith(isCartLoading: true, resetCartError: true));
+    final result = await _getCartWithRetry();
+    if (isClosed ||
+        requestGeneration != _cartRequestGeneration ||
+        mutationGeneration != _cartMutationGeneration) {
+      return;
+    }
+    result.when(
+      success: (serverCart) {
+        final cart = _preserveConfirmedProviders(serverCart);
+        _emitCartState(
+          state.copyWith(
+            cart: cart,
+            isCartLoading: false,
+            resetCartError: true,
+          ),
+        );
+        _broadcastCartSnapshot(cart);
+      },
+      failure: (error) {
+        _emitCartState(state.copyWith(cartError: error, isCartLoading: false));
+      },
+    );
+  }
+
+  Future<void> loadCartAndProviders({CartOrderKind? orderKind}) async {
     emit(
       state.copyWith(
         isCartLoading: true,
@@ -149,6 +182,7 @@ class CartCubit extends Cubit<CartState> {
         resetCartError: true,
         resetProvidersError: true,
         resetSelectedProvider: true,
+        providerSelectionKind: orderKind,
       ),
     );
 
@@ -159,11 +193,20 @@ class CartCubit extends Cubit<CartState> {
     final cartRequestIsCurrent =
         requestGeneration == _cartRequestGeneration &&
         mutationGeneration == _cartMutationGeneration;
+    Cart? loadedCart = state.cart;
     if (cartRequestIsCurrent) {
       cartResult.when(
         success: (serverCart) {
           final cart = _preserveConfirmedProviders(serverCart);
-          emit(state.copyWith(cart: cart, isCartLoading: false));
+          loadedCart = cart;
+          emit(
+            state.copyWith(
+              cart: cart,
+              isCartLoading: false,
+              providerSelectionKind:
+                  orderKind ?? _nextUnassignedOrderKind(cart),
+            ),
+          );
           _broadcastCartSnapshot(cart);
         },
         failure: (error) {
@@ -172,7 +215,12 @@ class CartCubit extends Cubit<CartState> {
       );
     }
 
-    final providersResult = await _getAvailableProviders();
+    final selectionKind =
+        orderKind ??
+        _nextUnassignedOrderKind(loadedCart) ??
+        state.providerSelectionKind ??
+        CartOrderKind.services;
+    final providersResult = await _getAvailableProviders(selectionKind);
     if (isClosed) return;
     providersResult.when(
       success: (providers) {
@@ -182,6 +230,7 @@ class CartCubit extends Cubit<CartState> {
             isProvidersLoading: false,
             resetProvidersError: true,
             resetSelectedProvider: true,
+            providerSelectionKind: selectionKind,
           ),
         );
       },

@@ -43,11 +43,20 @@ class CartBody extends StatelessWidget {
           previous.cart != current.cart ||
           previous.isCartLoading != current.isCartLoading,
       builder: (context, state) {
-        final unassigned = items.where((i) => i.providerId == null).toList();
-        final groups = <int, List<CartItem>>{};
+        final unassignedGroups = <CartOrderKind, List<CartItem>>{
+          for (final kind in CartOrderKind.values)
+            kind: items
+                .where(
+                  (item) => item.providerId == null && item.orderKind == kind,
+                )
+                .toList(),
+        };
+        final groups = <(CartOrderKind, int), List<CartItem>>{};
         for (final item in items) {
           final pid = item.providerId;
-          if (pid != null) groups.putIfAbsent(pid, () => []).add(item);
+          if (pid != null) {
+            groups.putIfAbsent((item.orderKind, pid), () => []).add(item);
+          }
         }
         final pricedItems = items
             .where(
@@ -85,55 +94,60 @@ class CartBody extends StatelessWidget {
               ),
             ],
             SizedBox(height: 20.h),
-            if (unassigned.isNotEmpty) ...[
-              _NeedsProviderBanner(
-                count: unassigned.length,
-                onTap: () {
-                  final cubit = context.read<CartCubit>();
-                  cubit.loadCartAndProviders();
-                  if (unassigned.length == 1) {
-                    showProviderQuickPickSheet(
-                      context,
-                      cubit: cubit,
-                      onViewAll: () {
-                        if (context.mounted) {
-                          context.push('/choose-provider', extra: cubit);
-                        }
-                      },
-                    );
-                  } else {
-                    context.push('/choose-provider', extra: cubit);
-                  }
-                },
-              ),
-              SizedBox(height: 14.h),
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16.r),
-                  border: Border.all(color: const Color(0xFFE5E9F0)),
+            for (final entry in unassignedGroups.entries)
+              if (entry.value.isNotEmpty) ...[
+                _NeedsProviderBanner(
+                  key: ValueKey('unassigned-${entry.key.name}'),
+                  count: entry.value.length,
+                  orderKind: entry.key,
+                  onTap: () {
+                    final cubit = context.read<CartCubit>();
+                    cubit.loadCartAndProviders(orderKind: entry.key);
+                    if (entry.value.length == 1) {
+                      showProviderQuickPickSheet(
+                        context,
+                        cubit: cubit,
+                        orderKind: entry.key,
+                        onViewAll: () {
+                          if (context.mounted) {
+                            context.push('/choose-provider', extra: cubit);
+                          }
+                        },
+                      );
+                    } else {
+                      context.push('/choose-provider', extra: cubit);
+                    }
+                  },
                 ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    for (var i = 0; i < unassigned.length; i++)
-                      CartItemCard(
-                        item: unassigned[i],
-                        showDivider: i < unassigned.length - 1,
-                      ),
-                  ],
+                SizedBox(height: 14.h),
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16.r),
+                    border: Border.all(color: const Color(0xFFE5E9F0)),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (var i = 0; i < entry.value.length; i++)
+                        CartItemCard(
+                          item: entry.value[i],
+                          showDivider: i < entry.value.length - 1,
+                        ),
+                    ],
+                  ),
                 ),
-              ),
-              SizedBox(height: 10.h),
-            ],
+                SizedBox(height: 10.h),
+              ],
 
             for (final (index, entry) in groups.entries.indexed) ...[
               _ProviderGroupSection(
-                providerId: entry.key,
+                providerId: entry.key.$2,
+                orderKind: entry.key.$1,
                 items: entry.value,
                 orderPosition: groups.length > 1 ? index + 1 : null,
                 ordersCount: groups.length,
-                initialBranch: entry.key == initialProviderId
+                initialBranch: entry.key.$2 == initialProviderId
                     ? initialBranch
                     : null,
               ),
@@ -381,8 +395,14 @@ Future<void> _showClearCartSheet(BuildContext context) async {
 class _NeedsProviderBanner extends StatelessWidget {
   final VoidCallback onTap;
   final int count;
+  final CartOrderKind orderKind;
 
-  const _NeedsProviderBanner({required this.onTap, required this.count});
+  const _NeedsProviderBanner({
+    super.key,
+    required this.onTap,
+    required this.count,
+    required this.orderKind,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -406,7 +426,10 @@ class _NeedsProviderBanner extends StatelessWidget {
             SizedBox(width: 10.w),
             Expanded(
               child: Text(
-                'cart.choose_places_count'.tr(args: ['$count']),
+                (orderKind == CartOrderKind.medicines
+                        ? 'cart.choose_pharmacy_count'
+                        : 'cart.choose_places_count')
+                    .tr(args: ['$count']),
                 style: AppTextStyles.of(
                   fontSize: 13.sp,
                   color: const Color(0xFFC2410C),
@@ -428,6 +451,7 @@ class _NeedsProviderBanner extends StatelessWidget {
 
 class _ProviderGroupSection extends StatelessWidget {
   final int providerId;
+  final CartOrderKind orderKind;
   final List<CartItem> items;
   final int? orderPosition;
   final int ordersCount;
@@ -435,6 +459,7 @@ class _ProviderGroupSection extends StatelessWidget {
 
   const _ProviderGroupSection({
     required this.providerId,
+    required this.orderKind,
     required this.items,
     this.orderPosition,
     this.ordersCount = 1,
@@ -505,6 +530,17 @@ class _ProviderGroupSection extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
+                        (orderKind == CartOrderKind.medicines
+                                ? 'cart.medicines'
+                                : 'cart.services')
+                            .tr(),
+                        style: AppTextStyles.of(
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF3872B1),
+                        ),
+                      ),
+                      Text(
                         'cart.order_services_count'.tr(
                           args: ['${items.length}'],
                         ),
@@ -559,6 +595,7 @@ class _ProviderGroupSection extends StatelessWidget {
                     extra: {
                       'cubit': context.read<CartCubit>(),
                       'providerId': providerId,
+                      'orderKind': orderKind,
                       'selectedBranch': initialBranch,
                     },
                   );
@@ -584,6 +621,44 @@ class _ProviderGroupSection extends StatelessWidget {
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
                   ),
+                ),
+              ),
+            ),
+          ),
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: Padding(
+              padding: EdgeInsetsDirectional.only(end: 10.w, bottom: 4.h),
+              child: TextButton.icon(
+                onPressed: () {
+                  final cubit = context.read<CartCubit>();
+                  cubit.loadCartAndProviders(orderKind: orderKind);
+                  showProviderQuickPickSheet(
+                    context,
+                    cubit: cubit,
+                    orderKind: orderKind,
+                    items: items,
+                    onViewAll: () {
+                      if (context.mounted) {
+                        context.push('/choose-provider', extra: cubit);
+                      }
+                    },
+                  );
+                },
+                icon: Icon(Icons.edit_outlined, size: 15.sp),
+                label: Text(
+                  'cart.change_provider'.tr(),
+                  style: AppTextStyles.of(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFF3872B1),
+                  minimumSize: Size(0, 34.h),
+                  padding: EdgeInsets.symmetric(horizontal: 10.w),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
                 ),
               ),
             ),

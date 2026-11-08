@@ -48,8 +48,8 @@ class Cart {
       totalCount: nextItems.isEmpty
           ? 0
           : (totalCount - removedItems.length > 0
-              ? totalCount - removedItems.length
-              : 0),
+                ? totalCount - removedItems.length
+                : 0),
       categoryCounters: nextCounters,
     );
   }
@@ -84,8 +84,54 @@ class Cart {
       totalCount: nextItems.isEmpty
           ? 0
           : (totalCount - removedItems.length > 0
-              ? totalCount - removedItems.length
-              : 0),
+                ? totalCount - removedItems.length
+                : 0),
+      categoryCounters: nextCounters,
+    );
+  }
+
+  Cart removeOrder({
+    required int providerId,
+    required CartOrderKind orderKind,
+  }) {
+    final removedItems = items
+        .where(
+          (item) =>
+              item.providerId == providerId && item.orderKind == orderKind,
+        )
+        .toList(growable: false);
+    if (removedItems.isEmpty) return this;
+
+    final removedCountByCategory = <int, int>{};
+    for (final item in removedItems) {
+      removedCountByCategory[item.categoryId] =
+          (removedCountByCategory[item.categoryId] ?? 0) + 1;
+    }
+    final nextItems = items
+        .where(
+          (item) =>
+              item.providerId != providerId || item.orderKind != orderKind,
+        )
+        .toList(growable: false);
+    final nextCounters = categoryCounters
+        .map((counter) {
+          final removed = removedCountByCategory[counter.categoryId] ?? 0;
+          return CategoryCounter(
+            categoryId: counter.categoryId,
+            categoryName: counter.categoryName,
+            count: counter.count - removed,
+          );
+        })
+        .where((counter) => counter.count > 0)
+        .toList(growable: false);
+
+    return Cart(
+      items: nextItems,
+      totalCount: nextItems.isEmpty
+          ? 0
+          : (totalCount - removedItems.length > 0
+                ? totalCount - removedItems.length
+                : 0),
       categoryCounters: nextCounters,
     );
   }

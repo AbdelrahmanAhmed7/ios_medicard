@@ -41,6 +41,85 @@ void main() {
   });
 
   group('Cart order preparation', () {
+    test(
+      'mixed cart assigns services and medicines through independent flows',
+      () async {
+        final fixture = _Fixture(cart: _unassignedMixedCart());
+        addTearDown(fixture.close);
+
+        await fixture.cubit.loadCartAndProviders(
+          orderKind: CartOrderKind.services,
+        );
+        expect(fixture.cart.chooseProvidersCalls, 1);
+        expect(fixture.cart.medicinePharmaciesCalls, 0);
+        expect(
+          fixture.cubit.state.providerSelectionKind,
+          CartOrderKind.services,
+        );
+
+        final serviceProvider = fixture.cubit.state.providers.single.forItems(
+          fixture.cubit.state.cart!.items.where(
+            (item) => item.orderKind == CartOrderKind.services,
+          ),
+        );
+        expect(await fixture.cubit.assignProvider(serviceProvider), isTrue);
+        expect(
+          fixture.cubit.state.cart!.items
+              .singleWhere((item) => item.orderKind == CartOrderKind.services)
+              .providerId,
+          7,
+        );
+        expect(
+          fixture.cubit.state.cart!.items
+              .singleWhere((item) => item.orderKind == CartOrderKind.medicines)
+              .providerId,
+          isNull,
+        );
+
+        await fixture.cubit.loadCartAndProviders(
+          orderKind: CartOrderKind.medicines,
+        );
+        expect(fixture.cart.chooseProvidersCalls, 1);
+        expect(fixture.cart.medicinePharmaciesCalls, 1);
+        expect(
+          fixture.cubit.state.providerSelectionKind,
+          CartOrderKind.medicines,
+        );
+        expect(
+          await fixture.cubit.assignProvider(
+            fixture.cubit.state.providers.single,
+          ),
+          isTrue,
+        );
+        expect(
+          fixture.cubit.state.cart!.items.every((item) => item.providerId == 7),
+          isTrue,
+        );
+      },
+    );
+
+    test(
+      'medicine checkout keeps services from the same provider in cart',
+      () async {
+        final fixture = _Fixture(cart: _sameProviderMixedCart());
+        addTearDown(fixture.close);
+
+        await fixture.cubit.loadCart();
+        await fixture.cubit.loadCheckout(
+          initialProviderId: 7,
+          orderKind: CartOrderKind.medicines,
+        );
+
+        expect(fixture.cubit.state.checkoutOrderKind, CartOrderKind.medicines);
+        expect(await fixture.cubit.createCartInvoice(), isTrue);
+        expect(fixture.cubit.state.cart!.items, hasLength(1));
+        expect(
+          fixture.cubit.state.cart!.items.single.orderKind,
+          CartOrderKind.services,
+        );
+      },
+    );
+
     test('availability and totals only include the requested services', () {
       final provider = _providerA(
         allItems: true,
@@ -1017,7 +1096,9 @@ class _FakeCartRepository implements CartRepository {
   final Map<int, ApiResult<void>> removeResults = {};
   final List<int> removeCalls = [];
   List<ProviderOption> chooseProviders = [_providerA(allItems: true)];
+  List<ProviderOption> medicinePharmacies = [_providerA(allItems: true)];
   int chooseProvidersCalls = 0;
+  int medicinePharmaciesCalls = 0;
 
   @override
   Future<ApiResult<Cart>> getCart() {
@@ -1036,14 +1117,17 @@ class _FakeCartRepository implements CartRepository {
 
   @override
   Future<ApiResult<List<ProviderOption>>> getMedicinePharmacies() async {
-    return ApiResult.success(chooseProviders);
+    medicinePharmaciesCalls++;
+    return ApiResult.success(medicinePharmacies);
   }
 
   @override
   Future<ApiResult<void>> updateMedicineProvider({
     required int providerId,
   }) async {
-    for (final item in List<CartItem>.from(cart.items)) {
+    for (final item in List<CartItem>.from(
+      cart.items,
+    ).where((item) => item.orderKind == CartOrderKind.medicines)) {
       final result = await updateCartProvider(
         cartId: item.cartItemId,
         providerId: providerId,
@@ -1326,14 +1410,14 @@ Cart _providerACart() => const Cart(
       cartItemId: 1,
       serviceId: 10,
       serviceName: 'A',
-      categoryId: 1,
+      categoryId: 2,
       providerId: 7,
       providerName: 'Provider A',
     ),
   ],
   totalCount: 1,
   categoryCounters: [
-    CategoryCounter(categoryId: 1, categoryName: 'C', count: 1),
+    CategoryCounter(categoryId: 2, categoryName: 'C', count: 1),
   ],
 );
 
@@ -1343,7 +1427,7 @@ Cart _twoProviderCart() => const Cart(
       cartItemId: 1,
       serviceId: 10,
       serviceName: 'A',
-      categoryId: 1,
+      categoryId: 2,
       providerId: 7,
       providerName: 'Provider A',
     ),
@@ -1351,15 +1435,15 @@ Cart _twoProviderCart() => const Cart(
       cartItemId: 2,
       serviceId: 20,
       serviceName: 'B',
-      categoryId: 2,
+      categoryId: 3,
       providerId: 8,
       providerName: 'Provider B',
     ),
   ],
   totalCount: 2,
   categoryCounters: [
-    CategoryCounter(categoryId: 1, categoryName: 'C1', count: 1),
-    CategoryCounter(categoryId: 2, categoryName: 'C2', count: 1),
+    CategoryCounter(categoryId: 2, categoryName: 'C1', count: 1),
+    CategoryCounter(categoryId: 3, categoryName: 'C2', count: 1),
   ],
 );
 
@@ -1369,26 +1453,68 @@ Cart _providerBCart() => const Cart(
       cartItemId: 2,
       serviceId: 20,
       serviceName: 'B',
-      categoryId: 2,
+      categoryId: 3,
       providerId: 8,
       providerName: 'Provider B',
     ),
   ],
   totalCount: 1,
   categoryCounters: [
-    CategoryCounter(categoryId: 2, categoryName: 'C2', count: 1),
+    CategoryCounter(categoryId: 3, categoryName: 'C2', count: 1),
   ],
 );
 
 Cart _unassignedCart() => const Cart(
+  items: [
+    CartItem(cartItemId: 1, serviceId: 10, serviceName: 'A', categoryId: 2),
+    CartItem(cartItemId: 2, serviceId: 20, serviceName: 'B', categoryId: 3),
+  ],
+  totalCount: 2,
+  categoryCounters: [
+    CategoryCounter(categoryId: 2, categoryName: 'C1', count: 1),
+    CategoryCounter(categoryId: 3, categoryName: 'C2', count: 1),
+  ],
+);
+
+Cart _unassignedMixedCart() => const Cart(
   items: [
     CartItem(cartItemId: 1, serviceId: 10, serviceName: 'A', categoryId: 1),
     CartItem(cartItemId: 2, serviceId: 20, serviceName: 'B', categoryId: 2),
   ],
   totalCount: 2,
   categoryCounters: [
-    CategoryCounter(categoryId: 1, categoryName: 'C1', count: 1),
-    CategoryCounter(categoryId: 2, categoryName: 'C2', count: 1),
+    CategoryCounter(categoryId: 1, categoryName: 'Medicines', count: 1),
+    CategoryCounter(categoryId: 2, categoryName: 'Services', count: 1),
+  ],
+);
+
+Cart _sameProviderMixedCart() => const Cart(
+  items: [
+    CartItem(
+      cartItemId: 1,
+      serviceId: 10,
+      serviceName: 'Medicine',
+      categoryId: 1,
+      providerId: 7,
+      providerName: 'Provider A',
+      priceBefore: 100,
+      priceAfter: 80,
+    ),
+    CartItem(
+      cartItemId: 2,
+      serviceId: 20,
+      serviceName: 'Service',
+      categoryId: 2,
+      providerId: 7,
+      providerName: 'Provider A',
+      priceBefore: 100,
+      priceAfter: 80,
+    ),
+  ],
+  totalCount: 2,
+  categoryCounters: [
+    CategoryCounter(categoryId: 1, categoryName: 'Medicines', count: 1),
+    CategoryCounter(categoryId: 2, categoryName: 'Services', count: 1),
   ],
 );
 

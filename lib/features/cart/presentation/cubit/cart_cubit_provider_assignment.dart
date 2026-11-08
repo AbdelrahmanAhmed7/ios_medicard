@@ -6,15 +6,42 @@ part of 'cart_cubit.dart';
 /// of its state and request-generation guards while keeping provider-specific
 /// behavior out of the main orchestration file.
 extension CartCubitProviderAssignment on CartCubit {
-  Future<void> loadProviders() async {
+  CartOrderKind? _nextUnassignedOrderKind(Cart? cart) {
+    final unassigned = cart?.items.where((item) => item.providerId == null);
+    if (unassigned == null) return null;
+    if (unassigned.any((item) => item.orderKind == CartOrderKind.services)) {
+      return CartOrderKind.services;
+    }
+    if (unassigned.any((item) => item.orderKind == CartOrderKind.medicines)) {
+      return CartOrderKind.medicines;
+    }
+    return null;
+  }
+
+  List<CartItem> _unassignedItemsFor(CartOrderKind orderKind) =>
+      state.cart?.items
+          .where(
+            (item) =>
+                item.orderKind == orderKind && item.providerId == null,
+          )
+          .toList(growable: false) ??
+      const <CartItem>[];
+
+  Future<void> loadProviders({CartOrderKind? orderKind}) async {
+    final selectionKind =
+        orderKind ??
+        state.providerSelectionKind ??
+        _nextUnassignedOrderKind(state.cart) ??
+        CartOrderKind.services;
     _emitCartState(
       state.copyWith(
         isProvidersLoading: true,
         resetProvidersError: true,
         resetSelectedProvider: true,
+        providerSelectionKind: selectionKind,
       ),
     );
-    final result = await _getAvailableProviders();
+    final result = await _getAvailableProviders(selectionKind);
     if (isClosed) return;
     result.when(
       success: (providers) {
@@ -38,16 +65,15 @@ extension CartCubitProviderAssignment on CartCubit {
     _emitCartState(state.copyWith(selectedProvider: provider));
   }
 
-  Future<ApiResult<List<ProviderOption>>> _getAvailableProviders() {
-    final items = state.cart?.items ?? const <CartItem>[];
-    final isMedicine =
-        items.isNotEmpty && items.every((item) => item.categoryId == 1);
-    return isMedicine
+  Future<ApiResult<List<ProviderOption>>> _getAvailableProviders(
+    CartOrderKind orderKind,
+  ) {
+    return orderKind == CartOrderKind.medicines
         ? _repository.getMedicinePharmacies()
         : _repository.getChooseProviders();
   }
 
-  /// Assigns [provider] to every covered cart item that has no provider yet.
+  /// Assigns [provider] to every covered cart item of the selected order kind.
   ///
   /// A provider option may also describe items that are already assigned to
   /// that same provider (the cart and choose-providers endpoints both return
@@ -67,6 +93,12 @@ extension CartCubitProviderAssignment on CartCubit {
         ),
       );
 
+      final orderKind =
+          state.providerSelectionKind ??
+          _nextUnassignedOrderKind(state.cart) ??
+          CartOrderKind.services;
+      final eligibleItems = _unassignedItemsFor(orderKind);
+      final eligibleIds = eligibleItems.map((item) => item.cartItemId).toSet();
       final cartItemsById = state.cart == null
           ? null
           : {for (final item in state.cart!.items) item.cartItemId: item};
@@ -76,10 +108,7 @@ extension CartCubitProviderAssignment on CartCubit {
             cartItemsById?[service.cartItemId]?.providerId ==
                 provider.providerId,
       );
-      final medicineCart =
-          state.cart?.items.isNotEmpty == true &&
-          state.cart!.items.every((item) => item.categoryId == 1);
-      if (medicineCart) {
+      if (orderKind == CartOrderKind.medicines) {
         final result = await _repository.updateMedicineProvider(
           providerId: provider.providerId,
         );
@@ -122,8 +151,9 @@ extension CartCubitProviderAssignment on CartCubit {
           .where(
             (service) =>
                 service.cartItemId != 0 &&
+                eligibleIds.contains(service.cartItemId) &&
                 (cartItemsById == null ||
-                    cartItemsById[service.cartItemId]?.providerId == null),
+                    cartItemsById[service.cartItemId]?.orderKind == orderKind),
           )
           .toList(growable: false);
       if (servicesToUpdate.isEmpty) {

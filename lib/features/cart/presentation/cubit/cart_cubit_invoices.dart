@@ -61,11 +61,19 @@ extension CartCubitInvoices on CartCubit {
       return result.when<bool>(
         success: (invoice) {
           _cartMutationGeneration++;
+          final orderKind = state.checkoutOrderKind;
           final remainingCart =
-              state.cart?.removeProvider(provider.providerId) ??
+              (orderKind == null
+                  ? state.cart?.removeProvider(provider.providerId)
+                  : state.cart?.removeOrder(
+                      providerId: provider.providerId,
+                      orderKind: orderKind,
+                    )) ??
               const Cart.empty();
           _confirmedProviderAssignments.removeWhere(
-            (_, item) => item.providerId == provider.providerId,
+            (_, item) =>
+                item.providerId == provider.providerId &&
+                (orderKind == null || item.orderKind == orderKind),
           );
           _emitCartState(
             state.copyWith(
@@ -83,9 +91,13 @@ extension CartCubitInvoices on CartCubit {
           if (outcomeUnknown) {
             _unknownOutcomeItemIds = {
               for (final item in state.cart?.items ?? const <CartItem>[])
-                if (item.providerId == provider.providerId) item.cartItemId,
+                if (item.providerId == provider.providerId &&
+                    (state.checkoutOrderKind == null ||
+                        item.orderKind == state.checkoutOrderKind))
+                  item.cartItemId,
             };
             _unknownOutcomeProviderName = provider.providerName;
+            _unknownOutcomeOrderKind = state.checkoutOrderKind;
             _unknownOutcomeSubmittedAt = DateTime.now().toUtc();
           }
           _emitCartState(
@@ -164,6 +176,9 @@ extension CartCubitInvoices on CartCubit {
     InvoiceItem? matchingInvoice;
     for (final invoice in invoices) {
       if (invoice.providerName.trim() == wantedProvider &&
+          (_unknownOutcomeOrderKind == null ||
+              invoice.isMedicineInvoice ==
+                  (_unknownOutcomeOrderKind == CartOrderKind.medicines)) &&
           !invoice.date.isBefore(earliest)) {
         matchingInvoice = invoice;
         break;
@@ -207,6 +222,7 @@ extension CartCubitInvoices on CartCubit {
   void _clearUnknownOutcome() {
     _unknownOutcomeItemIds = {};
     _unknownOutcomeProviderName = '';
+    _unknownOutcomeOrderKind = null;
     _unknownOutcomeSubmittedAt = null;
   }
 

@@ -1,6 +1,7 @@
 import '../../../../features/family_members/data/models/family_member_model.dart';
 import '../../../../network/data/provider_page_response_model.dart';
 import '../../domain/models/cart.dart';
+import '../../domain/models/cart_item.dart';
 import '../../domain/models/category_services.dart';
 import '../../domain/models/provider_option.dart';
 
@@ -21,10 +22,12 @@ class CartState {
   final String? providersError;
   final bool isAssigningProvider;
   final String? assignProviderError;
+  final CartOrderKind? providerSelectionKind;
 
   /// The provider the user has selected in the choose-provider screen.
   final ProviderOption? selectedProvider;
   final ProviderOption? checkoutProvider;
+  final CartOrderKind? checkoutOrderKind;
   final List<ProviderBranch> checkoutBranches;
   final ProviderBranch? selectedBranch;
   final bool isCheckoutLoading;
@@ -58,8 +61,10 @@ class CartState {
     this.providersError,
     this.isAssigningProvider = false,
     this.assignProviderError,
+    this.providerSelectionKind,
     this.selectedProvider,
     this.checkoutProvider,
+    this.checkoutOrderKind,
     this.checkoutBranches = const [],
     this.selectedBranch,
     this.isCheckoutLoading = false,
@@ -98,10 +103,14 @@ class CartState {
     bool? isAssigningProvider,
     String? assignProviderError,
     bool resetAssignProviderError = false,
+    CartOrderKind? providerSelectionKind,
+    bool resetProviderSelectionKind = false,
     ProviderOption? selectedProvider,
     bool resetSelectedProvider = false,
     ProviderOption? checkoutProvider,
     bool resetCheckoutProvider = false,
+    CartOrderKind? checkoutOrderKind,
+    bool resetCheckoutOrderKind = false,
     List<ProviderBranch>? checkoutBranches,
     ProviderBranch? selectedBranch,
     bool resetSelectedBranch = false,
@@ -153,12 +162,18 @@ class CartState {
       assignProviderError: resetAssignProviderError
           ? null
           : (assignProviderError ?? this.assignProviderError),
+      providerSelectionKind: resetProviderSelectionKind
+          ? null
+          : (providerSelectionKind ?? this.providerSelectionKind),
       selectedProvider: resetSelectedProvider
           ? null
           : (selectedProvider ?? this.selectedProvider),
       checkoutProvider: resetCheckoutProvider
           ? null
           : (checkoutProvider ?? this.checkoutProvider),
+      checkoutOrderKind: resetCheckoutOrderKind
+          ? null
+          : (checkoutOrderKind ?? this.checkoutOrderKind),
       checkoutBranches: checkoutBranches ?? this.checkoutBranches,
       selectedBranch: resetSelectedBranch
           ? null

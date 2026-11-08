@@ -21,6 +21,7 @@ extension CartCubitCheckout on CartCubit {
 
   Future<void> loadCheckout({
     int? initialProviderId,
+    CartOrderKind? orderKind,
     String? initialProviderName,
     ProviderBranch? initialBranch,
     int? packageId,
@@ -34,6 +35,7 @@ extension CartCubitCheckout on CartCubit {
         isCheckoutLoading: true,
         isFamilyMembersLoading: true,
         resetCheckoutProvider: true,
+        resetCheckoutOrderKind: packageId != null,
         resetSelectedBranch: true,
         checkoutBranches: const [],
         resetCheckoutError: true,
@@ -84,6 +86,9 @@ extension CartCubitCheckout on CartCubit {
     }
 
     final targetProviderId = initialProviderId ?? providerId;
+    final resolvedOrderKind = packageId == null
+        ? orderKind ?? _orderKindForProvider(cart, targetProviderId)
+        : null;
     final checkoutProvider = packageId != null && targetProviderId != null
         ? _packageCheckoutProvider(
             providerId: targetProviderId,
@@ -92,6 +97,7 @@ extension CartCubitCheckout on CartCubit {
         : await _resolveCheckoutProvider(
             cart: cart,
             initialProviderId: targetProviderId,
+            orderKind: resolvedOrderKind,
           );
     if (isClosed) return;
 
@@ -125,7 +131,12 @@ extension CartCubitCheckout on CartCubit {
       return;
     }
 
-    _emitCartState(state.copyWith(checkoutProvider: checkoutProvider));
+    _emitCartState(
+      state.copyWith(
+        checkoutProvider: checkoutProvider,
+        checkoutOrderKind: resolvedOrderKind,
+      ),
+    );
     await Future.wait([
       loadProviderBranches(
         checkoutProvider.providerId,
@@ -155,13 +166,25 @@ extension CartCubitCheckout on CartCubit {
   Future<ProviderOption?> _resolveCheckoutProvider({
     required Cart? cart,
     required int? initialProviderId,
+    required CartOrderKind? orderKind,
   }) async {
     final targetId =
         initialProviderId ??
         state.selectedProvider?.providerId ??
         _singleCartProviderId(cart);
     if (targetId == null) return null;
-    return _freshProviderOption(targetId);
+    final targetKind = orderKind ?? _orderKindForProvider(cart, targetId);
+    if (targetKind == null) return null;
+    return _freshProviderOption(targetId, targetKind);
+  }
+
+  CartOrderKind? _orderKindForProvider(Cart? cart, int? providerId) {
+    if (providerId == null) return null;
+    final kinds = {
+      for (final item in cart?.items ?? const <CartItem>[])
+        if (item.providerId == providerId) item.orderKind,
+    };
+    return kinds.length == 1 ? kinds.first : null;
   }
 
   int? _singleCartProviderId(Cart? cart) {
@@ -172,8 +195,11 @@ extension CartCubitCheckout on CartCubit {
     return ids.length == 1 ? ids.first : null;
   }
 
-  Future<ProviderOption?> _freshProviderOption(int providerId) async {
-    final result = await _getAvailableProviders();
+  Future<ProviderOption?> _freshProviderOption(
+    int providerId,
+    CartOrderKind orderKind,
+  ) async {
+    final result = await _getAvailableProviders(orderKind);
     if (isClosed) return null;
     return result.when<ProviderOption?>(
       success: (providers) {
@@ -183,7 +209,11 @@ extension CartCubitCheckout on CartCubit {
           if (p.providerId == providerId) {
             final orderItems =
                 state.cart?.items
-                    .where((item) => item.providerId == providerId)
+                    .where(
+                      (item) =>
+                          item.providerId == providerId &&
+                          item.orderKind == orderKind,
+                    )
                     .toList() ??
                 <CartItem>[];
             if (orderItems.isNotEmpty) match = p.forItems(orderItems);
@@ -243,12 +273,12 @@ extension CartCubitCheckout on CartCubit {
           ),
         );
       },
-      failure: (error) {
+      failure: (_) {
         _emitCartState(
           state.copyWith(
             checkoutBranches: const [],
             resetSelectedBranch: true,
-            checkoutError: error,
+            checkoutError: 'cart.branch_load_error'.tr(),
             isCheckoutLoading: false,
           ),
         );
