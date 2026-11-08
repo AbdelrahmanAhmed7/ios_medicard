@@ -120,11 +120,25 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
       dismissActiveToast();
       return;
     }
+
+    // These fields are required by the API as well. The location row is not a
+    // FormField, so it needs an explicit check before building the request.
+    if (_selectedGovernorateId == null || _selectedCityId == null) {
+      showErrorToast('common.required'.tr());
+      return;
+    }
+    if (_latitude == null || _longitude == null) {
+      showErrorToast('addresses.location_required'.tr());
+      return;
+    }
+
+    final governorateId = _selectedGovernorateId!;
+    final cityId = _selectedCityId!;
     setState(() => _isSubmitting = true);
     try {
       await context.read<AddressFormCubit>().save(
-        governorateId: _selectedGovernorateId!,
-        cityId: _selectedCityId!,
+        governorateId: governorateId,
+        cityId: cityId,
         floor: _parseInt(_floorController.text),
         buildingNumber: _parseInt(_buildingController.text),
         apartmentNumber: _parseInt(_apartmentController.text),
@@ -192,12 +206,14 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
                           _buildNumberField(
                             controller: _floorController,
                             hint: 'addresses.floor'.tr(),
+                            required: true,
                           ),
                           SizedBox(height: 14.h),
                           _FieldLabel('addresses.apartment_number'.tr()),
                           _buildNumberField(
                             controller: _apartmentController,
                             hint: 'addresses.apartment_number'.tr(),
+                            required: true,
                           ),
                           SizedBox(height: 8.h),
                           _buildDefaultSwitch(),

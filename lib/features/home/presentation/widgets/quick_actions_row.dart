@@ -49,14 +49,24 @@ class QuickActionsRow extends StatelessWidget {
                             if (action.assetPath case final assetPath?)
                               Image.asset(assetPath, width: 34, height: 34)
                             else if (action.icon case final icon?)
-                              Icon(
-                                icon,
-                                size: 34,
-                                color: action.enabled
-                                    ? const Color(0xFF3872B1)
-                                    : const Color(0xFF9CA3AF),
+                              Container(
+                                width: 48,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: action.enabled
+                                      ? Colors.white
+                                      : const Color(0xFFE5E7EB),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  icon,
+                                  size: 28,
+                                  color: action.enabled
+                                      ? const Color(0xFF2563A6)
+                                      : const Color(0xFF9CA3AF),
+                                ),
                               ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 6),
                             Text(
                               action.labelKey.tr(),
                               style: AppTextStyles.of(
@@ -67,7 +77,7 @@ class QuickActionsRow extends StatelessWidget {
                                     : const Color(0xFF9CA3AF),
                               ),
                               textAlign: TextAlign.center,
-                              maxLines: 1,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ],

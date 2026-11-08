@@ -32,6 +32,7 @@ class SearchBarWidget extends StatelessWidget {
             'home.search_word_1',
             'home.search_word_2',
             'home.search_word_3',
+            'home.search_word_4',
           ],
           searchForPrefixKey: 'home.search_for',
         ),
