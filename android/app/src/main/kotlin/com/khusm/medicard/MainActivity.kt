@@ -2,6 +2,8 @@ package com.khusm.medicard
 
 import android.app.Activity
 import android.content.IntentSender
+import android.os.Build
+import android.util.Log
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -30,6 +32,7 @@ class MainActivity : FlutterFragmentActivity() {
 
     companion object {
         private const val CHANNEL = "com.khusm.medicard/location"
+        private const val REFRESH_RATE_TAG = "MediCardRefreshRate"
     }
 
     // Pending Flutter result — held while the GPS dialog is shown.
@@ -59,6 +62,69 @@ class MainActivity : FlutterFragmentActivity() {
                 "requestGpsEnable" -> handleRequestGpsEnable(result)
                 else -> result.notImplemented()
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        requestHighestRefreshRate()
+    }
+
+    /**
+     * Requests the fastest refresh rate supported by the current display.
+     * Android and the device manufacturer may still cap the effective rate
+     * based on system settings, power state, or thermal policy.
+     */
+    @Suppress("DEPRECATION")
+    private fun requestHighestRefreshRate() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return
+
+        try {
+            val display = windowManager.defaultDisplay
+            val supportedModes = display.supportedModes
+            val highestRefreshMode = supportedModes.maxWithOrNull(
+                compareBy<android.view.Display.Mode> { it.refreshRate }
+                    .thenBy { it.modeId },
+            )
+            if (highestRefreshMode == null || highestRefreshMode.refreshRate <= 0f) {
+                Log.i(REFRESH_RATE_TAG, "No supported display modes; keeping system default")
+                return
+            }
+
+            val supportedRates = supportedModes
+                .map { it.refreshRate }
+                .distinct()
+                .sorted()
+                .joinToString { "${it}Hz" }
+
+            // preferredRefreshRate is only a hint. Selecting the concrete mode
+            // as well is important on devices that expose 60Hz as the default
+            // mode even though 120Hz is supported.
+            window.attributes = window.attributes.apply {
+                preferredDisplayModeId = highestRefreshMode.modeId
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    preferredRefreshRate = highestRefreshMode.refreshRate
+                }
+            }
+
+            Log.i(
+                REFRESH_RATE_TAG,
+                "Supported refresh rates: [$supportedRates]; requested: " +
+                    "${highestRefreshMode.refreshRate}Hz (mode ${highestRefreshMode.modeId})",
+            )
+
+            // Read after the window preference has had a chance to take effect.
+            window.decorView.post {
+                val observedRefreshRate = windowManager.defaultDisplay.refreshRate
+                Log.i(
+                    REFRESH_RATE_TAG,
+                    "Android-reported active display refresh rate: ${observedRefreshRate}Hz " +
+                        "(Flutter rendering FPS is measured separately)",
+                )
+            }
+        } catch (exception: Exception) {
+            // Some vendor display implementations can reject mode queries or updates.
+            Log.w(REFRESH_RATE_TAG, "Could not request a higher refresh rate", exception)
         }
     }
 
