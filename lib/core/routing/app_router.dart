@@ -77,6 +77,89 @@ class AppRouter {
   /// to hide themselves on specific screens (e.g. floating cart on cart).
   static final ValueNotifier<String> currentLocation = ValueNotifier('');
 
+  static const _privateRoutes = <String>{
+    '/medicard-home',
+    '/notifications',
+    '/medicard-profile',
+    '/medicard-edit-profile-new',
+    '/manual-prescription',
+    '/change-password',
+    '/family-members',
+    '/family-members/add',
+    '/family-members/edit',
+    '/addresses',
+    '/addresses/add',
+    '/addresses/edit',
+    '/digital-membership',
+    '/cart',
+    '/checkout',
+    '/invoice-details',
+    '/choose-provider',
+    '/pending-appointment-details',
+  };
+
+  static const _publicRoutes = <String>{
+    '/',
+    '/Home',
+    '/home',
+    '/medicard-login',
+    '/medicard-register',
+    '/forgot-password',
+    '/forgot-password/verify',
+    '/forgot-password/reset',
+    '/onboarding',
+    '/medicard-activation',
+    '/guest-home',
+    '/search',
+    '/search/providers',
+    '/search/services',
+    '/packages',
+    '/help-center',
+    '/privacy-policy',
+    '/refund-policy',
+    '/terms-and-conditions',
+    '/provider-page',
+    '/provider-branches',
+    '/provider-reviews',
+  };
+
+  static bool isPrivateRoute(String path) => _privateRoutes.contains(path);
+
+  static bool _isSafeInternalLocation(String location) {
+    final uri = Uri.tryParse(location);
+    return uri != null &&
+        uri.path.startsWith('/') &&
+        !uri.path.startsWith('//') &&
+        (_privateRoutes.contains(uri.path) || _publicRoutes.contains(uri.path));
+  }
+
+  static String? _safeRedirectLocation(String location) =>
+      _isSafeInternalLocation(location) ? location : null;
+
+  static Future<String?> redirectForTest({
+    required String location,
+    required bool authenticated,
+  }) async => _redirect(location, authenticated);
+
+  static String? _redirect(String location, bool authenticated) {
+    final uri = Uri.parse(location);
+    final path = uri.path;
+    if (!authenticated && isPrivateRoute(path)) {
+      final destination = _safeRedirectLocation(uri.toString());
+      return destination == null
+          ? '/medicard-login'
+          : '/medicard-login?redirect=${Uri.encodeComponent(destination)}';
+    }
+    if (authenticated &&
+        (path == '/guest-home' ||
+            path == '/medicard-login' ||
+            path == '/medicard-register' ||
+            path == '/onboarding')) {
+      return '/medicard-home';
+    }
+    return null;
+  }
+
   /// Determines the initial route based on the stored session state.
   ///
   /// Decision tree:
@@ -191,7 +274,20 @@ class AppRouter {
       initialLocation: normalizeLocation(initialLocation),
       // Rebuilds all route pages when the language changes so that every
       // `.tr()` / `context.tr()` re-evaluates against the new locale.
-      refreshListenable: sl<AppRefreshCubit>().languageRefresh,
+      refreshListenable: Listenable.merge([
+        sl<AppRefreshCubit>().languageRefresh,
+        sl<AppRefreshCubit>().authRefresh,
+      ]),
+      redirect: (context, state) async {
+        // Some isolated widget tests build only the page-level dependencies;
+        // the real app always registers AuthSessionStorage during startup.
+        if (!sl.isRegistered<AuthSessionStorage>()) return null;
+        final session = await sl<AuthSessionStorage>().getSession();
+        return _redirect(
+          state.uri.toString(),
+          session != null && session.hasAccessToken,
+        );
+      },
       onException: (context, state, router) {
         final fallbackLocation = normalizeLocation(state.uri.toString());
         router.go(
@@ -234,12 +330,12 @@ class AppRouter {
         GoRoute(
           path: '/forgot-password/verify',
           builder: (context, state) {
-            final extra = state.extra as Map<String, dynamic>;
+            final extra = state.extra is Map ? state.extra as Map : const {};
             return BlocProvider(
               create: (_) => sl<ForgotPasswordCubit>(),
               child: OtpVerificationScreen(
-                phoneNumber: extra['phoneNumber'] as String,
-                otp: extra['otp'] as String,
+                phoneNumber: extra['phoneNumber'] as String? ?? '',
+                otp: extra['otp'] as String? ?? '',
               ),
             );
           },
@@ -247,12 +343,12 @@ class AppRouter {
         GoRoute(
           path: '/forgot-password/reset',
           builder: (context, state) {
-            final extra = state.extra as Map<String, dynamic>;
+            final extra = state.extra is Map ? state.extra as Map : const {};
             return BlocProvider(
               create: (_) => sl<ForgotPasswordCubit>(),
               child: ResetPasswordScreen(
-                phoneNumber: extra['phoneNumber'] as String,
-                token: extra['token'] as String,
+                phoneNumber: extra['phoneNumber'] as String? ?? '',
+                token: extra['token'] as String? ?? '',
               ),
             );
           },
@@ -299,8 +395,9 @@ class AppRouter {
         GoRoute(
           path: '/medicard-edit-profile-new',
           builder: (context, state) {
-            final extra = state.extra as Map<String, dynamic>;
-            final profileData = extra['profileData'] as ProfileData;
+            final extra = state.extra is Map ? state.extra as Map : const {};
+            final profileData = extra['profileData'] as ProfileData?;
+            if (profileData == null) return const ProfileScreen();
             final profileCubit = extra['profileCubit'] as ProfileCubit?;
             if (profileCubit == null) {
               return BlocProvider(
@@ -599,7 +696,7 @@ class AppRouter {
         GoRoute(
           path: '/invoice-details',
           builder: (context, state) {
-            final extra = state.extra as Map<String, dynamic>;
+            final extra = state.extra is Map ? state.extra as Map : const {};
             final invoice = extra['invoice'] as InvoiceItem?;
             final details = extra['details'] as InvoiceDetails?;
             final invoiceId =
@@ -653,7 +750,8 @@ class AppRouter {
         GoRoute(
           path: '/pending-appointment-details',
           builder: (context, state) {
-            final appointment = state.extra as AppointmentModel;
+            final appointment = state.extra as AppointmentModel?;
+            if (appointment == null) return const SizedBox.shrink();
             return PendingAppointmentDetailsScreen(appointment: appointment);
           },
         ),
@@ -672,7 +770,8 @@ class AppRouter {
                 autoOpenPackageId: extra['autoOpenPackageId'] as int?,
               );
             }
-            final providerId = extra as int;
+            final providerId = extra as int?;
+            if (providerId == null) return const SizedBox.shrink();
             return ProviderPageScreen(providerId: providerId);
           },
         ),

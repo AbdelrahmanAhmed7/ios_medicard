@@ -92,7 +92,10 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
           success: (response) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (!mounted) return;
-              context.go('/medicard-home');
+              final requestedLocation = GoRouterState.of(
+                context,
+              ).uri.queryParameters['redirect'];
+              context.go(requestedLocation ?? '/medicard-home');
             });
           },
           failed: (error) {

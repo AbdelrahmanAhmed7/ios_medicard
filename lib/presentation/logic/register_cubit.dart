@@ -6,6 +6,8 @@ import '../../core/auth/auth_session.dart';
 import '../../core/auth/auth_session_storage.dart';
 import '../../core/auth/jwt_helper.dart';
 import '../../core/network/dio_factory.dart';
+import '../../core/cubit/app_refresh_cubit.dart';
+import '../../core/di/service_locator.dart';
 import '../../core/utils/api_error_parser.dart';
 import '../../data/auth_register_request_model.dart';
 import '../../domain/usecases/register_usecase.dart';
@@ -69,12 +71,14 @@ class RegisterCubit extends Cubit<RegisterState> {
               ),
             );
             DioFactory.setTokenIntoHeaderAfterLogin(token);
+            sl<AppRefreshCubit>().triggerAuthRefresh();
             // Mirror the login flow: a fresh account is already signed in, so
             // bind this device's FCM token now or pushes never reach it.
             unawaited(PushNotificationService.instance.registerDeviceToken());
           } else {
             await const AuthSessionStorage().clearSession();
             DioFactory.clearTokenFromHeader();
+            sl<AppRefreshCubit>().triggerAuthRefresh();
           }
           if (isClosed) return;
           emit(RegisterState.success(response));

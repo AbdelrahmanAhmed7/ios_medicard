@@ -12,6 +12,14 @@ class AppRefreshCubit extends Cubit<AppRefreshState> {
   /// updated so every translation re-evaluates against the new language.
   final ValueNotifier<int> languageRefresh = ValueNotifier(0);
 
+  /// Notifies GoRouter when the persisted session changes.
+  final ValueNotifier<int> authRefresh = ValueNotifier(0);
+
+  void triggerAuthRefresh() {
+    if (isClosed) return;
+    authRefresh.value++;
+  }
+
   void triggerLanguageRefresh() {
     if (isClosed) return;
     emit(const AppRefreshState.languageChanged());
@@ -26,6 +34,7 @@ class AppRefreshCubit extends Cubit<AppRefreshState> {
     if (isClosed) return;
     emit(const AppRefreshState.sessionExpired());
     emit(const AppRefreshState.initial());
+    triggerAuthRefresh();
   }
 
   /// Counter bumped whenever the profile summary (family count + reward

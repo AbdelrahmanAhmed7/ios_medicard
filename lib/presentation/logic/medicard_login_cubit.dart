@@ -6,6 +6,8 @@ import '../../core/auth/auth_session.dart';
 import '../../core/auth/auth_session_storage.dart';
 import '../../core/auth/jwt_helper.dart';
 import '../../core/network/dio_factory.dart';
+import '../../core/cubit/app_refresh_cubit.dart';
+import '../../core/di/service_locator.dart';
 import '../../core/utils/api_error_parser.dart';
 import '../../core/utils/platform_type.dart';
 import '../../data/auth_login_request_model.dart';
@@ -60,6 +62,7 @@ class MedicardLoginCubit extends Cubit<MedicardLoginState> {
             ),
           );
           DioFactory.setTokenIntoHeaderAfterLogin(token);
+          sl<AppRefreshCubit>().triggerAuthRefresh();
           // The FCM token may have arrived before login (or rotated); bind
           // this device to the user now so pushes can reach it.
           unawaited(PushNotificationService.instance.registerDeviceToken());
