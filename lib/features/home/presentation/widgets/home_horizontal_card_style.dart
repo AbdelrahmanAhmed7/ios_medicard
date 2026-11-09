@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theming/app_spacing.dart';
 import '../../../../core/theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Shared geometry and typography for the horizontal cards on the home page.
 /// Logical pixels are intentional here so card spacing does not change with
 /// the device width through ScreenUtil.
@@ -36,12 +37,12 @@ abstract final class HomeHorizontalCardStyle {
   static const double textGap = 3;
   static const double footerGap = 8;
 
-  static const Color ink = Color(0xFF1A1A2E);
-  static const Color muted = Color(0xFF6B7280);
-  static const Color faint = Color(0xFF9CA3AF);
-  static const Color primary = Color(0xFF3872B1);
-  static const Color line = Color(0xFFE5E7EB);
-  static const Color imageBackground = Color(0xFFEEF3FB);
+  static const Color ink = AppColors.exactFF1A1A2E;
+  static const Color muted = AppColors.exactFF6B7280;
+  static const Color faint = AppColors.exactFF9CA3AF;
+  static const Color primary = AppColors.brandBlueClr;
+  static const Color line = AppColors.exactFFE5E7EB;
+  static const Color imageBackground = AppColors.exactFFEEF3FB;
 
   static TextStyle get ratingText =>
       AppTextStyles.of(fontSize: 11, fontWeight: FontWeight.w600, color: ink);
@@ -71,3 +72,4 @@ abstract final class HomeHorizontalCardStyle {
     color: primary,
   );
 }
+

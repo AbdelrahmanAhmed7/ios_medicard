@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class CartErrorView extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
@@ -21,19 +22,19 @@ class CartErrorView extends StatelessWidget {
             Icon(
               Icons.error_outline_rounded,
               size: 52.sp,
-              color: const Color(0xFFD1D5DB),
+              color: AppColors.exactFFD1D5DB,
             ),
             SizedBox(height: 12.h),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: AppTextStyles.of(fontSize: 14.sp, color: const Color(0xFF6B7280)),
+              style: AppTextStyles.of(fontSize: 14.sp, color: AppColors.exactFF6B7280),
             ),
             SizedBox(height: 16.h),
             ElevatedButton(
               onPressed: onRetry,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF3872B1),
+                backgroundColor: AppColors.brandBlueClr,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.r),
                 ),
@@ -43,7 +44,7 @@ class CartErrorView extends StatelessWidget {
                 'common.retry'.tr(),
                 style: AppTextStyles.of(
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: AppColors.whiteClr,
                 ),
               ),
             ),
@@ -53,3 +54,4 @@ class CartErrorView extends StatelessWidget {
     );
   }
 }
+

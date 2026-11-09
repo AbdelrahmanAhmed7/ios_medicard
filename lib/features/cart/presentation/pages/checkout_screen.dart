@@ -25,6 +25,7 @@ import '../widgets/checkout_payment_summary.dart';
 import '../widgets/checkout_pricing.dart';
 import '../widgets/checkout_section_title.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class CheckoutScreen extends StatefulWidget {
   final int? initialProviderId;
   final CartOrderKind? orderKind;
@@ -96,7 +97,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.whiteClr,
       body: BlocConsumer<CartCubit, CartState>(
         listenWhen: (previous, current) =>
             previous.createInvoiceError != current.createInvoiceError ||
@@ -153,7 +154,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       AppHeaderBackButton(
-                        color: const Color(0xFF111827),
+                        color: AppColors.inkClr,
                         onPressed: () {
                           if (Navigator.of(context).canPop()) {
                             Navigator.of(context).pop();
@@ -166,7 +167,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                           style: AppTextStyles.of(
                             fontSize: 26.sp,
                             fontWeight: FontWeight.w700,
-                            color: const Color(0xFF111827),
+                            color: AppColors.inkClr,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -189,7 +190,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
   Widget _buildBody(BuildContext context, CartState state) {
     if (state.isCheckoutLoading && state.checkoutProvider == null) {
       return const Center(
-        child: CircularProgressIndicator(color: Color(0xFF3872B1)),
+        child: CircularProgressIndicator(color: AppColors.brandBlueClr),
       );
     }
 
@@ -231,7 +232,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
             'cart.other_services_saved'.tr(),
             style: AppTextStyles.of(
               fontSize: 13.sp,
-              color: const Color(0xFF64748B),
+              color: AppColors.inkMutedClr,
             ),
           ),
         ],
@@ -263,7 +264,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                 .tr(),
             style: AppTextStyles.of(
               fontSize: 13.sp,
-              color: const Color(0xFF64748B),
+              color: AppColors.inkMutedClr,
             ),
           ),
         ],
@@ -290,11 +291,11 @@ class _CheckoutPayBar extends StatelessWidget {
     final showTotal = !state.isInvoiceOutcomeUnknown;
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: const Border(top: BorderSide(color: Color(0xFFE5E9F0))),
+        color: AppColors.whiteClr,
+        border: const Border(top: BorderSide(color: AppColors.exactFFE5E9F0)),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0F172A).withValues(alpha: 0.06),
+            color: AppColors.exactFF0F172A.withValues(alpha: 0.06),
             blurRadius: 14,
             offset: const Offset(0, -4),
           ),
@@ -317,7 +318,7 @@ class _CheckoutPayBar extends StatelessWidget {
                             'cart.total_to_pay'.tr(),
                             style: AppTextStyles.of(
                               fontSize: 11.5.sp,
-                              color: const Color(0xFF64748B),
+                              color: AppColors.inkMutedClr,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -328,7 +329,7 @@ class _CheckoutPayBar extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: AppTextStyles.of(
                               fontSize: 18.sp,
-                              color: const Color(0xFF2563A9),
+                              color: AppColors.exactFF2563A9,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
@@ -345,3 +346,4 @@ class _CheckoutPayBar extends StatelessWidget {
     );
   }
 }
+

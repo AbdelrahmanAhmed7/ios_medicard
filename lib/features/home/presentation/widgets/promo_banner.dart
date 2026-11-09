@@ -10,6 +10,7 @@ import '../../../../core/theming/app_spacing.dart';
 import '../../../../core/theming/app_text_styles.dart';
 import '../../data/home_mock_data.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class PromoBannerWidget extends StatefulWidget {
   final List<PromoBanner> banners;
 
@@ -77,7 +78,7 @@ class _PromoBannerWidgetState extends State<PromoBannerWidget> {
             style: AppTextStyles.of(
               fontSize: 17.sp,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF111827),
+              color: AppColors.inkClr,
             ),
           ),
         ),
@@ -103,7 +104,7 @@ class _PromoBannerWidgetState extends State<PromoBannerWidget> {
                   child: Container(
                     clipBehavior: Clip.antiAlias,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
+                      color: AppColors.exactFFF8FAFC,
                       borderRadius: BorderRadius.circular(16.r),
                     ),
                     child: CachedNetworkImage(
@@ -117,7 +118,7 @@ class _PromoBannerWidgetState extends State<PromoBannerWidget> {
                       // `contain` keeps the complete creative visible.
                       fit: BoxFit.fill,
                       errorWidget: (context, url, error) =>
-                          const ColoredBox(color: Color(0xFFF8FAFC)),
+                          const ColoredBox(color: AppColors.exactFFF8FAFC),
                     ),
                   ),
                 ),
@@ -140,8 +141,8 @@ class _PromoBannerWidgetState extends State<PromoBannerWidget> {
                   height: 6,
                   decoration: BoxDecoration(
                     color: isActive
-                        ? const Color(0xFF3872B1)
-                        : const Color(0xFF9CA3AF),
+                        ? AppColors.brandBlueClr
+                        : AppColors.exactFF9CA3AF,
                     borderRadius: BorderRadius.circular(3),
                   ),
                 );
@@ -153,3 +154,4 @@ class _PromoBannerWidgetState extends State<PromoBannerWidget> {
     );
   }
 }
+

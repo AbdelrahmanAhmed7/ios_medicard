@@ -16,6 +16,7 @@ import 'cart_sync_warning.dart';
 import 'provider_checkout_notice.dart';
 import 'provider_quick_pick_sheet.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Cart grouped by provider: every assigned provider gets its own bordered
 /// section (header + divider-separated items + subtotal + scoped checkout).
 /// Unassigned items sit under the warning banner with no checkout of
@@ -122,9 +123,9 @@ class CartBody extends StatelessWidget {
                 SizedBox(height: 14.h),
                 DecoratedBox(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.whiteClr,
                     borderRadius: BorderRadius.circular(16.r),
-                    border: Border.all(color: const Color(0xFFE5E9F0)),
+                    border: Border.all(color: AppColors.exactFFE5E9F0),
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -179,7 +180,7 @@ class _CartSummaryCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
       decoration: BoxDecoration(
-        color: const Color(0xFFEFF6FF),
+        color: AppColors.exactFFEFF6FF,
         borderRadius: BorderRadius.circular(16.r),
       ),
       child: Row(
@@ -188,13 +189,13 @@ class _CartSummaryCard extends StatelessWidget {
             width: 44.r,
             height: 44.r,
             decoration: const BoxDecoration(
-              color: Colors.white,
+              color: AppColors.whiteClr,
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.shopping_cart_outlined,
               size: 21.sp,
-              color: const Color(0xFF2563EB),
+              color: AppColors.exactFF2563EB,
             ),
           ),
           SizedBox(width: 12.w),
@@ -208,7 +209,7 @@ class _CartSummaryCard extends StatelessWidget {
                   style: AppTextStyles.of(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF111827),
+                    color: AppColors.inkClr,
                   ),
                 ),
                 SizedBox(height: 3.h),
@@ -219,7 +220,7 @@ class _CartSummaryCard extends StatelessWidget {
                   style: AppTextStyles.of(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF2563EB),
+                    color: AppColors.exactFF2563EB,
                   ),
                 ),
                 if (total != null && hasIncompletePrices) ...[
@@ -228,7 +229,7 @@ class _CartSummaryCard extends StatelessWidget {
                     'cart.partial_total_hint'.tr(),
                     style: AppTextStyles.of(
                       fontSize: 12.sp,
-                      color: const Color(0xFF64748B),
+                      color: AppColors.inkMutedClr,
                     ),
                   ),
                 ],
@@ -261,7 +262,7 @@ class _ClearCartButton extends StatelessWidget {
             height: 20,
             child: CircularProgressIndicator(
               strokeWidth: 2,
-              color: Color(0xFF2563EB),
+              color: AppColors.exactFF2563EB,
             ),
           ),
         ),
@@ -270,7 +271,7 @@ class _ClearCartButton extends StatelessWidget {
     return Tooltip(
       message: 'cart.clear_cart'.tr(),
       child: Material(
-        color: const Color(0xFFFEE2E2),
+        color: AppColors.exactFFFEE2E2,
         shape: const CircleBorder(),
         child: InkWell(
           customBorder: const CircleBorder(),
@@ -279,7 +280,7 @@ class _ClearCartButton extends StatelessWidget {
             padding: EdgeInsets.all(10.r),
             child: Icon(
               Icons.delete_outline_rounded,
-              color: const Color(0xFFDC2626),
+              color: AppColors.exactFFDC2626,
               size: 20.sp,
             ),
           ),
@@ -293,7 +294,7 @@ Future<void> _showClearCartSheet(BuildContext context) async {
   final cubit = context.read<CartCubit>();
   final confirmed = await showModalBottomSheet<bool>(
     context: context,
-    backgroundColor: Colors.white,
+    backgroundColor: AppColors.whiteClr,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(18.r)),
     ),
@@ -308,7 +309,7 @@ Future<void> _showClearCartSheet(BuildContext context) async {
                 width: 42.w,
                 height: 4.h,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE5E7EB),
+                  color: AppColors.exactFFE5E7EB,
                   borderRadius: BorderRadius.circular(4.r),
                 ),
               ),
@@ -317,12 +318,12 @@ Future<void> _showClearCartSheet(BuildContext context) async {
                 width: 54.r,
                 height: 54.r,
                 decoration: const BoxDecoration(
-                  color: Color(0xFFFEE2E2),
+                  color: AppColors.exactFFFEE2E2,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.delete_outline_rounded,
-                  color: const Color(0xFFDC2626),
+                  color: AppColors.exactFFDC2626,
                   size: 28.sp,
                 ),
               ),
@@ -332,7 +333,7 @@ Future<void> _showClearCartSheet(BuildContext context) async {
                 style: AppTextStyles.of(
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF111827),
+                  color: AppColors.inkClr,
                 ),
               ),
               SizedBox(height: 8.h),
@@ -342,7 +343,7 @@ Future<void> _showClearCartSheet(BuildContext context) async {
                 style: AppTextStyles.of(
                   fontSize: 14.sp,
                   height: 1.35,
-                  color: const Color(0xFF6B7280),
+                  color: AppColors.exactFF6B7280,
                 ),
               ),
               SizedBox(height: 20.h),
@@ -352,8 +353,8 @@ Future<void> _showClearCartSheet(BuildContext context) async {
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(sheetContext).pop(false),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF334155),
-                        side: const BorderSide(color: Color(0xFFD1D5DB)),
+                        foregroundColor: AppColors.exactFF334155,
+                        side: const BorderSide(color: AppColors.exactFFD1D5DB),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.r),
                         ),
@@ -367,8 +368,8 @@ Future<void> _showClearCartSheet(BuildContext context) async {
                     child: ElevatedButton(
                       onPressed: () => Navigator.of(sheetContext).pop(true),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFDC2626),
-                        foregroundColor: Colors.white,
+                        backgroundColor: AppColors.exactFFDC2626,
+                        foregroundColor: AppColors.whiteClr,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.r),
@@ -412,15 +413,15 @@ class _NeedsProviderBanner extends StatelessWidget {
         width: double.infinity,
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
         decoration: BoxDecoration(
-          color: const Color(0xFFFFF7ED),
+          color: AppColors.exactFFFFF7ED,
           borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: const Color(0xFFFB923C)),
+          border: Border.all(color: AppColors.exactFFFB923C),
         ),
         child: Row(
           children: [
             Icon(
               Icons.warning_amber_rounded,
-              color: const Color(0xFFF97316),
+              color: AppColors.exactFFF97316,
               size: 20.sp,
             ),
             SizedBox(width: 10.w),
@@ -432,14 +433,14 @@ class _NeedsProviderBanner extends StatelessWidget {
                     .tr(args: ['$count']),
                 style: AppTextStyles.of(
                   fontSize: 13.sp,
-                  color: const Color(0xFFC2410C),
+                  color: AppColors.exactFFC2410C,
                   fontWeight: FontWeight.w500,
                 ),
               ),
             ),
             Icon(
               Icons.arrow_forward_ios_rounded,
-              color: const Color(0xFFF97316),
+              color: AppColors.exactFFF97316,
               size: 14.sp,
             ),
           ],
@@ -483,9 +484,9 @@ class _ProviderGroupSection extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(bottom: 16.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.whiteClr,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: const Color(0xFFE5E9F0)),
+        border: Border.all(color: AppColors.exactFFE5E9F0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -515,7 +516,7 @@ class _ProviderGroupSection extends StatelessWidget {
                             style: AppTextStyles.of(
                               fontSize: 11.5.sp,
                               fontWeight: FontWeight.w600,
-                              color: const Color(0xFF64748B),
+                              color: AppColors.inkMutedClr,
                             ),
                           ),
                         ),
@@ -524,7 +525,7 @@ class _ProviderGroupSection extends StatelessWidget {
                         style: AppTextStyles.of(
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF111827),
+                          color: AppColors.inkClr,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -537,7 +538,7 @@ class _ProviderGroupSection extends StatelessWidget {
                         style: AppTextStyles.of(
                           fontSize: 12.sp,
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF3872B1),
+                          color: AppColors.brandBlueClr,
                         ),
                       ),
                       Text(
@@ -546,7 +547,7 @@ class _ProviderGroupSection extends StatelessWidget {
                         ),
                         style: AppTextStyles.of(
                           fontSize: 12.sp,
-                          color: const Color(0xFF6B7280),
+                          color: AppColors.exactFF6B7280,
                         ),
                       ),
                     ],
@@ -564,7 +565,7 @@ class _ProviderGroupSection extends StatelessWidget {
                   'cart.subtotal'.tr(),
                   style: AppTextStyles.of(
                     fontSize: 13.sp,
-                    color: const Color(0xFF6B7280),
+                    color: AppColors.exactFF6B7280,
                   ),
                 ),
                 const Spacer(),
@@ -575,7 +576,7 @@ class _ProviderGroupSection extends StatelessWidget {
                   style: AppTextStyles.of(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF111827),
+                    color: AppColors.inkClr,
                   ),
                 ),
               ],
@@ -601,8 +602,8 @@ class _ProviderGroupSection extends StatelessWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3872B1),
-                  foregroundColor: Colors.white,
+                  backgroundColor: AppColors.brandBlueClr,
+                  foregroundColor: AppColors.whiteClr,
                   elevation: 0,
                   padding: EdgeInsets.symmetric(
                     horizontal: 14.w,
@@ -654,7 +655,7 @@ class _ProviderGroupSection extends StatelessWidget {
                   ),
                 ),
                 style: TextButton.styleFrom(
-                  foregroundColor: const Color(0xFF3872B1),
+                  foregroundColor: AppColors.brandBlueClr,
                   minimumSize: Size(0, 34.h),
                   padding: EdgeInsets.symmetric(horizontal: 10.w),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -668,3 +669,4 @@ class _ProviderGroupSection extends StatelessWidget {
     );
   }
 }
+

@@ -14,6 +14,7 @@ import '../../../../../features/activity/presentation/cubit/activity_cubit.dart'
 import 'invoice_list.dart';
 import 'invoice_action_button.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class InvoiceCard extends StatelessWidget {
   final InvoiceItem item;
 
@@ -42,9 +43,9 @@ class InvoiceCard extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.whiteClr,
           borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(color: const Color(0xFFE5E9F0), width: 1),
+          border: Border.all(color: AppColors.exactFFE5E9F0, width: 1),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,7 +65,7 @@ class InvoiceCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: const Color(0xFFE5E7EB),
+                            color: AppColors.exactFFE5E7EB,
                             width: 1,
                           ),
                         ),
@@ -89,22 +90,22 @@ class InvoiceCard extends StatelessWidget {
                           child: Container(
                             padding: EdgeInsets.all(2.r),
                             decoration: const BoxDecoration(
-                              color: Colors.white,
+                              color: AppColors.whiteClr,
                               shape: BoxShape.circle,
                             ),
                             child: DecoratedBox(
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: AppColors.whiteClr,
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: const Color(0xFF10B981),
+                                  color: AppColors.exactFF10B981,
                                   width: 1.2,
                                 ),
                               ),
                               child: Icon(
                                 Icons.check,
                                 size: 11.r,
-                                color: const Color(0xFF10B981),
+                                color: AppColors.exactFF10B981,
                               ),
                             ),
                           ),
@@ -126,7 +127,7 @@ class InvoiceCard extends StatelessWidget {
                         style: AppTextStyles.of(
                           fontSize: 16.5.sp,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF0F172A),
+                          color: AppColors.exactFF0F172A,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -137,7 +138,7 @@ class InvoiceCard extends StatelessWidget {
                         style: AppTextStyles.of(
                           fontSize: 13.sp,
                           fontWeight: FontWeight.w400,
-                          color: const Color(0xFF6B7280),
+                          color: AppColors.exactFF6B7280,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -150,7 +151,7 @@ class InvoiceCard extends StatelessWidget {
                             Icon(
                               Icons.person_outline_rounded,
                               size: 14.sp,
-                              color: const Color(0xFF4B5563),
+                              color: AppColors.exactFF4B5563,
                             ),
                             SizedBox(width: 4.w),
                             Expanded(
@@ -166,7 +167,7 @@ class InvoiceCard extends StatelessWidget {
                                 style: AppTextStyles.of(
                                   fontSize: 12.5.sp,
                                   fontWeight: FontWeight.w500,
-                                  color: const Color(0xFF4B5563),
+                                  color: AppColors.exactFF4B5563,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -187,7 +188,7 @@ class InvoiceCard extends StatelessWidget {
                         'activity.price_after'.tr(),
                         style: AppTextStyles.of(
                           fontSize: 10.5.sp,
-                          color: const Color(0xFF6B7280),
+                          color: AppColors.exactFF6B7280,
                         ),
                       ),
                       Text(
@@ -195,7 +196,7 @@ class InvoiceCard extends StatelessWidget {
                         style: AppTextStyles.of(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF3872B1),
+                          color: AppColors.brandBlueClr,
                         ),
                       ),
                     ],
@@ -257,7 +258,7 @@ class InvoiceCard extends StatelessWidget {
               ],
             ),
             SizedBox(height: 12.h),
-            const Divider(height: 1, color: Color(0xFFEEF1F5)),
+            const Divider(height: 1, color: AppColors.exactFFEEF1F5),
             SizedBox(height: 10.h),
             Row(
               children: [
@@ -266,14 +267,14 @@ class InvoiceCard extends StatelessWidget {
                   style: AppTextStyles.of(
                     fontSize: 12.5.sp,
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF4B5563),
+                    color: AppColors.exactFF4B5563,
                   ),
                 ),
                 SizedBox(width: 10.w),
                 Icon(
                   Icons.calendar_today_outlined,
                   size: 14.sp,
-                  color: const Color(0xFF9CA3AF),
+                  color: AppColors.exactFF9CA3AF,
                 ),
                 SizedBox(width: 6.w),
                 Expanded(
@@ -282,7 +283,7 @@ class InvoiceCard extends StatelessWidget {
                     style: AppTextStyles.of(
                       fontSize: 12.5.sp,
                       fontWeight: FontWeight.w400,
-                      color: const Color(0xFF6B7280),
+                      color: AppColors.exactFF6B7280,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -316,9 +317,9 @@ class _InvoiceFact extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 6.h),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: AppColors.exactFFF8FAFC,
         borderRadius: BorderRadius.circular(8.r),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: AppColors.exactFFE5E7EB),
       ),
       child: Text.rich(
         TextSpan(
@@ -329,14 +330,14 @@ class _InvoiceFact extends StatelessWidget {
               style: AppTextStyles.of(
                 fontSize: 11.5.sp,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF111827),
+                color: AppColors.inkClr,
               ),
             ),
           ],
         ),
         style: AppTextStyles.of(
           fontSize: 11.5.sp,
-          color: const Color(0xFF6B7280),
+          color: AppColors.exactFF6B7280,
         ),
       ),
     );
@@ -346,3 +347,4 @@ class _InvoiceFact extends StatelessWidget {
 /// Keeps the numeric value returned by the API; it never rounds, truncates,
 /// derives, or recalculates it for presentation.
 String _apiNumber(num value) => value.toString();
+

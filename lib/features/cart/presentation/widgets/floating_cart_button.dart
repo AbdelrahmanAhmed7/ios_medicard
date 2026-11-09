@@ -15,6 +15,7 @@ import '../../domain/models/cart.dart';
 import '../../domain/repository/cart_repository.dart';
 import '../../domain/services/cart_sync_service.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Floating draggable cart button shown app-wide above all screens.
 ///
 /// - Follows the finger and docks to the nearest side when released.
@@ -324,7 +325,7 @@ class _FloatingCartButtonState extends State<FloatingCartButton> {
             width: buttonSize,
             height: buttonSize,
             decoration: BoxDecoration(
-              color: const Color(0xFF3872B1),
+              color: AppColors.brandBlueClr,
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
@@ -342,7 +343,7 @@ class _FloatingCartButtonState extends State<FloatingCartButton> {
               children: [
                 Icon(
                   Icons.shopping_cart_outlined,
-                  color: Colors.white,
+                  color: AppColors.whiteClr,
                   size: 26.sp,
                 ),
                 Positioned(
@@ -355,7 +356,7 @@ class _FloatingCartButtonState extends State<FloatingCartButton> {
                     ),
                     padding: EdgeInsets.symmetric(horizontal: 5.w),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEF4444),
+                      color: AppColors.exactFFEF4444,
                       borderRadius: BorderRadius.circular(12.r),
                     ),
                     child: Center(
@@ -369,7 +370,7 @@ class _FloatingCartButtonState extends State<FloatingCartButton> {
                           style: AppTextStyles.of(
                             fontSize: 11.sp,
                             fontWeight: FontWeight.w700,
-                            color: Colors.white,
+                            color: AppColors.whiteClr,
                             decoration: TextDecoration.none,
                           ),
                         ),
@@ -386,3 +387,4 @@ class _FloatingCartButtonState extends State<FloatingCartButton> {
     );
   }
 }
+

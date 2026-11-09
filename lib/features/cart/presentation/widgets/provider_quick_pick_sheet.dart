@@ -12,6 +12,7 @@ import '../../domain/models/provider_option.dart';
 import '../cubit/cart_cubit.dart';
 import '../cubit/cart_state.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Quick provider picker used when a single service is still waiting for a
 /// provider. The user always makes the choice; nothing is preselected.
 Future<void> showProviderQuickPickSheet(
@@ -52,7 +53,7 @@ class _ProviderQuickPickSheet extends StatelessWidget {
     return DecoratedBox(
       key: const ValueKey('quick-pick-sheet'),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.whiteClr,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
       child: SafeArea(
@@ -90,7 +91,7 @@ class _ProviderQuickPickSheet extends StatelessWidget {
                       width: 40.w,
                       height: 4.h,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE5E7EB),
+                        color: AppColors.exactFFE5E7EB,
                         borderRadius: BorderRadius.circular(4.r),
                       ),
                     ),
@@ -108,14 +109,14 @@ class _ProviderQuickPickSheet extends StatelessWidget {
                             style: AppTextStyles.of(
                               fontSize: 18.sp,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF111827),
+                              color: AppColors.inkClr,
                             ),
                           ),
                         ),
                         IconButton(
                           onPressed: () => Navigator.of(context).pop(),
                           icon: const Icon(Icons.close_rounded),
-                          color: const Color(0xFF64748B),
+                          color: AppColors.inkMutedClr,
                           tooltip: 'common.cancel'.tr(),
                         ),
                       ],
@@ -137,7 +138,7 @@ class _ProviderQuickPickSheet extends StatelessWidget {
                           style: AppTextStyles.of(
                             fontSize: 13.5.sp,
                             fontWeight: FontWeight.w600,
-                            color: const Color(0xFF334155),
+                            color: AppColors.exactFF334155,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -147,19 +148,19 @@ class _ProviderQuickPickSheet extends StatelessWidget {
                           'cart.quick_pick_hint'.tr(),
                           style: AppTextStyles.of(
                             fontSize: 12.sp,
-                            color: const Color(0xFF64748B),
+                            color: AppColors.inkMutedClr,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const Divider(height: 1, color: Color(0xFFE2E8F0)),
+                  const Divider(height: 1, color: AppColors.lineClr),
                   if (state.isProvidersLoading)
                     Padding(
                       padding: EdgeInsets.symmetric(vertical: 40.h),
                       child: const Center(
                         child: CircularProgressIndicator(
-                          color: Color(0xFF3872B1),
+                          color: AppColors.brandBlueClr,
                         ),
                       ),
                     )
@@ -173,7 +174,7 @@ class _ProviderQuickPickSheet extends StatelessWidget {
                             textAlign: TextAlign.center,
                             style: AppTextStyles.of(
                               fontSize: 13.sp,
-                              color: const Color(0xFF64748B),
+                              color: AppColors.inkMutedClr,
                             ),
                           ),
                           SizedBox(height: 10.h),
@@ -195,7 +196,7 @@ class _ProviderQuickPickSheet extends StatelessWidget {
                         textAlign: TextAlign.center,
                         style: AppTextStyles.of(
                           fontSize: 13.sp,
-                          color: const Color(0xFF64748B),
+                          color: AppColors.inkMutedClr,
                         ),
                       ),
                     )
@@ -209,7 +210,7 @@ class _ProviderQuickPickSheet extends StatelessWidget {
                           height: 1,
                           indent: 20,
                           endIndent: 20,
-                          color: Color(0xFFF1F5F9),
+                          color: AppColors.exactFFF1F5F9,
                         ),
                         itemBuilder: (context, index) => _ProviderTile(
                           provider: providers[index],
@@ -226,8 +227,8 @@ class _ProviderQuickPickSheet extends StatelessWidget {
                         onViewAll();
                       },
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF3872B1),
-                        side: const BorderSide(color: Color(0xFF3872B1)),
+                        foregroundColor: AppColors.brandBlueClr,
+                        side: const BorderSide(color: AppColors.brandBlueClr),
                         minimumSize: Size.fromHeight(46.h),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12.r),
@@ -276,7 +277,7 @@ class _ProviderTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
+      color: AppColors.whiteClr,
       child: InkWell(
         onTap: isBusy ? null : () => _pick(context),
         child: Padding(
@@ -301,7 +302,7 @@ class _ProviderTile extends StatelessWidget {
                       style: AppTextStyles.of(
                         fontSize: 14.5.sp,
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF0F172A),
+                        color: AppColors.exactFF0F172A,
                       ),
                     ),
                     SizedBox(height: 2.h),
@@ -321,8 +322,8 @@ class _ProviderTile extends StatelessWidget {
                       style: AppTextStyles.of(
                         fontSize: 11.5.sp,
                         color: provider.coversAll
-                            ? const Color(0xFF047857)
-                            : const Color(0xFFB45309),
+                            ? AppColors.exactFF047857
+                            : AppColors.exactFFB45309,
                       ),
                     ),
                   ],
@@ -336,14 +337,14 @@ class _ProviderTile extends StatelessWidget {
                 style: AppTextStyles.of(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF111827),
+                  color: AppColors.inkClr,
                 ),
               ),
               SizedBox(width: 4.w),
               Icon(
                 Icons.chevron_right_rounded,
                 size: 20.sp,
-                color: const Color(0xFF94A3B8),
+                color: AppColors.inkFaintClr,
               ),
             ],
           ),
@@ -352,3 +353,4 @@ class _ProviderTile extends StatelessWidget {
     );
   }
 }
+

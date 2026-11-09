@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/theming/app_text_styles.dart';
 import '../../data/model/notification_model.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Compact notification row matching the flat list treatment used by family
 /// members. Unread state is communicated by a light tint, stronger title and
 /// blue dot; marking as read stays an explicit trailing icon action.
@@ -21,9 +22,9 @@ class NotificationCard extends StatelessWidget {
     this.onMarkAsRead,
   });
 
-  static const _brandBlue = Color(0xFF3872B1);
-  static const _ink = Color(0xFF0B1435);
-  static const _subtleText = Color(0xFF7481A1);
+  static const _brandBlue = AppColors.brandBlueClr;
+  static const _ink = AppColors.exactFF0B1435;
+  static const _subtleText = AppColors.exactFF7481A1;
 
   @override
   Widget build(BuildContext context) {
@@ -31,14 +32,14 @@ class NotificationCard extends StatelessWidget {
     return Semantics(
       button: onTap != null,
       child: Material(
-        color: isUnread ? const Color(0xFFF4F8FD) : Colors.white,
+        color: isUnread ? AppColors.exactFFF4F8FD : AppColors.whiteClr,
         child: InkWell(
           onTap: onTap,
           child: Container(
             constraints: BoxConstraints(minHeight: 78.h),
             padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
             decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide(color: Color(0xFFE9ECF2))),
+              border: Border(bottom: BorderSide(color: AppColors.exactFFE9ECF2)),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -99,7 +100,7 @@ class NotificationCard extends StatelessWidget {
                           Icon(
                             Icons.schedule_rounded,
                             size: 11.5.sp,
-                            color: const Color(0xFF98A2B3),
+                            color: AppColors.exactFF98A2B3,
                           ),
                           SizedBox(width: 3.w),
                           Flexible(
@@ -113,7 +114,7 @@ class NotificationCard extends StatelessWidget {
                               style: AppTextStyles.of(
                                 fontSize: 10.5.sp,
                                 fontWeight: FontWeight.w500,
-                                color: const Color(0xFF98A2B3),
+                                color: AppColors.exactFF98A2B3,
                                 height: 1.2,
                               ),
                             ),
@@ -201,7 +202,7 @@ class _MarkReadIconAction extends StatelessWidget {
         width: 32.r,
         height: 32.r,
         decoration: const BoxDecoration(
-          color: Color(0xFFEAF1F9),
+          color: AppColors.exactFFEAF1F9,
           shape: BoxShape.circle,
         ),
         child: Icon(
@@ -226,7 +227,7 @@ class _NotificationThumbnail extends StatelessWidget {
       width: size,
       height: size,
       decoration: const BoxDecoration(
-        color: Color(0xFFEAF2FB),
+        color: AppColors.dropdownHoverClr,
         shape: BoxShape.circle,
       ),
       clipBehavior: Clip.antiAlias,
@@ -288,3 +289,4 @@ class _NotificationFallbackIcon extends StatelessWidget {
     );
   }
 }
+

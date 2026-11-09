@@ -21,6 +21,7 @@ import '../mappers/guest_home_mappers.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class GuestHomeScreen extends StatefulWidget {
   const GuestHomeScreen({super.key});
 
@@ -50,7 +51,7 @@ class _GuestHomeScreenState extends State<GuestHomeScreen> {
     return BlocProvider<GuestHomeCubit>.value(
       value: _guestHomeCubit,
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.whiteClr,
         body: BlocBuilder<GuestHomeCubit, GuestHomeState>(
           builder: (context, state) {
             return state.when(
@@ -100,8 +101,8 @@ class _GuestHomeScreenState extends State<GuestHomeScreen> {
   }) {
     return RefreshIndicator(
       onRefresh: _guestHomeCubit.getGuestHomeData,
-      backgroundColor: Colors.white,
-      color: const Color(0xFF3872B1),
+      backgroundColor: AppColors.whiteClr,
+      color: AppColors.brandBlueClr,
       child: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
@@ -128,8 +129,8 @@ class _GuestHomeHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(bottom: BorderSide(color: Color(0xFFEEF1F5))),
+        color: AppColors.whiteClr,
+        border: Border(bottom: BorderSide(color: AppColors.exactFFEEF1F5)),
       ),
       child: SafeArea(
         bottom: false,
@@ -141,7 +142,7 @@ class _GuestHomeHeader extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEFF6FF),
+                  color: AppColors.exactFFEFF6FF,
                   borderRadius: BorderRadius.circular(13),
                 ),
                 child: const Icon(
@@ -181,7 +182,7 @@ class _GuestHomeHeader extends StatelessWidget {
                 onPressed: () => context.go('/medicard-login'),
                 style: TextButton.styleFrom(
                   foregroundColor: kAuthBlue,
-                  backgroundColor: const Color(0xFFEFF6FF),
+                  backgroundColor: AppColors.exactFFEFF6FF,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 9,
@@ -242,3 +243,4 @@ class _GuestHomeSuccessContent extends StatelessWidget {
     );
   }
 }
+

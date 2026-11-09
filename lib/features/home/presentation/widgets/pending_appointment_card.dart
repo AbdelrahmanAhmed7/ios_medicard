@@ -8,6 +8,7 @@ import '../../domain/models/appointment_model.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class PendingAppointmentCard extends StatelessWidget {
   final AppointmentModel appointment;
 
@@ -47,7 +48,7 @@ class PendingAppointmentCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+          border: Border.all(color: AppColors.exactFFE5E7EB, width: 1),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(15), // حل مشكلة الحواف البيضاء
@@ -56,7 +57,7 @@ class PendingAppointmentCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 28,
-                backgroundColor: const Color(0xFFFFFFFF),
+                backgroundColor: AppColors.whiteClr,
                 child: ClipOval(
                   child: CachedNetworkImage(
                     imageUrl: appointment.providerLogoUrl,
@@ -66,7 +67,7 @@ class PendingAppointmentCard extends StatelessWidget {
                     height: 56,
                     fit: BoxFit.fill,
                     placeholder: (context, url) =>
-                        Container(color: const Color(0xFFEEF3FB)),
+                        Container(color: AppColors.exactFFEEF3FB),
                     errorWidget: (context, url, error) =>
                         const Icon(Icons.broken_image),
                   ),
@@ -74,7 +75,7 @@ class PendingAppointmentCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               // فاصل رأسي أنيق يفصل بين لوجو العيادة وبين البيانات
-              Container(width: 1, height: 40, color: const Color(0xFFE5E7EB)),
+              Container(width: 1, height: 40, color: AppColors.exactFFE5E7EB),
               const SizedBox(width: 8),
               Expanded(
                 child: Column(
@@ -87,7 +88,7 @@ class PendingAppointmentCard extends StatelessWidget {
                       style: AppTextStyles.of(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: const Color(0xFF1A1A2E),
+                        color: AppColors.exactFF1A1A2E,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -99,7 +100,7 @@ class PendingAppointmentCard extends StatelessWidget {
                         style: AppTextStyles.of(
                           fontSize: 11,
                           fontWeight: FontWeight.w400,
-                          color: const Color(0xFF6B7280),
+                          color: AppColors.exactFF6B7280,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -112,7 +113,7 @@ class PendingAppointmentCard extends StatelessWidget {
                         style: AppTextStyles.of(
                           fontSize: 11,
                           fontWeight: FontWeight.w400,
-                          color: const Color(0xFF6B7280),
+                          color: AppColors.exactFF6B7280,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -177,7 +178,7 @@ class PendingAppointmentCard extends StatelessWidget {
           style: AppTextStyles.of(
             fontSize: 11,
             fontWeight: FontWeight.w500,
-            color: const Color(0xFF1F2937),
+            color: AppColors.exactFF1F2937,
           ),
         ),
         if (timeText != null && timeText.isNotEmpty) ...[
@@ -189,7 +190,7 @@ class PendingAppointmentCard extends StatelessWidget {
             style: AppTextStyles.of(
               fontSize: 10.5,
               fontWeight: FontWeight.w500,
-              color: const Color(0xFF4B5563),
+              color: AppColors.exactFF4B5563,
             ),
           ),
         ],
@@ -260,9 +261,9 @@ class _StatusBadge extends StatelessWidget {
   }
 
   Color _statusColor(String status) {
-    if (_isCancelled(status)) return const Color(0xFFDC2626);
-    if (_isCompleted(status)) return const Color(0xFF0F8A5F);
-    return const Color(0xFFB45309);
+    if (_isCancelled(status)) return AppColors.exactFFDC2626;
+    if (_isCompleted(status)) return AppColors.exactFF0F8A5F;
+    return AppColors.exactFFB45309;
   }
 
   String _localizedStatus(String status) {
@@ -277,3 +278,4 @@ class _StatusBadge extends StatelessWidget {
     };
   }
 }
+

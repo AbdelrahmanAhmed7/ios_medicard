@@ -19,6 +19,7 @@ import '../../../../core/theming/app_text_styles.dart';
 import '../../../../core/utils/image_url_resolver.dart';
 import '../../../../core/utils/price_formatter.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 part 'invoice_details_overview.dart';
 part 'invoice_details_services.dart';
 part 'invoice_details_actions.dart';
@@ -48,7 +49,7 @@ class InvoiceDetailsScreen extends StatelessWidget {
         return cubit;
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.whiteClr,
         body: Column(
           children: [
             SafeArea(
@@ -59,7 +60,7 @@ class InvoiceDetailsScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     AppHeaderBackButton(
-                      color: const Color(0xFF111827),
+                      color: AppColors.inkClr,
                       onPressed: () {
                         if (Navigator.of(context).canPop()) {
                           Navigator.of(context).pop();
@@ -72,7 +73,7 @@ class InvoiceDetailsScreen extends StatelessWidget {
                         style: AppTextStyles.of(
                           fontSize: 22.sp,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF111827),
+                          color: AppColors.inkClr,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -104,7 +105,7 @@ class InvoiceDetailsScreen extends StatelessWidget {
                     ),
                     _ => const Center(
                       child: CircularProgressIndicator(
-                        color: Color(0xFF3872B1),
+                        color: AppColors.brandBlueClr,
                       ),
                     ),
                   };
@@ -117,3 +118,4 @@ class InvoiceDetailsScreen extends StatelessWidget {
     );
   }
 }
+

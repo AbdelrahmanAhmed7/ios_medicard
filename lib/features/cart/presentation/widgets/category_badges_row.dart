@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/theming/app_text_styles.dart';
 import '../../domain/models/category_counter.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class CategoryBadgesRow extends StatelessWidget {
   final List<CategoryCounter> counters;
 
@@ -20,7 +21,7 @@ class CategoryBadgesRow extends StatelessWidget {
           style: AppTextStyles.of(
             fontSize: 15.sp,
             fontWeight: FontWeight.w600,
-            color: const Color(0xFF334155),
+            color: AppColors.exactFF334155,
           ),
         ),
         SizedBox(height: 4.h),
@@ -57,16 +58,16 @@ class CategoryChip extends StatelessWidget {
         Container(
           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
           decoration: BoxDecoration(
-            color: const Color(0xFFEFF6FF),
+            color: AppColors.exactFFEFF6FF,
             borderRadius: BorderRadius.circular(20.r),
-            border: Border.all(color: const Color(0xFF3872B1), width: 1.2),
+            border: Border.all(color: AppColors.brandBlueClr, width: 1.2),
           ),
           child: Text(
             counter.categoryName,
             style: AppTextStyles.of(
               fontSize: 13.sp,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF3872B1),
+              color: AppColors.brandBlueClr,
             ),
           ),
         ),
@@ -78,7 +79,7 @@ class CategoryChip extends StatelessWidget {
               constraints: BoxConstraints(minWidth: 20.r, minHeight: 20.r),
               padding: EdgeInsets.symmetric(horizontal: 5.w),
               decoration: BoxDecoration(
-                color: const Color(0xFF3872B1),
+                color: AppColors.brandBlueClr,
                 shape: counter.count > 9 ? BoxShape.rectangle : BoxShape.circle,
                 borderRadius: counter.count > 9
                     ? BorderRadius.circular(10.r)
@@ -88,7 +89,7 @@ class CategoryChip extends StatelessWidget {
                 child: Text(
                   '${counter.count}',
                   style: AppTextStyles.of(
-                    color: Colors.white,
+                    color: AppColors.whiteClr,
                     fontSize: 11.sp,
                     fontWeight: FontWeight.bold,
                   ),
@@ -100,3 +101,4 @@ class CategoryChip extends StatelessWidget {
     );
   }
 }
+

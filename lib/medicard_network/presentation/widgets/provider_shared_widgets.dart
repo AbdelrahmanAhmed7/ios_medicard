@@ -9,6 +9,7 @@ import '../../../core/widgets/category_image.dart';
 import '../../../network/data/provider_page_response_model.dart';
 import '../../logic/provider_page_state.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Shared stateless building blocks for the provider page sections.
 /// Extracted verbatim from provider_page_screen.dart (mechanical move).
 
@@ -53,20 +54,20 @@ class ProviderInfoRow extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.whiteClr,
                 shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFFE5E9F0)),
+                border: Border.all(color: AppColors.exactFFE5E9F0),
               ),
               padding: const EdgeInsets.all(6),
               child: ClipOval(
                 child: data.providerLogo.trim().isEmpty
-                    ? const Icon(Icons.local_hospital, color: Color(0xFF3872B1))
+                    ? const Icon(Icons.local_hospital, color: AppColors.brandBlueClr)
                     : CachedNetworkImage(
                         imageUrl: data.providerLogo,
                         fit: BoxFit.fill,
                         errorWidget: (_, _, _) => const Icon(
                           Icons.local_hospital,
-                          color: Color(0xFF3872B1),
+                          color: AppColors.brandBlueClr,
                         ),
                       ),
               ),
@@ -81,7 +82,7 @@ class ProviderInfoRow extends StatelessWidget {
                     style: AppTextStyles.of(
                       fontSize: 17,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF111827),
+                      color: AppColors.inkClr,
                       height: 1.3,
                     ),
                   ),
@@ -90,7 +91,7 @@ class ProviderInfoRow extends StatelessWidget {
                     Text(
                       data.categoryName,
                       style: AppTextStyles.of(
-                        color: const Color(0xFF64748B),
+                        color: AppColors.inkMutedClr,
                         fontSize: 12.5,
                         height: 1.35,
                       ),
@@ -104,8 +105,8 @@ class ProviderInfoRow extends StatelessWidget {
               IconButton(
                 tooltip: 'provider_page.call'.tr(),
                 style: IconButton.styleFrom(
-                  backgroundColor: const Color(0xFFEFF6FF),
-                  foregroundColor: const Color(0xFF2563EB),
+                  backgroundColor: AppColors.exactFFEFF6FF,
+                  foregroundColor: AppColors.exactFF2563EB,
                   minimumSize: const Size(40, 40),
                   padding: EdgeInsets.zero,
                 ),
@@ -133,7 +134,7 @@ class ProviderInfoRow extends StatelessWidget {
                       const Icon(
                         Icons.star_rounded,
                         size: 16,
-                        color: Color(0xFFF59E0B),
+                        color: AppColors.exactFFF59E0B,
                       ),
                       const SizedBox(width: 4),
                       Text(
@@ -141,7 +142,7 @@ class ProviderInfoRow extends StatelessWidget {
                         style: AppTextStyles.of(
                           fontSize: 12.5,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF92400E),
+                          color: AppColors.exactFF92400E,
                         ),
                       ),
                       const SizedBox(width: 4),
@@ -154,7 +155,7 @@ class ProviderInfoRow extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: AppTextStyles.of(
                             fontSize: 12,
-                            color: const Color(0xFFB45309),
+                            color: AppColors.exactFFB45309,
                           ),
                         ),
                       ),
@@ -162,14 +163,14 @@ class ProviderInfoRow extends StatelessWidget {
                       const Icon(
                         Icons.chevron_right_rounded,
                         size: 16,
-                        color: Color(0xFFB45309),
+                        color: AppColors.exactFFB45309,
                       ),
                     ],
                   ),
                 ),
               ),
               const SizedBox(width: 8),
-              Container(width: 1, height: 14, color: const Color(0xFFE2E8F0)),
+              Container(width: 1, height: 14, color: AppColors.lineClr),
               const SizedBox(width: 8),
             ],
             Flexible(
@@ -179,7 +180,7 @@ class ProviderInfoRow extends StatelessWidget {
                   const Icon(
                     Icons.medical_services_outlined,
                     size: 15,
-                    color: Color(0xFF2563EB),
+                    color: AppColors.exactFF2563EB,
                   ),
                   const SizedBox(width: 4),
                   Flexible(
@@ -192,7 +193,7 @@ class ProviderInfoRow extends StatelessWidget {
                       style: AppTextStyles.of(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF2563EB),
+                        color: AppColors.exactFF2563EB,
                       ),
                     ),
                   ),
@@ -204,7 +205,7 @@ class ProviderInfoRow extends StatelessWidget {
         if (data.branches?.isNotEmpty == true) ...[
           const SizedBox(height: 8),
           Material(
-            color: const Color(0xFFF8FAFC),
+            color: AppColors.exactFFF8FAFC,
             borderRadius: BorderRadius.circular(10),
             child: InkWell(
               onTap: onBranchTap,
@@ -216,13 +217,13 @@ class ProviderInfoRow extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  border: Border.all(color: AppColors.lineClr),
                 ),
                 child: Row(
                   children: [
                     const Icon(
                       Icons.location_on_outlined,
-                      color: Color(0xFF3872B1),
+                      color: AppColors.brandBlueClr,
                       size: 17,
                     ),
                     const SizedBox(width: 7),
@@ -234,7 +235,7 @@ class ProviderInfoRow extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: AppTextStyles.of(
                           fontSize: 12.5,
-                          color: const Color(0xFF334155),
+                          color: AppColors.exactFF334155,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -242,7 +243,7 @@ class ProviderInfoRow extends StatelessWidget {
                     const SizedBox(width: 6),
                     const Icon(
                       Icons.keyboard_arrow_down_rounded,
-                      color: Color(0xFF3872B1),
+                      color: AppColors.brandBlueClr,
                       size: 20,
                     ),
                   ],
@@ -268,7 +269,7 @@ class PackageServiceNames extends StatelessWidget {
         'No services found',
         style: AppTextStyles.of(
           fontSize: 11.sp,
-          color: const Color(0xFF94A3B8),
+          color: AppColors.inkFaintClr,
         ),
       );
     }
@@ -283,7 +284,7 @@ class PackageServiceNames extends StatelessWidget {
               Icon(
                 Icons.check_circle_rounded,
                 size: 11.sp,
-                color: const Color(0xFF22C55E),
+                color: AppColors.exactFF22C55E,
               ),
               SizedBox(width: 4.w),
               Expanded(
@@ -291,7 +292,7 @@ class PackageServiceNames extends StatelessWidget {
                   name,
                   style: AppTextStyles.of(
                     fontSize: 11.sp,
-                    color: const Color(0xFF475569),
+                    color: AppColors.inkSoftClr,
                     fontWeight: FontWeight.w500,
                   ),
                   maxLines: 1,
@@ -318,7 +319,7 @@ class PackagePlainServiceNames extends StatelessWidget {
         'provider_page.no_services_found'.tr(),
         style: AppTextStyles.of(
           fontSize: 13.sp,
-          color: const Color(0xFF94A3B8),
+          color: AppColors.inkFaintClr,
         ),
       );
     }
@@ -337,12 +338,12 @@ class PackagePlainServiceNames extends StatelessWidget {
                 width: 20.r,
                 height: 20.r,
                 decoration: const BoxDecoration(
-                  color: Color(0xFFDBEAFE),
+                  color: AppColors.exactFFDBEAFE,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.check_rounded,
-                  color: const Color(0xFF2563EB),
+                  color: AppColors.exactFF2563EB,
                   size: 13.sp,
                 ),
               ),
@@ -352,7 +353,7 @@ class PackagePlainServiceNames extends StatelessWidget {
                   serviceNames[index],
                   style: AppTextStyles.of(
                     fontSize: 13.sp,
-                    color: const Color(0xFF334155),
+                    color: AppColors.exactFF334155,
                     fontWeight: FontWeight.w500,
                     height: 1.4,
                   ),
@@ -440,18 +441,18 @@ class CartActionButton extends StatelessWidget {
         width: effectiveSize,
         height: effectiveSize,
         decoration: BoxDecoration(
-          color: inCart ? const Color(0xFFEAF1F9) : const Color(0xFF3872B1),
+          color: inCart ? AppColors.exactFFEAF1F9 : AppColors.brandBlueClr,
           shape: BoxShape.circle,
           border: inCart
               ? Border.all(
-                  color: const Color(0xFF3872B1).withValues(alpha: 0.35),
+                  color: AppColors.brandBlueClr.withValues(alpha: 0.35),
                 )
               : null,
         ),
         child: Icon(
           inCart ? Icons.remove_rounded : Icons.add_rounded,
           size: effectiveIconSize,
-          color: inCart ? const Color(0xFF3872B1) : Colors.white,
+          color: inCart ? AppColors.brandBlueClr : AppColors.whiteClr,
         ),
       ),
     );
@@ -484,11 +485,11 @@ class CategoryTabChip extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
             decoration: BoxDecoration(
               color: isSelected
-                  ? const Color(0xFF3872B1)
-                  : const Color(0xFFEFF6FF),
+                  ? AppColors.brandBlueClr
+                  : AppColors.exactFFEFF6FF,
               borderRadius: BorderRadius.circular(22.r),
               border: Border.all(
-                color: const Color(0xFF3872B1),
+                color: AppColors.brandBlueClr,
                 width: isSelected ? 0 : 1.2,
               ),
             ),
@@ -508,8 +509,8 @@ class CategoryTabChip extends StatelessWidget {
                         errorWidget: _categoryImageError(isSelected),
                         placeholder: const SizedBox.shrink(),
                         svgColor: isSelected
-                            ? Colors.white
-                            : const Color(0xFF3872B1),
+                            ? AppColors.whiteClr
+                            : AppColors.brandBlueClr,
                       ),
                     ),
                   ),
@@ -523,8 +524,8 @@ class CategoryTabChip extends StatelessWidget {
                     child: CircularProgressIndicator(
                       strokeWidth: 1.5,
                       color: isSelected
-                          ? Colors.white
-                          : const Color(0xFF3872B1),
+                          ? AppColors.whiteClr
+                          : AppColors.brandBlueClr,
                     ),
                   ),
                   SizedBox(width: 6.w),
@@ -534,7 +535,7 @@ class CategoryTabChip extends StatelessWidget {
                   style: AppTextStyles.of(
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w600,
-                    color: isSelected ? Colors.white : const Color(0xFF3872B1),
+                    color: isSelected ? AppColors.whiteClr : AppColors.brandBlueClr,
                   ),
                 ),
               ],
@@ -550,20 +551,20 @@ class CategoryTabChip extends StatelessWidget {
                 constraints: BoxConstraints(minWidth: 18.r, minHeight: 18.r),
                 padding: EdgeInsets.symmetric(horizontal: 4.w),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEF4444),
+                  color: AppColors.exactFFEF4444,
                   shape: tab.selectedCount > 9
                       ? BoxShape.rectangle
                       : BoxShape.circle,
                   borderRadius: tab.selectedCount > 9
                       ? BorderRadius.circular(9.r)
                       : null,
-                  border: Border.all(color: Colors.white, width: 1.5),
+                  border: Border.all(color: AppColors.whiteClr, width: 1.5),
                 ),
                 child: Center(
                   child: Text(
                     '${tab.selectedCount}',
                     style: AppTextStyles.of(
-                      color: Colors.white,
+                      color: AppColors.whiteClr,
                       fontSize: 10.sp,
                       fontWeight: FontWeight.bold,
                       height: 1,
@@ -581,5 +582,6 @@ class CategoryTabChip extends StatelessWidget {
 Widget _categoryImageError(bool isSelected) => Icon(
   Icons.image_not_supported_outlined,
   size: 16.r,
-  color: isSelected ? Colors.white : const Color(0xFF3872B1),
+  color: isSelected ? AppColors.whiteClr : AppColors.brandBlueClr,
 );
+

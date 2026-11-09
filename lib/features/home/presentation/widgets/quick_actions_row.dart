@@ -6,6 +6,7 @@ import '../../data/home_mock_data.dart';
 import '../../../../core/theming/app_spacing.dart';
 import '../../../../core/theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class QuickActionsRow extends StatelessWidget {
   final List<QuickAction> actions;
   final double verticalPadding;
@@ -39,8 +40,8 @@ class QuickActionsRow extends StatelessWidget {
                       child: Ink(
                         decoration: BoxDecoration(
                           color: action.enabled
-                              ? const Color(0xFFEEF3FB)
-                              : const Color(0xFFF3F4F6),
+                              ? AppColors.exactFFEEF3FB
+                              : AppColors.exactFFF3F4F6,
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Column(
@@ -54,16 +55,16 @@ class QuickActionsRow extends StatelessWidget {
                                 height: 48,
                                 decoration: BoxDecoration(
                                   color: action.enabled
-                                      ? Colors.white
-                                      : const Color(0xFFE5E7EB),
+                                      ? AppColors.whiteClr
+                                      : AppColors.exactFFE5E7EB,
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
                                   icon,
                                   size: 28,
                                   color: action.enabled
-                                      ? const Color(0xFF2563A6)
-                                      : const Color(0xFF9CA3AF),
+                                      ? AppColors.exactFF2563A6
+                                      : AppColors.exactFF9CA3AF,
                                 ),
                               ),
                             const SizedBox(height: 6),
@@ -73,8 +74,8 @@ class QuickActionsRow extends StatelessWidget {
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
                                 color: action.enabled
-                                    ? const Color(0xFF1A1A2E)
-                                    : const Color(0xFF9CA3AF),
+                                    ? AppColors.exactFF1A1A2E
+                                    : AppColors.exactFF9CA3AF,
                               ),
                               textAlign: TextAlign.center,
                               maxLines: 2,
@@ -118,3 +119,4 @@ class QuickActionsRow extends StatelessWidget {
     }
   }
 }
+

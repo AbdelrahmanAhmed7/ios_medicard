@@ -8,6 +8,7 @@ import '../../../../core/widgets/auth_shared_widgets.dart';
 import 'card_number_input_sheet.dart';
 import '../../data/models/profile_response_model.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class ActivateCardBanner extends StatelessWidget {
   final ProfileData data;
 
@@ -23,7 +24,7 @@ class ActivateCardBanner extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.all(16.w),
           decoration: BoxDecoration(
-            color: const Color(0xFFEBF1FB),
+            color: AppColors.exactFFEBF1FB,
             borderRadius: BorderRadius.circular(16.r),
             border: Border.all(color: kAuthBlue, width: 1),
           ),
@@ -38,7 +39,7 @@ class ActivateCardBanner extends StatelessWidget {
                 ),
                 child: Icon(
                   Icons.credit_card,
-                  color: Colors.white,
+                  color: AppColors.whiteClr,
                   size: 22.sp,
                 ),
               ),
@@ -50,7 +51,7 @@ class ActivateCardBanner extends StatelessWidget {
                     Text(
                       'profile.activate_card'.tr(),
                       style: AppTextStyles.of(
-                        color: Colors.black,
+                        color: AppColors.materialBlack,
                         fontSize: 15.sp,
                         fontWeight: FontWeight.w700,
                       ),
@@ -75,3 +76,4 @@ class ActivateCardBanner extends StatelessWidget {
     );
   }
 }
+

@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/theming/app_spacing.dart';
 import '../../../../core/theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class ProfileSectionTitle extends StatelessWidget {
   final String title;
   const ProfileSectionTitle({super.key, required this.title});
@@ -20,7 +21,7 @@ class ProfileSectionTitle extends StatelessWidget {
       child: Text(
         title,
         style: AppTextStyles.of(
-          color: Colors.black,
+          color: AppColors.materialBlack,
           fontSize: 18.sp,
           fontWeight: FontWeight.w700,
         ),
@@ -28,3 +29,4 @@ class ProfileSectionTitle extends StatelessWidget {
     );
   }
 }
+

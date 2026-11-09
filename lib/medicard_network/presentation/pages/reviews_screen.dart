@@ -10,6 +10,7 @@ import '../../logic/provider_page_cubit.dart';
 import '../../logic/provider_page_state.dart';
 import '../widgets/provider_review_card.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Standalone reviews page. Shares the provider page cubit (passed via
 /// route extra) so cart/selection state stays in sync.
 class ReviewsScreen extends StatefulWidget {
@@ -54,7 +55,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.whiteClr,
       body: Column(
         children: [
           AppSimpleHeader(
@@ -74,7 +75,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
               builder: (context, state) {
                 if (state.isReviewsLoading && state.reviews.isEmpty) {
                   return const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF3872B1)),
+                    child: CircularProgressIndicator(color: AppColors.brandBlueClr),
                   );
                 }
                 if (state.reviewsError != null && state.reviews.isEmpty) {
@@ -91,7 +92,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                       'provider_page.no_reviews_found'.tr(),
                       style: AppTextStyles.of(
                         fontSize: 14.sp,
-                        color: const Color(0xFF6B7280),
+                        color: AppColors.exactFF6B7280,
                       ),
                     ),
                   );
@@ -109,7 +110,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                         padding: EdgeInsets.symmetric(vertical: 16),
                         child: Center(
                           child: CircularProgressIndicator(
-                            color: Color(0xFF3872B1),
+                            color: AppColors.brandBlueClr,
                           ),
                         ),
                       );
@@ -125,3 +126,4 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
     );
   }
 }
+

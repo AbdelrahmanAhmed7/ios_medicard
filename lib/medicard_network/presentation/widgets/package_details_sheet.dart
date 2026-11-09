@@ -13,6 +13,7 @@ import '../../logic/provider_page_state.dart';
 import 'provider_rebuild_scopes.dart';
 import 'provider_shared_widgets.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Opens the package details bottom sheet, fetching details on first open.
 void openPackageDetailsSheet(
   BuildContext context,
@@ -231,7 +232,7 @@ class PackageDetailsSheetView extends StatelessWidget {
       builder: (context, scrollController) {
         return Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.whiteClr,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
           ),
           clipBehavior: Clip.antiAlias,
@@ -253,13 +254,13 @@ class PackageDetailsSheetView extends StatelessWidget {
                           vertical: 5.h,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFEFF6FF),
+                          color: AppColors.exactFFEFF6FF,
                           borderRadius: BorderRadius.circular(99.r),
                         ),
                         child: Text(
                           'cart.package'.tr(),
                           style: AppTextStyles.of(
-                            color: const Color(0xFF2563EB),
+                            color: AppColors.exactFF2563EB,
                             fontSize: 11.sp,
                             fontWeight: FontWeight.w700,
                           ),
@@ -270,7 +271,7 @@ class PackageDetailsSheetView extends StatelessWidget {
                     Text(
                       name,
                       style: AppTextStyles.of(
-                        color: const Color(0xFF111827),
+                        color: AppColors.inkClr,
                         fontSize: 21.sp,
                         fontWeight: FontWeight.w700,
                         height: 1.25,
@@ -281,7 +282,7 @@ class PackageDetailsSheetView extends StatelessWidget {
                       Text(
                         description.trim(),
                         style: AppTextStyles.of(
-                          color: const Color(0xFF64748B),
+                          color: AppColors.inkMutedClr,
                           fontSize: 13.sp,
                           height: 1.5,
                         ),
@@ -293,7 +294,7 @@ class PackageDetailsSheetView extends StatelessWidget {
                         padding: EdgeInsets.symmetric(vertical: 28),
                         child: Center(
                           child: CircularProgressIndicator(
-                            color: Color(0xFF3872B1),
+                            color: AppColors.brandBlueClr,
                           ),
                         ),
                       )
@@ -306,12 +307,12 @@ class PackageDetailsSheetView extends StatelessWidget {
                             width: 34.r,
                             height: 34.r,
                             decoration: const BoxDecoration(
-                              color: Color(0xFFEFF6FF),
+                              color: AppColors.exactFFEFF6FF,
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
                               Icons.fact_check_outlined,
-                              color: const Color(0xFF3872B1),
+                              color: AppColors.brandBlueClr,
                               size: 18.sp,
                             ),
                           ),
@@ -319,7 +320,7 @@ class PackageDetailsSheetView extends StatelessWidget {
                           Text(
                             'provider_page.tests_included'.tr(),
                             style: AppTextStyles.of(
-                              color: const Color(0xFF111827),
+                              color: AppColors.inkClr,
                               fontSize: 16.sp,
                               fontWeight: FontWeight.w700,
                             ),
@@ -332,13 +333,13 @@ class PackageDetailsSheetView extends StatelessWidget {
                                 vertical: 3.h,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFEFF6FF),
+                                color: AppColors.exactFFEFF6FF,
                                 borderRadius: BorderRadius.circular(10.r),
                               ),
                               child: Text(
                                 '${serviceNames.length}',
                                 style: AppTextStyles.of(
-                                  color: const Color(0xFF2563EB),
+                                  color: AppColors.exactFF2563EB,
                                   fontSize: 11.sp,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -351,9 +352,9 @@ class PackageDetailsSheetView extends StatelessWidget {
                         width: double.infinity,
                         padding: EdgeInsets.all(12.w),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF8FAFC),
+                          color: AppColors.exactFFF8FAFC,
                           borderRadius: BorderRadius.circular(14.r),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                          border: Border.all(color: AppColors.lineClr),
                         ),
                         child: PackagePlainServiceNames(
                           serviceNames: serviceNames,
@@ -388,7 +389,7 @@ class _SheetHeader extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.fromLTRB(16.w, 8.h, 8.w, 9.h),
       decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0xFFF1F5F9))),
+        border: Border(bottom: BorderSide(color: AppColors.exactFFF1F5F9)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -398,7 +399,7 @@ class _SheetHeader extends StatelessWidget {
               width: 44.w,
               height: 4.h,
               decoration: BoxDecoration(
-                color: const Color(0xFFCBD5E1),
+                color: AppColors.exactFFCBD5E1,
                 borderRadius: BorderRadius.circular(99.r),
               ),
             ),
@@ -410,7 +411,7 @@ class _SheetHeader extends StatelessWidget {
                 child: Text(
                   'provider_page.package_details'.tr(),
                   style: AppTextStyles.of(
-                    color: const Color(0xFF0F172A),
+                    color: AppColors.exactFF0F172A,
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w700,
                   ),
@@ -425,13 +426,13 @@ class _SheetHeader extends StatelessWidget {
                   width: 32.r,
                   height: 32.r,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
+                    color: AppColors.exactFFF1F5F9,
                     shape: BoxShape.circle,
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    border: Border.all(color: AppColors.lineClr),
                   ),
                   child: Icon(
                     Icons.close_rounded,
-                    color: const Color(0xFF334155),
+                    color: AppColors.exactFF334155,
                     size: 18.sp,
                   ),
                 ),
@@ -456,10 +457,10 @@ class _PackageImage extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(18.r),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.lineClr),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0F172A).withValues(alpha: 0.08),
+            color: AppColors.exactFF0F172A.withValues(alpha: 0.08),
             blurRadius: 16,
             offset: const Offset(0, 5),
           ),
@@ -474,11 +475,11 @@ class _PackageImage extends StatelessWidget {
               imageUrl: imageUrl,
               fit: BoxFit.fill,
               errorWidget: (_, _, _) => ColoredBox(
-                color: const Color(0xFFF1F5F9),
+                color: AppColors.exactFFF1F5F9,
                 child: Center(
                   child: Icon(
                     Icons.local_hospital_outlined,
-                    color: const Color(0xFF3872B1),
+                    color: AppColors.brandBlueClr,
                     size: 38.sp,
                   ),
                 ),
@@ -492,16 +493,16 @@ class _PackageImage extends StatelessWidget {
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFECFDF5),
+                  color: AppColors.exactFFECFDF5,
                   borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(color: const Color(0xFFA7F3D0)),
+                  border: Border.all(color: AppColors.exactFFA7F3D0),
                 ),
                 child: Text(
                   'cart.discount_percent'.tr(
                     args: [discount!.toStringAsFixed(0)],
                   ),
                   style: AppTextStyles.of(
-                    color: const Color(0xFF047857),
+                    color: AppColors.exactFF047857,
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w700,
                   ),
@@ -525,15 +526,15 @@ class _PackageDetailsError extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
-        color: const Color(0xFFFEF2F2),
+        color: AppColors.exactFFFEF2F2,
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: const Color(0xFFFECACA)),
+        border: Border.all(color: AppColors.exactFFFECACA),
       ),
       child: Row(
         children: [
           Icon(
             Icons.error_outline_rounded,
-            color: const Color(0xFFDC2626),
+            color: AppColors.exactFFDC2626,
             size: 21.sp,
           ),
           SizedBox(width: 10.w),
@@ -541,7 +542,7 @@ class _PackageDetailsError extends StatelessWidget {
             child: Text(
               message,
               style: AppTextStyles.of(
-                color: const Color(0xFF991B1B),
+                color: AppColors.exactFF991B1B,
                 fontSize: 12.5.sp,
                 height: 1.4,
               ),
@@ -551,7 +552,7 @@ class _PackageDetailsError extends StatelessWidget {
           TextButton(
             onPressed: onRetry,
             style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFFDC2626),
+              foregroundColor: AppColors.exactFFDC2626,
             ),
             child: Text('common.retry'.tr()),
           ),
@@ -580,11 +581,11 @@ class _PackageCheckoutBar extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: const Border(top: BorderSide(color: Color(0xFFE5E7EB))),
+        color: AppColors.whiteClr,
+        border: const Border(top: BorderSide(color: AppColors.exactFFE5E7EB)),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0F172A).withValues(alpha: 0.06),
+            color: AppColors.exactFF0F172A.withValues(alpha: 0.06),
             blurRadius: 12,
             offset: const Offset(0, -3),
           ),
@@ -627,7 +628,7 @@ class _PackageCheckoutBar extends StatelessWidget {
         Text(
           'cart.total_amount'.tr(),
           style: AppTextStyles.of(
-            color: const Color(0xFF64748B),
+            color: AppColors.inkMutedClr,
             fontSize: 11.5.sp,
           ),
         ),
@@ -636,7 +637,7 @@ class _PackageCheckoutBar extends StatelessWidget {
           Text(
             formatPrice(currentPrice),
             style: AppTextStyles.of(
-              color: const Color(0xFF1F6BC1),
+              color: AppColors.exactFF1F6BC1,
               fontSize: 18.sp,
               fontWeight: FontWeight.w700,
             ),
@@ -647,7 +648,7 @@ class _PackageCheckoutBar extends StatelessWidget {
           Text(
             formatPrice(priceBefore, showFreeWhenZero: false),
             style: AppTextStyles.of(
-              color: const Color(0xFF94A3B8),
+              color: AppColors.inkFaintClr,
               fontSize: 11.sp,
               decoration: TextDecoration.lineThrough,
             ),
@@ -660,9 +661,9 @@ class _PackageCheckoutBar extends StatelessWidget {
     return ElevatedButton.icon(
       onPressed: isLoading ? null : onAdd,
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF3872B1),
-        disabledBackgroundColor: const Color(0xFFCBD5E1),
-        foregroundColor: Colors.white,
+        backgroundColor: AppColors.brandBlueClr,
+        disabledBackgroundColor: AppColors.exactFFCBD5E1,
+        foregroundColor: AppColors.whiteClr,
         elevation: 0,
         minimumSize: Size(0, 48.h),
         shape: RoundedRectangleBorder(
@@ -675,7 +676,7 @@ class _PackageCheckoutBar extends StatelessWidget {
               height: 17.r,
               child: const CircularProgressIndicator(
                 strokeWidth: 2,
-                color: Colors.white,
+                color: AppColors.whiteClr,
               ),
             )
           : Icon(Icons.add_rounded, size: 19.sp),
@@ -686,3 +687,4 @@ class _PackageCheckoutBar extends StatelessWidget {
     );
   }
 }
+

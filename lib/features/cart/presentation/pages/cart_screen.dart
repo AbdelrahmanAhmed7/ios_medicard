@@ -13,6 +13,7 @@ import '../widgets/cart_body.dart';
 import '../widgets/cart_empty_view.dart';
 import '../widgets/cart_error_view.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class CartScreen extends StatefulWidget {
   final int? initialProviderId;
   final ProviderBranch? initialBranch;
@@ -33,7 +34,7 @@ class _CartScreenState extends State<CartScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.whiteClr,
       body: Column(
         children: [
           SafeArea(
@@ -44,7 +45,7 @@ class _CartScreenState extends State<CartScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   AppHeaderBackButton(
-                    color: const Color(0xFF111827),
+                    color: AppColors.inkClr,
                     onPressed: () {
                       if (context.canPop()) {
                         context.pop();
@@ -59,7 +60,7 @@ class _CartScreenState extends State<CartScreen> {
                       style: AppTextStyles.of(
                         fontSize: 26.sp,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF111827),
+                        color: AppColors.inkClr,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -82,7 +83,7 @@ class _CartScreenState extends State<CartScreen> {
                 final items = state.cart?.items ?? [];
                 if (state.isCartLoading && items.isEmpty) {
                   return const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF3872B1)),
+                    child: CircularProgressIndicator(color: AppColors.brandBlueClr),
                   );
                 }
                 if (state.cartError != null && items.isEmpty) {
@@ -114,3 +115,4 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 }
+

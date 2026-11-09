@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/utils/shimmer_card.dart';
 import 'home_horizontal_card_style.dart';
 
-const _placeholderColor = Color(0xFFE8E8E8);
+import 'package:medicard/core/theming/app_colors.dart';
+const _placeholderColor = AppColors.exactFFE8E8E8;
 
 class HomeShimmer extends StatelessWidget {
   final bool showAppointments;
@@ -157,3 +158,4 @@ class _ShimmerBlock extends StatelessWidget {
     );
   }
 }
+

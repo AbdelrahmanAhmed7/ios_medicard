@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Shows a summer-promotion popup once per app launch,
 /// only between June 1 and October 15 of the current year.
 class SummerPromoDialog {
@@ -79,7 +80,7 @@ class _SummerPromoDialog extends StatelessWidget {
                 width: 32.r,
                 height: 32.r,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.whiteClr,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
@@ -92,7 +93,7 @@ class _SummerPromoDialog extends StatelessWidget {
                 child: Icon(
                   Icons.close_rounded,
                   size: 18.sp,
-                  color: Colors.black87,
+                  color: AppColors.materialBlack87,
                 ),
               ),
             ),
@@ -102,3 +103,4 @@ class _SummerPromoDialog extends StatelessWidget {
     );
   }
 }
+

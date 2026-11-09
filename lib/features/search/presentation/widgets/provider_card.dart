@@ -12,6 +12,7 @@ import '../../data/models/search_provider_model.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class ProviderCard extends StatelessWidget {
   final SearchProviderModel provider;
 
@@ -30,12 +31,12 @@ class ProviderCard extends StatelessWidget {
         constraints: BoxConstraints(minHeight: 124.h),
         margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.whiteClr,
           borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(color: const Color(0xFFE5E9F0), width: 1),
+          border: Border.all(color: AppColors.exactFFE5E9F0, width: 1),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF0F172A).withValues(alpha: 0.05),
+              color: AppColors.exactFF0F172A.withValues(alpha: 0.05),
               blurRadius: 14,
               offset: const Offset(0, 5),
             ),
@@ -62,7 +63,7 @@ class ProviderCard extends StatelessWidget {
                             style: AppTextStyles.of(
                               fontWeight: FontWeight.w700,
                               fontSize: 16.sp,
-                              color: const Color(0xFF0F172A),
+                              color: AppColors.exactFF0F172A,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -71,7 +72,7 @@ class ProviderCard extends StatelessWidget {
                         Icon(
                           Icons.arrow_forward_ios_rounded,
                           size: 14.sp,
-                          color: const Color(0xFFC3CEDD),
+                          color: AppColors.exactFFC3CEDD,
                         ),
                       ],
                     ),
@@ -112,18 +113,18 @@ class ProviderCard extends StatelessWidget {
                 memCacheHeight: 300,
                 fit: BoxFit.fill,
                 placeholder: (context, url) => ColoredBox(
-                  color: const Color(0xFFEEF3FB),
+                  color: AppColors.exactFFEEF3FB,
                   child: Icon(
                     Icons.local_hospital_outlined,
-                    color: const Color(0xFFB9CBE4),
+                    color: AppColors.exactFFB9CBE4,
                     size: 30.sp,
                   ),
                 ),
                 errorWidget: (context, url, error) => ColoredBox(
-                  color: const Color(0xFFEEF3FB),
+                  color: AppColors.exactFFEEF3FB,
                   child: Icon(
                     Icons.local_hospital_outlined,
-                    color: const Color(0xFF3872B1),
+                    color: AppColors.brandBlueClr,
                     size: 30.sp,
                   ),
                 ),
@@ -157,21 +158,21 @@ class _RatingBadge extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF8E7),
+        color: AppColors.exactFFFFF8E7,
         borderRadius: BorderRadius.circular(10.r),
-        border: Border.all(color: const Color(0xFFFDE6AE)),
+        border: Border.all(color: AppColors.exactFFFDE6AE),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.star_rounded, color: const Color(0xFFF5A623), size: 13.sp),
+          Icon(Icons.star_rounded, color: AppColors.exactFFF5A623, size: 13.sp),
           SizedBox(width: 2.w),
           Text(
             rating.toStringAsFixed(1),
             style: AppTextStyles.of(
               fontSize: 10.5.sp,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF1F2937),
+              color: AppColors.exactFF1F2937,
             ),
           ),
         ],
@@ -201,16 +202,16 @@ class _DiscountChipsRow extends StatelessWidget {
           Flexible(
             child: _buildChip(
               categoryName!.trim(),
-              const Color(0xFFF1F5F9),
-              const Color(0xFF64748B),
+              AppColors.exactFFF1F5F9,
+              AppColors.inkMutedClr,
               FontWeight.w500,
             ),
           ),
         if (hasCategory) SizedBox(width: 6.w),
         _buildChip(
           'search.up_to_discount'.tr(args: [pct]),
-          const Color(0xFFEFF6FF),
-          const Color(0xFF3872B1),
+          AppColors.exactFFEFF6FF,
+          AppColors.brandBlueClr,
           FontWeight.w600,
         ),
       ],
@@ -260,7 +261,7 @@ class _LocationAndContactRow extends StatelessWidget {
               Icon(
                 Icons.location_on_outlined,
                 size: 14.sp,
-                color: const Color(0xFF475569),
+                color: AppColors.inkSoftClr,
               ),
               SizedBox(width: 2.w),
               Flexible(
@@ -287,7 +288,7 @@ class _LocationAndContactRow extends StatelessWidget {
                       vertical: 5.h,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFECFDF5),
+                      color: AppColors.exactFFECFDF5,
                       borderRadius: BorderRadius.circular(20.r),
                     ),
                     child: Row(
@@ -296,7 +297,7 @@ class _LocationAndContactRow extends StatelessWidget {
                         Icon(
                           Icons.phone_in_talk_rounded,
                           size: 13.sp,
-                          color: const Color(0xFF16A34A),
+                          color: AppColors.exactFF16A34A,
                         ),
                         SizedBox(width: 5.w),
                         Directionality(
@@ -306,7 +307,7 @@ class _LocationAndContactRow extends StatelessWidget {
                             style: AppTextStyles.of(
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF15803D),
+                              color: AppColors.exactFF15803D,
                             ),
                           ),
                         ),
@@ -341,3 +342,4 @@ class _LocationAndContactRow extends StatelessWidget {
     );
   }
 }
+

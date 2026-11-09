@@ -18,6 +18,7 @@ import '../cubit/family_members_state.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class FamilyMembersListScreen extends StatefulWidget {
   const FamilyMembersListScreen({super.key});
 
@@ -30,7 +31,7 @@ class _FamilyMembersListScreenState extends State<FamilyMembersListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.whiteClr,
       body: Column(
         children: [
           AppSimpleHeader(title: 'family_members.title'.tr()),
@@ -81,7 +82,7 @@ class _FamilyMembersListScreenState extends State<FamilyMembersListScreen> {
                                               fontSize: 11.sp,
                                               fontWeight: FontWeight.w700,
                                               letterSpacing: 0.8,
-                                              color: const Color(0xFF657293),
+                                              color: AppColors.exactFF657293,
                                             ),
                                           ),
                                         );
@@ -148,7 +149,7 @@ class _FamilyMembersListScreenState extends State<FamilyMembersListScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.people_outline, size: 80.sp, color: Colors.grey),
+          Icon(Icons.people_outline, size: 80.sp, color: AppColors.greyClr),
           SizedBox(height: 16.h),
           Text(
             'family_members.no_family_members'.tr(),
@@ -177,8 +178,8 @@ class _FamilyMemberListItem extends StatelessWidget {
       constraints: BoxConstraints(minHeight: 68.h),
       padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
       decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(bottom: BorderSide(color: Color(0xFFE9ECF2))),
+        color: AppColors.whiteClr,
+        border: Border(bottom: BorderSide(color: AppColors.exactFFE9ECF2)),
       ),
       child: Row(
         children: [
@@ -194,7 +195,7 @@ class _FamilyMemberListItem extends StatelessWidget {
                   style: AppTextStyles.of(
                     fontSize: 13.5.sp,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF0B1435),
+                    color: AppColors.exactFF0B1435,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -204,7 +205,7 @@ class _FamilyMemberListItem extends StatelessWidget {
                   RelationHelper.getLocalizedRelation(member.relation),
                   style: AppTextStyles.of(
                     fontSize: 11.5.sp,
-                    color: const Color(0xFF7481A1),
+                    color: AppColors.exactFF7481A1,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -215,8 +216,8 @@ class _FamilyMemberListItem extends StatelessWidget {
           _CircleIconButton(
             tooltip: 'family_members.edit_member'.tr(),
             icon: CupertinoIcons.pencil,
-            foreground: const Color(0xFF566384),
-            background: const Color(0xFFF0F4F8),
+            foreground: AppColors.exactFF566384,
+            background: AppColors.exactFFF0F4F8,
             onTap: () {
               context.push(
                 '/family-members/edit',
@@ -231,8 +232,8 @@ class _FamilyMemberListItem extends StatelessWidget {
           _CircleIconButton(
             tooltip: 'family_members.delete_member'.tr(),
             icon: CupertinoIcons.trash,
-            foreground: const Color(0xFFFF454B),
-            background: const Color(0xFFFBF2F3),
+            foreground: AppColors.exactFFFF454B,
+            background: AppColors.exactFFFBF2F3,
             onTap: () => _showDeleteDialog(context, member),
           ),
         ],
@@ -250,7 +251,7 @@ class _FamilyMemberListItem extends StatelessWidget {
           actions: [
             TextButton(
               style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFF6B7280),
+                foregroundColor: AppColors.exactFF6B7280,
               ),
               onPressed: () {
                 dialogContext.pop();
@@ -259,7 +260,7 @@ class _FamilyMemberListItem extends StatelessWidget {
             ),
             TextButton(
               style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFFDC2626),
+                foregroundColor: AppColors.exactFFDC2626,
               ),
               onPressed: () {
                 dialogContext.pop();
@@ -282,7 +283,7 @@ class _FamilyMemberListItem extends StatelessWidget {
       width: size,
       height: size,
       decoration: const BoxDecoration(
-        color: Color(0xFFF0F7FF),
+        color: AppColors.exactFFF0F7FF,
         shape: BoxShape.circle,
       ),
       clipBehavior: Clip.antiAlias,
@@ -306,7 +307,7 @@ class _FamilyMemberListItem extends StatelessWidget {
         style: AppTextStyles.of(
           fontSize: 16.sp,
           fontWeight: FontWeight.w700,
-          color: const Color(0xFF3872B1),
+          color: AppColors.brandBlueClr,
         ),
       ),
     );
@@ -344,3 +345,4 @@ class _CircleIconButton extends StatelessWidget {
     );
   }
 }
+

@@ -9,6 +9,7 @@ import '../../domain/models/appointment_model.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class PendingAppointmentDetailsScreen extends StatelessWidget {
   final AppointmentModel appointment;
 
@@ -20,7 +21,7 @@ class PendingAppointmentDetailsScreen extends StatelessWidget {
     final hasService = appointment.service.isNotEmpty;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.whiteClr,
       body: Column(
         children: [
           SafeArea(
@@ -31,7 +32,7 @@ class PendingAppointmentDetailsScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   AppHeaderBackButton(
-                    color: const Color(0xFF111827),
+                    color: AppColors.inkClr,
                     onPressed: () {
                       if (Navigator.of(context).canPop()) {
                         Navigator.of(context).pop();
@@ -44,7 +45,7 @@ class PendingAppointmentDetailsScreen extends StatelessWidget {
                       style: AppTextStyles.of(
                         fontSize: 26.sp,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF111827),
+                        color: AppColors.inkClr,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -60,9 +61,9 @@ class PendingAppointmentDetailsScreen extends StatelessWidget {
               children: [
                 DecoratedBox(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.whiteClr,
                     borderRadius: BorderRadius.circular(16.r),
-                    border: Border.all(color: const Color(0xFFE5E9F0)),
+                    border: Border.all(color: AppColors.exactFFE5E9F0),
                   ),
                   child: Column(
                     children: [
@@ -89,7 +90,7 @@ class PendingAppointmentDetailsScreen extends StatelessWidget {
                                       appointment.branch,
                                       style: AppTextStyles.of(
                                         fontSize: 13.sp,
-                                        color: const Color(0xFF6B7280),
+                                        color: AppColors.exactFF6B7280,
                                       ),
                                     ),
                                   ],
@@ -100,7 +101,7 @@ class PendingAppointmentDetailsScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const Divider(height: 1, color: Color(0xFFEEF1F5)),
+                      const Divider(height: 1, color: AppColors.exactFFEEF1F5),
                       if (hasDate)
                         _InfoRow(
                           label: 'activity.date'.tr(),
@@ -109,7 +110,7 @@ class PendingAppointmentDetailsScreen extends StatelessWidget {
                               '${AppDateFormatter.formatTime(appointment.date, context.locale.languageCode)}',
                         ),
                       if (hasDate && hasService)
-                        const Divider(height: 1, color: Color(0xFFEEF1F5)),
+                        const Divider(height: 1, color: AppColors.exactFFEEF1F5),
                       if (hasService)
                         _InfoRow(
                           label: 'activity.service'.tr(),
@@ -131,13 +132,13 @@ class PendingAppointmentDetailsScreen extends StatelessWidget {
     if (logoUrl.isEmpty) {
       return const CircleAvatar(
         radius: 26,
-        backgroundColor: Color(0xFFEEF3FB),
-        child: Icon(Icons.local_hospital, color: Color(0xFF3872B1)),
+        backgroundColor: AppColors.exactFFEEF3FB,
+        child: Icon(Icons.local_hospital, color: AppColors.brandBlueClr),
       );
     }
     return CircleAvatar(
       radius: 26,
-      backgroundColor: const Color(0xFFFFFFFF),
+      backgroundColor: AppColors.whiteClr,
       child: ClipOval(
         child: CachedNetworkImage(
           imageUrl: logoUrl,
@@ -145,9 +146,9 @@ class PendingAppointmentDetailsScreen extends StatelessWidget {
           height: 52,
           fit: BoxFit.fill,
           placeholder: (context, url) =>
-              Container(color: const Color(0xFFEEF3FB)),
+              Container(color: AppColors.exactFFEEF3FB),
           errorWidget: (context, url, error) =>
-              const Icon(Icons.local_hospital, color: Color(0xFF3872B1)),
+              const Icon(Icons.local_hospital, color: AppColors.brandBlueClr),
         ),
       ),
     );
@@ -173,7 +174,7 @@ class _InfoRow extends StatelessWidget {
               style: AppTextStyles.of(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w400,
-                color: const Color(0xFF6B7280),
+                color: AppColors.exactFF6B7280,
               ),
             ),
           ),
@@ -187,7 +188,7 @@ class _InfoRow extends StatelessWidget {
               style: AppTextStyles.of(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w500,
-                color: const Color(0xFF111827),
+                color: AppColors.inkClr,
               ),
             ),
           ),
@@ -214,10 +215,10 @@ class _StatusBadge extends StatelessWidget {
         normalized == 'مستخدمة';
     final isPaid = normalized == 'paid' || normalized == 'مدفوعة';
     final color = isCancelled
-        ? const Color(0xFFDC2626)
+        ? AppColors.exactFFDC2626
         : (isCompleted || isPaid)
-            ? const Color(0xFF0F8A5F)
-            : const Color(0xFF9A6A00);
+            ? AppColors.exactFF0F8A5F
+            : AppColors.exactFF9A6A00;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
       decoration: BoxDecoration(
@@ -244,3 +245,4 @@ class _StatusBadge extends StatelessWidget {
     };
   }
 }
+

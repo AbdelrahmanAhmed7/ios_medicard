@@ -10,6 +10,7 @@ import '../../logic/provider_page_cubit.dart';
 import '../../logic/provider_page_state.dart';
 import 'provider_shared_widgets.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Service card for the category-tab services list.
 ///
 /// The item keeps the original dynamic access: the static model does not
@@ -56,14 +57,14 @@ class CategoryServiceCard extends StatelessWidget {
           width: double.infinity,
           padding: EdgeInsets.all(16.w),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.whiteClr,
             borderRadius: BorderRadius.circular(16.r),
             border: Border.all(
               color: isSpecialOffer
-                  ? const Color(0xFFDC2626).withValues(alpha: 0.45)
+                  ? AppColors.exactFFDC2626.withValues(alpha: 0.45)
                   : flags.inCart
-                  ? const Color(0xFF3872B1).withValues(alpha: 0.4)
-                  : const Color(0xFFE2E8F0),
+                  ? AppColors.brandBlueClr.withValues(alpha: 0.4)
+                  : AppColors.lineClr,
             ),
           ),
           child: Row(
@@ -78,7 +79,7 @@ class CategoryServiceCard extends StatelessWidget {
                       style: AppTextStyles.of(
                         fontSize: 15.sp,
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF0F172A),
+                        color: AppColors.exactFF0F172A,
                       ),
                     ),
                     if (((service as dynamic).instruction as String?)
@@ -90,7 +91,7 @@ class CategoryServiceCard extends StatelessWidget {
                         (service as dynamic).instruction as String,
                         style: AppTextStyles.of(
                           fontSize: 12.sp,
-                          color: const Color(0xFF6B7280),
+                          color: AppColors.exactFF6B7280,
                           height: 1.4,
                         ),
                         maxLines: 2,
@@ -101,8 +102,8 @@ class CategoryServiceCard extends StatelessWidget {
                       SizedBox(height: 6.h),
                       ServiceBadge(
                         label: 'provider_page.special_offer'.tr(),
-                        color: const Color(0xFFDC2626),
-                        backgroundColor: const Color(0xFFFEF2F2),
+                        color: AppColors.exactFFDC2626,
+                        backgroundColor: AppColors.exactFFFEF2F2,
                         icon: Icons.local_offer_rounded,
                       ),
                     ],
@@ -120,7 +121,7 @@ class CategoryServiceCard extends StatelessWidget {
                   height: 24.h,
                   child: const CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: Color(0xFF3872B1),
+                    color: AppColors.brandBlueClr,
                   ),
                 )
               else
@@ -172,7 +173,7 @@ class _ServicePrice extends StatelessWidget {
             formatPrice(before, showFreeWhenZero: false),
             style: AppTextStyles.of(
               fontSize: 12.sp,
-              color: const Color(0xFF94A3B8),
+              color: AppColors.inkFaintClr,
               decoration: after != null ? TextDecoration.lineThrough : null,
             ),
           ),
@@ -183,10 +184,11 @@ class _ServicePrice extends StatelessWidget {
             style: AppTextStyles.of(
               fontSize: 15.sp,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF3872B1),
+              color: AppColors.brandBlueClr,
             ),
           ),
       ],
     );
   }
 }
+

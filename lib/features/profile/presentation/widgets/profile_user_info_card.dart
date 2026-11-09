@@ -9,6 +9,7 @@ import 'profile_avatar.dart';
 import '../../data/models/profile_response_model.dart';
 import '../cubit/profile_cubit.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class ProfileUserInfoCard extends StatelessWidget {
   final ProfileData data;
   const ProfileUserInfoCard({super.key, required this.data});
@@ -21,7 +22,7 @@ class ProfileUserInfoCard extends StatelessWidget {
       padding: AppSpacing.pageHorizontalInsets,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.whiteClr,
           borderRadius: BorderRadius.circular(16.r),
           border: Border.all(color: Colors.grey.shade200, width: 1),
         ),
@@ -43,7 +44,7 @@ class ProfileUserInfoCard extends StatelessWidget {
                             data.lastName?.trim(),
                           ].where((s) => s != null && s.isNotEmpty).join(' '),
                           style: AppTextStyles.of(
-                            color: Colors.black,
+                            color: AppColors.materialBlack,
                             fontSize: 17.sp,
                             fontWeight: FontWeight.w500,
                           ),
@@ -71,7 +72,7 @@ class ProfileUserInfoCard extends StatelessWidget {
                   padding: EdgeInsets.all(6.w),
                   child: Icon(
                     Icons.edit_outlined,
-                    color: Colors.black54,
+                    color: AppColors.materialBlack54,
                     size: 22.sp,
                   ),
                 ),
@@ -83,3 +84,4 @@ class ProfileUserInfoCard extends StatelessWidget {
     );
   }
 }
+

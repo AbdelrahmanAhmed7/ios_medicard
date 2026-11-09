@@ -11,6 +11,7 @@ import '../../data/models/user_address_model.dart';
 import '../cubit/addresses_cubit.dart';
 import '../cubit/addresses_state.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class AddressSelectionSheet extends StatefulWidget {
   final void Function(UserAddressModel address) onSelect;
   final Future<void> Function() onUseCurrentLocation;
@@ -28,7 +29,7 @@ class AddressSelectionSheet extends StatefulWidget {
   }) {
     return showModalBottomSheet<void>(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.whiteClr,
       isScrollControlled: true,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
@@ -76,7 +77,7 @@ class _AddressSelectionSheetState extends State<AddressSelectionSheet> {
               width: 40.w,
               height: 4.h,
               decoration: BoxDecoration(
-                color: const Color(0xFFD1D5DB),
+                color: AppColors.exactFFD1D5DB,
                 borderRadius: BorderRadius.circular(4.r),
               ),
             ),
@@ -89,14 +90,14 @@ class _AddressSelectionSheetState extends State<AddressSelectionSheet> {
                   style: AppTextStyles.of(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF111827),
+                    color: AppColors.inkClr,
                   ),
                 ),
               ),
             ),
-            const Divider(height: 1, color: Color(0xFFE5E7EB)),
+            const Divider(height: 1, color: AppColors.exactFFE5E7EB),
             Flexible(child: _buildBody()),
-            const Divider(height: 1, color: Color(0xFFE5E7EB)),
+            const Divider(height: 1, color: AppColors.exactFFE5E7EB),
             _buildFooter(context),
           ],
         ),
@@ -123,7 +124,7 @@ class _AddressSelectionSheetState extends State<AddressSelectionSheet> {
               height: 1,
               indent: 20.w,
               endIndent: 20.w,
-              color: const Color(0xFFEEF1F5),
+              color: AppColors.exactFFEEF1F5,
             ),
             itemBuilder: (context, index) {
               if (index == 0) {
@@ -138,7 +139,7 @@ class _AddressSelectionSheetState extends State<AddressSelectionSheet> {
                     textAlign: TextAlign.center,
                     style: AppTextStyles.of(
                       fontSize: 13.sp,
-                      color: const Color(0xFF6B7280),
+                      color: AppColors.exactFF6B7280,
                     ),
                   ),
                 );
@@ -236,7 +237,7 @@ class _CurrentLocationTile extends StatelessWidget {
             ),
             Icon(
               Icons.arrow_forward_ios_rounded,
-              color: const Color(0xFF9CA3AF),
+              color: AppColors.exactFF9CA3AF,
               size: 15.sp,
             ),
           ],
@@ -268,7 +269,7 @@ class _AddressTile extends StatelessWidget {
           children: [
             Icon(
               address.isWork ? Icons.work_outline_rounded : Icons.home_outlined,
-              color: const Color(0xFF4B5563),
+              color: AppColors.exactFF4B5563,
               size: 21.sp,
             ),
             SizedBox(width: 14.w),
@@ -289,7 +290,7 @@ class _AddressTile extends StatelessWidget {
                           style: AppTextStyles.of(
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w600,
-                            color: const Color(0xFF111827),
+                            color: AppColors.inkClr,
                           ),
                         ),
                       ),
@@ -314,7 +315,7 @@ class _AddressTile extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.of(
                         fontSize: 12.5.sp,
-                        color: const Color(0xFF6B7280),
+                        color: AppColors.exactFF6B7280,
                       ),
                     ),
                   ],
@@ -323,7 +324,7 @@ class _AddressTile extends StatelessWidget {
             ),
             Icon(
               Icons.arrow_forward_ios_rounded,
-              color: const Color(0xFF9CA3AF),
+              color: AppColors.exactFF9CA3AF,
               size: 15.sp,
             ),
           ],
@@ -351,7 +352,7 @@ class _ErrorState extends StatelessWidget {
             textAlign: TextAlign.center,
             style: AppTextStyles.of(
               fontSize: 13.sp,
-              color: const Color(0xFF6B7280),
+              color: AppColors.exactFF6B7280,
             ),
           ),
           SizedBox(height: 8.h),
@@ -361,3 +362,4 @@ class _ErrorState extends StatelessWidget {
     );
   }
 }
+

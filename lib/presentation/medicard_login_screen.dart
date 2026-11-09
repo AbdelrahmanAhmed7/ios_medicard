@@ -14,6 +14,7 @@ import 'logic/medicard_login_state.dart';
 
 import '../core/theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class MediCardLoginScreen extends StatefulWidget {
   const MediCardLoginScreen({super.key});
 
@@ -239,7 +240,7 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
         FilteringTextInputFormatter.digitsOnly,
         LengthLimitingTextInputFormatter(12),
       ],
-      style: AppTextStyles.of(fontSize: 15.sp, color: Colors.black),
+      style: AppTextStyles.of(fontSize: 15.sp, color: AppColors.materialBlack),
       decoration: authInputDecoration(
         hintText: 'auth.login.identifierHint'.tr(),
       ).copyWith(counterText: ''),
@@ -252,7 +253,7 @@ class _MediCardLoginScreenState extends State<MediCardLoginScreen> {
     return TextFormField(
       controller: _passwordController,
       obscureText: _obscurePassword,
-      style: AppTextStyles.of(fontSize: 15.sp, color: Colors.black),
+      style: AppTextStyles.of(fontSize: 15.sp, color: AppColors.materialBlack),
       decoration: authInputDecoration(
         hintText: '••••••••',
         suffixIcon: GestureDetector(
@@ -304,3 +305,4 @@ bool _looksLikePhoneAttempt(String value) {
 bool _isValidCardNumber(String value) {
   return RegExp(r'^[0-9]{12}$').hasMatch(value);
 }
+

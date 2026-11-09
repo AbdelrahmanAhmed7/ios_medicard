@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class LocationDisplay extends StatelessWidget {
   final String text;
   final VoidCallback onTap;
@@ -27,7 +28,7 @@ class LocationDisplay extends StatelessWidget {
             children: [
               Icon(
                 Icons.location_on_rounded,
-                color: const Color(0xFF3872B1),
+                color: AppColors.brandBlueClr,
                 size: 16.sp,
               ),
               SizedBox(width: 4.w),
@@ -39,7 +40,7 @@ class LocationDisplay extends StatelessWidget {
                   style: AppTextStyles.of(
                     fontSize: 10.5.sp,
                     fontWeight: FontWeight.w500,
-                    color: const Color(0xFF6B7280),
+                    color: AppColors.exactFF6B7280,
                   ),
                 ),
               ),
@@ -56,14 +57,14 @@ class LocationDisplay extends StatelessWidget {
                   style: AppTextStyles.of(
                     fontWeight: FontWeight.w700,
                     fontSize: 14.5.sp,
-                    color: const Color(0xFF111827),
+                    color: AppColors.inkClr,
                   ),
                 ),
               ),
               SizedBox(width: 2.w),
               Icon(
                 Icons.keyboard_arrow_down_rounded,
-                color: const Color(0xFF6B7280),
+                color: AppColors.exactFF6B7280,
                 size: 18.sp,
               ),
             ],
@@ -73,3 +74,4 @@ class LocationDisplay extends StatelessWidget {
     );
   }
 }
+

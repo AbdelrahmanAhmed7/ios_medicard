@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Explains that provider groups are checked out independently.
 class ProviderCheckoutNotice extends StatelessWidget {
   final String message;
@@ -16,9 +17,9 @@ class ProviderCheckoutNotice extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
-        color: const Color(0xFFEFF6FF),
+        color: AppColors.exactFFEFF6FF,
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: const Color(0xFFBFDBFE)),
+        border: Border.all(color: AppColors.exactFFBFDBFE),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -27,12 +28,12 @@ class ProviderCheckoutNotice extends StatelessWidget {
             width: 36.r,
             height: 36.r,
             decoration: const BoxDecoration(
-              color: Color(0xFFDBEAFE),
+              color: AppColors.exactFFDBEAFE,
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.receipt_long_outlined,
-              color: const Color(0xFF2563EB),
+              color: AppColors.exactFF2563EB,
               size: 19.sp,
             ),
           ),
@@ -46,7 +47,7 @@ class ProviderCheckoutNotice extends StatelessWidget {
                   style: AppTextStyles.of(
                     fontSize: 13.5.sp,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF1E3A8A),
+                    color: AppColors.exactFF1E3A8A,
                   ),
                 ),
                 SizedBox(height: 3.h),
@@ -54,7 +55,7 @@ class ProviderCheckoutNotice extends StatelessWidget {
                   message,
                   style: AppTextStyles.of(
                     fontSize: 12.sp,
-                    color: const Color(0xFF475569),
+                    color: AppColors.inkSoftClr,
                     height: 1.45,
                   ),
                 ),
@@ -66,3 +67,4 @@ class ProviderCheckoutNotice extends StatelessWidget {
     );
   }
 }
+

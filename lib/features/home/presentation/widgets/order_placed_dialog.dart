@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Popup shown once after a cash invoice is successfully created,
 /// carrying the invoice number. Visa (online) payments don't use it because the
 /// payment status can't be verified from the backend on browser return.
@@ -47,7 +48,7 @@ class _OrderPlacedDialog extends StatelessWidget {
           margin: EdgeInsets.symmetric(horizontal: 24.w),
           padding: EdgeInsets.fromLTRB(22.w, 28.h, 22.w, 22.h),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.whiteClr,
             borderRadius: BorderRadius.circular(24.r),
           ),
           child: SingleChildScrollView(
@@ -64,13 +65,13 @@ class _OrderPlacedDialog extends StatelessWidget {
                         width: 68.r,
                         height: 68.r,
                         decoration: const BoxDecoration(
-                          color: Color(0xFFEEF3FB),
+                          color: AppColors.exactFFEEF3FB,
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
                           Icons.receipt_long_rounded,
                           size: 32.sp,
-                          color: const Color(0xFF3872B1),
+                          color: AppColors.brandBlueClr,
                         ),
                       ),
                       PositionedDirectional(
@@ -80,14 +81,14 @@ class _OrderPlacedDialog extends StatelessWidget {
                           width: 25.r,
                           height: 25.r,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF159447),
+                            color: AppColors.exactFF159447,
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 3),
+                            border: Border.all(color: AppColors.whiteClr, width: 3),
                           ),
                           child: Icon(
                             Icons.check_rounded,
                             size: 15.sp,
-                            color: Colors.white,
+                            color: AppColors.whiteClr,
                           ),
                         ),
                       ),
@@ -101,7 +102,7 @@ class _OrderPlacedDialog extends StatelessWidget {
                   style: AppTextStyles.of(
                     fontSize: AppFontSizes.s20,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF111827),
+                    color: AppColors.inkClr,
                   ),
                 ),
                 SizedBox(height: 8.h),
@@ -112,7 +113,7 @@ class _OrderPlacedDialog extends StatelessWidget {
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w400,
                     height: 1.45,
-                    color: const Color(0xFF6B7280),
+                    color: AppColors.exactFF6B7280,
                   ),
                 ),
                 SizedBox(height: 18.h),
@@ -123,9 +124,9 @@ class _OrderPlacedDialog extends StatelessWidget {
                     vertical: 10.h,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF1F7FF),
+                    color: AppColors.exactFFF1F7FF,
                     borderRadius: BorderRadius.circular(12.r),
-                    border: Border.all(color: const Color(0xFFBFD9F7)),
+                    border: Border.all(color: AppColors.exactFFBFD9F7),
                   ),
                   child: Text(
                     'activity.invoice_number'.tr(args: [orderNumber]),
@@ -133,7 +134,7 @@ class _OrderPlacedDialog extends StatelessWidget {
                     style: AppTextStyles.of(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF2E73BA),
+                      color: AppColors.exactFF2E73BA,
                     ),
                   ),
                 ),
@@ -164,8 +165,8 @@ class _OrderPlacedDialog extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () => Navigator.of(context).pop(false),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF3872B1),
-                      foregroundColor: Colors.white,
+                      backgroundColor: AppColors.brandBlueClr,
+                      foregroundColor: AppColors.whiteClr,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.r),
@@ -188,3 +189,4 @@ class _OrderPlacedDialog extends StatelessWidget {
     );
   }
 }
+

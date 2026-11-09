@@ -11,6 +11,7 @@ import '../cubit/cart_state.dart';
 import 'checkout_pricing.dart';
 import 'checkout_summary_row.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class CheckoutPaymentSummary extends StatelessWidget {
   final CartState state;
 
@@ -52,12 +53,12 @@ class CheckoutPaymentSummary extends StatelessWidget {
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.whiteClr,
         borderRadius: BorderRadius.circular(18.r),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.lineClr),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0F172A).withValues(alpha: 0.04),
+            color: AppColors.exactFF0F172A.withValues(alpha: 0.04),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -116,14 +117,14 @@ class _OrderHeader extends StatelessWidget {
             height: 44.r,
             padding: EdgeInsets.all(7.r),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
+              color: AppColors.exactFFF8FAFC,
               borderRadius: BorderRadius.circular(12.r),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
+              border: Border.all(color: AppColors.lineClr),
             ),
             child: providerImageUrl == null || providerImageUrl!.trim().isEmpty
                 ? Icon(
                     Icons.local_hospital_outlined,
-                    color: const Color(0xFF3872B1),
+                    color: AppColors.brandBlueClr,
                     size: 24.sp,
                   )
                 : CachedNetworkImage(
@@ -131,7 +132,7 @@ class _OrderHeader extends StatelessWidget {
                     fit: BoxFit.fill,
                     errorWidget: (_, _, _) => Icon(
                       Icons.local_hospital_outlined,
-                      color: const Color(0xFF3872B1),
+                      color: AppColors.brandBlueClr,
                       size: 24.sp,
                     ),
                   ),
@@ -145,7 +146,7 @@ class _OrderHeader extends StatelessWidget {
                   'cart.provider'.tr(),
                   style: AppTextStyles.of(
                     fontSize: 11.5.sp,
-                    color: const Color(0xFF94A3B8),
+                    color: AppColors.inkFaintClr,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -156,7 +157,7 @@ class _OrderHeader extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.of(
                     fontSize: 15.sp,
-                    color: const Color(0xFF0F172A),
+                    color: AppColors.exactFF0F172A,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -167,7 +168,7 @@ class _OrderHeader extends StatelessWidget {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
             decoration: BoxDecoration(
-              color: const Color(0xFFEFF6FF),
+              color: AppColors.exactFFEFF6FF,
               borderRadius: BorderRadius.circular(20.r),
             ),
             child: Text(
@@ -179,7 +180,7 @@ class _OrderHeader extends StatelessWidget {
                   .tr(),
               style: AppTextStyles.of(
                 fontSize: 11.5.sp,
-                color: const Color(0xFF2563A9),
+                color: AppColors.exactFF2563A9,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -213,12 +214,12 @@ class _PackageOrderDetails extends StatelessWidget {
               width: 36.r,
               height: 36.r,
               decoration: BoxDecoration(
-                color: const Color(0xFFF0FDF4),
+                color: AppColors.exactFFF0FDF4,
                 borderRadius: BorderRadius.circular(10.r),
               ),
               child: Icon(
                 Icons.inventory_2_outlined,
-                color: const Color(0xFF16A34A),
+                color: AppColors.exactFF16A34A,
                 size: 19.sp,
               ),
             ),
@@ -230,7 +231,7 @@ class _PackageOrderDetails extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.of(
                   fontSize: 14.5.sp,
-                  color: const Color(0xFF1E293B),
+                  color: AppColors.exactFF1E293B,
                   fontWeight: FontWeight.w700,
                   height: 1.35,
                 ),
@@ -269,7 +270,7 @@ class _ServicesOrderDetails extends StatelessWidget {
         'cart.no_services_in_summary'.tr(),
         style: AppTextStyles.of(
           fontSize: 13.sp,
-          color: const Color(0xFF94A3B8),
+          color: AppColors.inkFaintClr,
         ),
       );
     }
@@ -340,7 +341,7 @@ class _ExpandableNameListState extends State<_ExpandableNameList> {
     return Container(
       padding: EdgeInsets.fromLTRB(12.w, 10.h, 12.w, 8.h),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: AppColors.exactFFF8FAFC,
         borderRadius: BorderRadius.circular(12.r),
       ),
       child: Column(
@@ -350,7 +351,7 @@ class _ExpandableNameListState extends State<_ExpandableNameList> {
             widget.title,
             style: AppTextStyles.of(
               fontSize: 12.sp,
-              color: const Color(0xFF64748B),
+              color: AppColors.inkMutedClr,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -380,7 +381,7 @@ class _IncludedServiceName extends StatelessWidget {
         children: [
           Icon(
             Icons.check_circle_rounded,
-            color: const Color(0xFF16A34A),
+            color: AppColors.exactFF16A34A,
             size: 15.sp,
           ),
           SizedBox(width: 7.w),
@@ -389,7 +390,7 @@ class _IncludedServiceName extends StatelessWidget {
               name,
               style: AppTextStyles.of(
                 fontSize: 12.5.sp,
-                color: const Color(0xFF475569),
+                color: AppColors.inkSoftClr,
               ),
             ),
           ),
@@ -414,14 +415,14 @@ class _ListHeader extends StatelessWidget {
           style: AppTextStyles.of(
             fontSize: 12.5.sp,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF64748B),
+            color: AppColors.inkMutedClr,
           ),
         ),
         SizedBox(width: 6.w),
         Container(
           padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 1.h),
           decoration: BoxDecoration(
-            color: const Color(0xFFEFF6FF),
+            color: AppColors.exactFFEFF6FF,
             borderRadius: BorderRadius.circular(20.r),
           ),
           child: Text(
@@ -429,7 +430,7 @@ class _ListHeader extends StatelessWidget {
             style: AppTextStyles.of(
               fontSize: 11.5.sp,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF3872B1),
+              color: AppColors.brandBlueClr,
             ),
           ),
         ),
@@ -454,12 +455,12 @@ class _CoveredServiceRow extends StatelessWidget {
             width: 28.r,
             height: 28.r,
             decoration: BoxDecoration(
-              color: const Color(0xFFEFF6FF),
+              color: AppColors.exactFFEFF6FF,
               borderRadius: BorderRadius.circular(8.r),
             ),
             child: Icon(
               Icons.medical_services_outlined,
-              color: const Color(0xFF3872B1),
+              color: AppColors.brandBlueClr,
               size: 15.sp,
             ),
           ),
@@ -469,7 +470,7 @@ class _CoveredServiceRow extends StatelessWidget {
               service.serviceName,
               style: AppTextStyles.of(
                 fontSize: 13.sp,
-                color: const Color(0xFF334155),
+                color: AppColors.exactFF334155,
                 fontWeight: FontWeight.w500,
               ),
               maxLines: 2,
@@ -501,7 +502,7 @@ class _ItemPrice extends StatelessWidget {
         'cart.price_unavailable'.tr(),
         style: AppTextStyles.of(
           fontSize: 11.sp,
-          color: const Color(0xFF94A3B8),
+          color: AppColors.inkFaintClr,
         ),
       );
     }
@@ -515,7 +516,7 @@ class _ItemPrice extends StatelessWidget {
             formatPrice(priceBefore, showFreeWhenZero: false),
             style: AppTextStyles.of(
               fontSize: 10.5.sp,
-              color: const Color(0xFF94A3B8),
+              color: AppColors.inkFaintClr,
               decoration: TextDecoration.lineThrough,
             ),
           ),
@@ -524,7 +525,7 @@ class _ItemPrice extends StatelessWidget {
           style: AppTextStyles.of(
             fontSize: 13.sp,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF1E293B),
+            color: AppColors.exactFF1E293B,
           ),
         ),
       ],
@@ -545,7 +546,7 @@ class _ExpandButton extends StatelessWidget {
       child: TextButton.icon(
         onPressed: onTap,
         style: TextButton.styleFrom(
-          foregroundColor: const Color(0xFF3872B1),
+          foregroundColor: AppColors.brandBlueClr,
           padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 3.h),
           minimumSize: Size.zero,
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -589,7 +590,7 @@ class _PriceBreakdown extends StatelessWidget {
               value: 'cart.negative_egp_amount'.tr(
                 args: [checkoutMoney(pricing.discount)],
               ),
-              valueColor: const Color(0xFF059669),
+              valueColor: AppColors.exactFF059669,
             ),
         ],
       ),
@@ -606,12 +607,12 @@ class _TotalPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: const Color(0xFFF0F6FD),
+      color: AppColors.exactFFF0F6FD,
       padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 12.h),
       child: CheckoutSummaryRow(
         label: 'cart.total_to_pay'.tr(),
         value: formatPrice(total),
-        valueColor: const Color(0xFF2563A9),
+        valueColor: AppColors.exactFF2563A9,
         isBold: true,
       ),
     );
@@ -623,6 +624,7 @@ class _SummaryDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Divider(height: 1, thickness: 1, color: Color(0xFFEEF2F6));
+    return const Divider(height: 1, thickness: 1, color: AppColors.exactFFEEF2F6);
   }
 }
+

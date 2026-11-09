@@ -11,6 +11,7 @@ import '../cubit/search_state.dart';
 import 'category_chip.dart';
 import 'search_shimmer.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class SearchServicesTab extends StatefulWidget {
   final bool enableCartFeatures;
   final int? initialCategoryId;
@@ -66,7 +67,7 @@ class _ServicesTabState extends State<SearchServicesTab> {
           children: [
             if (state.isLoadingServiceCategories)
               Container(
-                color: Colors.white,
+                color: AppColors.whiteClr,
                 height: 110.h,
                 child: const Center(
                   child: SizedBox(
@@ -74,14 +75,14 @@ class _ServicesTabState extends State<SearchServicesTab> {
                     height: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Color(0xFF3872B1),
+                      color: AppColors.brandBlueClr,
                     ),
                   ),
                 ),
               )
             else if (state.serviceCategories.isNotEmpty)
               Container(
-                color: Colors.white,
+                color: AppColors.whiteClr,
                 padding: EdgeInsets.symmetric(vertical: 10.h),
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -192,7 +193,7 @@ class _ServicesTabState extends State<SearchServicesTab> {
             Icon(
               Icons.category_rounded,
               size: 52.sp,
-              color: const Color(0xFFD1D5DB),
+              color: AppColors.exactFFD1D5DB,
             ),
             SizedBox(height: 12.h),
             Text(
@@ -200,7 +201,7 @@ class _ServicesTabState extends State<SearchServicesTab> {
               style: AppTextStyles.of(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFF6B7280),
+                color: AppColors.exactFF6B7280,
               ),
             ),
           ],
@@ -210,7 +211,7 @@ class _ServicesTabState extends State<SearchServicesTab> {
 
     if (state.isLoadingServices) {
       return const Center(
-        child: CircularProgressIndicator(color: Color(0xFF3872B1)),
+        child: CircularProgressIndicator(color: AppColors.brandBlueClr),
       );
     }
 
@@ -224,7 +225,7 @@ class _ServicesTabState extends State<SearchServicesTab> {
               Icon(
                 Icons.error_outline_rounded,
                 size: 52.sp,
-                color: const Color(0xFFD1D5DB),
+                color: AppColors.exactFFD1D5DB,
               ),
               SizedBox(height: 12.h),
               Text(
@@ -232,7 +233,7 @@ class _ServicesTabState extends State<SearchServicesTab> {
                 textAlign: TextAlign.center,
                 style: AppTextStyles.of(
                   fontSize: 14.sp,
-                  color: const Color(0xFF6B7280),
+                  color: AppColors.exactFF6B7280,
                 ),
               ),
               SizedBox(height: 16.h),
@@ -243,7 +244,7 @@ class _ServicesTabState extends State<SearchServicesTab> {
                       search: _currentServiceSearch(context),
                     ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3872B1),
+                  backgroundColor: AppColors.brandBlueClr,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.r),
                   ),
@@ -255,7 +256,7 @@ class _ServicesTabState extends State<SearchServicesTab> {
                   style: AppTextStyles.of(
                     fontWeight: FontWeight.w600,
                     fontSize: 14.sp,
-                    color: Colors.white,
+                    color: AppColors.whiteClr,
                   ),
                 ),
               ),
@@ -273,7 +274,7 @@ class _ServicesTabState extends State<SearchServicesTab> {
             Icon(
               Icons.search_off_rounded,
               size: 52.sp,
-              color: const Color(0xFFD1D5DB),
+              color: AppColors.exactFFD1D5DB,
             ),
             SizedBox(height: 12.h),
             Text(
@@ -281,7 +282,7 @@ class _ServicesTabState extends State<SearchServicesTab> {
               style: AppTextStyles.of(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFF6B7280),
+                color: AppColors.exactFF6B7280,
               ),
             ),
           ],
@@ -318,7 +319,7 @@ class _ServicesTabState extends State<SearchServicesTab> {
                 width: 24.r,
                 height: 24.r,
                 child: const CircularProgressIndicator(
-                  color: Color(0xFF3872B1),
+                  color: AppColors.brandBlueClr,
                   strokeWidth: 2.5,
                 ),
               ),
@@ -363,7 +364,7 @@ class _ServicesHeader extends StatelessWidget {
               style: AppTextStyles.of(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF111827),
+                color: AppColors.inkClr,
               ),
             ),
             SizedBox(height: 2.h),
@@ -372,7 +373,7 @@ class _ServicesHeader extends StatelessWidget {
               style: AppTextStyles.of(
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w400,
-                color: const Color(0xFF8A94A6),
+                color: AppColors.exactFF8A94A6,
               ),
             ),
           ],
@@ -497,19 +498,19 @@ class _ServiceCard extends StatelessWidget {
   });
 
   static const _iconBackgrounds = [
-    Color(0xFFFDECEC),
-    Color(0xFFE8F0FB),
-    Color(0xFFF3EDFB),
-    Color(0xFFE6F6EE),
-    Color(0xFFFEF4E2),
+    AppColors.exactFFFDECEC,
+    AppColors.exactFFE8F0FB,
+    AppColors.exactFFF3EDFB,
+    AppColors.exactFFE6F6EE,
+    AppColors.exactFFFEF4E2,
   ];
 
   static const _iconForegrounds = [
-    Color(0xFFE05B5B),
-    Color(0xFF3872B1),
-    Color(0xFF8A5BD6),
-    Color(0xFF16A374),
-    Color(0xFFD99A28),
+    AppColors.exactFFE05B5B,
+    AppColors.brandBlueClr,
+    AppColors.exactFF8A5BD6,
+    AppColors.exactFF16A374,
+    AppColors.exactFFD99A28,
   ];
 
   @override
@@ -529,12 +530,12 @@ class _ServiceCard extends StatelessWidget {
       margin: EdgeInsets.only(bottom: 10.h),
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.whiteClr,
         borderRadius: BorderRadius.circular(14.r),
         border: Border.all(
           color: isSelected
-              ? const Color(0xFF3872B1).withValues(alpha: 0.3)
-              : const Color(0xFFE5E7EB),
+              ? AppColors.brandBlueClr.withValues(alpha: 0.3)
+              : AppColors.exactFFE5E7EB,
         ),
       ),
       child: Row(
@@ -564,7 +565,7 @@ class _ServiceCard extends StatelessWidget {
                   style: AppTextStyles.of(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF111827),
+                    color: AppColors.inkClr,
                   ),
                 ),
                 if (showSecondary) ...[
@@ -576,17 +577,17 @@ class _ServiceCard extends StatelessWidget {
                     style: AppTextStyles.of(
                       fontSize: 12.sp,
                       fontWeight: FontWeight.w500,
-                      color: const Color(0xFF6B7280),
+                      color: AppColors.exactFF6B7280,
                     ),
                   ),
                 ],
                 // Container(
                 //   padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 4.h),
                 //   decoration: BoxDecoration(
-                //     color: const Color(0xFFFEF3C7),
+                //     color: AppColors.exactFFFEF3C7,
                 //     borderRadius: BorderRadius.circular(20.r),
                 //     border: Border.all(
-                //       color: const Color(0xFFFDE68A),
+                //       color: AppColors.exactFFFDE68A,
                 //       width: 1,
                 //     ),
                 //   ),
@@ -596,7 +597,7 @@ class _ServiceCard extends StatelessWidget {
                 //       Icon(
                 //         Icons.access_time_rounded,
                 //         size: 12.sp,
-                //         color: const Color(0xFFD97706),
+                //         color: AppColors.exactFFD97706,
                 //       ),
                 //       SizedBox(width: 4.w),
                 //       Text(
@@ -604,7 +605,7 @@ class _ServiceCard extends StatelessWidget {
                 //         style: TextStyle(
                 //           fontSize: 11.sp,
                 //           fontWeight: FontWeight.w600,
-                //           color: const Color(0xFFD97706),
+                //           color: AppColors.exactFFD97706,
                 //         ),
                 //       ),
                 //     ],
@@ -645,12 +646,12 @@ class _ServiceCard extends StatelessWidget {
                     height: 34.r,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: const Color(0xFFEAF1F9),
-                      border: Border.all(color: const Color(0xFF3872B1)),
+                      color: AppColors.exactFFEAF1F9,
+                      border: Border.all(color: AppColors.brandBlueClr),
                     ),
                     child: Icon(
                       Icons.close_rounded,
-                      color: const Color(0xFF3872B1),
+                      color: AppColors.brandBlueClr,
                       size: 19.sp,
                     ),
                   ),
@@ -667,10 +668,10 @@ class _ServiceCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: isSelected && !isPending
-                      ? const Color(0xFF3872B1)
-                      : const Color(0xFFF1F6FC),
+                      ? AppColors.brandBlueClr
+                      : AppColors.exactFFF1F6FC,
                   border: Border.all(
-                    color: const Color(0xFF3872B1),
+                    color: AppColors.brandBlueClr,
                     width: 1.5,
                   ),
                 ),
@@ -681,14 +682,14 @@ class _ServiceCard extends StatelessWidget {
                           height: 17.r,
                           child: const CircularProgressIndicator(
                             strokeWidth: 1.8,
-                            color: Color(0xFF3872B1),
+                            color: AppColors.brandBlueClr,
                           ),
                         )
                       : Icon(
                           isSelected ? Icons.check_rounded : Icons.add_rounded,
                           color: isSelected
-                              ? Colors.white
-                              : const Color(0xFF3872B1),
+                              ? AppColors.whiteClr
+                              : AppColors.brandBlueClr,
                           size: 19.sp,
                         ),
                 ),
@@ -714,10 +715,10 @@ class _QuantityButton extends StatelessWidget {
       height: 30.r,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: const Color(0xFFEFF6FF),
-        border: Border.all(color: const Color(0xFF3872B1)),
+        color: AppColors.exactFFEFF6FF,
+        border: Border.all(color: AppColors.brandBlueClr),
       ),
-      child: Icon(icon, size: 17.sp, color: const Color(0xFF3872B1)),
+      child: Icon(icon, size: 17.sp, color: AppColors.brandBlueClr),
     ),
   );
 }
@@ -740,11 +741,11 @@ class _ReviewServicesBar extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 12.h),
           decoration: BoxDecoration(
-            color: const Color(0xFF3872B1),
+            color: AppColors.brandBlueClr,
             borderRadius: BorderRadius.circular(16.r),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF3872B1).withValues(alpha: 0.30),
+                color: AppColors.brandBlueClr.withValues(alpha: 0.30),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -764,7 +765,7 @@ class _ReviewServicesBar extends StatelessWidget {
                   child: Text(
                     '$count',
                     style: AppTextStyles.of(
-                      color: Colors.white,
+                      color: AppColors.whiteClr,
                       fontSize: 13.sp,
                       fontWeight: FontWeight.bold,
                     ),
@@ -775,7 +776,7 @@ class _ReviewServicesBar extends StatelessWidget {
               Text(
                 'cart.review_services'.tr(),
                 style: AppTextStyles.of(
-                  color: Colors.white,
+                  color: AppColors.whiteClr,
                   fontSize: 15.sp,
                   fontWeight: FontWeight.w600,
                 ),
@@ -787,3 +788,4 @@ class _ReviewServicesBar extends StatelessWidget {
     );
   }
 }
+

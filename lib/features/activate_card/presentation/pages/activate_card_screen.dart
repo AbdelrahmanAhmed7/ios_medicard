@@ -16,6 +16,7 @@ import '../../../../../core/widgets/auth_shared_widgets.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class ActivateCardScreen extends StatefulWidget {
   const ActivateCardScreen({super.key});
 
@@ -458,7 +459,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
       autovalidateMode: isTouched
           ? AutovalidateMode.onUserInteraction
           : AutovalidateMode.disabled,
-      style: AppTextStyles.of(fontSize: 15.sp, color: Colors.black),
+      style: AppTextStyles.of(fontSize: 15.sp, color: AppColors.materialBlack),
       decoration: authInputDecoration(
         hintText: hintText,
       ).copyWith(counterText: ''),
@@ -497,7 +498,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
       autovalidateMode: isTouched
           ? AutovalidateMode.onUserInteraction
           : AutovalidateMode.disabled,
-      style: AppTextStyles.of(fontSize: 15.sp, color: Colors.black),
+      style: AppTextStyles.of(fontSize: 15.sp, color: AppColors.materialBlack),
       decoration: authInputDecoration(
         hintText: hintText,
         suffixIcon: GestureDetector(
@@ -574,9 +575,9 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
     required bool showInvalid,
   }) {
     final color = isMet
-        ? Colors.green
+        ? AppColors.materialGreen
         : showInvalid
-        ? Colors.red
+        ? AppColors.materialRed
         : kAuthGreyText;
 
     return Padding(
@@ -612,7 +613,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
           '*',
           style: AppTextStyles.of(
             fontSize: 13.sp,
-            color: Colors.red,
+            color: AppColors.materialRed,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -641,7 +642,7 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
       autovalidateMode: isTouched
           ? AutovalidateMode.onUserInteraction
           : AutovalidateMode.disabled,
-      style: AppTextStyles.of(fontSize: 15.sp, color: Colors.black),
+      style: AppTextStyles.of(fontSize: 15.sp, color: AppColors.materialBlack),
       onTap: () async {
         FocusScope.of(context).unfocus();
         final date = await showDatePicker(
@@ -805,3 +806,4 @@ class _ActivateCardScreenState extends State<ActivateCardScreen> {
     );
   }
 }
+

@@ -100,7 +100,7 @@ class _AppButtonState extends State<AppButton>
           Icon(
             widget.icon,
             size: widget.iconSize ?? 20.sp,
-            color: widget.textColor ?? Colors.white,
+            color: widget.textColor ?? AppColors.whiteClr,
           ),
           SizedBox(width: 8.w),
         ],
@@ -109,7 +109,7 @@ class _AppButtonState extends State<AppButton>
             width: 20.w,
             height: 20.w,
             child: const CircularProgressIndicator(
-              color: Colors.white,
+              color: AppColors.whiteClr,
               strokeWidth: 2,
             ),
           )
@@ -119,7 +119,7 @@ class _AppButtonState extends State<AppButton>
               widget.text,
               style: AppTextStyles.of(
                 fontSize: 16.sp,
-                color: widget.textColor ?? Colors.white,
+                color: widget.textColor ?? AppColors.whiteClr,
                 fontWeight: FontWeight.w600,
               ),
               overflow: TextOverflow.ellipsis,
@@ -175,7 +175,7 @@ class _AppButtonState extends State<AppButton>
               : null,
           style: ElevatedButton.styleFrom(
             backgroundColor: bgColor,
-            foregroundColor: widget.textColor ?? Colors.white,
+            foregroundColor: widget.textColor ?? AppColors.whiteClr,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12.r),
             ),

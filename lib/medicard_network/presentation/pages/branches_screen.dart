@@ -9,6 +9,7 @@ import '../../../../network/data/provider_page_response_model.dart';
 
 import '../../../core/theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class BranchesScreen extends StatefulWidget {
   final List<ProviderBranch> branches;
   final String? providerName;
@@ -68,7 +69,7 @@ class _BranchesScreenState extends State<BranchesScreen> {
     final filtered = _filteredBranches;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.whiteClr,
       body: Column(
         children: [
           _buildHeader(context),
@@ -77,7 +78,7 @@ class _BranchesScreenState extends State<BranchesScreen> {
             padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 0),
             child: TextField(
               controller: _searchController,
-              style: AppTextStyles.of(fontSize: 14.sp, color: Colors.black),
+              style: AppTextStyles.of(fontSize: 14.sp, color: AppColors.materialBlack),
               inputFormatters: [
                 FilteringTextInputFormatter.singleLineFormatter,
               ],
@@ -103,22 +104,22 @@ class _BranchesScreenState extends State<BranchesScreen> {
                       )
                     : null,
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: AppColors.whiteClr,
                 contentPadding: EdgeInsets.symmetric(
                   horizontal: 14.w,
                   vertical: 12.h,
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14.r),
-                  borderSide: const BorderSide(color: Color(0xFFE5E9F0)),
+                  borderSide: const BorderSide(color: AppColors.exactFFE5E9F0),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14.r),
-                  borderSide: const BorderSide(color: Color(0xFFE5E9F0)),
+                  borderSide: const BorderSide(color: AppColors.exactFFE5E9F0),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14.r),
-                  borderSide: const BorderSide(color: Color(0xFF3872B1)),
+                  borderSide: const BorderSide(color: AppColors.brandBlueClr),
                 ),
               ),
             ),
@@ -134,7 +135,7 @@ class _BranchesScreenState extends State<BranchesScreen> {
                   _branchesCountText(filtered.length, context),
                   style: AppTextStyles.of(
                     fontSize: 12.sp,
-                    color: const Color(0xFF6B7280),
+                    color: AppColors.exactFF6B7280,
                   ),
                 ),
               ),
@@ -152,7 +153,7 @@ class _BranchesScreenState extends State<BranchesScreen> {
                           Icon(
                             Icons.search_off_rounded,
                             size: 52.r,
-                            color: const Color(0xFFD1D5DB),
+                            color: AppColors.exactFFD1D5DB,
                           ),
                           SizedBox(height: 14.h),
                           Text(
@@ -161,7 +162,7 @@ class _BranchesScreenState extends State<BranchesScreen> {
                             style: AppTextStyles.of(
                               fontSize: 15.sp,
                               fontWeight: FontWeight.w500,
-                              color: const Color(0xFF6B7280),
+                              color: AppColors.exactFF6B7280,
                             ),
                           ),
                         ],
@@ -218,9 +219,9 @@ class _BranchCard extends StatelessWidget {
         width: double.infinity,
         padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.whiteClr,
           borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
+          border: Border.all(color: AppColors.lineClr),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -230,7 +231,7 @@ class _BranchCard extends StatelessWidget {
               style: AppTextStyles.of(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.bold,
-                color: const Color(0xFF0F172A),
+                color: AppColors.exactFF0F172A,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -242,7 +243,7 @@ class _BranchCard extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.location_on_outlined,
-                    color: const Color(0xFF9CA3AF),
+                    color: AppColors.exactFF9CA3AF,
                     size: 14.sp,
                   ),
                   SizedBox(width: 4.w),
@@ -251,7 +252,7 @@ class _BranchCard extends StatelessWidget {
                       branch.fullAddress!,
                       style: AppTextStyles.of(
                         fontSize: 12.sp,
-                        color: const Color(0xFF6B7280),
+                        color: AppColors.exactFF6B7280,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -268,7 +269,7 @@ class _BranchCard extends StatelessWidget {
                   children: [
                     Icon(
                       Icons.map_outlined,
-                      color: const Color(0xFF3872B1),
+                      color: AppColors.brandBlueClr,
                       size: 15.sp,
                     ),
                     SizedBox(width: 4.w),
@@ -277,7 +278,7 @@ class _BranchCard extends StatelessWidget {
                       style: AppTextStyles.of(
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w500,
-                        color: const Color(0xFF3872B1),
+                        color: AppColors.brandBlueClr,
                       ),
                     ),
                   ],
@@ -290,3 +291,4 @@ class _BranchCard extends StatelessWidget {
     );
   }
 }
+

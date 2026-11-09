@@ -21,6 +21,7 @@ import '../cubit/profile_cubit.dart';
 import '../../../../core/theming/app_text_styles.dart';
 import '../../../../core/theming/app_toast.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class EditProfileScreen extends StatefulWidget {
   final ProfileData profileData;
 
@@ -90,7 +91,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         useRootNavigator: true,
         isDismissible: true,
         enableDrag: true,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.whiteClr,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
@@ -105,7 +106,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     width: 40.w,
                     height: 4.h,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE2E8F0),
+                      color: AppColors.lineClr,
                       borderRadius: BorderRadius.circular(2.r),
                     ),
                   ),
@@ -160,8 +161,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFDC2626),
-              foregroundColor: Colors.white,
+              backgroundColor: AppColors.exactFFDC2626,
+              foregroundColor: AppColors.whiteClr,
             ),
             onPressed: () => Navigator.of(dialogContext).pop(true),
             child: Text('profile.remove_image'.tr()),
@@ -297,7 +298,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: AppColors.lightGreyClr,
       body: SafeArea(
         bottom: false,
         child: GestureDetector(
@@ -342,9 +343,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: 20.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.whiteClr,
         borderRadius: BorderRadius.circular(18.r),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.lineClr),
       ),
       child: Column(
         children: [
@@ -386,9 +387,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       width: double.infinity,
       padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 16.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.whiteClr,
         borderRadius: BorderRadius.circular(18.r),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.lineClr),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -526,8 +527,8 @@ class _SheetAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final foreground = isDestructive
-        ? const Color(0xFFDC2626)
-        : const Color(0xFF111827);
+        ? AppColors.exactFFDC2626
+        : AppColors.inkClr;
     return Semantics(
       button: true,
       child: GestureDetector(
@@ -537,9 +538,9 @@ class _SheetAction extends StatelessWidget {
           width: double.infinity,
           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
           decoration: BoxDecoration(
-            color: const Color(0xFFF8FAFC),
+            color: AppColors.exactFFF8FAFC,
             borderRadius: BorderRadius.circular(14.r),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
+            border: Border.all(color: AppColors.lineClr),
           ),
           child: Row(
             children: [
@@ -561,7 +562,7 @@ class _SheetAction extends StatelessWidget {
               const Icon(
                 Icons.chevron_right_rounded,
                 size: 20,
-                color: Color(0xFF94A3B8),
+                color: AppColors.inkFaintClr,
               ),
             ],
           ),
@@ -584,7 +585,7 @@ class _EditProfileHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           AppHeaderBackButton(
-            color: const Color(0xFF111827),
+            color: AppColors.inkClr,
             onPressed: () {
               if (Navigator.of(context).canPop()) {
                 Navigator.of(context).pop();
@@ -597,7 +598,7 @@ class _EditProfileHeader extends StatelessWidget {
               style: AppTextStyles.of(
                 fontSize: 26.sp,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF111827),
+                color: AppColors.inkClr,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -608,3 +609,4 @@ class _EditProfileHeader extends StatelessWidget {
     );
   }
 }
+

@@ -11,6 +11,7 @@ import '../../logic/provider_page_state.dart';
 import 'provider_rebuild_scopes.dart';
 import 'provider_shared_widgets.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Navigation stays separate from the scrollable provider details.
 class ProviderTopHeader extends StatelessWidget {
   const ProviderTopHeader({super.key});
@@ -19,8 +20,8 @@ class ProviderTopHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(bottom: BorderSide(color: Color(0xFFEEF1F5))),
+        color: AppColors.whiteClr,
+        border: Border(bottom: BorderSide(color: AppColors.exactFFEEF1F5)),
       ),
       padding: AppHeaderSpacing.padding(top: 4, bottom: 4),
       child: Row(
@@ -43,7 +44,7 @@ class ProviderTopHeader extends StatelessWidget {
               style: AppTextStyles.of(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF111827),
+                color: AppColors.inkClr,
                 height: 1.3,
               ),
             ),
@@ -78,7 +79,7 @@ class ProviderDetailsSection extends StatelessWidget {
                 height: 24,
                 child: CircularProgressIndicator(
                   strokeWidth: 2.4,
-                  color: Color(0xFF3872B1),
+                  color: AppColors.brandBlueClr,
                 ),
               ),
             ),
@@ -91,10 +92,10 @@ class ProviderDetailsSection extends StatelessWidget {
           margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.whiteClr,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: const Color(0xFF3872B1).withValues(alpha: 0.10),
+              color: AppColors.brandBlueClr.withValues(alpha: 0.10),
             ),
           ),
           child: ProviderInfoRow(
@@ -116,3 +117,4 @@ class ProviderDetailsSection extends StatelessWidget {
     );
   }
 }
+

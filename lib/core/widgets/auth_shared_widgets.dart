@@ -6,14 +6,15 @@ import '../constants/app_assets.dart';
 
 import '../theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 // ── Design tokens ────────────────────────────────────────────────────────────
 
-const kAuthBlue = Color(0xFF3872B1);
-const kAuthInk = Color(0xFF0F172A);
-const kAuthBorderColor = Color(0xFFE5E7EB);
-const kAuthGreyText = Color(0xFF6B7280);
-const kAuthBackground = Colors.white;
-const kAuthFieldBackground = Color(0xFFF8FAFC);
+const kAuthBlue = AppColors.brandBlueClr;
+const kAuthInk = AppColors.exactFF0F172A;
+const kAuthBorderColor = AppColors.exactFFE5E7EB;
+const kAuthGreyText = AppColors.exactFF6B7280;
+const kAuthBackground = AppColors.whiteClr;
+const kAuthFieldBackground = AppColors.exactFFF8FAFC;
 
 // ── AuthFieldLabel ────────────────────────────────────────────────────────────
 
@@ -27,7 +28,7 @@ class AuthFieldLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     final labelStyle = AppTextStyles.of(
       fontSize: 13.sp,
-      color: const Color(0xFF334155),
+      color: AppColors.exactFF334155,
       fontWeight: FontWeight.w600,
     );
 
@@ -40,7 +41,7 @@ class AuthFieldLabel extends StatelessWidget {
             TextSpan(
               text: ' *',
               style: labelStyle.copyWith(
-                color: Colors.red,
+                color: AppColors.materialRed,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -76,7 +77,7 @@ class AuthGenderOption extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: selected ? kAuthBlue : const Color(0xFF9CA3AF),
+                color: selected ? kAuthBlue : AppColors.exactFF9CA3AF,
                 width: 2,
               ),
             ),
@@ -98,7 +99,7 @@ class AuthGenderOption extends StatelessWidget {
             label,
             style: AppTextStyles.of(
               fontSize: 14.sp,
-              color: selected ? Colors.black : kAuthGreyText,
+              color: selected ? AppColors.materialBlack : kAuthGreyText,
               fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
             ),
           ),
@@ -120,7 +121,7 @@ InputDecoration authInputDecoration({
     counterText: '',
     hintStyle: AppTextStyles.of(
       fontSize: 14.sp,
-      color: const Color(0xFFB0B8C1),
+      color: AppColors.exactFFB0B8C1,
     ),
     filled: true,
     fillColor: kAuthFieldBackground,
@@ -130,7 +131,7 @@ InputDecoration authInputDecoration({
     errorMaxLines: 2,
     errorStyle: AppTextStyles.of(
       fontSize: 11.5.sp,
-      color: const Color(0xFFDC2626),
+      color: AppColors.exactFFDC2626,
       height: 1.25,
     ),
     border: OutlineInputBorder(
@@ -147,11 +148,11 @@ InputDecoration authInputDecoration({
     ),
     errorBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(14.r),
-      borderSide: const BorderSide(color: Color(0xFFEF4444)),
+      borderSide: const BorderSide(color: AppColors.exactFFEF4444),
     ),
     focusedErrorBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(14.r),
-      borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.6),
+      borderSide: const BorderSide(color: AppColors.exactFFEF4444, width: 1.6),
     ),
   );
 }
@@ -176,7 +177,7 @@ class AuthHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: Colors.white,
+      color: AppColors.whiteClr,
       child: SafeArea(
         bottom: false,
         child: Padding(
@@ -201,7 +202,7 @@ class AuthHeader extends StatelessWidget {
                       height: 38.r,
                       padding: EdgeInsets.all(5.r),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFEFF6FF),
+                        color: AppColors.exactFFEFF6FF,
                         borderRadius: BorderRadius.circular(11.r),
                       ),
                       child: Image.asset(logoAsset, fit: BoxFit.contain),
@@ -306,10 +307,10 @@ class AuthSecondaryButton extends StatelessWidget {
       child: OutlinedButton.icon(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
-          foregroundColor: tonal ? const Color(0xFF475569) : kAuthBlue,
-          backgroundColor: tonal ? const Color(0xFFF1F5F9) : Colors.white,
+          foregroundColor: tonal ? AppColors.inkSoftClr : kAuthBlue,
+          backgroundColor: tonal ? AppColors.exactFFF1F5F9 : AppColors.whiteClr,
           side: BorderSide(
-            color: tonal ? const Color(0xFFE2E8F0) : kAuthBlue,
+            color: tonal ? AppColors.lineClr : kAuthBlue,
             width: tonal ? 1 : 1.4,
           ),
           shape: RoundedRectangleBorder(
@@ -336,7 +337,7 @@ class AuthDivider extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Expanded(child: Divider(color: Color(0xFFE2E8F0))),
+        const Expanded(child: Divider(color: AppColors.lineClr)),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 12.w),
           child: Text(
@@ -344,7 +345,7 @@ class AuthDivider extends StatelessWidget {
             style: AppTextStyles.of(fontSize: 12.5.sp, color: kAuthGreyText),
           ),
         ),
-        const Expanded(child: Divider(color: Color(0xFFE2E8F0))),
+        const Expanded(child: Divider(color: AppColors.lineClr)),
       ],
     );
   }
@@ -373,9 +374,9 @@ class AuthPrimaryButton extends StatelessWidget {
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: kAuthBlue,
-          disabledBackgroundColor: const Color(0xFF9DB7D4),
-          foregroundColor: Colors.white,
-          disabledForegroundColor: Colors.white,
+          disabledBackgroundColor: AppColors.exactFF9DB7D4,
+          foregroundColor: AppColors.whiteClr,
+          disabledForegroundColor: AppColors.whiteClr,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14.r),
           ),
@@ -387,7 +388,7 @@ class AuthPrimaryButton extends StatelessWidget {
                 width: 22,
                 height: 22,
                 child: CircularProgressIndicator(
-                  color: Colors.white,
+                  color: AppColors.whiteClr,
                   strokeWidth: 2.5,
                 ),
               )
@@ -396,10 +397,11 @@ class AuthPrimaryButton extends StatelessWidget {
                 style: AppTextStyles.of(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: AppColors.whiteClr,
                 ),
               ),
       ),
     );
   }
 }
+

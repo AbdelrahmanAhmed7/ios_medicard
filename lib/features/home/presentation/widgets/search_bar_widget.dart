@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/widgets/unified_search_field.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class SearchBarWidget extends StatelessWidget {
   final double? latitude;
   final double? longitude;
@@ -23,8 +24,8 @@ class SearchBarWidget extends StatelessWidget {
         child: UnifiedSearchField(
           readOnly: true,
           borderRadius: 14.r,
-          borderColor: const Color(0xFFE2E8F0),
-          backgroundColor: const Color(0xFFF8FAFC),
+          borderColor: AppColors.lineClr,
+          backgroundColor: AppColors.exactFFF8FAFC,
           useShadow: false,
           transparentBackground: true,
           showAnimatedHint: true,
@@ -40,3 +41,4 @@ class SearchBarWidget extends StatelessWidget {
     );
   }
 }
+

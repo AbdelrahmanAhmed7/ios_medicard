@@ -13,6 +13,7 @@ import '../cubit/search_cubit.dart';
 import '../cubit/search_state.dart';
 import 'search_shimmer.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class SearchMedicinesTab extends StatefulWidget {
   final bool enableCartFeatures;
 
@@ -119,7 +120,7 @@ class _SearchMedicinesTabState extends State<SearchMedicinesTab> {
             padding: EdgeInsets.symmetric(vertical: 16.h),
             child: const Center(
               child: CircularProgressIndicator(
-                color: Color(0xFF3872B1),
+                color: AppColors.brandBlueClr,
                 strokeWidth: 2.5,
               ),
             ),
@@ -228,12 +229,12 @@ class _MedicineCard extends StatelessWidget {
       margin: EdgeInsets.only(bottom: 12.h),
       padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.whiteClr,
         borderRadius: BorderRadius.circular(14.r),
         border: Border.all(
           color: isSelected
-              ? const Color(0xFF3872B1).withValues(alpha: 0.35)
-              : const Color(0xFFE5E7EB),
+              ? AppColors.brandBlueClr.withValues(alpha: 0.35)
+              : AppColors.exactFFE5E7EB,
         ),
       ),
       child: Row(
@@ -267,7 +268,7 @@ class _MedicineCard extends StatelessWidget {
                   style: AppTextStyles.of(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF111827),
+                    color: AppColors.inkClr,
                   ),
                 ),
                 if (secondaryName.isNotEmpty && secondaryName != title) ...[
@@ -278,7 +279,7 @@ class _MedicineCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.of(
                       fontSize: 12.sp,
-                      color: const Color(0xFF6B7280),
+                      color: AppColors.exactFF6B7280,
                     ),
                   ),
                 ],
@@ -290,7 +291,7 @@ class _MedicineCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.of(
                       fontSize: 11.5.sp,
-                      color: const Color(0xFF8A94A6),
+                      color: AppColors.exactFF8A94A6,
                     ),
                   ),
                 ],
@@ -300,7 +301,7 @@ class _MedicineCard extends StatelessWidget {
                   style: AppTextStyles.of(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF3872B1),
+                    color: AppColors.brandBlueClr,
                   ),
                 ),
               ],
@@ -314,7 +315,7 @@ class _MedicineCard extends StatelessWidget {
               child: const Center(
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: Color(0xFF3872B1),
+                  color: AppColors.brandBlueClr,
                 ),
               ),
             )
@@ -336,7 +337,7 @@ class _MedicineCard extends StatelessWidget {
                     style: AppTextStyles.of(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF111827),
+                      color: AppColors.inkClr,
                     ),
                   ),
                 ),
@@ -356,10 +357,10 @@ class _MedicineImageFallback extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ColoredBox(
-    color: const Color(0xFFEEF3FB),
+    color: AppColors.exactFFEEF3FB,
     child: Icon(
       Icons.medication_outlined,
-      color: const Color(0xFF7A9EC7),
+      color: AppColors.exactFF7A9EC7,
       size: 30.sp,
     ),
   );
@@ -379,10 +380,10 @@ class _QuantityButton extends StatelessWidget {
       height: 28.r,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: const Color(0xFFEFF6FF),
-        border: Border.all(color: const Color(0xFF3872B1)),
+        color: AppColors.exactFFEFF6FF,
+        border: Border.all(color: AppColors.brandBlueClr),
       ),
-      child: Icon(icon, size: 15.sp, color: const Color(0xFF3872B1)),
+      child: Icon(icon, size: 15.sp, color: AppColors.brandBlueClr),
     ),
   );
 }
@@ -394,7 +395,7 @@ class _AddToCartButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Material(
-    color: const Color(0xFF3872B1),
+    color: AppColors.brandBlueClr,
     borderRadius: BorderRadius.circular(10.r),
     child: InkWell(
       onTap: onTap,
@@ -407,7 +408,7 @@ class _AddToCartButton extends StatelessWidget {
             Icon(
               Icons.add_shopping_cart_rounded,
               size: 16.sp,
-              color: Colors.white,
+              color: AppColors.whiteClr,
             ),
             SizedBox(width: 4.w),
             Text(
@@ -415,7 +416,7 @@ class _AddToCartButton extends StatelessWidget {
               style: AppTextStyles.of(
                 fontSize: 9.5.sp,
                 fontWeight: FontWeight.w700,
-                color: Colors.white,
+                color: AppColors.whiteClr,
               ),
             ),
           ],
@@ -445,14 +446,14 @@ class _MedicineMessageView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 52.sp, color: const Color(0xFFD1D5DB)),
+          Icon(icon, size: 52.sp, color: AppColors.exactFFD1D5DB),
           SizedBox(height: 12.h),
           Text(
             message,
             textAlign: TextAlign.center,
             style: AppTextStyles.of(
               fontSize: 15.sp,
-              color: const Color(0xFF6B7280),
+              color: AppColors.exactFF6B7280,
             ),
           ),
           if (onAction != null && actionLabel != null) ...[
@@ -460,8 +461,8 @@ class _MedicineMessageView extends StatelessWidget {
             ElevatedButton(
               onPressed: onAction,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF3872B1),
-                foregroundColor: Colors.white,
+                backgroundColor: AppColors.brandBlueClr,
+                foregroundColor: AppColors.whiteClr,
               ),
               child: Text(actionLabel!),
             ),
@@ -490,11 +491,11 @@ class _ReviewMedicinesBar extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 12.h),
         decoration: BoxDecoration(
-          color: const Color(0xFF3872B1),
+          color: AppColors.brandBlueClr,
           borderRadius: BorderRadius.circular(16.r),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF3872B1).withValues(alpha: 0.30),
+              color: AppColors.brandBlueClr.withValues(alpha: 0.30),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -514,7 +515,7 @@ class _ReviewMedicinesBar extends StatelessWidget {
                 child: Text(
                   '$count',
                   style: AppTextStyles.of(
-                    color: Colors.white,
+                    color: AppColors.whiteClr,
                     fontSize: 13.sp,
                     fontWeight: FontWeight.bold,
                   ),
@@ -525,7 +526,7 @@ class _ReviewMedicinesBar extends StatelessWidget {
             Text(
               'cart.review_medicines'.tr(),
               style: AppTextStyles.of(
-                color: Colors.white,
+                color: AppColors.whiteClr,
                 fontSize: 15.sp,
                 fontWeight: FontWeight.w600,
               ),
@@ -536,3 +537,4 @@ class _ReviewMedicinesBar extends StatelessWidget {
     ),
   );
 }
+

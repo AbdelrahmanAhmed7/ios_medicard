@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class HomeBottomNav extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
@@ -38,9 +39,9 @@ class HomeBottomNav extends StatelessWidget {
       child: Container(
         height: 74,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.whiteClr,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-          border: Border.all(color: const Color(0xFFD9DDE5)),
+          border: Border.all(color: AppColors.exactFFD9DDE5),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.04),
@@ -87,8 +88,8 @@ class _NavColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const activeColor = Color(0xFF3976B7);
-    const inactiveColor = Color(0xFF6C6C6C);
+    const activeColor = AppColors.exactFF3976B7;
+    const inactiveColor = AppColors.exactFF6C6C6C;
     final color = isSelected ? activeColor : inactiveColor;
 
     return GestureDetector(
@@ -117,3 +118,4 @@ class _NavColumn extends StatelessWidget {
     );
   }
 }
+

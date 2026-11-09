@@ -15,6 +15,7 @@ import '../../../../network/data/provider_page_response_model.dart';
 import '../../domain/models/featured_service_model.dart';
 import 'home_horizontal_card_style.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class FeaturedServiceCard extends StatefulWidget {
   final FeaturedServiceModel service;
 
@@ -79,7 +80,7 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                           height: HomeHorizontalCardStyle.imageHeight,
                           child: const Icon(
                             Icons.broken_image,
-                            color: Color(0xFF9CA3AF),
+                            color: AppColors.exactFF9CA3AF,
                           ),
                         ),
                       ),
@@ -90,7 +91,7 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                         left: 8,
                         child: CircleAvatar(
                           radius: 18,
-                          backgroundColor: Colors.white,
+                          backgroundColor: AppColors.whiteClr,
                           child: ClipOval(
                             child: CachedNetworkImage(
                               imageUrl: service.providerLogoUrl,
@@ -123,7 +124,7 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                             children: [
                               const Icon(
                                 Icons.star,
-                                color: Color(0xFFF5A623),
+                                color: AppColors.exactFFF5A623,
                                 size: 12,
                               ),
                               const SizedBox(width: 3),
@@ -170,7 +171,7 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                               padding: EdgeInsets.only(top: 2),
                               child: Icon(
                                 Icons.location_on_outlined,
-                                color: Color(0xFF9CA3AF),
+                                color: AppColors.exactFF9CA3AF,
                                 size: 12,
                               ),
                             ),
@@ -212,10 +213,10 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                               child: OutlinedButton(
                                 onPressed: () => _bookPackage(context),
                                 style: OutlinedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF3872B1),
-                                  foregroundColor: const Color(0xFFFFFFFF),
+                                  backgroundColor: AppColors.brandBlueClr,
+                                  foregroundColor: AppColors.whiteClr,
                                   side: const BorderSide(
-                                    color: Color(0xFF3872B1),
+                                    color: AppColors.brandBlueClr,
                                     width: 1.2,
                                   ),
                                   padding: const EdgeInsets.symmetric(
@@ -232,7 +233,7 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                                 child: Text(
                                   'activity.book'.tr(),
                                   style: HomeHorizontalCardStyle.actionText
-                                      .copyWith(color: Colors.white),
+                                      .copyWith(color: AppColors.whiteClr),
                                 ),
                               ),
                             ),
@@ -380,3 +381,4 @@ class _PackageDetailsSheetState extends State<_PackageDetailsSheet> {
     );
   }
 }
+

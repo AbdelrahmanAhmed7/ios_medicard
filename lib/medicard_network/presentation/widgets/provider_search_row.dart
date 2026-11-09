@@ -42,9 +42,9 @@ class ProviderSearchRow extends StatelessWidget {
                   height: 44.h,
                   padding: EdgeInsets.symmetric(horizontal: 12.w),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.whiteClr,
                     borderRadius: BorderRadius.circular(12.r),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    border: Border.all(color: AppColors.lineClr),
                   ),
                   child: AppDropdownTheme(
                     child: MenuAnchor(
@@ -147,3 +147,4 @@ class ProviderSearchRow extends StatelessWidget {
     );
   }
 }
+

@@ -11,6 +11,7 @@ import '../../../ecard/data/models/card_data_response_model.dart';
 import '../../../ecard/presentation/cubit/ecard_cubit.dart';
 import '../../../ecard/presentation/cubit/ecard_state.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class ECardPreviewCard extends StatefulWidget {
   const ECardPreviewCard({super.key});
 
@@ -64,7 +65,7 @@ class ECardPreviewShimmer extends StatelessWidget {
   Widget build(BuildContext context) {
     const placeholder = DecoratedBox(
       decoration: BoxDecoration(
-        color: Color(0xFFE8E8E8),
+        color: AppColors.exactFFE8E8E8,
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
     );
@@ -140,7 +141,7 @@ class _MediCardPreview extends StatelessWidget {
                 Text(
                   number.isEmpty ? '—' : number,
                   style: AppTextStyles.of(
-                    color: Colors.white,
+                    color: AppColors.whiteClr,
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 1.2,
@@ -165,7 +166,7 @@ class _MediCardPreview extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.of(
-                    color: Colors.white,
+                    color: AppColors.whiteClr,
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w700,
                     height: 1.2,
@@ -187,7 +188,7 @@ class _MediCardPreview extends StatelessWidget {
                 Text(
                   expiry,
                   style: AppTextStyles.of(
-                    color: Colors.white,
+                    color: AppColors.whiteClr,
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w700,
                   ),
@@ -200,3 +201,4 @@ class _MediCardPreview extends StatelessWidget {
     );
   }
 }
+

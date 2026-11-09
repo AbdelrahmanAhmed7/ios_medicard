@@ -225,7 +225,7 @@ class _CustomShowcaseOverlayState extends State<CustomShowcaseOverlay>
                                   onPressed: widget.onNext,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: AppColors.primaryClr,
-                                    foregroundColor: Colors.white,
+                                    foregroundColor: AppColors.whiteClr,
                                     padding: EdgeInsets.symmetric(
                                       horizontal: 24.w,
                                       vertical: 12.h,
@@ -248,7 +248,7 @@ class _CustomShowcaseOverlayState extends State<CustomShowcaseOverlay>
                                   onPressed: widget.onDismiss,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: AppColors.primaryClr,
-                                    foregroundColor: Colors.white,
+                                    foregroundColor: AppColors.whiteClr,
                                     padding: EdgeInsets.symmetric(
                                       horizontal: 24.w,
                                       vertical: 12.h,
@@ -343,7 +343,7 @@ class _ShowcasePainter extends CustomPainter {
 
     // Draw border around target with shadow effect
     final borderPaint = Paint()
-      ..color = Colors.white
+      ..color = AppColors.whiteClr
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.0;
 
@@ -372,3 +372,4 @@ class _ShowcasePainter extends CustomPainter {
         oldDelegate.targetSize != targetSize;
   }
 }
+

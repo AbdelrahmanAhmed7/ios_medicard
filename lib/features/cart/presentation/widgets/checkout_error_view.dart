@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class CheckoutErrorView extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
@@ -21,20 +22,20 @@ class CheckoutErrorView extends StatelessWidget {
             Icon(
               Icons.error_outline_rounded,
               size: 48.sp,
-              color: const Color(0xFF94A3B8),
+              color: AppColors.inkFaintClr,
             ),
             SizedBox(height: 12.h),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: AppTextStyles.of(fontSize: 14.sp, color: const Color(0xFF64748B)),
+              style: AppTextStyles.of(fontSize: 14.sp, color: AppColors.inkMutedClr),
             ),
             SizedBox(height: 16.h),
             ElevatedButton(
               onPressed: onRetry,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF3872B1),
-                foregroundColor: Colors.white,
+                backgroundColor: AppColors.brandBlueClr,
+                foregroundColor: AppColors.whiteClr,
               ),
               child: Text('common.retry'.tr()),
             ),
@@ -44,3 +45,4 @@ class CheckoutErrorView extends StatelessWidget {
     );
   }
 }
+

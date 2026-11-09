@@ -12,13 +12,13 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:video_player/video_player.dart';
 
 import 'core/cubit/app_refresh_cubit.dart';
+import 'core/theming/app_colors.dart';
 import 'core/cubit/localization_cubit.dart';
 import 'core/di/service_locator.dart';
 import 'core/network/connectivity_service.dart';
 import 'core/network/dio_factory.dart';
 import 'core/routing/app_router.dart';
 import 'core/services/app_language_manager.dart';
-import 'core/theming/app_colors.dart';
 import 'core/theming/app_text_styles.dart';
 import 'core/theming/font_manager.dart';
 import 'features/notifications/push_notification_service.dart';
@@ -33,9 +33,7 @@ void main() async {
     initializeDateFormatting('ar'),
     initializeDateFormatting('en'),
     if (_shouldInitializeFirebase)
-      Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      ),
+      Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
   ]);
 
   if (!_shouldInitializeFirebase && kDebugMode) {
@@ -242,12 +240,7 @@ class _MyAppState extends State<MyApp> {
                 supportedLocales: context.supportedLocales,
                 locale: context.locale,
                 builder: (context, child) {
-                  return Stack(
-                    children: [
-                      child!,
-                      const FloatingCartButton(),
-                    ],
-                  );
+                  return Stack(children: [child!, const FloatingCartButton()]);
                 },
               ),
               if (_showSplash)
@@ -336,7 +329,7 @@ class _AppVideoSplashState extends State<AppVideoSplash> {
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
-      color: Colors.white,
+      color: AppColors.whiteClr,
       child: SizedBox.expand(
         child: _isReady
             ? FittedBox(

@@ -20,7 +20,7 @@ class EditProfileRequiredHint extends StatelessWidget {
           '*',
           style: AppTextStyles.of(
             fontSize: 13.sp,
-            color: const Color(0xFFDC2626),
+            color: AppColors.exactFFDC2626,
             fontWeight: FontWeight.w700,
             height: 1.3,
           ),

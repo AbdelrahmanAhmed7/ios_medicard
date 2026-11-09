@@ -6,6 +6,7 @@ import '../../../../core/widgets/auth_shared_widgets.dart';
 import '../../../../core/theming/app_text_styles.dart';
 
 
+import 'package:medicard/core/theming/app_colors.dart';
 class ContentErrorView extends StatelessWidget {
   final VoidCallback onRetry;
   final String message;
@@ -27,7 +28,7 @@ class ContentErrorView extends StatelessWidget {
             Icon(
               Icons.cloud_off_rounded,
               size: 64.sp,
-              color: const Color(0xFF3872B1),
+              color: AppColors.brandBlueClr,
             ),
             SizedBox(height: 20.h),
             Text(
@@ -35,7 +36,7 @@ class ContentErrorView extends StatelessWidget {
               style: AppTextStyles.of(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF1A1A2E),
+                color: AppColors.exactFF1A1A2E,
               ),
               textAlign: TextAlign.center,
             ),
@@ -44,7 +45,7 @@ class ContentErrorView extends StatelessWidget {
               message,
               style: AppTextStyles.of(
                 fontSize: 14.sp,
-                color: const Color(0xFF6B7280),
+                color: AppColors.exactFF6B7280,
                 height: 1.5,
               ),
               textAlign: TextAlign.center,
@@ -64,3 +65,4 @@ class ContentErrorView extends StatelessWidget {
     );
   }
 }
+

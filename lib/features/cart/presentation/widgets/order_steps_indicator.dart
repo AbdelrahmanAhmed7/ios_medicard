@@ -4,13 +4,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Compact three-step indicator for the provider checkout flow:
 /// choose provider -> review order -> payment.
 class OrderStepsIndicator extends StatelessWidget {
-  static const _blue = Color(0xFF3872B1);
-  static const _line = Color(0xFFE2E8F0);
-  static const _ink = Color(0xFF111827);
-  static const _muted = Color(0xFF94A3B8);
+  static const _blue = AppColors.brandBlueClr;
+  static const _line = AppColors.lineClr;
+  static const _ink = AppColors.inkClr;
+  static const _muted = AppColors.inkFaintClr;
 
   /// Zero-based index of the active step.
   final int currentStep;
@@ -101,7 +102,7 @@ class _StepDot extends StatelessWidget {
       height: 22.r,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: isActive ? OrderStepsIndicator._blue : Colors.white,
+        color: isActive ? OrderStepsIndicator._blue : AppColors.whiteClr,
         border: Border.all(
           color: isActive
               ? OrderStepsIndicator._blue
@@ -111,16 +112,17 @@ class _StepDot extends StatelessWidget {
       ),
       child: Center(
         child: isDone
-            ? Icon(Icons.check_rounded, size: 13.sp, color: Colors.white)
+            ? Icon(Icons.check_rounded, size: 13.sp, color: AppColors.whiteClr)
             : Text(
                 '$number',
                 style: AppTextStyles.of(
                   fontSize: 11.sp,
                   fontWeight: FontWeight.w700,
-                  color: isCurrent ? Colors.white : OrderStepsIndicator._muted,
+                  color: isCurrent ? AppColors.whiteClr : OrderStepsIndicator._muted,
                 ),
               ),
       ),
     );
   }
 }
+

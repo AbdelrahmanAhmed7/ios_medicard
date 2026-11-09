@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/theming/app_spacing.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class ProfileCard extends StatelessWidget {
   final List<Widget> children;
   const ProfileCard({super.key, required this.children});
@@ -13,7 +14,7 @@ class ProfileCard extends StatelessWidget {
       padding: AppSpacing.pageHorizontalInsets,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.whiteClr,
           borderRadius: BorderRadius.circular(16.r),
           border: Border.all(color: Colors.grey.shade200, width: 1),
         ),
@@ -25,3 +26,4 @@ class ProfileCard extends StatelessWidget {
     );
   }
 }
+

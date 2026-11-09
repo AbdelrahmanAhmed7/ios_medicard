@@ -10,6 +10,7 @@ import 'category_chip.dart';
 import 'provider_card.dart';
 import 'search_shimmer.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class SearchProvidersTab extends StatelessWidget {
   final ScrollController scrollController;
   const SearchProvidersTab({super.key, required this.scrollController});
@@ -38,7 +39,7 @@ class _ProviderCategoryStrip extends StatelessWidget {
         if (state.categories.isEmpty) return const SizedBox.shrink();
 
         return Container(
-          color: Colors.white,
+          color: AppColors.whiteClr,
           padding: EdgeInsets.symmetric(vertical: 10.h),
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -105,7 +106,7 @@ class _ResultsBody extends StatelessWidget {
                     width: 24.r,
                     height: 24.r,
                     child: const CircularProgressIndicator(
-                      color: Color(0xFF3872B1),
+                      color: AppColors.brandBlueClr,
                       strokeWidth: 2.5,
                     ),
                   ),
@@ -136,7 +137,7 @@ class _EmptyView extends StatelessWidget {
           Icon(
             Icons.search_off_rounded,
             size: 52.sp,
-            color: const Color(0xFFD1D5DB),
+            color: AppColors.exactFFD1D5DB,
           ),
           SizedBox(height: 12.h),
           Text(
@@ -144,7 +145,7 @@ class _EmptyView extends StatelessWidget {
             style: AppTextStyles.of(
               fontSize: 15.sp,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF6B7280),
+              color: AppColors.exactFF6B7280,
             ),
           ),
           SizedBox(height: 6.h),
@@ -152,7 +153,7 @@ class _EmptyView extends StatelessWidget {
             'search.try_different_keyword'.tr(),
             style: AppTextStyles.of(
               fontSize: 13.sp,
-              color: const Color(0xFF9CA3AF),
+              color: AppColors.exactFF9CA3AF,
             ),
           ),
         ],
@@ -178,7 +179,7 @@ class _ErrorView extends StatelessWidget {
             Icon(
               Icons.error_outline_rounded,
               size: 52.sp,
-              color: const Color(0xFFD1D5DB),
+              color: AppColors.exactFFD1D5DB,
             ),
             SizedBox(height: 12.h),
             Text(
@@ -186,14 +187,14 @@ class _ErrorView extends StatelessWidget {
               textAlign: TextAlign.center,
               style: AppTextStyles.of(
                 fontSize: 14.sp,
-                color: const Color(0xFF6B7280),
+                color: AppColors.exactFF6B7280,
               ),
             ),
             SizedBox(height: 16.h),
             ElevatedButton(
               onPressed: onRetry,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF3872B1),
+                backgroundColor: AppColors.brandBlueClr,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.r),
                 ),
@@ -205,7 +206,7 @@ class _ErrorView extends StatelessWidget {
                 style: AppTextStyles.of(
                   fontWeight: FontWeight.w600,
                   fontSize: 14.sp,
-                  color: Colors.white,
+                  color: AppColors.whiteClr,
                 ),
               ),
             ),
@@ -215,3 +216,4 @@ class _ErrorView extends StatelessWidget {
     );
   }
 }
+

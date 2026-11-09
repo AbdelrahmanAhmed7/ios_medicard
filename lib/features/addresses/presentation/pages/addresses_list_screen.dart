@@ -11,6 +11,7 @@ import '../../data/models/user_address_model.dart';
 import '../cubit/addresses_cubit.dart';
 import '../cubit/addresses_state.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class AddressesListScreen extends StatefulWidget {
   const AddressesListScreen({super.key});
 
@@ -26,7 +27,7 @@ class _AddressesListScreenState extends State<AddressesListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.whiteClr,
       body: BlocConsumer<AddressesCubit, AddressesState>(
         listener: (context, state) {},
         builder: (context, state) {
@@ -99,7 +100,7 @@ class _AddressesListScreenState extends State<AddressesListScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             AppHeaderBackButton(
-              color: const Color(0xFF111827),
+              color: AppColors.inkClr,
               onPressed: () {
                 if (Navigator.of(context).canPop()) {
                   Navigator.of(context).pop();
@@ -112,7 +113,7 @@ class _AddressesListScreenState extends State<AddressesListScreen> {
                 style: AppTextStyles.of(
                   fontSize: 26.sp,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF111827),
+                  color: AppColors.inkClr,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -129,7 +130,7 @@ class _AddressesListScreenState extends State<AddressesListScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.location_off_outlined, size: 80.sp, color: Colors.grey),
+          Icon(Icons.location_off_outlined, size: 80.sp, color: AppColors.greyClr),
           SizedBox(height: 16.h),
           Text(
             'addresses.no_addresses'.tr(),
@@ -184,9 +185,9 @@ class _AddressListItem extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
       padding: EdgeInsets.all(14.r),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.whiteClr,
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.lineClr),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -195,7 +196,7 @@ class _AddressListItem extends StatelessWidget {
             width: 44.r,
             height: 44.r,
             decoration: BoxDecoration(
-              color: const Color(0xFFEAF1F9),
+              color: AppColors.exactFFEAF1F9,
               borderRadius: BorderRadius.circular(12.r),
             ),
             child: Icon(
@@ -220,7 +221,7 @@ class _AddressListItem extends StatelessWidget {
                         style: AppTextStyles.of(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF111827),
+                          color: AppColors.inkClr,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -238,7 +239,7 @@ class _AddressListItem extends StatelessWidget {
                     region,
                     style: AppTextStyles.of(
                       fontSize: 13.5.sp,
-                      color: const Color(0xFF6B7280),
+                      color: AppColors.exactFF6B7280,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -250,7 +251,7 @@ class _AddressListItem extends StatelessWidget {
                     details,
                     style: AppTextStyles.of(
                       fontSize: 12.5.sp,
-                      color: const Color(0xFF9CA3AF),
+                      color: AppColors.exactFF9CA3AF,
                     ),
                   ),
                 ],
@@ -260,8 +261,8 @@ class _AddressListItem extends StatelessWidget {
           SizedBox(width: 8.w),
           _CircleIconButton(
             icon: Icons.edit_outlined,
-            foreground: const Color(0xFF475569),
-            background: const Color(0xFFF1F5F9),
+            foreground: AppColors.inkSoftClr,
+            background: AppColors.exactFFF1F5F9,
             onTap: () async {
               final saved = await context.push<bool>(
                 '/addresses/edit',
@@ -275,8 +276,8 @@ class _AddressListItem extends StatelessWidget {
           SizedBox(width: 10.w),
           _CircleIconButton(
             icon: Icons.delete_outline_rounded,
-            foreground: const Color(0xFFDC2626),
-            background: const Color(0xFFFDECEC),
+            foreground: AppColors.exactFFDC2626,
+            background: AppColors.exactFFFDECEC,
             onTap: () => _showDeleteDialog(context),
           ),
         ],
@@ -294,14 +295,14 @@ class _AddressListItem extends StatelessWidget {
           actions: [
             TextButton(
               style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFF6B7280),
+                foregroundColor: AppColors.exactFF6B7280,
               ),
               onPressed: () => dialogContext.pop(),
               child: Text('common.cancel'.tr()),
             ),
             TextButton(
               style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFFDC2626),
+                foregroundColor: AppColors.exactFFDC2626,
               ),
               onPressed: () {
                 dialogContext.pop();
@@ -326,7 +327,7 @@ class _DefaultBadge extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
       decoration: BoxDecoration(
-        color: const Color(0xFFEAF1F9),
+        color: AppColors.exactFFEAF1F9,
         borderRadius: BorderRadius.circular(6.r),
       ),
       child: Text(
@@ -367,3 +368,4 @@ class _CircleIconButton extends StatelessWidget {
     );
   }
 }
+

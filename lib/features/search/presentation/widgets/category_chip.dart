@@ -6,6 +6,7 @@ import '../../data/models/category_model.dart';
 import '../../../../core/theming/app_text_styles.dart';
 import '../../../../core/widgets/category_image.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class CategoryChip extends StatelessWidget {
   final CategoryModel? category;
   final bool isSelected;
@@ -25,7 +26,7 @@ class CategoryChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final label = category?.name ?? 'All';
-    const activeColor = Color(0xFF3872B1);
+    const activeColor = AppColors.brandBlueClr;
 
     return GestureDetector(
       onTap: onTap,
@@ -42,10 +43,10 @@ class CategoryChip extends StatelessWidget {
               bottom: 7.h,
             ),
             decoration: BoxDecoration(
-              color: isSelected ? activeColor : Colors.white,
+              color: isSelected ? activeColor : AppColors.whiteClr,
               borderRadius: BorderRadius.circular(22.r),
               border: Border.all(
-                color: isSelected ? activeColor : const Color(0xFFE5E9F0),
+                color: isSelected ? activeColor : AppColors.exactFFE5E9F0,
                 width: 1.2,
               ),
             ),
@@ -66,8 +67,8 @@ class CategoryChip extends StatelessWidget {
                             ? FontWeight.w600
                             : FontWeight.w500,
                         color: isSelected
-                            ? Colors.white
-                            : const Color(0xFF1E3A5F),
+                            ? AppColors.whiteClr
+                            : AppColors.exactFF1E3A5F,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -81,7 +82,7 @@ class CategoryChip extends StatelessWidget {
                           fontWeight: FontWeight.w500,
                           color: isSelected
                               ? Colors.white.withValues(alpha: 0.75)
-                              : const Color(0xFF8A94A6),
+                              : AppColors.exactFF8A94A6,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -104,13 +105,13 @@ class CategoryChip extends StatelessWidget {
               child: Container(
                 padding: EdgeInsets.all(5.r),
                 decoration: const BoxDecoration(
-                  color: Color(0xFF3872B1),
+                  color: AppColors.brandBlueClr,
                   shape: BoxShape.circle,
                 ),
                 child: Text(
                   badgeCount.toString(),
                   style: AppTextStyles.of(
-                    color: Colors.white,
+                    color: AppColors.whiteClr,
                     fontSize: 10.sp,
                     fontWeight: FontWeight.bold,
                   ),
@@ -123,19 +124,19 @@ class CategoryChip extends StatelessWidget {
   }
 
   Widget _chipImage({required bool isSelected}) {
-    const activeColor = Color(0xFF3872B1);
+    const activeColor = AppColors.brandBlueClr;
     final imageUrl = category?.imageUrl;
     Widget content;
     if (imageUrl != null && imageUrl.trim().isNotEmpty) {
       final placeholder = Container(
         width: 26.r,
         height: 26.r,
-        color: isSelected ? activeColor : const Color(0xFFEFF6FF),
+        color: isSelected ? activeColor : AppColors.exactFFEFF6FF,
       );
       final errorIcon = Icon(
         Icons.image_not_supported_outlined,
         size: 18.r,
-        color: isSelected ? Colors.white : activeColor,
+        color: isSelected ? AppColors.whiteClr : activeColor,
       );
       content = CategoryImage(
         imageUrl: imageUrl,
@@ -144,20 +145,20 @@ class CategoryChip extends StatelessWidget {
         fit: BoxFit.fill,
         placeholder: placeholder,
         errorWidget: errorIcon,
-        svgColor: isSelected ? Colors.white : activeColor,
+        svgColor: isSelected ? AppColors.whiteClr : activeColor,
       );
     } else {
       content = Icon(
         Icons.grid_view_rounded,
         size: 18.r,
-        color: isSelected ? Colors.white : activeColor,
+        color: isSelected ? AppColors.whiteClr : activeColor,
       );
     }
     return ClipOval(
       child: Container(
         width: 30.r,
         height: 30.r,
-        color: isSelected ? activeColor : const Color(0xFFEFF6FF),
+        color: isSelected ? activeColor : AppColors.exactFFEFF6FF,
         child: Center(
           child: SizedBox(width: 26.r, height: 26.r, child: content),
         ),
@@ -165,3 +166,4 @@ class CategoryChip extends StatelessWidget {
     );
   }
 }
+

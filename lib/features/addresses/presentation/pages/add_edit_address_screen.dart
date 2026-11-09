@@ -16,6 +16,7 @@ import '../../data/models/user_address_model.dart';
 import '../cubit/address_form_cubit.dart';
 import '../cubit/address_form_state.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class AddEditAddressScreen extends StatefulWidget {
   final UserAddressModel? address;
 
@@ -162,7 +163,7 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: AppColors.lightGreyClr,
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         behavior: HitTestBehavior.opaque,
@@ -252,7 +253,7 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             AppHeaderBackButton(
-              color: const Color(0xFF111827),
+              color: AppColors.inkClr,
               onPressed: () {
                 if (Navigator.of(context).canPop()) {
                   Navigator.of(context).pop();
@@ -267,7 +268,7 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
                 style: AppTextStyles.of(
                   fontSize: 26.sp,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF111827),
+                  color: AppColors.inkClr,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -318,7 +319,7 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
         validator: (value) => value == null ? 'common.required'.tr() : null,
         style: AppTextStyles.of(
           fontSize: 15.sp,
-          color: Colors.black,
+          color: AppColors.materialBlack,
           fontWeight: FontWeight.w500,
         ),
         dropdownColor: AppDropdownTheme.menuColor,
@@ -368,7 +369,7 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
         validator: (value) => value == null ? 'common.required'.tr() : null,
         style: AppTextStyles.of(
           fontSize: 15.sp,
-          color: Colors.black,
+          color: AppColors.materialBlack,
           fontWeight: FontWeight.w500,
         ),
         dropdownColor: AppDropdownTheme.menuColor,
@@ -411,7 +412,7 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
       },
       style: AppTextStyles.of(
         fontSize: 15.sp,
-        color: Colors.black,
+        color: AppColors.materialBlack,
         fontWeight: FontWeight.w500,
       ),
       decoration: authInputDecoration(hintText: hint),
@@ -429,7 +430,7 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
               style: AppTextStyles.of(
                 fontSize: 15.sp,
                 fontWeight: FontWeight.w500,
-                color: Colors.black87,
+                color: AppColors.materialBlack87,
               ),
             ),
           ),
@@ -450,7 +451,7 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
         Icon(
           hasLocation ? Icons.location_on_rounded : Icons.location_off_outlined,
           size: 18.sp,
-          color: hasLocation ? kAuthBlue : const Color(0xFF9CA3AF),
+          color: hasLocation ? kAuthBlue : AppColors.exactFF9CA3AF,
         ),
         SizedBox(width: 6.w),
         Expanded(
@@ -462,7 +463,7 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
                 : 'addresses.location_unavailable'.tr(),
             style: AppTextStyles.of(
               fontSize: 12.5.sp,
-              color: const Color(0xFF6B7280),
+              color: AppColors.exactFF6B7280,
             ),
           ),
         ),
@@ -491,7 +492,7 @@ class _TypeOption extends StatelessWidget {
       child: Container(
         height: 52.h,
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFFEAF1F9) : Colors.white,
+          color: selected ? AppColors.exactFFEAF1F9 : AppColors.whiteClr,
           borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
             color: selected ? kAuthBlue : kAuthBorderColor,
@@ -504,7 +505,7 @@ class _TypeOption extends StatelessWidget {
             Icon(
               icon,
               size: 20.sp,
-              color: selected ? kAuthBlue : const Color(0xFF6B7280),
+              color: selected ? kAuthBlue : AppColors.exactFF6B7280,
             ),
             SizedBox(width: 8.w),
             Text(
@@ -512,7 +513,7 @@ class _TypeOption extends StatelessWidget {
               style: AppTextStyles.of(
                 fontSize: 15.sp,
                 fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-                color: selected ? kAuthBlue : const Color(0xFF6B7280),
+                color: selected ? kAuthBlue : AppColors.exactFF6B7280,
               ),
             ),
           ],
@@ -529,7 +530,7 @@ class _LoadingBox extends StatelessWidget {
       height: 50.h,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.whiteClr,
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: kAuthBorderColor),
       ),
@@ -554,7 +555,7 @@ class _DisabledBox extends StatelessWidget {
       alignment: Alignment.centerLeft,
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       decoration: BoxDecoration(
-        color: const Color(0xFFF3F4F6),
+        color: AppColors.exactFFF3F4F6,
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: kAuthBorderColor),
       ),
@@ -562,7 +563,7 @@ class _DisabledBox extends StatelessWidget {
         hint,
         style: AppTextStyles.of(
           fontSize: 14.sp,
-          color: const Color(0xFFB0B8C1),
+          color: AppColors.exactFFB0B8C1,
         ),
       ),
     );
@@ -583,9 +584,10 @@ class _FieldLabel extends StatelessWidget {
         style: AppTextStyles.of(
           fontSize: 15.sp,
           fontWeight: FontWeight.w600,
-          color: Colors.black87,
+          color: AppColors.materialBlack87,
         ),
       ),
     );
   }
 }
+

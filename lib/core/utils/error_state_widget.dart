@@ -78,7 +78,7 @@ class ErrorStateWidget extends StatelessWidget {
                 label: Text('common.retry'.tr()),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primaryClr,
-                  foregroundColor: Colors.white,
+                  foregroundColor: AppColors.whiteClr,
                   padding: EdgeInsets.symmetric(
                     horizontal: 24.w,
                     vertical: 12.h,
@@ -156,4 +156,5 @@ class CompactErrorWidget extends StatelessWidget {
     }
   }
 }
+
 

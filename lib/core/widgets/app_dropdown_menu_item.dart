@@ -10,7 +10,7 @@ class AppDropdownTheme extends StatelessWidget {
 
   const AppDropdownTheme({super.key, required this.child});
 
-  static const Color menuColor = Colors.white;
+  static const Color menuColor = AppColors.whiteClr;
   static const double menuRadius = 12;
   static const double menuElevation = 4;
   static const BorderRadius dropdownBorderRadius = BorderRadius.all(
@@ -106,3 +106,4 @@ class AppDropdownMenuItem<T> extends DropdownMenuItem<T> {
          ),
        );
 }
+

@@ -52,12 +52,12 @@ class _DetailsActionsState extends State<_DetailsActions> {
                   width: 52.r,
                   height: 52.r,
                   decoration: const BoxDecoration(
-                    color: Color(0xFFFEF2F2),
+                    color: AppColors.exactFFFEF2F2,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.cancel_outlined,
-                    color: const Color(0xFFDC2626),
+                    color: AppColors.exactFFDC2626,
                     size: 26.sp,
                   ),
                 ),
@@ -67,7 +67,7 @@ class _DetailsActionsState extends State<_DetailsActions> {
                   style: AppTextStyles.of(
                     fontSize: 20.sp,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF111827),
+                    color: AppColors.inkClr,
                   ),
                 ),
                 SizedBox(height: 8.h),
@@ -77,7 +77,7 @@ class _DetailsActionsState extends State<_DetailsActions> {
                   style: AppTextStyles.of(
                     fontSize: 14.sp,
                     height: 1.35,
-                    color: const Color(0xFF6B7280),
+                    color: AppColors.exactFF6B7280,
                   ),
                 ),
                 SizedBox(height: 20.h),
@@ -87,8 +87,8 @@ class _DetailsActionsState extends State<_DetailsActions> {
                       child: OutlinedButton(
                         onPressed: () => Navigator.of(sheetContext).pop(false),
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: const Color(0xFF334155),
-                          side: const BorderSide(color: Color(0xFFD1D5DB)),
+                          foregroundColor: AppColors.exactFF334155,
+                          side: const BorderSide(color: AppColors.exactFFD1D5DB),
                           padding: EdgeInsets.symmetric(horizontal: 8.w),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.r),
@@ -114,8 +114,8 @@ class _DetailsActionsState extends State<_DetailsActions> {
                       child: ElevatedButton(
                         onPressed: () => Navigator.of(sheetContext).pop(true),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFDC2626),
-                          foregroundColor: Colors.white,
+                          backgroundColor: AppColors.exactFFDC2626,
+                          foregroundColor: AppColors.whiteClr,
                           elevation: 0,
                           padding: EdgeInsets.symmetric(horizontal: 8.w),
                           shape: RoundedRectangleBorder(
@@ -174,11 +174,11 @@ class _DetailsActionsState extends State<_DetailsActions> {
             child: OutlinedButton(
               onPressed: _isCanceling ? null : _onCancelTapped,
               style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFFC83C3C),
-                backgroundColor: const Color(0xFFFFF7F7),
-                disabledForegroundColor: const Color(0xFFDC8A8A),
-                disabledBackgroundColor: const Color(0xFFFFFAFA),
-                side: const BorderSide(color: Color(0xFFF0B7B7)),
+                foregroundColor: AppColors.exactFFC83C3C,
+                backgroundColor: AppColors.exactFFFFF7F7,
+                disabledForegroundColor: AppColors.exactFFDC8A8A,
+                disabledBackgroundColor: AppColors.exactFFFFFAFA,
+                side: const BorderSide(color: AppColors.exactFFF0B7B7),
                 padding: EdgeInsets.symmetric(horizontal: 18.w),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14.r),
@@ -194,7 +194,7 @@ class _DetailsActionsState extends State<_DetailsActions> {
                       height: 21.r,
                       child: const CircularProgressIndicator(
                         strokeWidth: 2.2,
-                        color: Color(0xFFC83C3C),
+                        color: AppColors.exactFFC83C3C,
                       ),
                     )
                   : Row(
@@ -239,10 +239,10 @@ class _DetailsActionsState extends State<_DetailsActions> {
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF3872B1),
-                foregroundColor: Colors.white,
-                disabledBackgroundColor: const Color(0xFF9DB7D3),
-                disabledForegroundColor: Colors.white,
+                backgroundColor: AppColors.brandBlueClr,
+                foregroundColor: AppColors.whiteClr,
+                disabledBackgroundColor: AppColors.exactFF9DB7D3,
+                disabledForegroundColor: AppColors.whiteClr,
                 elevation: 0,
                 padding: EdgeInsets.symmetric(horizontal: 18.w),
                 shape: RoundedRectangleBorder(
@@ -349,7 +349,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
                       _rating != null && value <= _rating!
                           ? Icons.star_rounded
                           : Icons.star_border_rounded,
-                      color: const Color(0xFFFFBE2E),
+                      color: AppColors.exactFFFFBE2E,
                       size: 40.sp,
                     ),
                   ),
@@ -362,7 +362,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
                 _errorText!,
                 style: AppTextStyles.of(
                   fontSize: 12.sp,
-                  color: const Color(0xFFEF4444),
+                  color: AppColors.exactFFEF4444,
                 ),
               ),
             ],
@@ -385,15 +385,15 @@ class _ReviewDialogState extends State<_ReviewDialog> {
               child: ElevatedButton(
                 onPressed: _isSubmitting ? null : _submit,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3872B1),
-                  foregroundColor: Colors.white,
+                  backgroundColor: AppColors.brandBlueClr,
+                  foregroundColor: AppColors.whiteClr,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(9.r),
                   ),
                 ),
                 child: _isSubmitting
-                    ? const CircularProgressIndicator(color: Colors.white)
+                    ? const CircularProgressIndicator(color: AppColors.whiteClr)
                     : Text('activity.submit'.tr()),
               ),
             ),
@@ -423,3 +423,4 @@ String _localizedServiceName(BuildContext context, InvoiceServiceItem service) {
       : service.serviceNameEn ?? service.serviceName ?? service.serviceNameAr;
   return _apiValue(value);
 }
+

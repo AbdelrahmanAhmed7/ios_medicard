@@ -9,6 +9,7 @@ import '../../../../core/theming/app_spacing.dart';
 import '../../../../core/theming/app_text_styles.dart';
 import 'home_horizontal_card_style.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class NearestProviderCard extends StatelessWidget {
   final ProviderModel provider;
 
@@ -66,7 +67,7 @@ class NearestProviderCard extends StatelessWidget {
                           width: double.infinity,
                           child: const Icon(
                             Icons.broken_image,
-                            color: Color(0xFF9CA3AF),
+                            color: AppColors.exactFF9CA3AF,
                           ),
                         ),
                       ),
@@ -86,7 +87,7 @@ class NearestProviderCard extends StatelessWidget {
                             children: [
                               const Icon(
                                 Icons.star,
-                                color: Color(0xFFF5A623),
+                                color: AppColors.exactFFF5A623,
                                 size: 12,
                               ),
                               const SizedBox(width: 3),
@@ -124,10 +125,10 @@ class NearestProviderCard extends StatelessWidget {
                                       vertical: 2,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFEEF3FB),
+                                      color: AppColors.exactFFEEF3FB,
                                       borderRadius: BorderRadius.circular(16),
                                       border: Border.all(
-                                        color: const Color(0xFF3872B1),
+                                        color: AppColors.brandBlueClr,
                                         width: 0.8,
                                       ),
                                     ),
@@ -136,7 +137,7 @@ class NearestProviderCard extends StatelessWidget {
                                       style: AppTextStyles.of(
                                         fontSize: 10,
                                         fontWeight: FontWeight.w500,
-                                        color: const Color(0xFF3872B1),
+                                        color: AppColors.brandBlueClr,
                                       ),
                                     ),
                                   ),
@@ -170,7 +171,7 @@ class NearestProviderCard extends StatelessWidget {
                                 child: Icon(
                                   Icons.location_on_outlined,
                                   size: 12,
-                                  color: Color(0xFF9CA3AF),
+                                  color: AppColors.exactFF9CA3AF,
                                 ),
                               ),
                               const SizedBox(width: 3),
@@ -198,7 +199,7 @@ class NearestProviderCard extends StatelessWidget {
                                     vertical: 5,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFEFF6FF),
+                                    color: AppColors.exactFFEFF6FF,
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: Row(
@@ -207,7 +208,7 @@ class NearestProviderCard extends StatelessWidget {
                                       const Icon(
                                         Icons.navigation_outlined,
                                         size: 12,
-                                        color: Color(0xFF3872B1),
+                                        color: AppColors.brandBlueClr,
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
@@ -226,7 +227,7 @@ class NearestProviderCard extends StatelessWidget {
                                   icon: const Icon(
                                     Icons.map_outlined,
                                     size: 14,
-                                    color: Color(0xFF3872B1),
+                                    color: AppColors.brandBlueClr,
                                   ),
                                   label: Text(
                                     'provider_page.open_map'.tr(),
@@ -257,3 +258,4 @@ class NearestProviderCard extends StatelessWidget {
     );
   }
 }
+

@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class UnifiedSearchField extends StatefulWidget {
   final TextEditingController? controller;
   final FocusNode? focusNode;
@@ -46,8 +47,8 @@ class UnifiedSearchField extends StatefulWidget {
     this.prefixIcon,
     this.suffixIcon,
     this.borderRadius = 14,
-    this.borderColor = const Color(0xFFE2E8F0),
-    this.backgroundColor = const Color(0xFFF8FAFC),
+    this.borderColor = AppColors.lineClr,
+    this.backgroundColor = AppColors.exactFFF8FAFC,
     this.useShadow = false,
     this.transparentBackground = false,
     this.contentPadding,
@@ -164,7 +165,7 @@ class _UnifiedSearchFieldState extends State<UnifiedSearchField> {
         boxShadow: widget.useShadow
             ? [
                 BoxShadow(
-                  color: const Color(0xFF0F172A).withValues(alpha: 0.08),
+                  color: AppColors.exactFF0F172A.withValues(alpha: 0.08),
                   blurRadius: 16,
                   offset: const Offset(0, 6),
                 ),
@@ -180,7 +181,7 @@ class _UnifiedSearchFieldState extends State<UnifiedSearchField> {
                   widget.prefixIcon ??
                   Icon(
                     Icons.search,
-                    color: const Color(0xFF9CA3AF),
+                    color: AppColors.exactFF9CA3AF,
                     size: 20.sp,
                   ),
             ),
@@ -198,7 +199,7 @@ class _UnifiedSearchFieldState extends State<UnifiedSearchField> {
                   keyboardType: widget.keyboardType,
                   style: AppTextStyles.of(
                     fontSize: 14.sp,
-                    color: const Color(0xFF1A1A2E),
+                    color: AppColors.exactFF1A1A2E,
                   ),
                   decoration: InputDecoration(
                     filled: true,
@@ -207,7 +208,7 @@ class _UnifiedSearchFieldState extends State<UnifiedSearchField> {
                         : widget.backgroundColor,
                     hintText: _showOverlay ? '' : effectiveHint,
                     hintStyle: AppTextStyles.of(
-                      color: const Color(0xFF9CA3AF),
+                      color: AppColors.exactFF9CA3AF,
                       fontSize: 14.sp,
                     ),
                     suffixIcon: widget.suffixIcon,
@@ -234,7 +235,7 @@ class _UnifiedSearchFieldState extends State<UnifiedSearchField> {
                             hintWordKeys: widget.hintWordKeys,
                             searchForPrefixKey: widget.searchForPrefixKey,
                             textStyle: AppTextStyles.of(
-                              color: const Color(0xFF9CA3AF),
+                              color: AppColors.exactFF9CA3AF,
                               fontSize: 14.sp,
                             ),
                           ),
@@ -365,3 +366,4 @@ class _AnimatedSearchHintState extends State<_AnimatedSearchHint> {
     );
   }
 }
+

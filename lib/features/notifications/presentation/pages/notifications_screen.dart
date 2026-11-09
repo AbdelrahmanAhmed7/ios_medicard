@@ -15,9 +15,10 @@ import '../cubit/notification_cubit.dart';
 import '../cubit/notification_state.dart';
 import '../widgets/notification_card.dart';
 
-const _brandBlue = Color(0xFF3872B1);
-const _ink = Color(0xFF111827);
-const _inkFaint = Color(0xFF9CA3AF);
+import 'package:medicard/core/theming/app_colors.dart';
+const _brandBlue = AppColors.brandBlueClr;
+const _ink = AppColors.inkClr;
+const _inkFaint = AppColors.exactFF9CA3AF;
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -91,7 +92,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         context: context,
         barrierDismissible: false,
         builder: (_) => const Center(
-          child: CircularProgressIndicator(color: Color(0xFF3872B1)),
+          child: CircularProgressIndicator(color: AppColors.brandBlueClr),
         ),
       );
       final opened = await PushNotificationService.openNotificationInvoice(
@@ -135,7 +136,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       context: context,
       barrierDismissible: false,
       builder: (_) => const Center(
-        child: CircularProgressIndicator(color: Color(0xFF3872B1)),
+        child: CircularProgressIndicator(color: AppColors.brandBlueClr),
       ),
     );
     final opened = await PushNotificationService.openNotificationPackage(
@@ -158,7 +159,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         showErrorToast(state.markReadError!);
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.whiteClr,
         body: Column(
           children: [
             // Toolbar only depends on the unread count, so it is insulated
@@ -296,7 +297,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   fontSize: 11.sp,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 0.8,
-                  color: const Color(0xFF657293),
+                  color: AppColors.exactFF657293,
                 ),
               ),
             );
@@ -392,12 +393,12 @@ class _MarkAllReadAction extends StatelessWidget {
           duration: const Duration(milliseconds: 160),
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 9.h),
           decoration: BoxDecoration(
-            color: enabled ? const Color(0xFFEAF1F9) : const Color(0xFFF1F5F9),
+            color: enabled ? AppColors.exactFFEAF1F9 : AppColors.exactFFF1F5F9,
             borderRadius: BorderRadius.circular(999.r),
             border: Border.all(
               color: enabled
                   ? _brandBlue.withValues(alpha: 0.25)
-                  : const Color(0xFFE2E8F0),
+                  : AppColors.lineClr,
             ),
           ),
           child: Row(
@@ -494,7 +495,7 @@ class _FilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final foreground = isSelected ? Colors.white : _ink;
+    final foreground = isSelected ? AppColors.whiteClr : _ink;
     return Semantics(
       button: true,
       selected: isSelected,
@@ -506,10 +507,10 @@ class _FilterChip extends StatelessWidget {
           alignment: Alignment.center,
           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 9.h),
           decoration: BoxDecoration(
-            color: isSelected ? _brandBlue : Colors.white,
+            color: isSelected ? _brandBlue : AppColors.whiteClr,
             borderRadius: BorderRadius.circular(999.r),
             border: Border.all(
-              color: isSelected ? _brandBlue : const Color(0xFFE2E8F0),
+              color: isSelected ? _brandBlue : AppColors.lineClr,
             ),
           ),
           child: Row(
@@ -533,7 +534,7 @@ class _FilterChip extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: isSelected
                         ? Colors.white.withValues(alpha: 0.22)
-                        : const Color(0xFFEAF1F9),
+                        : AppColors.exactFFEAF1F9,
                     borderRadius: BorderRadius.circular(999.r),
                   ),
                   child: Text(
@@ -586,8 +587,8 @@ class _NotificationSkeleton extends StatelessWidget {
       constraints: BoxConstraints(minHeight: 82.h),
       padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
       decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(bottom: BorderSide(color: Color(0xFFE9ECF2))),
+        color: AppColors.whiteClr,
+        border: Border(bottom: BorderSide(color: AppColors.exactFFE9ECF2)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -631,7 +632,7 @@ class _SkeletonBlock extends StatelessWidget {
       width: width?.w,
       height: height.h,
       decoration: BoxDecoration(
-        color: const Color(0xFFF0F2F5),
+        color: AppColors.exactFFF0F2F5,
         borderRadius: BorderRadius.circular(radius.r),
       ),
     );
@@ -666,10 +667,10 @@ class _NotificationsMessage extends StatelessWidget {
               width: 82.r,
               height: 82.r,
               decoration: const BoxDecoration(
-                color: Color(0xFFEAF2FB),
+                color: AppColors.dropdownHoverClr,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, size: 38.sp, color: const Color(0xFF3872B1)),
+              child: Icon(icon, size: 38.sp, color: AppColors.brandBlueClr),
             ),
             SizedBox(height: 20.h),
             Text(
@@ -678,7 +679,7 @@ class _NotificationsMessage extends StatelessWidget {
               style: AppTextStyles.of(
                 fontWeight: FontWeight.w700,
                 fontSize: 18.sp,
-                color: const Color(0xFF1F2937),
+                color: AppColors.exactFF1F2937,
               ),
             ),
             SizedBox(height: 8.h),
@@ -688,7 +689,7 @@ class _NotificationsMessage extends StatelessWidget {
               style: AppTextStyles.of(
                 fontWeight: FontWeight.w400,
                 fontSize: 13.5.sp,
-                color: const Color(0xFF6B7280),
+                color: AppColors.exactFF6B7280,
                 height: 1.45,
               ),
             ),
@@ -697,8 +698,8 @@ class _NotificationsMessage extends StatelessWidget {
               FilledButton.icon(
                 onPressed: onAction,
                 style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFF3872B1),
-                  foregroundColor: Colors.white,
+                  backgroundColor: AppColors.brandBlueClr,
+                  foregroundColor: AppColors.whiteClr,
                   padding: EdgeInsets.symmetric(
                     horizontal: 22.w,
                     vertical: 11.h,
@@ -717,3 +718,4 @@ class _NotificationsMessage extends StatelessWidget {
     );
   }
 }
+

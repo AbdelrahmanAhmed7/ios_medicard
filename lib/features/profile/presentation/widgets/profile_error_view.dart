@@ -8,6 +8,7 @@ import 'profile_content.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class ProfileErrorView extends StatelessWidget {
   final String error;
 
@@ -33,7 +34,7 @@ class ProfileErrorView extends StatelessWidget {
               children: [
                 Icon(
                   Icons.error_outline,
-                  color: const Color(0xFF9CA3AF),
+                  color: AppColors.exactFF9CA3AF,
                   size: 48.sp,
                 ),
                 SizedBox(height: 12.h),
@@ -42,7 +43,7 @@ class ProfileErrorView extends StatelessWidget {
                   child: Text(
                     error.isEmpty ? 'errors.something_went_wrong'.tr() : error,
                     textAlign: TextAlign.center,
-                    style: AppTextStyles.of(color: const Color(0xFF6B7280)),
+                    style: AppTextStyles.of(color: AppColors.exactFF6B7280),
                   ),
                 ),
                 SizedBox(height: 16.h),
@@ -61,7 +62,7 @@ class ProfileErrorView extends StatelessWidget {
             child: OutlinedButton(
               onPressed: () => showLogoutConfirmation(context),
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Colors.red, width: 1.2),
+                side: const BorderSide(color: AppColors.materialRed, width: 1.2),
                 minimumSize: Size(double.infinity, 50.h),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.r),
@@ -70,12 +71,12 @@ class ProfileErrorView extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.logout_rounded, color: Colors.red, size: 20.sp),
+                  Icon(Icons.logout_rounded, color: AppColors.materialRed, size: 20.sp),
                   SizedBox(width: 8.w),
                   Text(
                     'common.logout'.tr(),
                     style: AppTextStyles.of(
-                      color: Colors.red,
+                      color: AppColors.materialRed,
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
                     ),
@@ -90,3 +91,4 @@ class ProfileErrorView extends StatelessWidget {
     );
   }
 }
+

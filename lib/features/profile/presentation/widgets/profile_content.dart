@@ -18,6 +18,7 @@ import 'profile_language_item.dart';
 import 'profile_section_title.dart';
 import 'profile_user_info_card.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class ProfileContent extends StatelessWidget {
   final ProfileData data;
 
@@ -82,7 +83,7 @@ class ProfileContent extends StatelessWidget {
                     SizedBox(width: 4.w),
                     Icon(
                       Icons.chevron_right_rounded,
-                      color: Colors.black54,
+                      color: AppColors.materialBlack54,
                       size: 20.sp,
                     ),
                   ],
@@ -95,7 +96,7 @@ class ProfileContent extends StatelessWidget {
                 route: '/addresses',
                 trailing: Icon(
                   Icons.chevron_right_rounded,
-                  color: Colors.black54,
+                  color: AppColors.materialBlack54,
                   size: 20.sp,
                 ),
               ),
@@ -106,7 +107,7 @@ class ProfileContent extends StatelessWidget {
                 route: '/digital-membership',
                 trailing: Icon(
                   Icons.chevron_right_rounded,
-                  color: Colors.black54,
+                  color: AppColors.materialBlack54,
                   size: 20.sp,
                 ),
               ),
@@ -129,7 +130,7 @@ class ProfileContent extends StatelessWidget {
                 route: '/help-center',
                 trailing: Icon(
                   Icons.chevron_right_rounded,
-                  color: Colors.black54,
+                  color: AppColors.materialBlack54,
                   size: 20.sp,
                 ),
               ),
@@ -138,7 +139,7 @@ class ProfileContent extends StatelessWidget {
                 label: 'profile.terms_of_service'.tr(),
                 trailing: Icon(
                   Icons.chevron_right_rounded,
-                  color: Colors.black54,
+                  color: AppColors.materialBlack54,
                   size: 20.sp,
                 ),
                 route: '/terms-and-conditions',
@@ -148,7 +149,7 @@ class ProfileContent extends StatelessWidget {
                 label: 'profile.privacy_policy'.tr(),
                 trailing: Icon(
                   Icons.chevron_right_rounded,
-                  color: Colors.black54,
+                  color: AppColors.materialBlack54,
                   size: 20.sp,
                 ),
                 route: '/privacy-policy',
@@ -158,7 +159,7 @@ class ProfileContent extends StatelessWidget {
                 label: 'profile.refund_policy'.tr(),
                 trailing: Icon(
                   Icons.chevron_right_rounded,
-                  color: Colors.black54,
+                  color: AppColors.materialBlack54,
                   size: 20.sp,
                 ),
                 route: '/refund-policy',
@@ -175,8 +176,8 @@ class ProfileContent extends StatelessWidget {
                 // Logic حذف الحساب
               },
               style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFFDC2626),
-                side: const BorderSide(color: Color(0xFFDC2626), width: 1.2),
+                foregroundColor: AppColors.exactFFDC2626,
+                side: const BorderSide(color: AppColors.exactFFDC2626, width: 1.2),
                 minimumSize: Size(double.infinity, 50.h),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.r),
@@ -185,7 +186,7 @@ class ProfileContent extends StatelessWidget {
               child: Text(
                 'common.delete_account'.tr(),
                 style: AppTextStyles.of(
-                  color: const Color(0xFFDC2626),
+                  color: AppColors.exactFFDC2626,
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
                 ),
@@ -200,7 +201,7 @@ class ProfileContent extends StatelessWidget {
             child: OutlinedButton(
               onPressed: () => showLogoutConfirmation(context),
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Colors.red, width: 1.2),
+                side: const BorderSide(color: AppColors.materialRed, width: 1.2),
                 minimumSize: Size(double.infinity, 50.h),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.r),
@@ -209,12 +210,12 @@ class ProfileContent extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.logout_rounded, color: Colors.red, size: 20.sp),
+                  Icon(Icons.logout_rounded, color: AppColors.materialRed, size: 20.sp),
                   SizedBox(width: 8.w),
                   Text(
                     'common.logout'.tr(),
                     style: AppTextStyles.of(
-                      color: Colors.red,
+                      color: AppColors.materialRed,
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
                     ),
@@ -237,7 +238,7 @@ class ProfileContent extends StatelessWidget {
 Future<void> showLogoutConfirmation(BuildContext context) async {
   final confirmed = await showModalBottomSheet<bool>(
     context: context,
-    backgroundColor: Colors.white,
+    backgroundColor: AppColors.whiteClr,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
     ),
@@ -253,7 +254,7 @@ Future<void> showLogoutConfirmation(BuildContext context) async {
                 width: 42.w,
                 height: 4.h,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE5E7EB),
+                  color: AppColors.exactFFE5E7EB,
                   borderRadius: BorderRadius.circular(4.r),
                 ),
               ),
@@ -263,12 +264,12 @@ Future<void> showLogoutConfirmation(BuildContext context) async {
                 width: 54.r,
                 height: 54.r,
                 decoration: const BoxDecoration(
-                  color: Color(0xFFFEE2E2),
+                  color: AppColors.exactFFFEE2E2,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.logout_rounded,
-                  color: Colors.red,
+                  color: AppColors.materialRed,
                   size: 26.sp,
                 ),
               ),
@@ -278,7 +279,7 @@ Future<void> showLogoutConfirmation(BuildContext context) async {
                 style: AppTextStyles.of(
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF111827),
+                  color: AppColors.inkClr,
                 ),
               ),
               SizedBox(height: 8.h),
@@ -288,7 +289,7 @@ Future<void> showLogoutConfirmation(BuildContext context) async {
                 style: AppTextStyles.of(
                   fontSize: 14.sp,
                   height: 1.35,
-                  color: const Color(0xFF6B7280),
+                  color: AppColors.exactFF6B7280,
                 ),
               ),
               SizedBox(height: 20.h),
@@ -298,8 +299,8 @@ Future<void> showLogoutConfirmation(BuildContext context) async {
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(sheetContext).pop(false),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF334155),
-                        side: const BorderSide(color: Color(0xFFD1D5DB)),
+                        foregroundColor: AppColors.exactFF334155,
+                        side: const BorderSide(color: AppColors.exactFFD1D5DB),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.r),
                         ),
@@ -313,8 +314,8 @@ Future<void> showLogoutConfirmation(BuildContext context) async {
                     child: ElevatedButton(
                       onPressed: () => Navigator.of(sheetContext).pop(true),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        foregroundColor: Colors.white,
+                        backgroundColor: AppColors.materialRed,
+                        foregroundColor: AppColors.whiteClr,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.r),
@@ -338,3 +339,4 @@ Future<void> showLogoutConfirmation(BuildContext context) async {
     if (context.mounted) context.go('/medicard-login');
   }
 }
+

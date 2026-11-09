@@ -16,6 +16,7 @@ import '../../../cart/presentation/cubit/cart_state.dart';
 import '../../../cart/presentation/widgets/order_steps_indicator.dart';
 import '../../../cart/presentation/widgets/provider_selection_summary.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class ChooseProviderScreen extends StatefulWidget {
   /// Reuse the existing cart when the user explicitly reviews their services.
   final bool returnToPreviousCart;
@@ -112,7 +113,7 @@ class _ChooseProviderScreenState extends State<ChooseProviderScreen> {
             state.cart != null &&
             (_showSummary || (!state.isProvidersLoading && orderItems.isEmpty));
         return Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.whiteClr,
           body: Column(
             children: [
               AppSimpleHeader(
@@ -146,7 +147,7 @@ class _ChooseProviderScreenState extends State<ChooseProviderScreen> {
                             .tr(),
                         style: AppTextStyles.of(
                           fontSize: 14.sp,
-                          color: const Color(0xFF64748B),
+                          color: AppColors.inkMutedClr,
                         ),
                       ),
                       SizedBox(height: 8.h),
@@ -204,7 +205,7 @@ class _ChooseProviderScreenState extends State<ChooseProviderScreen> {
   ) {
     if (state.isProvidersLoading) {
       return const Center(
-        child: CircularProgressIndicator(color: Color(0xFF3872B1)),
+        child: CircularProgressIndicator(color: AppColors.brandBlueClr),
       );
     }
 
@@ -252,11 +253,11 @@ class _CoveragePill extends StatelessWidget {
   Widget build(BuildContext context) {
     final coversAll = provider.coversAll;
     final background = coversAll
-        ? const Color(0xFFD1FAE5)
-        : const Color(0xFFFEF3C7);
+        ? AppColors.exactFFD1FAE5
+        : AppColors.exactFFFEF3C7;
     final foreground = coversAll
-        ? const Color(0xFF047857)
-        : const Color(0xFFB45309);
+        ? AppColors.exactFF047857
+        : AppColors.exactFFB45309;
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 4.h),
@@ -326,12 +327,12 @@ class _ProviderCard extends StatelessWidget {
             duration: const Duration(milliseconds: 200),
             padding: EdgeInsets.all(14.w),
             decoration: BoxDecoration(
-              color: isSelected ? const Color(0xFFF5F9FF) : Colors.white,
+              color: isSelected ? AppColors.exactFFF5F9FF : AppColors.whiteClr,
               borderRadius: BorderRadius.circular(18.r),
               border: Border.all(
                 color: isSelected
-                    ? const Color(0xFF3872B1)
-                    : const Color(0xFFE8EDF3),
+                    ? AppColors.brandBlueClr
+                    : AppColors.exactFFE8EDF3,
                 width: isSelected ? 2 : 1,
               ),
             ),
@@ -346,10 +347,10 @@ class _ProviderCard extends StatelessWidget {
                       width: 46.r,
                       height: 46.r,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppColors.whiteClr,
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: const Color(0xFFE2E8F0),
+                          color: AppColors.lineClr,
                           width: 1.5,
                         ),
                       ),
@@ -379,7 +380,7 @@ class _ProviderCard extends StatelessWidget {
                             style: AppTextStyles.of(
                               fontSize: 15.sp,
                               fontWeight: FontWeight.w600,
-                              color: const Color(0xFF0F172A),
+                              color: AppColors.exactFF0F172A,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -399,18 +400,18 @@ class _ProviderCard extends StatelessWidget {
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: isSelected
-                              ? const Color(0xFF3872B1)
-                              : const Color(0xFFCBD5E1),
+                              ? AppColors.brandBlueClr
+                              : AppColors.exactFFCBD5E1,
                           width: isSelected ? 0 : 1.5,
                         ),
                         color: isSelected
-                            ? const Color(0xFF3872B1)
+                            ? AppColors.brandBlueClr
                             : Colors.transparent,
                       ),
                       child: isSelected
                           ? Icon(
                               Icons.check_rounded,
-                              color: Colors.white,
+                              color: AppColors.whiteClr,
                               size: 15.sp,
                             )
                           : null,
@@ -431,7 +432,7 @@ class _ProviderCard extends StatelessWidget {
                             service.serviceName,
                             style: AppTextStyles.of(
                               fontSize: 12.5.sp,
-                              color: const Color(0xFF334155),
+                              color: AppColors.exactFF334155,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -447,7 +448,7 @@ class _ProviderCard extends StatelessWidget {
                             ),
                             style: AppTextStyles.of(
                               fontSize: 11.sp,
-                              color: const Color(0xFF94A3B8),
+                              color: AppColors.inkFaintClr,
                               decoration: TextDecoration.lineThrough,
                             ),
                           ),
@@ -465,7 +466,7 @@ class _ProviderCard extends StatelessWidget {
                           style: AppTextStyles.of(
                             fontSize: 13.sp,
                             fontWeight: FontWeight.w600,
-                            color: const Color(0xFF0F172A),
+                            color: AppColors.exactFF0F172A,
                           ),
                         ),
                       ],
@@ -480,7 +481,7 @@ class _ProviderCard extends StatelessWidget {
                       Icon(
                         Icons.info_outline_rounded,
                         size: 14.sp,
-                        color: const Color(0xFF9CA3AF),
+                        color: AppColors.exactFF9CA3AF,
                       ),
                       SizedBox(width: 6.w),
                       Expanded(
@@ -495,7 +496,7 @@ class _ProviderCard extends StatelessWidget {
                           ),
                           style: AppTextStyles.of(
                             fontSize: 12.sp,
-                            color: const Color(0xFF9CA3AF),
+                            color: AppColors.exactFF9CA3AF,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -506,7 +507,7 @@ class _ProviderCard extends StatelessWidget {
                 ],
 
                 SizedBox(height: 10.h),
-                const Divider(color: Color(0xFFEEF1F5), height: 1),
+                const Divider(color: AppColors.exactFFEEF1F5, height: 1),
                 SizedBox(height: 10.h),
 
                 // ── Total row ────────────────────────────────────────────────────
@@ -517,7 +518,7 @@ class _ProviderCard extends StatelessWidget {
                       'cart.available_services_total'.tr(),
                       style: AppTextStyles.of(
                         fontSize: 13.sp,
-                        color: const Color(0xFF64748B),
+                        color: AppColors.inkMutedClr,
                       ),
                     ),
                     SizedBox(height: 6.h),
@@ -536,7 +537,7 @@ class _ProviderCard extends StatelessWidget {
                             ),
                             style: AppTextStyles.of(
                               fontSize: 12.sp,
-                              color: const Color(0xFF94A3B8),
+                              color: AppColors.inkFaintClr,
                               decoration: TextDecoration.lineThrough,
                             ),
                           ),
@@ -547,7 +548,7 @@ class _ProviderCard extends StatelessWidget {
                           style: AppTextStyles.of(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.bold,
-                            color: const Color(0xFF3872B1),
+                            color: AppColors.brandBlueClr,
                           ),
                         ),
                       ],
@@ -582,8 +583,8 @@ class _ChooseProviderBottomBar extends StatelessWidget {
         MediaQuery.of(context).padding.bottom + 16.h,
       ),
       decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
+        color: AppColors.whiteClr,
+        border: Border(top: BorderSide(color: AppColors.lineClr)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -600,7 +601,7 @@ class _ChooseProviderBottomBar extends StatelessWidget {
                   style: AppTextStyles.of(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF0F172A),
+                    color: AppColors.exactFF0F172A,
                   ),
                 ),
               ),
@@ -612,7 +613,7 @@ class _ChooseProviderBottomBar extends StatelessWidget {
                 style: AppTextStyles.of(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF3872B1),
+                  color: AppColors.brandBlueClr,
                 ),
               ),
             ],
@@ -648,8 +649,8 @@ class _ChooseProviderBottomBar extends StatelessWidget {
                           }
                         },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF3872B1),
-                    disabledBackgroundColor: const Color(0xFFCBD5E1),
+                    backgroundColor: AppColors.brandBlueClr,
+                    disabledBackgroundColor: AppColors.exactFFCBD5E1,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12.r),
                     ),
@@ -661,7 +662,7 @@ class _ChooseProviderBottomBar extends StatelessWidget {
                           height: 22,
                           child: CircularProgressIndicator(
                             strokeWidth: 2.5,
-                            color: Colors.white,
+                            color: AppColors.whiteClr,
                           ),
                         )
                       : Text(
@@ -669,7 +670,7 @@ class _ChooseProviderBottomBar extends StatelessWidget {
                           style: AppTextStyles.of(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.w600,
-                            color: Colors.white,
+                            color: AppColors.whiteClr,
                           ),
                         ),
                 ),
@@ -697,7 +698,7 @@ class _Initials extends StatelessWidget {
           style: AppTextStyles.of(
             fontSize: 20.sp,
             fontWeight: FontWeight.bold,
-            color: const Color(0xFF3872B1),
+            color: AppColors.brandBlueClr,
           ),
         ),
       ),
@@ -721,7 +722,7 @@ class _EmptyView extends StatelessWidget {
             Icon(
               Icons.store_outlined,
               size: 64.sp,
-              color: const Color(0xFFD1D5DB),
+              color: AppColors.exactFFD1D5DB,
             ),
             SizedBox(height: 16.h),
             Text(
@@ -729,7 +730,7 @@ class _EmptyView extends StatelessWidget {
               style: AppTextStyles.of(
                 fontSize: 17.sp,
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFF6B7280),
+                color: AppColors.exactFF6B7280,
               ),
             ),
             SizedBox(height: 8.h),
@@ -738,7 +739,7 @@ class _EmptyView extends StatelessWidget {
               textAlign: TextAlign.center,
               style: AppTextStyles.of(
                 fontSize: 13.sp,
-                color: const Color(0xFF9CA3AF),
+                color: AppColors.exactFF9CA3AF,
               ),
             ),
             SizedBox(height: 20.h),
@@ -748,8 +749,8 @@ class _EmptyView extends StatelessWidget {
               child: OutlinedButton(
                 onPressed: onBack,
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF3872B1),
-                  side: const BorderSide(color: Color(0xFF3872B1)),
+                  foregroundColor: AppColors.brandBlueClr,
+                  side: const BorderSide(color: AppColors.brandBlueClr),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r),
                   ),
@@ -787,7 +788,7 @@ class _ErrorView extends StatelessWidget {
             Icon(
               Icons.error_outline_rounded,
               size: 52.sp,
-              color: const Color(0xFFD1D5DB),
+              color: AppColors.exactFFD1D5DB,
             ),
             SizedBox(height: 12.h),
             Text(
@@ -795,14 +796,14 @@ class _ErrorView extends StatelessWidget {
               textAlign: TextAlign.center,
               style: AppTextStyles.of(
                 fontSize: 14.sp,
-                color: const Color(0xFF6B7280),
+                color: AppColors.exactFF6B7280,
               ),
             ),
             SizedBox(height: 16.h),
             ElevatedButton(
               onPressed: onRetry,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF3872B1),
+                backgroundColor: AppColors.brandBlueClr,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.r),
                 ),
@@ -812,7 +813,7 @@ class _ErrorView extends StatelessWidget {
                 'common.retry'.tr(),
                 style: AppTextStyles.of(
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: AppColors.whiteClr,
                 ),
               ),
             ),
@@ -822,3 +823,4 @@ class _ErrorView extends StatelessWidget {
     );
   }
 }
+

@@ -10,6 +10,7 @@ import '../cubit/cart_cubit.dart';
 import '../cubit/cart_state.dart';
 import 'checkout_dropdown_frame.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class CheckoutPatientDropdown extends StatelessWidget {
   final CartState state;
 
@@ -41,14 +42,14 @@ class CheckoutPatientDropdown extends StatelessWidget {
             style: AppTextStyles.of(
               fontSize: 14.sp,
               fontWeight: FontWeight.w500,
-              color: const Color(0xFF111827),
+              color: AppColors.inkClr,
             ),
             dropdownColor: AppDropdownTheme.menuColor,
             elevation: AppDropdownTheme.menuElevation.toInt(),
             borderRadius: AppDropdownTheme.dropdownBorderRadius,
             icon: const Icon(
               Icons.keyboard_arrow_down_rounded,
-              color: Color(0xFF6B7280),
+              color: AppColors.exactFF6B7280,
             ),
             items: items,
             hint: Text(
@@ -57,7 +58,7 @@ class CheckoutPatientDropdown extends StatelessWidget {
                   : 'cart.select_patient'.tr(),
               style: AppTextStyles.of(
                 fontSize: 14.sp,
-                color: const Color(0xFF9CA3AF),
+                color: AppColors.exactFF9CA3AF,
               ),
             ),
             onChanged: state.isFamilyMembersLoading
@@ -87,3 +88,4 @@ class CheckoutPatientDropdown extends StatelessWidget {
     return '${member.firstName ?? ''} ${member.lastName ?? ''}'.trim();
   }
 }
+

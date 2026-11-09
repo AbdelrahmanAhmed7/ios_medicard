@@ -31,7 +31,7 @@ class _DetailsBody extends StatelessWidget {
             Icon(
               Icons.receipt_long_rounded,
               size: 20.sp,
-              color: const Color(0xFF6B7280),
+              color: AppColors.exactFF6B7280,
             ),
             SizedBox(width: 6.w),
             Expanded(
@@ -42,7 +42,7 @@ class _DetailsBody extends StatelessWidget {
                 style: AppTextStyles.of(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF111827),
+                  color: AppColors.inkClr,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -58,7 +58,7 @@ class _DetailsBody extends StatelessWidget {
           style: AppTextStyles.of(
             fontSize: 32.sp,
             fontWeight: FontWeight.w800,
-            color: const Color(0xFF111827),
+            color: AppColors.inkClr,
             height: 1.1,
           ),
         ),
@@ -128,9 +128,9 @@ class _InvoiceReviewCard extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.all(14.r),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.whiteClr,
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.lineClr),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -140,7 +140,7 @@ class _InvoiceReviewCard extends StatelessWidget {
             style: AppTextStyles.of(
               fontSize: 16.sp,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF111827),
+              color: AppColors.inkClr,
             ),
           ),
           SizedBox(height: 12.h),
@@ -153,20 +153,20 @@ class _InvoiceReviewCard extends StatelessWidget {
                   height: 42.r,
                   child: imageUrl == null
                       ? const ColoredBox(
-                          color: Color(0xFFE2E8F0),
+                          color: AppColors.lineClr,
                           child: Icon(
                             Icons.person_rounded,
-                            color: Color(0xFF64748B),
+                            color: AppColors.inkMutedClr,
                           ),
                         )
                       : CachedNetworkImage(
                           imageUrl: imageUrl,
                           fit: BoxFit.fill,
                           errorWidget: (_, _, _) => const ColoredBox(
-                            color: Color(0xFFE2E8F0),
+                            color: AppColors.lineClr,
                             child: Icon(
                               Icons.person_rounded,
-                              color: Color(0xFF64748B),
+                              color: AppColors.inkMutedClr,
                             ),
                           ),
                         ),
@@ -183,7 +183,7 @@ class _InvoiceReviewCard extends StatelessWidget {
                         style: AppTextStyles.of(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF111827),
+                          color: AppColors.inkClr,
                         ),
                       ),
                     SizedBox(height: userName.isEmpty ? 0 : 4.h),
@@ -195,7 +195,7 @@ class _InvoiceReviewCard extends StatelessWidget {
                               ? Icons.star_rounded
                               : Icons.star_border_rounded,
                           size: 17.sp,
-                          color: const Color(0xFFF5A623),
+                          color: AppColors.exactFFF5A623,
                         ),
                       ),
                     ),
@@ -205,7 +205,7 @@ class _InvoiceReviewCard extends StatelessWidget {
                         formattedDate,
                         style: AppTextStyles.of(
                           fontSize: 11.5.sp,
-                          color: const Color(0xFF94A3B8),
+                          color: AppColors.inkFaintClr,
                         ),
                       ),
                     ],
@@ -221,7 +221,7 @@ class _InvoiceReviewCard extends StatelessWidget {
               style: AppTextStyles.of(
                 fontSize: 13.sp,
                 height: 1.4,
-                color: const Color(0xFF475569),
+                color: AppColors.inkSoftClr,
               ),
             ),
           ],
@@ -260,10 +260,10 @@ class _ContinuePaymentButtonState extends State<_ContinuePaymentButton> {
       child: ElevatedButton(
         onPressed: _isOpening ? null : _openPayment,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF3872B1),
-          foregroundColor: Colors.white,
-          disabledBackgroundColor: const Color(0xFF9DB7D3),
-          disabledForegroundColor: Colors.white,
+          backgroundColor: AppColors.brandBlueClr,
+          foregroundColor: AppColors.whiteClr,
+          disabledBackgroundColor: AppColors.exactFF9DB7D3,
+          disabledForegroundColor: AppColors.whiteClr,
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14.r),
@@ -279,7 +279,7 @@ class _ContinuePaymentButtonState extends State<_ContinuePaymentButton> {
                 height: 20.r,
                 child: const CircularProgressIndicator(
                   strokeWidth: 2.2,
-                  color: Colors.white,
+                  color: AppColors.whiteClr,
                 ),
               )
             : Text('cart.continue_payment'.tr()),
@@ -335,14 +335,14 @@ class _MetaItem extends StatelessWidget {
       children: [
         Padding(
           padding: EdgeInsets.only(top: 1.h),
-          child: Icon(icon, size: 19.sp, color: const Color(0xFF3872B1)),
+          child: Icon(icon, size: 19.sp, color: AppColors.brandBlueClr),
         ),
         SizedBox(width: 9.w),
         Text(
           '$label: ',
           style: AppTextStyles.of(
             fontSize: 13.sp,
-            color: const Color(0xFF6B7280),
+            color: AppColors.exactFF6B7280,
           ),
         ),
         Expanded(
@@ -351,7 +351,7 @@ class _MetaItem extends StatelessWidget {
             style: AppTextStyles.of(
               fontSize: 13.5.sp,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF111827),
+              color: AppColors.inkClr,
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -401,9 +401,9 @@ class _ProviderCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.whiteClr,
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.lineClr),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -417,14 +417,14 @@ class _ProviderCard extends StatelessWidget {
                   child: imageUrl == null
                       ? const Icon(
                           Icons.local_hospital,
-                          color: Color(0xFF3872B1),
+                          color: AppColors.brandBlueClr,
                         )
                       : CachedNetworkImage(
                           imageUrl: imageUrl,
                           fit: BoxFit.fill,
                           errorWidget: (_, _, _) => const Icon(
                             Icons.local_hospital,
-                            color: Color(0xFF3872B1),
+                            color: AppColors.brandBlueClr,
                           ),
                         ),
                 ),
@@ -440,7 +440,7 @@ class _ProviderCard extends StatelessWidget {
                       style: AppTextStyles.of(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF111827),
+                        color: AppColors.inkClr,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -451,7 +451,7 @@ class _ProviderCard extends StatelessWidget {
                         effectiveBranchName,
                         style: AppTextStyles.of(
                           fontSize: 13.sp,
-                          color: const Color(0xFF6B7280),
+                          color: AppColors.exactFF6B7280,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -462,13 +462,13 @@ class _ProviderCard extends StatelessWidget {
               ),
             ],
           ),
-          const Divider(height: 20, color: Color(0xFFEEF1F5)),
+          const Divider(height: 20, color: AppColors.exactFFEEF1F5),
           Row(
             children: [
               Icon(
                 Icons.person_outline_rounded,
                 size: 18.sp,
-                color: const Color(0xFF3872B1),
+                color: AppColors.brandBlueClr,
               ),
               SizedBox(width: 8.w),
               Expanded(
@@ -476,7 +476,7 @@ class _ProviderCard extends StatelessWidget {
                   'activity.beneficiary'.tr(),
                   style: AppTextStyles.of(
                     fontSize: 13.sp,
-                    color: const Color(0xFF6B7280),
+                    color: AppColors.exactFF6B7280,
                   ),
                 ),
               ),
@@ -488,7 +488,7 @@ class _ProviderCard extends StatelessWidget {
                   style: AppTextStyles.of(
                     fontSize: 13.5.sp,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF111827),
+                    color: AppColors.inkClr,
                   ),
                 ),
               ),
@@ -550,9 +550,9 @@ class _ApiDataCard extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.whiteClr,
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.lineClr),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -562,14 +562,14 @@ class _ApiDataCard extends StatelessWidget {
             style: AppTextStyles.of(
               fontSize: 16.sp,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF111827),
+              color: AppColors.inkClr,
             ),
           ),
           SizedBox(height: 10.h),
           for (var index = 0; index < rows.length; index++) ...[
             _ApiDataRow(entry: rows[index]),
             if (index < rows.length - 1)
-              const Divider(height: 16, color: Color(0xFFEEF1F5)),
+              const Divider(height: 16, color: AppColors.exactFFEEF1F5),
           ],
         ],
       ),
@@ -592,7 +592,7 @@ class _ApiDataRow extends StatelessWidget {
             entry.label,
             style: AppTextStyles.of(
               fontSize: 12.5.sp,
-              color: const Color(0xFF6B7280),
+              color: AppColors.exactFF6B7280,
             ),
           ),
         ),
@@ -604,7 +604,7 @@ class _ApiDataRow extends StatelessWidget {
             style: AppTextStyles.of(
               fontSize: 12.5.sp,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF111827),
+              color: AppColors.inkClr,
             ),
           ),
         ),
@@ -614,3 +614,4 @@ class _ApiDataRow extends StatelessWidget {
 }
 
 /// Services with clearly labelled backend values and a totals footer.
+

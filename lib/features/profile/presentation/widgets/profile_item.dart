@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class ProfileItem extends StatelessWidget {
   final IconData? icon;
   final String label;
@@ -38,14 +39,14 @@ class ProfileItem extends StatelessWidget {
         child: Row(
           children: [
             if (icon != null) ...[
-              Icon(icon!, size: 22.sp, color: Colors.black87),
+              Icon(icon!, size: 22.sp, color: AppColors.materialBlack87),
               SizedBox(width: 12.w),
             ],
             Expanded(
               child: Text(
                 label,
                 style: AppTextStyles.of(
-                  color: Colors.black,
+                  color: AppColors.materialBlack,
                   fontSize: 15.sp,
                   fontWeight: FontWeight.w500,
                 ),
@@ -58,3 +59,4 @@ class ProfileItem extends StatelessWidget {
     );
   }
 }
+

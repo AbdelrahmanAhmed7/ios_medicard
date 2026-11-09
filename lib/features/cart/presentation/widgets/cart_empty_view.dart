@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class CartEmptyView extends StatelessWidget {
   final VoidCallback onExplore;
 
@@ -26,12 +27,12 @@ class CartEmptyView extends StatelessWidget {
                 gradient: const LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Color(0xFFEFF6FF), Colors.white],
+                  colors: [AppColors.exactFFEFF6FF, AppColors.whiteClr],
                 ),
-                border: Border.all(color: const Color(0xFFDBEAFE), width: 1.5),
+                border: Border.all(color: AppColors.exactFFDBEAFE, width: 1.5),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF3872B1).withValues(alpha: 0.08),
+                    color: AppColors.brandBlueClr.withValues(alpha: 0.08),
                     blurRadius: 24,
                     offset: const Offset(0, 12),
                   ),
@@ -40,7 +41,7 @@ class CartEmptyView extends StatelessWidget {
               child: Icon(
                 CupertinoIcons.cart,
                 size: 58.sp,
-                color: const Color(0xFF3872B1),
+                color: AppColors.brandBlueClr,
               ),
             ),
             SizedBox(height: 24.h),
@@ -50,7 +51,7 @@ class CartEmptyView extends StatelessWidget {
               style: AppTextStyles.of(
                 fontSize: 22.sp,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF111827),
+                color: AppColors.inkClr,
               ),
             ),
             SizedBox(height: 8.h),
@@ -60,7 +61,7 @@ class CartEmptyView extends StatelessWidget {
               style: AppTextStyles.of(
                 fontSize: 14.sp,
                 height: 1.5,
-                color: const Color(0xFF6B7280),
+                color: AppColors.exactFF6B7280,
               ),
             ),
             SizedBox(height: 28.h),
@@ -75,12 +76,12 @@ class CartEmptyView extends StatelessWidget {
                   style: AppTextStyles.of(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: AppColors.whiteClr,
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3872B1),
-                  foregroundColor: Colors.white,
+                  backgroundColor: AppColors.brandBlueClr,
+                  foregroundColor: AppColors.whiteClr,
                   elevation: 0,
                   shadowColor: Colors.transparent,
                   shape: RoundedRectangleBorder(
@@ -95,3 +96,4 @@ class CartEmptyView extends StatelessWidget {
     );
   }
 }
+

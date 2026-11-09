@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class ProfileAvatar extends StatelessWidget {
   final String? imageUrl;
 
@@ -47,7 +48,8 @@ class ProfileAvatar extends StatelessWidget {
     return CircleAvatar(
       radius: 32.r,
       backgroundColor: Colors.grey[300],
-      child: Icon(Icons.person, color: Colors.white, size: 32.sp),
+      child: Icon(Icons.person, color: AppColors.whiteClr, size: 32.sp),
     );
   }
 }
+

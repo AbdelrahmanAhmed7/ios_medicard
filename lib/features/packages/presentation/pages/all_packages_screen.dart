@@ -14,6 +14,7 @@ import '../../../../network/data/all_packages_models.dart';
 import '../../../../network/data/provider_page_response_model.dart';
 import '../../../../medicard_network/presentation/widgets/provider_package_card.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Full packages catalog (`GET Package`, paged). Tapping a card opens its
 /// provider page, where booking happens with proper branch context.
 class AllPackagesScreen extends StatefulWidget {
@@ -130,7 +131,7 @@ class _AllPackagesScreenState extends State<AllPackagesScreen> {
   Widget build(BuildContext context) {
     final isArabic = context.locale.languageCode == 'ar';
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.whiteClr,
       body: Column(
         children: [
           SafeArea(
@@ -140,7 +141,7 @@ class _AllPackagesScreenState extends State<AllPackagesScreen> {
               child: Row(
                 children: [
                   AppHeaderBackButton(
-                    color: const Color(0xFF111827),
+                    color: AppColors.inkClr,
                     onPressed: () {
                       if (Navigator.of(context).canPop()) {
                         Navigator.of(context).pop();
@@ -153,7 +154,7 @@ class _AllPackagesScreenState extends State<AllPackagesScreen> {
                       style: AppTextStyles.of(
                         fontSize: 26.sp,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF111827),
+                        color: AppColors.inkClr,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -170,19 +171,19 @@ class _AllPackagesScreenState extends State<AllPackagesScreen> {
               onChanged: _onSearchChanged,
               style: AppTextStyles.of(
                 fontSize: 14.sp,
-                color: const Color(0xFF1A1A2E),
+                color: AppColors.exactFF1A1A2E,
               ),
               decoration: InputDecoration(
                 filled: true,
-                fillColor: const Color(0xFFF1F5F9),
+                fillColor: AppColors.exactFFF1F5F9,
                 hintText: 'search.search_packages_hint'.tr(),
                 hintStyle: AppTextStyles.of(
-                  color: const Color(0xFF9CA3AF),
+                  color: AppColors.exactFF9CA3AF,
                   fontSize: 13.sp,
                 ),
                 prefixIcon: const Icon(
                   Icons.search_rounded,
-                  color: Color(0xFF9CA3AF),
+                  color: AppColors.exactFF9CA3AF,
                   size: 20,
                 ),
                 prefixIconConstraints: const BoxConstraints(
@@ -209,7 +210,7 @@ class _AllPackagesScreenState extends State<AllPackagesScreen> {
   Widget _buildBody(bool isArabic) {
     if (_isLoading) {
       return const Center(
-        child: CircularProgressIndicator(color: Color(0xFF3872B1)),
+        child: CircularProgressIndicator(color: AppColors.brandBlueClr),
       );
     }
     if (_error != null && _items.isEmpty) {
@@ -222,7 +223,7 @@ class _AllPackagesScreenState extends State<AllPackagesScreen> {
               Icon(
                 Icons.error_outline_rounded,
                 size: 52.sp,
-                color: const Color(0xFFD1D5DB),
+                color: AppColors.exactFFD1D5DB,
               ),
               SizedBox(height: 12.h),
               Text(
@@ -230,14 +231,14 @@ class _AllPackagesScreenState extends State<AllPackagesScreen> {
                 textAlign: TextAlign.center,
                 style: AppTextStyles.of(
                   fontSize: 14.sp,
-                  color: const Color(0xFF6B7280),
+                  color: AppColors.exactFF6B7280,
                 ),
               ),
               SizedBox(height: 16.h),
               ElevatedButton(
                 onPressed: () => _load(reset: true),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3872B1),
+                  backgroundColor: AppColors.brandBlueClr,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.r),
                   ),
@@ -247,7 +248,7 @@ class _AllPackagesScreenState extends State<AllPackagesScreen> {
                   'common.retry'.tr(),
                   style: AppTextStyles.of(
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: AppColors.whiteClr,
                   ),
                 ),
               ),
@@ -262,13 +263,13 @@ class _AllPackagesScreenState extends State<AllPackagesScreen> {
           'home.no_data_available'.tr(),
           style: AppTextStyles.of(
             fontSize: 14.sp,
-            color: const Color(0xFF6B7280),
+            color: AppColors.exactFF6B7280,
           ),
         ),
       );
     }
     return RefreshIndicator(
-      color: const Color(0xFF3872B1),
+      color: AppColors.brandBlueClr,
       onRefresh: () => _load(reset: true),
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -300,7 +301,7 @@ class _AllPackagesScreenState extends State<AllPackagesScreen> {
             itemBuilder: (context, index) {
               if (index >= _items.length) {
                 return const Center(
-                  child: CircularProgressIndicator(color: Color(0xFF3872B1)),
+                  child: CircularProgressIndicator(color: AppColors.brandBlueClr),
                 );
               }
               final item = _items[index];
@@ -331,3 +332,4 @@ class _AllPackagesScreenState extends State<AllPackagesScreen> {
     );
   }
 }
+

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Shared horizontal geometry for page navigation, in either text direction.
 abstract final class AppHeaderSpacing {
   static double get start => 4.w;
@@ -24,7 +25,7 @@ class AppHeaderBackButton extends StatelessWidget {
   const AppHeaderBackButton({
     super.key,
     required this.onPressed,
-    this.color = const Color(0xFF111827),
+    this.color = AppColors.inkClr,
   });
 
   @override
@@ -41,3 +42,4 @@ class AppHeaderBackButton extends StatelessWidget {
     );
   }
 }
+

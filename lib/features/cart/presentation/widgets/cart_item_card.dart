@@ -9,6 +9,7 @@ import '../../domain/models/cart_item.dart';
 import '../cubit/cart_cubit.dart';
 import '../cubit/cart_state.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Borderless divider-separated row used inside provider group sections.
 class CartItemCard extends StatelessWidget {
   final CartItem item;
@@ -41,7 +42,7 @@ class CartItemCard extends StatelessWidget {
                           style: AppTextStyles.of(
                             fontSize: 14.5.sp,
                             fontWeight: FontWeight.w600,
-                            color: const Color(0xFF111827),
+                            color: AppColors.inkClr,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -59,14 +60,14 @@ class CartItemCard extends StatelessWidget {
                                     item.discountPercentage!.toStringAsFixed(0),
                                   ],
                                 ),
-                                bg: const Color(0xFFEFF6FF),
-                                fg: const Color(0xFF2563EB),
+                                bg: AppColors.exactFFEFF6FF,
+                                fg: AppColors.exactFF2563EB,
                               ),
                             if (item.providerName == null)
                               _Tag(
                                 label: 'cart.no_provider_selected'.tr(),
-                                bg: const Color(0xFFFFFBEB),
-                                fg: const Color(0xFFD97706),
+                                bg: AppColors.exactFFFFFBEB,
+                                fg: AppColors.exactFFD97706,
                               ),
                           ],
                         ),
@@ -82,7 +83,7 @@ class CartItemCard extends StatelessWidget {
                       height: 22.r,
                       child: const CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: Color(0xFF3872B1),
+                        color: AppColors.brandBlueClr,
                       ),
                     )
                   else if (item.categoryId == 1)
@@ -138,12 +139,12 @@ class CartItemCard extends StatelessWidget {
                         width: 30.r,
                         height: 30.r,
                         decoration: const BoxDecoration(
-                          color: Color(0xFFFEE2E2),
+                          color: AppColors.exactFFFEE2E2,
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
                           Icons.delete_outline_rounded,
-                          color: const Color(0xFFDC2626),
+                          color: AppColors.exactFFDC2626,
                           size: 16.sp,
                         ),
                       ),
@@ -154,7 +155,7 @@ class CartItemCard extends StatelessWidget {
             if (showDivider)
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 14.w),
-                child: const Divider(height: 1, color: Color(0xFFEEF1F5)),
+                child: const Divider(height: 1, color: AppColors.exactFFEEF1F5),
               ),
           ],
         );
@@ -178,11 +179,11 @@ class _QuantityButton extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: onTap == null
-            ? const Color(0xFFF1F5F9)
-            : const Color(0xFFEFF6FF),
-        border: Border.all(color: const Color(0xFF3872B1)),
+            ? AppColors.exactFFF1F5F9
+            : AppColors.exactFFEFF6FF,
+        border: Border.all(color: AppColors.brandBlueClr),
       ),
-      child: Icon(icon, size: 16.sp, color: const Color(0xFF3872B1)),
+      child: Icon(icon, size: 16.sp, color: AppColors.brandBlueClr),
     ),
   );
 }
@@ -228,7 +229,7 @@ class _PriceLine extends StatelessWidget {
         'cart.price_unavailable'.tr(),
         style: AppTextStyles.of(
           fontSize: 12.sp,
-          color: const Color(0xFF94A3B8),
+          color: AppColors.inkFaintClr,
           fontWeight: FontWeight.w500,
         ),
       );
@@ -245,7 +246,7 @@ class _PriceLine extends StatelessWidget {
             formatPrice(totalPriceBefore, showFreeWhenZero: false),
             style: AppTextStyles.of(
               fontSize: 12.sp,
-              color: const Color(0xFF94A3B8),
+              color: AppColors.inkFaintClr,
               decoration: totalPriceAfter != null
                   ? TextDecoration.lineThrough
                   : TextDecoration.none,
@@ -258,10 +259,11 @@ class _PriceLine extends StatelessWidget {
             style: AppTextStyles.of(
               fontSize: 15.sp,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF3872B1),
+              color: AppColors.brandBlueClr,
             ),
           ),
       ],
     );
   }
 }
+

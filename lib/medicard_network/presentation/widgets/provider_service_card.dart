@@ -10,6 +10,7 @@ import '../../logic/provider_page_cubit.dart';
 import '../../logic/provider_page_state.dart';
 import 'provider_shared_widgets.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Service card for the uncategorized services list.
 ///
 /// Rebuilds only when this service's own pending/in-cart flags change —
@@ -48,12 +49,12 @@ class ProviderServiceCard extends StatelessWidget {
           width: double.infinity,
           padding: EdgeInsets.fromLTRB(16.w, 14.h, 14.w, 12.h),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.whiteClr,
             borderRadius: BorderRadius.circular(16.r),
             border: Border.all(
               color: flags.inCart
-                  ? const Color(0xFF3872B1).withValues(alpha: 0.4)
-                  : const Color(0xFFE5E9F0),
+                  ? AppColors.brandBlueClr.withValues(alpha: 0.4)
+                  : AppColors.exactFFE5E9F0,
             ),
           ),
           child: Row(
@@ -68,7 +69,7 @@ class ProviderServiceCard extends StatelessWidget {
                       style: AppTextStyles.of(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black,
+                        color: AppColors.materialBlack,
                         height: 1.35,
                       ),
                     ),
@@ -78,7 +79,7 @@ class ProviderServiceCard extends StatelessWidget {
                         instruction,
                         style: AppTextStyles.of(
                           fontSize: 12.sp,
-                          color: const Color(0xFF6B7280),
+                          color: AppColors.exactFF6B7280,
                           height: 1.4,
                         ),
                         maxLines: 2,
@@ -94,8 +95,8 @@ class ProviderServiceCard extends StatelessWidget {
                           if (hasSpecialOffer)
                             ServiceBadge(
                               label: 'provider_page.special_offer'.tr(),
-                              color: const Color(0xFFDC2626),
-                              backgroundColor: const Color(0xFFFEF2F2),
+                              color: AppColors.exactFFDC2626,
+                              backgroundColor: AppColors.exactFFFEF2F2,
                               icon: Icons.local_offer_rounded,
                             ),
                           if (hasDiscount)
@@ -107,8 +108,8 @@ class ProviderServiceCard extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              color: const Color(0xFF3872B1),
-                              backgroundColor: const Color(0xFFEFF6FF),
+                              color: AppColors.brandBlueClr,
+                              backgroundColor: AppColors.exactFFEFF6FF,
                             ),
                         ],
                       ),
@@ -128,7 +129,7 @@ class ProviderServiceCard extends StatelessWidget {
                               ),
                               style: AppTextStyles.of(
                                 fontSize: 12.sp,
-                                color: const Color(0xFF94A3B8),
+                                color: AppColors.inkFaintClr,
                                 decoration: TextDecoration.lineThrough,
                               ),
                             ),
@@ -140,7 +141,7 @@ class ProviderServiceCard extends StatelessWidget {
                               style: AppTextStyles.of(
                                 fontSize: 16.sp,
                                 fontWeight: FontWeight.w500,
-                                color: const Color(0xFF1F6BC1),
+                                color: AppColors.exactFF1F6BC1,
                               ),
                             ),
                         ],
@@ -156,7 +157,7 @@ class ProviderServiceCard extends StatelessWidget {
                   height: 24.r,
                   child: const CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: Color(0xFF3872B1),
+                    color: AppColors.brandBlueClr,
                   ),
                 )
               else
@@ -184,3 +185,4 @@ class ProviderServiceCard extends StatelessWidget {
     );
   }
 }
+

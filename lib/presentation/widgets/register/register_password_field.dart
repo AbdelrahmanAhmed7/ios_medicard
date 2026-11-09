@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../core/theming/app_text_styles.dart';
 import '../../../core/widgets/auth_shared_widgets.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Password field with visibility toggle for the register form.
 class RegisterPasswordField extends StatelessWidget {
   final Key? fieldKey;
@@ -35,7 +36,7 @@ class RegisterPasswordField extends StatelessWidget {
       obscureText: obscure,
       focusNode: focusNode,
       autovalidateMode: autovalidateMode,
-      style: AppTextStyles.of(fontSize: 15.sp, color: Colors.black),
+      style: AppTextStyles.of(fontSize: 15.sp, color: AppColors.materialBlack),
       decoration: authInputDecoration(
         hintText: hintText,
         suffixIcon: GestureDetector(
@@ -51,3 +52,4 @@ class RegisterPasswordField extends StatelessWidget {
     );
   }
 }
+

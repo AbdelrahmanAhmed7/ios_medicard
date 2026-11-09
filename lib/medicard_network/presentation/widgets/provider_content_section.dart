@@ -16,6 +16,7 @@ import 'provider_review_card.dart';
 import 'provider_service_card.dart';
 import 'provider_shared_widgets.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Sliver content for the selected provider view. Lists stay lazy in the
 /// screen's single scrollable instead of measuring nested shrink-wrapped lists.
 class ProviderContentSection extends StatelessWidget {
@@ -54,7 +55,7 @@ class ProviderContentSection extends StatelessWidget {
                     style: AppTextStyles.of(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF111827),
+                      color: AppColors.inkClr,
                       height: 1.3,
                     ),
                   ),
@@ -131,7 +132,7 @@ class ProviderServicesBody extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: 16),
           child: Center(
-            child: CircularProgressIndicator(color: Color(0xFF3872B1)),
+            child: CircularProgressIndicator(color: AppColors.brandBlueClr),
           ),
         ),
       );
@@ -155,7 +156,7 @@ class ProviderServicesBody extends StatelessWidget {
             child: Text(
               'provider_page.no_services_found'.tr(),
               style: AppTextStyles.of(
-                color: const Color(0xFF64748B),
+                color: AppColors.inkMutedClr,
                 fontSize: 14.sp,
               ),
             ),
@@ -200,7 +201,7 @@ class TabServicesBody extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: 16),
           child: Center(
-            child: CircularProgressIndicator(color: Color(0xFF3872B1)),
+            child: CircularProgressIndicator(color: AppColors.brandBlueClr),
           ),
         ),
       );
@@ -233,7 +234,7 @@ class TabServicesBody extends StatelessWidget {
             child: Text(
               'provider_page.no_services_found'.tr(),
               style: AppTextStyles.of(
-                color: const Color(0xFF64748B),
+                color: AppColors.inkMutedClr,
                 fontSize: 14.sp,
               ),
             ),
@@ -261,8 +262,8 @@ class TabServicesBody extends StatelessWidget {
                     ? null
                     : () => cubit.loadMoreCategoryServices(),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF3872B1),
-                  side: const BorderSide(color: Color(0xFF3872B1)),
+                  foregroundColor: AppColors.brandBlueClr,
+                  side: const BorderSide(color: AppColors.brandBlueClr),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r),
                   ),
@@ -422,3 +423,4 @@ class ReviewsSection extends StatelessWidget {
     );
   }
 }
+

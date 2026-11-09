@@ -20,6 +20,7 @@ import '../cubit/family_members_state.dart';
 import '../../../../core/theming/app_text_styles.dart';
 import '../../../../core/theming/app_toast.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class AddEditFamilyMemberScreen extends StatefulWidget {
   final FamilyMemberModel? member;
 
@@ -128,7 +129,7 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
           actions: [
             TextButton(
               style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFF6B7280),
+                foregroundColor: AppColors.exactFF6B7280,
               ),
               onPressed: () {
                 context.pop();
@@ -137,7 +138,7 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
             ),
             TextButton(
               style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFFDC2626),
+                foregroundColor: AppColors.exactFFDC2626,
               ),
               onPressed: () {
                 context.pop();
@@ -156,7 +157,7 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: AppColors.lightGreyClr,
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         behavior: HitTestBehavior.opaque,
@@ -203,7 +204,7 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
                           visualDensity: VisualDensity.compact,
                           icon: Icon(
                             Icons.delete_outline_rounded,
-                            color: const Color(0xFFDC2626),
+                            color: AppColors.exactFFDC2626,
                             size: 22.sp,
                           ),
                           onPressed: _showDeleteDialog,
@@ -225,7 +226,7 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
                               'family_members.photo_hint'.tr(),
                               style: AppTextStyles.of(
                                 fontSize: 12.5.sp,
-                                color: const Color(0xFF64748B),
+                                color: AppColors.inkMutedClr,
                               ),
                             ),
                           ),
@@ -295,11 +296,11 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
               height: size,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFFF0F7FF),
-                border: Border.all(color: Colors.white, width: 3),
+                color: AppColors.exactFFF0F7FF,
+                border: Border.all(color: AppColors.whiteClr, width: 3),
                 boxShadow: const [
                   BoxShadow(
-                    color: Color(0x14000000),
+                    color: AppColors.exact14000000,
                     blurRadius: 12,
                     offset: Offset(0, 4),
                   ),
@@ -324,22 +325,22 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
                 width: 30.r,
                 height: 30.r,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF3872B1),
+                  color: AppColors.brandBlueClr,
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2),
+                  border: Border.all(color: AppColors.whiteClr, width: 2),
                 ),
                 child: _isPickingImage
                     ? Padding(
                         padding: EdgeInsets.all(7.r),
                         child: const CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Colors.white,
+                          color: AppColors.whiteClr,
                         ),
                       )
                     : Icon(
                         Icons.camera_alt_outlined,
                         size: 16.sp,
-                        color: Colors.white,
+                        color: AppColors.whiteClr,
                       ),
               ),
             ),
@@ -354,7 +355,7 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
       child: Icon(
         Icons.person_rounded,
         size: 46.sp,
-        color: const Color(0xFF3872B1),
+        color: AppColors.brandBlueClr,
       ),
     );
   }
@@ -376,7 +377,7 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
           : AutovalidateMode.disabled,
       style: AppTextStyles.of(
         fontSize: 15.sp,
-        color: Colors.black,
+        color: AppColors.materialBlack,
         fontWeight: FontWeight.w500,
       ),
       decoration: authInputDecoration(hintText: hint),
@@ -407,7 +408,7 @@ class _AddEditFamilyMemberScreenState extends State<AddEditFamilyMemberScreen> {
         },
         style: AppTextStyles.of(
           fontSize: 15.sp,
-          color: Colors.black,
+          color: AppColors.materialBlack,
           fontWeight: FontWeight.w500,
         ),
         dropdownColor: AppDropdownTheme.menuColor,
@@ -450,9 +451,10 @@ class _FieldLabel extends StatelessWidget {
         style: AppTextStyles.of(
           fontSize: 15.sp,
           fontWeight: FontWeight.w600,
-          color: Colors.black87,
+          color: AppColors.materialBlack87,
         ),
       ),
     );
   }
 }
+

@@ -3,6 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Shown in the success state when the API returns no data at all.
 class HomeEmptyView extends StatelessWidget {
   const HomeEmptyView({super.key});
@@ -14,14 +15,14 @@ class HomeEmptyView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.inbox_rounded, size: 56, color: Color(0xFFD1D5DB)),
+          const Icon(Icons.inbox_rounded, size: 56, color: AppColors.exactFFD1D5DB),
           const SizedBox(height: 16),
           Text(
             'home.no_data_available'.tr(),
             style: AppTextStyles.of(
               fontSize: 15,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF6B7280),
+              color: AppColors.exactFF6B7280,
             ),
           ),
           const SizedBox(height: 6),
@@ -30,7 +31,7 @@ class HomeEmptyView extends StatelessWidget {
             textAlign: TextAlign.center,
             style: AppTextStyles.of(
               fontSize: 13,
-              color: const Color(0xFF9CA3AF),
+              color: AppColors.exactFF9CA3AF,
               height: 1.5,
             ),
           ),
@@ -39,3 +40,4 @@ class HomeEmptyView extends StatelessWidget {
     );
   }
 }
+

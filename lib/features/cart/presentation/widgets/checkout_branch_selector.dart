@@ -9,6 +9,7 @@ import '../cubit/cart_cubit.dart';
 import '../cubit/cart_state.dart';
 import 'checkout_map_preview.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class CheckoutBranchSelector extends StatelessWidget {
   final CartState state;
 
@@ -20,9 +21,9 @@ class CheckoutBranchSelector extends StatelessWidget {
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.whiteClr,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: const Color(0xFFE5E9F0)),
+        border: Border.all(color: AppColors.exactFFE5E9F0),
       ),
       child: Column(
         children: [
@@ -38,14 +39,14 @@ class CheckoutBranchSelector extends StatelessWidget {
                     style: AppTextStyles.of(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w500,
-                      color: const Color(0xFF111827),
+                      color: AppColors.inkClr,
                     ),
                     dropdownColor: AppDropdownTheme.menuColor,
                     elevation: AppDropdownTheme.menuElevation.toInt(),
                     borderRadius: AppDropdownTheme.dropdownBorderRadius,
                     icon: const Icon(
                       Icons.keyboard_arrow_down_rounded,
-                      color: Color(0xFF6B7280),
+                      color: AppColors.exactFF6B7280,
                     ),
                     hint: Text(
                       state.isCheckoutLoading
@@ -53,7 +54,7 @@ class CheckoutBranchSelector extends StatelessWidget {
                           : 'provider_page.select_branch'.tr(),
                       style: AppTextStyles.of(
                         fontSize: 14.sp,
-                        color: const Color(0xFF9CA3AF),
+                        color: AppColors.exactFF9CA3AF,
                       ),
                     ),
                     items: state.checkoutBranches
@@ -87,3 +88,4 @@ class CheckoutBranchSelector extends StatelessWidget {
     );
   }
 }
+

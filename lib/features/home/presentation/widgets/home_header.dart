@@ -16,13 +16,14 @@ import '../cubit/location_state.dart';
 import 'location_display.dart';
 import 'search_bar_widget.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class HomeHeader extends StatelessWidget {
   const HomeHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: AppColors.whiteClr,
       width: double.infinity,
       child: SafeArea(
         bottom: false,
@@ -141,8 +142,8 @@ class _NotificationsButtonState extends State<_NotificationsButton> {
                   onPressed: () => context.push('/notifications'),
                   padding: EdgeInsets.zero,
                   style: IconButton.styleFrom(
-                    backgroundColor: const Color(0xFFF8FAFC),
-                    side: const BorderSide(color: Color(0xFFE5E7EB)),
+                    backgroundColor: AppColors.exactFFF8FAFC,
+                    side: const BorderSide(color: AppColors.exactFFE5E7EB),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -151,7 +152,7 @@ class _NotificationsButtonState extends State<_NotificationsButton> {
                     hasUnread
                         ? Icons.notifications_rounded
                         : Icons.notifications_none_rounded,
-                    color: const Color(0xFF3872B1),
+                    color: AppColors.brandBlueClr,
                     size: 22,
                   ),
                 ),
@@ -170,9 +171,9 @@ class _NotificationsButtonState extends State<_NotificationsButton> {
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFEF4444),
+                        color: AppColors.exactFFEF4444,
                         borderRadius: BorderRadius.circular(999),
-                        border: Border.all(color: Colors.white, width: 1.5),
+                        border: Border.all(color: AppColors.whiteClr, width: 1.5),
                       ),
                       child: AnimatedSwitcher(
                         duration: const Duration(milliseconds: 180),
@@ -183,7 +184,7 @@ class _NotificationsButtonState extends State<_NotificationsButton> {
                           key: ValueKey(unreadCount),
                           textScaler: TextScaler.noScaling,
                           style: const TextStyle(
-                            color: Colors.white,
+                            color: AppColors.whiteClr,
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
                             height: 1,
@@ -215,3 +216,4 @@ class _HeaderSearchBar extends StatelessWidget {
     );
   }
 }
+

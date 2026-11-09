@@ -9,6 +9,7 @@ import '../utils/api_error_parser.dart';
 
 import 'app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 enum ToastType { success, error, warning, info }
 
 // ── Global navigator key — set this on MaterialApp.router ──────────────────
@@ -54,13 +55,13 @@ bool _insertSingleToast({
 Color _backgroundColorFor(ToastType type) {
   switch (type) {
     case ToastType.success:
-      return const Color(0xFF2E7D32);
+      return AppColors.exactFF2E7D32;
     case ToastType.error:
-      return const Color(0xFFC62828);
+      return AppColors.exactFFC62828;
     case ToastType.warning:
-      return const Color(0xFFE65100);
+      return AppColors.exactFFE65100;
     case ToastType.info:
-      return const Color(0xFF1565C0);
+      return AppColors.exactFF1565C0;
   }
 }
 
@@ -205,11 +206,11 @@ class _LoginRequiredToastState extends State<_LoginRequiredToast>
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: const Color(0xFF1565C0),
+                color: AppColors.exactFF1565C0,
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: const [
                   BoxShadow(
-                    color: Colors.black26,
+                    color: AppColors.materialBlack26,
                     blurRadius: 8,
                     offset: Offset(0, 4),
                   ),
@@ -217,13 +218,13 @@ class _LoginRequiredToastState extends State<_LoginRequiredToast>
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.lock_outline, color: Colors.white, size: 20),
+                  const Icon(Icons.lock_outline, color: AppColors.whiteClr, size: 20),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       'auth.please_login_first'.tr(),
                       style: AppTextStyles.of(
-                        color: Colors.white,
+                        color: AppColors.whiteClr,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
@@ -248,7 +249,7 @@ class _LoginRequiredToastState extends State<_LoginRequiredToast>
                       child: Text(
                         'auth.register.loginNow'.tr(),
                         style: AppTextStyles.of(
-                          color: Colors.white,
+                          color: AppColors.whiteClr,
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                         ),
@@ -348,7 +349,7 @@ class _ToastWidgetState extends State<_ToastWidget>
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: const [
                   BoxShadow(
-                    color: Colors.black26,
+                    color: AppColors.materialBlack26,
                     blurRadius: 8,
                     offset: Offset(0, 4),
                   ),
@@ -356,13 +357,13 @@ class _ToastWidgetState extends State<_ToastWidget>
               ),
               child: Row(
                 children: [
-                  Icon(widget.icon, color: Colors.white, size: 20),
+                  Icon(widget.icon, color: AppColors.whiteClr, size: 20),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       widget.message,
                       style: AppTextStyles.of(
-                        color: Colors.white,
+                        color: AppColors.whiteClr,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
@@ -377,3 +378,4 @@ class _ToastWidgetState extends State<_ToastWidget>
     );
   }
 }
+

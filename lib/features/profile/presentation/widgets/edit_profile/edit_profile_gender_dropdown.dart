@@ -28,7 +28,7 @@ class EditProfileGenderDropdown extends StatelessWidget {
           'edit_profile.select_an_option'.tr(),
           style: AppTextStyles.of(
             fontSize: 14.sp,
-            color: const Color(0xFFB0B8C1),
+            color: AppColors.exactFFB0B8C1,
             fontWeight: FontWeight.w400,
           ),
         ),
@@ -43,7 +43,7 @@ class EditProfileGenderDropdown extends StatelessWidget {
         borderRadius: AppDropdownTheme.dropdownBorderRadius,
         icon: const Icon(
           Icons.keyboard_arrow_down_rounded,
-          color: Color(0xFF64748B),
+          color: AppColors.inkMutedClr,
           size: 20,
         ),
         decoration: authInputDecoration(
@@ -64,3 +64,4 @@ class EditProfileGenderDropdown extends StatelessWidget {
     );
   }
 }
+

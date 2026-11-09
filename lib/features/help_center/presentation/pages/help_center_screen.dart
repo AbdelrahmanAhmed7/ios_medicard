@@ -7,6 +7,7 @@ import '../../../../core/services/url_launcher_service.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class HelpCenterScreen extends StatelessWidget {
   const HelpCenterScreen({super.key});
 
@@ -21,7 +22,7 @@ class HelpCenterScreen extends StatelessWidget {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F6F9),
+      backgroundColor: AppColors.exactFFF4F6F9,
       body: Column(
         children: [
           SafeArea(
@@ -32,7 +33,7 @@ class HelpCenterScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   AppHeaderBackButton(
-                    color: const Color(0xFF111827),
+                    color: AppColors.inkClr,
                     onPressed: () {
                       if (Navigator.of(context).canPop()) {
                         Navigator.of(context).pop();
@@ -45,7 +46,7 @@ class HelpCenterScreen extends StatelessWidget {
                       style: AppTextStyles.of(
                         fontSize: 26.sp,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF111827),
+                        color: AppColors.inkClr,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -70,12 +71,12 @@ class HelpCenterScreen extends StatelessWidget {
                     Container(
                       padding: EdgeInsets.all(10.r),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFEFF6FF),
+                        color: AppColors.exactFFEFF6FF,
                         borderRadius: BorderRadius.circular(12.r),
                       ),
                       child: Icon(
                         Icons.support_agent_rounded,
-                        color: const Color(0xFF3872B1),
+                        color: AppColors.brandBlueClr,
                         size: 28.sp,
                       ),
                     ),
@@ -86,7 +87,7 @@ class HelpCenterScreen extends StatelessWidget {
                         style: AppTextStyles.of(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w500,
-                          color: const Color(0xFF374151),
+                          color: AppColors.exactFF374151,
                         ),
                       ),
                     ),
@@ -100,7 +101,7 @@ class HelpCenterScreen extends StatelessWidget {
                   style: AppTextStyles.of(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF374151),
+                    color: AppColors.exactFF374151,
                   ),
                 ),
                 SizedBox(height: 4.h),
@@ -112,9 +113,9 @@ class HelpCenterScreen extends StatelessWidget {
                     vertical: 4.h,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.whiteClr,
                     borderRadius: BorderRadius.circular(14.r),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    border: Border.all(color: AppColors.lineClr),
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -122,8 +123,8 @@ class HelpCenterScreen extends StatelessWidget {
                       // Phone
                       _ContactTile(
                         icon: Icons.phone_outlined,
-                        iconColor: const Color(0xFF10B981),
-                        bgColor: const Color(0xFFECFDF5),
+                        iconColor: AppColors.exactFF10B981,
+                        bgColor: AppColors.exactFFECFDF5,
                         label: 'help_center.phone'.tr(),
                         value: _phone,
                         onTap: () => launcher.makePhoneCall(_phone),
@@ -132,8 +133,8 @@ class HelpCenterScreen extends StatelessWidget {
                       // WhatsApp
                       _ContactTile(
                         icon: Icons.chat_rounded,
-                        iconColor: const Color(0xFF25D366),
-                        bgColor: const Color(0xFFF0FDF4),
+                        iconColor: AppColors.exactFF25D366,
+                        bgColor: AppColors.exactFFF0FDF4,
                         label: 'help_center.whatsapp'.tr(),
                         value: _whatsApp,
                         onTap: () => launcher.launchWhatsApp(
@@ -145,8 +146,8 @@ class HelpCenterScreen extends StatelessWidget {
                       // Email
                       _ContactTile(
                         icon: Icons.email_outlined,
-                        iconColor: const Color(0xFF3872B1),
-                        bgColor: const Color(0xFFEFF6FF),
+                        iconColor: AppColors.brandBlueClr,
+                        bgColor: AppColors.exactFFEFF6FF,
                         label: 'help_center.email'.tr(),
                         value: _email,
                         onTap: () => launcher.launchEmail(
@@ -158,8 +159,8 @@ class HelpCenterScreen extends StatelessWidget {
                       // Website
                       _ContactTile(
                         icon: Icons.language_rounded,
-                        iconColor: const Color(0xFF8B5CF6),
-                        bgColor: const Color(0xFFF5F3FF),
+                        iconColor: AppColors.exactFF8B5CF6,
+                        bgColor: AppColors.exactFFF5F3FF,
                         label: 'help_center.website'.tr(),
                         value: _website,
                         showDivider: false,
@@ -224,7 +225,7 @@ class _ContactTile extends StatelessWidget {
                         label,
                         style: AppTextStyles.of(
                           fontSize: 12.sp,
-                          color: const Color(0xFF6B7280),
+                          color: AppColors.exactFF6B7280,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -234,7 +235,7 @@ class _ContactTile extends StatelessWidget {
                         style: AppTextStyles.of(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF111827),
+                          color: AppColors.inkClr,
                         ),
                       ),
                     ],
@@ -243,14 +244,15 @@ class _ContactTile extends StatelessWidget {
                 Icon(
                   Icons.arrow_forward_ios_rounded,
                   size: 14.sp,
-                  color: const Color(0xFF9CA3AF),
+                  color: AppColors.exactFF9CA3AF,
                 ),
               ],
             ),
           ),
-          if (showDivider) const Divider(height: 1, color: Color(0xFFE5E7EB)),
+          if (showDivider) const Divider(height: 1, color: AppColors.exactFFE5E7EB),
         ],
       ),
     );
   }
 }
+

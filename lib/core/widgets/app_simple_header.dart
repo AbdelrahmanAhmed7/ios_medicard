@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../theming/app_spacing.dart';
+import '../theming/app_colors.dart';
 import '../theming/app_text_styles.dart';
 
 /// Lightweight page header replacing the big blue [AppBlueHeader] on inner
@@ -47,9 +48,9 @@ class AppSimpleHeader extends StatelessWidget {
     this.onBack,
     this.actions,
     this.bottomChild,
-    this.titleColor = const Color(0xFF111827),
-    this.subtitleColor = const Color(0xFF6B7280),
-    this.backColor = const Color(0xFF111827),
+    this.titleColor = AppColors.inkClr,
+    this.subtitleColor = AppColors.exactFF6B7280,
+    this.backColor = AppColors.inkClr,
   });
 
   void _handleBack(BuildContext context) {
@@ -138,3 +139,4 @@ class AppSimpleHeader extends StatelessWidget {
     );
   }
 }
+

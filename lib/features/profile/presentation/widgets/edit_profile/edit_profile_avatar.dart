@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../core/widgets/auth_shared_widgets.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Profile photo stack (photo + edit button). Pure given its inputs; image
 /// picking/preview stay on the screen.
 class EditProfileAvatar extends StatelessWidget {
@@ -42,12 +43,12 @@ class EditProfileAvatar extends StatelessWidget {
             height: 104.r,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: const Color(0xFFE2E8F0), width: 3),
+              border: Border.all(color: AppColors.lineClr, width: 3),
             ),
             padding: const EdgeInsets.all(2),
             child: Container(
               decoration: const BoxDecoration(
-                color: Color(0xFFF1F5F9),
+                color: AppColors.exactFFF1F5F9,
                 shape: BoxShape.circle,
               ),
               clipBehavior: Clip.antiAlias,
@@ -83,7 +84,7 @@ class EditProfileAvatar extends StatelessWidget {
                     dimension: 28,
                     child: CircularProgressIndicator(
                       strokeWidth: 2.7,
-                      color: Colors.white,
+                      color: AppColors.whiteClr,
                     ),
                   ),
                 ),
@@ -105,10 +106,10 @@ class EditProfileAvatar extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: kAuthBlue,
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 3),
+                  border: Border.all(color: AppColors.whiteClr, width: 3),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF0F172A).withValues(alpha: 0.12),
+                      color: AppColors.exactFF0F172A.withValues(alpha: 0.12),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -117,7 +118,7 @@ class EditProfileAvatar extends StatelessWidget {
                 child: const Icon(
                   Icons.photo_camera_outlined,
                   size: 17,
-                  color: Colors.white,
+                  color: AppColors.whiteClr,
                 ),
               ),
             ),
@@ -134,9 +135,9 @@ class _AvatarPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const ColoredBox(
-      color: Color(0xFFE2E8F0),
+      color: AppColors.lineClr,
       child: Center(
-        child: Icon(Icons.person_rounded, size: 48, color: Color(0xFF94A3B8)),
+        child: Icon(Icons.person_rounded, size: 48, color: AppColors.inkFaintClr),
       ),
     );
   }
@@ -155,7 +156,7 @@ class _RemoteImage extends StatelessWidget {
     return CachedNetworkImage(
       imageUrl: imageUrl!,
       fit: BoxFit.fill,
-      placeholder: (context, url) => const ColoredBox(color: Color(0xFFF1F5F9)),
+      placeholder: (context, url) => const ColoredBox(color: AppColors.exactFFF1F5F9),
       errorWidget: (context, url, error) => const _AvatarPlaceholder(),
     );
   }
@@ -215,7 +216,7 @@ void showProfileImagePreview(
                     shape: BoxShape.circle,
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.close, color: Colors.white),
+                    icon: const Icon(Icons.close, color: AppColors.whiteClr),
                     onPressed: () => Navigator.pop(dialogContext),
                   ),
                 ),
@@ -244,10 +245,11 @@ class _PreviewPhoto extends StatelessWidget {
         imageUrl: imageUrl!,
         fit: BoxFit.fill,
         placeholder: (context, url) =>
-            const ColoredBox(color: Color(0xFFF1F5F9)),
+            const ColoredBox(color: AppColors.exactFFF1F5F9),
         errorWidget: (context, url, error) => const _AvatarPlaceholder(),
       );
     }
     return const _AvatarPlaceholder();
   }
 }
+

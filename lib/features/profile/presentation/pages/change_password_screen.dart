@@ -13,6 +13,7 @@ import '../cubit/change_password_state.dart';
 import '../../../../core/theming/app_text_styles.dart';
 import '../../../../core/theming/app_toast.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
 
@@ -142,7 +143,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         );
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.whiteClr,
         body: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           behavior: HitTestBehavior.opaque,
@@ -161,7 +162,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           AppHeaderBackButton(
-                            color: const Color(0xFF111827),
+                            color: AppColors.inkClr,
                             onPressed: () {
                               if (Navigator.of(context).canPop()) {
                                 Navigator.of(context).pop();
@@ -174,7 +175,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                               style: AppTextStyles.of(
                                 fontSize: 26.sp,
                                 fontWeight: FontWeight.w700,
-                                color: const Color(0xFF111827),
+                                color: AppColors.inkClr,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -314,7 +315,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       autovalidateMode: autovalidateMode,
       style: AppTextStyles.of(
         fontSize: 15.sp,
-        color: Colors.black,
+        color: AppColors.materialBlack,
         fontWeight: FontWeight.w500,
       ),
       decoration: InputDecoration(
@@ -325,7 +326,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           fontWeight: FontWeight.w400,
         ),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: AppColors.whiteClr,
         contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
         errorMaxLines: 3,
         errorStyle: AppTextStyles.of(fontSize: 12.sp, height: 1.3),
@@ -354,11 +355,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: const BorderSide(color: Colors.red, width: 1),
+          borderSide: const BorderSide(color: AppColors.materialRed, width: 1),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: const BorderSide(color: Colors.red, width: 1.2),
+          borderSide: const BorderSide(color: AppColors.materialRed, width: 1.2),
         ),
       ),
       validator: validator,
@@ -415,9 +416,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     required bool showInvalid,
   }) {
     final color = isMet
-        ? Colors.green
+        ? AppColors.materialGreen
         : showInvalid
-        ? Colors.red
+        ? AppColors.materialRed
         : kAuthGreyText;
 
     return Padding(
@@ -459,9 +460,10 @@ class _FieldLabel extends StatelessWidget {
         style: AppTextStyles.of(
           fontSize: 15.sp,
           fontWeight: FontWeight.w600,
-          color: Colors.black87,
+          color: AppColors.materialBlack87,
         ),
       ),
     );
   }
 }
+

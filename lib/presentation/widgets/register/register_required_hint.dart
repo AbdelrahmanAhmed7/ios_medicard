@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../core/theming/app_text_styles.dart';
 import '../../../core/widgets/auth_shared_widgets.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Red-asterisk hint row used under form sections.
 class RegisterRequiredHint extends StatelessWidget {
   final String text;
@@ -19,7 +20,7 @@ class RegisterRequiredHint extends StatelessWidget {
           '*',
           style: AppTextStyles.of(
             fontSize: 13.sp,
-            color: Colors.red,
+            color: AppColors.materialRed,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -38,3 +39,4 @@ class RegisterRequiredHint extends StatelessWidget {
     );
   }
 }
+

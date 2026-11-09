@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../core/theming/app_text_styles.dart';
 import '../../../../../core/widgets/auth_shared_widgets.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class ActivityErrorView extends StatelessWidget {
   final String error;
   final VoidCallback onRetry;
@@ -23,14 +24,14 @@ class ActivityErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline, size: 48.r, color: Colors.grey),
+            Icon(Icons.error_outline, size: 48.r, color: AppColors.greyClr),
             SizedBox(height: 12.h),
             Text(
               error,
               textAlign: TextAlign.center,
               style: AppTextStyles.of(
                 fontSize: 14.sp,
-                color: const Color(0xFF6B7280),
+                color: AppColors.exactFF6B7280,
               ),
             ),
             SizedBox(height: 16.h),
@@ -39,7 +40,7 @@ class ActivityErrorView extends StatelessWidget {
               style: ElevatedButton.styleFrom(backgroundColor: kAuthBlue),
               child: Text(
                 'common.retry'.tr(),
-                style: AppTextStyles.of(color: Colors.white),
+                style: AppTextStyles.of(color: AppColors.whiteClr),
               ),
             ),
           ],
@@ -48,3 +49,4 @@ class ActivityErrorView extends StatelessWidget {
     );
   }
 }
+

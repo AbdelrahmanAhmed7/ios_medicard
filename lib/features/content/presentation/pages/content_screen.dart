@@ -128,7 +128,7 @@ class _HtmlContentView extends StatelessWidget {
                         style: AppTextStyles.of(
                           fontSize: 18.sp,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF111827),
+                          color: AppColors.inkClr,
                           height: 1.4,
                         ),
                       ),
@@ -185,7 +185,7 @@ class _HtmlContentView extends StatelessWidget {
                 margin: Margins.only(top: 22.h, bottom: 10.h),
                 fontSize: FontSize(18.sp),
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF111827),
+                color: AppColors.inkClr,
                 lineHeight: const LineHeight(1.4),
               ),
               'p': Style(
@@ -250,3 +250,4 @@ class _ContentEmptyView extends StatelessWidget {
     );
   }
 }
+

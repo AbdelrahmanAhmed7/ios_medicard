@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class CheckoutDropdownFrame extends StatelessWidget {
   final Widget child;
 
@@ -12,11 +13,12 @@ class CheckoutDropdownFrame extends StatelessWidget {
       height: 48.h,
       padding: EdgeInsets.symmetric(horizontal: 12.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.whiteClr,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: const Color(0xFFE5E9F0)),
+        border: Border.all(color: AppColors.exactFFE5E9F0),
       ),
       child: child,
     );
   }
 }
+

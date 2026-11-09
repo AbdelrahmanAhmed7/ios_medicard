@@ -12,6 +12,7 @@ import '../widgets/filter_bottom_sheet.dart';
 import '../widgets/search_app_bar.dart';
 import '../widgets/search_providers_tab.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class ProvidersScreen extends StatefulWidget {
   final double? userLatitude;
   final double? userLongitude;
@@ -125,7 +126,7 @@ class _ProvidersScreenState extends State<ProvidersScreen> {
         ),
       ],
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.whiteClr,
         body: Column(
           children: [
             BlocSelector<FilterCubit, FilterState, bool>(
@@ -149,3 +150,4 @@ class _ProvidersScreenState extends State<ProvidersScreen> {
     );
   }
 }
+

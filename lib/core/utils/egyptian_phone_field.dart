@@ -184,7 +184,7 @@ class _EgyptianPhoneFieldState extends State<EgyptianPhoneField> {
                           hintText: widget.hintText ?? 'auth.signup.validation.phone_hint'.tr(),
                           hintStyle: AppTextStyles.of(
                             fontSize: 14.sp,
-                            color: Colors.grey,
+                            color: AppColors.greyClr,
                           ),
                           filled: true,
                           fillColor: AppColors.whiteClr,
@@ -218,3 +218,4 @@ class _EgyptianPhoneFieldState extends State<EgyptianPhoneField> {
     );
   }
 }
+

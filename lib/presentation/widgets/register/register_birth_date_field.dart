@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../core/theming/app_text_styles.dart';
 import '../../../core/widgets/auth_shared_widgets.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Read-only birth-date selector box.
 class RegisterBirthDateField extends StatelessWidget {
   final String birthDate;
@@ -31,7 +32,7 @@ class RegisterBirthDateField extends StatelessWidget {
           children: [
             Text(
               birthDate,
-              style: AppTextStyles.of(fontSize: 15.sp, color: Colors.black),
+              style: AppTextStyles.of(fontSize: 15.sp, color: AppColors.materialBlack),
             ),
             Icon(
               Icons.calendar_today_outlined,
@@ -44,3 +45,4 @@ class RegisterBirthDateField extends StatelessWidget {
     );
   }
 }
+

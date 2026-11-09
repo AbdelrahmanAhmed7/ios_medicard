@@ -25,8 +25,8 @@ class SmoothShimmer extends StatelessWidget {
   Widget build(BuildContext context) {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
     return Shimmer.fromColors(
-      baseColor: baseColor ?? const Color(0xFFE8E8E8),
-      highlightColor: highlightColor ?? const Color(0xFFF5F5F5),
+      baseColor: baseColor ?? AppColors.exactFFE8E8E8,
+      highlightColor: highlightColor ?? AppColors.backgroundClr,
       period: period,
       direction: isRtl ? ShimmerDirection.rtl : direction,
       child: child,
@@ -60,7 +60,7 @@ class ShimmerCard extends StatelessWidget {
             width: width,
             height: height,
             decoration: BoxDecoration(
-              color: const Color(0xFFE8E8E8),
+              color: AppColors.exactFFE8E8E8,
               borderRadius: borderRadius ?? BorderRadius.circular(16.r),
             ),
           ),
@@ -101,7 +101,7 @@ class ShimmerListItem extends StatelessWidget {
                   width: effectiveAvatarSize,
                   height: effectiveAvatarSize,
                   decoration: const BoxDecoration(
-                    color: Color(0xFFE8E8E8),
+                    color: AppColors.exactFFE8E8E8,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -119,7 +119,7 @@ class ShimmerListItem extends StatelessWidget {
                         height: index == 0 ? 16.h : 12.h,
                         width: index == 0 ? double.infinity : 120.w,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE8E8E8),
+                          color: AppColors.exactFFE8E8E8,
                           borderRadius: BorderRadius.circular(6.r),
                         ),
                       ),
@@ -167,7 +167,7 @@ class ShimmerApprovalCard extends StatelessWidget {
                     width: 44.w,
                     height: 44.w,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE8E8E8),
+                      color: AppColors.exactFFE8E8E8,
                       borderRadius: BorderRadius.circular(12.r),
                     ),
                   ),
@@ -180,7 +180,7 @@ class ShimmerApprovalCard extends StatelessWidget {
                           height: 16.h,
                           width: 140.w,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFE8E8E8),
+                            color: AppColors.exactFFE8E8E8,
                             borderRadius: BorderRadius.circular(6.r),
                           ),
                         ),
@@ -189,7 +189,7 @@ class ShimmerApprovalCard extends StatelessWidget {
                           height: 12.h,
                           width: 100.w,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFE8E8E8),
+                            color: AppColors.exactFFE8E8E8,
                             borderRadius: BorderRadius.circular(4.r),
                           ),
                         ),
@@ -200,7 +200,7 @@ class ShimmerApprovalCard extends StatelessWidget {
                     width: 70.w,
                     height: 26.h,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE8E8E8),
+                      color: AppColors.exactFFE8E8E8,
                       borderRadius: BorderRadius.circular(20.r),
                     ),
                   ),
@@ -210,7 +210,7 @@ class ShimmerApprovalCard extends StatelessWidget {
               // Divider
               Container(
                 height: 1,
-                color: const Color(0xFFF0F0F0),
+                color: AppColors.exactFFF0F0F0,
               ),
               SizedBox(height: 16.h),
               // Footer row
@@ -221,7 +221,7 @@ class ShimmerApprovalCard extends StatelessWidget {
                     height: 14.h,
                     width: 80.w,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE8E8E8),
+                      color: AppColors.exactFFE8E8E8,
                       borderRadius: BorderRadius.circular(4.r),
                     ),
                   ),
@@ -229,7 +229,7 @@ class ShimmerApprovalCard extends StatelessWidget {
                     height: 14.h,
                     width: 60.w,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE8E8E8),
+                      color: AppColors.exactFFE8E8E8,
                       borderRadius: BorderRadius.circular(4.r),
                     ),
                   ),
@@ -262,7 +262,7 @@ class ShimmerGridItem extends StatelessWidget {
           width: width,
           height: height ?? 120.h,
           decoration: BoxDecoration(
-            color: const Color(0xFFE8E8E8),
+            color: AppColors.exactFFE8E8E8,
             borderRadius: BorderRadius.circular(12.r),
           ),
           child: Column(
@@ -272,7 +272,7 @@ class ShimmerGridItem extends StatelessWidget {
                 width: 48.w,
                 height: 48.w,
                 decoration: const BoxDecoration(
-                  color: Color(0xFFE0E0E0),
+                  color: AppColors.exactFFE0E0E0,
                   shape: BoxShape.circle,
                 ),
               ),
@@ -281,7 +281,7 @@ class ShimmerGridItem extends StatelessWidget {
                 height: 12.h,
                 width: 60.w,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE0E0E0),
+                  color: AppColors.exactFFE0E0E0,
                   borderRadius: BorderRadius.circular(4.r),
                 ),
               ),
@@ -352,4 +352,5 @@ class _PulseShimmerState extends State<PulseShimmer>
     );
   }
 }
+
 

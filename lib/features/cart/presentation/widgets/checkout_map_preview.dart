@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import '../../../../core/services/url_launcher_service.dart';
 import '../../../../network/data/provider_page_response_model.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class CheckoutMapPreview extends StatefulWidget {
   final ProviderBranch branch;
 
@@ -54,7 +55,7 @@ class CheckoutMapPreviewState extends State<CheckoutMapPreview> {
         child: Container(
           width: double.infinity,
           height: 146.h,
-          color: const Color(0xFFE5E7EB),
+          color: AppColors.exactFFE5E7EB,
           child: !hasLocation
               ? const Center(child: Icon(Icons.map_outlined))
               : FlutterMap(
@@ -83,7 +84,7 @@ class CheckoutMapPreviewState extends State<CheckoutMapPreview> {
                           height: 42.r,
                           child: Icon(
                             Icons.location_on,
-                            color: const Color(0xFF3872B1),
+                            color: AppColors.brandBlueClr,
                             size: 38.sp,
                           ),
                         ),
@@ -96,3 +97,4 @@ class CheckoutMapPreviewState extends State<CheckoutMapPreview> {
     );
   }
 }
+

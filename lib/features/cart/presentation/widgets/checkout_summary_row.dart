@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class CheckoutSummaryRow extends StatelessWidget {
   final String label;
   final String value;
@@ -31,8 +32,8 @@ class CheckoutSummaryRow extends StatelessWidget {
                 fontSize: isBold ? 15.sp : 14.sp,
                 fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
                 color: isBold
-                    ? const Color(0xFF111827)
-                    : const Color(0xFF6B7280),
+                    ? AppColors.inkClr
+                    : AppColors.exactFF6B7280,
               ),
             ),
           ),
@@ -46,7 +47,7 @@ class CheckoutSummaryRow extends StatelessWidget {
               style: AppTextStyles.of(
                 fontSize: isBold ? 17.sp : 14.sp,
                 fontWeight: isBold ? FontWeight.w700 : FontWeight.w600,
-                color: valueColor ?? const Color(0xFF111827),
+                color: valueColor ?? AppColors.inkClr,
               ),
             ),
           ),
@@ -59,3 +60,4 @@ class CheckoutSummaryRow extends StatelessWidget {
 String checkoutMoney(double value) {
   return value % 1 == 0 ? value.toStringAsFixed(0) : value.toStringAsFixed(2);
 }
+

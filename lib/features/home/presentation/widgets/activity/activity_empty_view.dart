@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../core/theming/app_text_styles.dart';
 import '../../../../../core/widgets/auth_shared_widgets.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class ActivityEmptyView extends StatelessWidget {
   final String title;
   final String message;
@@ -28,9 +29,9 @@ class ActivityEmptyView extends StatelessWidget {
               width: 72.r,
               height: 72.r,
               decoration: BoxDecoration(
-                color: const Color(0xFFEFF6FF),
+                color: AppColors.exactFFEFF6FF,
                 shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFFD8E8FA)),
+                border: Border.all(color: AppColors.exactFFD8E8FA),
               ),
               child: Icon(icon, size: 34.r, color: kAuthBlue),
             ),
@@ -41,7 +42,7 @@ class ActivityEmptyView extends StatelessWidget {
               style: AppTextStyles.of(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF111827),
+                color: AppColors.inkClr,
               ),
             ),
             SizedBox(height: 8.h),
@@ -51,7 +52,7 @@ class ActivityEmptyView extends StatelessWidget {
               style: AppTextStyles.of(
                 fontSize: 14.sp,
                 height: 1.45,
-                color: const Color(0xFF6B7280),
+                color: AppColors.exactFF6B7280,
               ),
             ),
           ],
@@ -60,3 +61,4 @@ class ActivityEmptyView extends StatelessWidget {
     );
   }
 }
+

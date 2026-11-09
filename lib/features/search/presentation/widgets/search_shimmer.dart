@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class SearchShimmer extends StatelessWidget {
   const SearchShimmer({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: const Color(0xFFE5E7EB),
-      highlightColor: const Color(0xFFF3F4F6),
+      baseColor: AppColors.exactFFE5E7EB,
+      highlightColor: AppColors.exactFFF3F4F6,
       child: ListView.builder(
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
@@ -29,7 +30,7 @@ class _ShimmerCard extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
       padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.whiteClr,
         borderRadius: BorderRadius.circular(14.r),
       ),
       child: Row(
@@ -40,7 +41,7 @@ class _ShimmerCard extends StatelessWidget {
             width: 56.r,
             height: 56.r,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.whiteClr,
               borderRadius: BorderRadius.circular(10.r),
             ),
           ),
@@ -53,7 +54,7 @@ class _ShimmerCard extends StatelessWidget {
                   height: 14.h,
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.whiteClr,
                     borderRadius: BorderRadius.circular(6.r),
                   ),
                 ),
@@ -64,7 +65,7 @@ class _ShimmerCard extends StatelessWidget {
                       height: 22.h,
                       width: 70.w,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppColors.whiteClr,
                         borderRadius: BorderRadius.circular(12.r),
                       ),
                     ),
@@ -73,7 +74,7 @@ class _ShimmerCard extends StatelessWidget {
                       height: 22.h,
                       width: 90.w,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppColors.whiteClr,
                         borderRadius: BorderRadius.circular(12.r),
                       ),
                     ),
@@ -84,7 +85,7 @@ class _ShimmerCard extends StatelessWidget {
                   height: 12.h,
                   width: 140.w,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.whiteClr,
                     borderRadius: BorderRadius.circular(6.r),
                   ),
                 ),
@@ -96,3 +97,4 @@ class _ShimmerCard extends StatelessWidget {
     );
   }
 }
+

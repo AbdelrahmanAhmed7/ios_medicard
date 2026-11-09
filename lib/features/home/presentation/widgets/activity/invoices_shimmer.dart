@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../core/theming/app_spacing.dart';
 import '../../../../../core/utils/shimmer_card.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Shimmer skeleton that mimics the InvoiceCard list on the Invoices (Activity) tab.
 class InvoicesShimmer extends StatelessWidget {
   final int itemCount;
@@ -36,9 +37,9 @@ class _InvoiceCardShimmer extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.whiteClr,
           borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(color: const Color(0xFFE5E9F0), width: 1),
+          border: Border.all(color: AppColors.exactFFE5E9F0, width: 1),
         ),
         child: SmoothShimmer(
           child: Column(
@@ -53,7 +54,7 @@ class _InvoiceCardShimmer extends StatelessWidget {
                     width: 52.r,
                     height: 52.r,
                     decoration: const BoxDecoration(
-                      color: Color(0xFFE8E8E8),
+                      color: AppColors.exactFFE8E8E8,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -67,7 +68,7 @@ class _InvoiceCardShimmer extends StatelessWidget {
                           width: 140.w,
                           height: 16.h,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFE8E8E8),
+                            color: AppColors.exactFFE8E8E8,
                             borderRadius: BorderRadius.circular(4.r),
                           ),
                         ),
@@ -76,7 +77,7 @@ class _InvoiceCardShimmer extends StatelessWidget {
                           width: 85.w,
                           height: 12.h,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFE8E8E8),
+                            color: AppColors.exactFFE8E8E8,
                             borderRadius: BorderRadius.circular(4.r),
                           ),
                         ),
@@ -85,7 +86,7 @@ class _InvoiceCardShimmer extends StatelessWidget {
                           width: 105.w,
                           height: 12.h,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFE8E8E8),
+                            color: AppColors.exactFFE8E8E8,
                             borderRadius: BorderRadius.circular(4.r),
                           ),
                         ),
@@ -101,7 +102,7 @@ class _InvoiceCardShimmer extends StatelessWidget {
                         width: 50.w,
                         height: 10.h,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE8E8E8),
+                          color: AppColors.exactFFE8E8E8,
                           borderRadius: BorderRadius.circular(4.r),
                         ),
                       ),
@@ -110,7 +111,7 @@ class _InvoiceCardShimmer extends StatelessWidget {
                         width: 70.w,
                         height: 16.h,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE8E8E8),
+                          color: AppColors.exactFFE8E8E8,
                           borderRadius: BorderRadius.circular(4.r),
                         ),
                       ),
@@ -126,7 +127,7 @@ class _InvoiceCardShimmer extends StatelessWidget {
                     width: 70.w,
                     height: 24.h,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE8E8E8),
+                      color: AppColors.exactFFE8E8E8,
                       borderRadius: BorderRadius.circular(8.r),
                     ),
                   ),
@@ -135,7 +136,7 @@ class _InvoiceCardShimmer extends StatelessWidget {
                     width: 65.w,
                     height: 24.h,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE8E8E8),
+                      color: AppColors.exactFFE8E8E8,
                       borderRadius: BorderRadius.circular(8.r),
                     ),
                   ),
@@ -144,14 +145,14 @@ class _InvoiceCardShimmer extends StatelessWidget {
                     width: 75.w,
                     height: 24.h,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE8E8E8),
+                      color: AppColors.exactFFE8E8E8,
                       borderRadius: BorderRadius.circular(8.r),
                     ),
                   ),
                 ],
               ),
               SizedBox(height: 12.h),
-              const Divider(height: 1, color: Color(0xFFEEF1F5)),
+              const Divider(height: 1, color: AppColors.exactFFEEF1F5),
               SizedBox(height: 10.h),
               // Bottom Row: Invoice ID, Date, Action Button
               Row(
@@ -160,7 +161,7 @@ class _InvoiceCardShimmer extends StatelessWidget {
                     width: 60.w,
                     height: 12.h,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE8E8E8),
+                      color: AppColors.exactFFE8E8E8,
                       borderRadius: BorderRadius.circular(4.r),
                     ),
                   ),
@@ -169,7 +170,7 @@ class _InvoiceCardShimmer extends StatelessWidget {
                     width: 14.r,
                     height: 14.r,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE8E8E8),
+                      color: AppColors.exactFFE8E8E8,
                       borderRadius: BorderRadius.circular(3.r),
                     ),
                   ),
@@ -178,7 +179,7 @@ class _InvoiceCardShimmer extends StatelessWidget {
                     child: Container(
                       height: 12.h,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE8E8E8),
+                        color: AppColors.exactFFE8E8E8,
                         borderRadius: BorderRadius.circular(4.r),
                       ),
                     ),
@@ -188,7 +189,7 @@ class _InvoiceCardShimmer extends StatelessWidget {
                     width: 65.w,
                     height: 28.h,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE8E8E8),
+                      color: AppColors.exactFFE8E8E8,
                       borderRadius: BorderRadius.circular(8.r),
                     ),
                   ),
@@ -201,4 +202,5 @@ class _InvoiceCardShimmer extends StatelessWidget {
     );
   }
 }
+
 

@@ -10,6 +10,7 @@ import '../../data/models/card_data_response_model.dart';
 import '../cubit/ecard_cubit.dart';
 import '../cubit/ecard_state.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Digital membership screen (see design: blue member card + membership
 /// details). Only fields the backend actually provides are shown —
 /// everything else (member code, MCI id, employer, insurance conditions)
@@ -20,7 +21,7 @@ class DigitalMembershipScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.exactFFF8FAFC,
       body: BlocBuilder<ECardCubit, ECardState>(
         builder: (context, state) {
           return state.when(
@@ -119,7 +120,7 @@ class _Header extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             AppHeaderBackButton(
-              color: const Color(0xFF111827),
+              color: AppColors.inkClr,
               onPressed: () {
                 if (Navigator.of(context).canPop()) {
                   Navigator.of(context).pop();
@@ -132,7 +133,7 @@ class _Header extends StatelessWidget {
                 style: AppTextStyles.of(
                   fontSize: 26.sp,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF111827),
+                  color: AppColors.inkClr,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -186,7 +187,7 @@ class _DigitalCardArt extends StatelessWidget {
                 Text(
                   number.isEmpty ? '—' : number,
                   style: AppTextStyles.of(
-                    color: Colors.white,
+                    color: AppColors.whiteClr,
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 1.2,
@@ -211,7 +212,7 @@ class _DigitalCardArt extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.of(
-                    color: Colors.white,
+                    color: AppColors.whiteClr,
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w700,
                     height: 1.2,
@@ -233,7 +234,7 @@ class _DigitalCardArt extends StatelessWidget {
                 Text(
                   expiry,
                   style: AppTextStyles.of(
-                    color: Colors.white,
+                    color: AppColors.whiteClr,
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w700,
                   ),
@@ -281,7 +282,7 @@ class _SectionTitle extends StatelessWidget {
       child: Text(
         title,
         style: AppTextStyles.of(
-          color: const Color(0xFF111827),
+          color: AppColors.inkClr,
           fontSize: 18.sp,
           fontWeight: FontWeight.w700,
         ),
@@ -299,9 +300,9 @@ class _DetailsGroup extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.whiteClr,
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.lineClr),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -309,7 +310,7 @@ class _DetailsGroup extends StatelessWidget {
           for (var i = 0; i < rows.length; i++) ...[
             rows[i],
             if (i < rows.length - 1)
-              const Divider(height: 1, color: Color(0xFFEEF1F5)),
+              const Divider(height: 1, color: AppColors.exactFFEEF1F5),
           ],
         ],
       ),
@@ -334,7 +335,7 @@ class _DetailRow extends StatelessWidget {
               label,
               style: AppTextStyles.of(
                 fontSize: 14.sp,
-                color: const Color(0xFF6B7280),
+                color: AppColors.exactFF6B7280,
               ),
             ),
           ),
@@ -346,7 +347,7 @@ class _DetailRow extends StatelessWidget {
               style: AppTextStyles.of(
                 fontSize: 14.5.sp,
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFF111827),
+                color: AppColors.inkClr,
               ),
             ),
           ),
@@ -355,3 +356,4 @@ class _DetailRow extends StatelessWidget {
     );
   }
 }
+

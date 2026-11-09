@@ -5,6 +5,7 @@ import '../../domain/models/home_failure.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Full-content error state shown inside the sliver scroll when the API fails.
 /// Displays a friendly message and a retry button.
 class HomeErrorView extends StatelessWidget {
@@ -97,7 +98,7 @@ class HomeErrorView extends StatelessWidget {
                               dimension: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: Colors.white,
+                                color: AppColors.whiteClr,
                               ),
                             )
                           : const Icon(Icons.refresh_rounded, size: 20),
@@ -111,7 +112,7 @@ class HomeErrorView extends StatelessWidget {
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: theme.colorScheme.primary,
-                        foregroundColor: Colors.white,
+                        foregroundColor: AppColors.whiteClr,
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(horizontal: 32),
                         shape: RoundedRectangleBorder(
@@ -129,3 +130,4 @@ class HomeErrorView extends StatelessWidget {
     );
   }
 }
+

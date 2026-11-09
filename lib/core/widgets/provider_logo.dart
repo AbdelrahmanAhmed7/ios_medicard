@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../theming/app_text_styles.dart';
 import '../utils/image_url_resolver.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Circular provider avatar with a logo and an initials fallback.
 class ProviderLogo extends StatelessWidget {
   final String? imageUrl;
@@ -25,9 +26,9 @@ class ProviderLogo extends StatelessWidget {
       height: size,
       padding: EdgeInsets.all(size * 0.15),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.whiteClr,
         shape: BoxShape.circle,
-        border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+        border: Border.all(color: AppColors.lineClr, width: 1),
       ),
       child: url == null || url.trim().isEmpty
           ? _Initials(name: name, size: size)
@@ -60,9 +61,10 @@ class _Initials extends StatelessWidget {
         style: AppTextStyles.of(
           fontSize: size * 0.4,
           fontWeight: FontWeight.w700,
-          color: const Color(0xFF3872B1),
+          color: AppColors.brandBlueClr,
         ),
       ),
     );
   }
 }
+

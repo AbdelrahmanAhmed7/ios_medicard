@@ -11,6 +11,7 @@ import '../widgets/provider_search_row.dart';
 import '../widgets/provider_top_header.dart';
 import '../widgets/package_details_sheet.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class ProviderPageScreen extends StatefulWidget {
   final int providerId;
 
@@ -37,7 +38,7 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
       create: (context) =>
           sl<ProviderPageCubit>(param1: widget.providerId)..init(),
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.whiteClr,
         // Scoped rebuilds: the shell itself never rebuilds on cubit emits.
         // Each section below owns its rebuild scope (see widgets/).
         body: SafeArea(
@@ -210,3 +211,4 @@ class _AutoOpenPackageState extends State<_AutoOpenPackage> {
   @override
   Widget build(BuildContext context) => const SizedBox.shrink();
 }
+

@@ -13,6 +13,7 @@ import '../../../../core/theming/app_toast.dart';
 import '../../../../core/widgets/app_header_back_button.dart';
 import '../../../../domain/medicard_repository.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class ManualPrescriptionScreen extends StatefulWidget {
   const ManualPrescriptionScreen({super.key});
 
@@ -61,7 +62,7 @@ class _ManualPrescriptionScreenState extends State<ManualPrescriptionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.whiteClr,
       body: SafeArea(
         child: Column(
           children: [
@@ -72,7 +73,7 @@ class _ManualPrescriptionScreenState extends State<ManualPrescriptionScreen> {
                 child: Row(
                   children: [
                     AppHeaderBackButton(
-                      color: const Color(0xFF111827),
+                      color: AppColors.inkClr,
                       onPressed: () => context.pop(),
                     ),
                     Expanded(
@@ -81,7 +82,7 @@ class _ManualPrescriptionScreenState extends State<ManualPrescriptionScreen> {
                         style: AppTextStyles.of(
                           fontSize: 26.sp,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF111827),
+                          color: AppColors.inkClr,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -100,9 +101,9 @@ class _ManualPrescriptionScreenState extends State<ManualPrescriptionScreen> {
                     child: Container(
                       height: 230.h,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF1F5F9),
+                        color: AppColors.exactFFF1F5F9,
                         borderRadius: BorderRadius.circular(14.r),
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                        border: Border.all(color: AppColors.lineClr),
                       ),
                       clipBehavior: Clip.antiAlias,
                       child: _image == null
@@ -112,7 +113,7 @@ class _ManualPrescriptionScreenState extends State<ManualPrescriptionScreen> {
                                 Icon(
                                   Icons.cloud_upload_outlined,
                                   size: 48.sp,
-                                  color: const Color(0xFF3872B1),
+                                  color: AppColors.brandBlueClr,
                                 ),
                                 SizedBox(height: 10.h),
                                 Text(
@@ -120,7 +121,7 @@ class _ManualPrescriptionScreenState extends State<ManualPrescriptionScreen> {
                                   style: AppTextStyles.of(
                                     fontSize: 15.sp,
                                     fontWeight: FontWeight.w600,
-                                    color: const Color(0xFF3872B1),
+                                    color: AppColors.brandBlueClr,
                                   ),
                                 ),
                               ],
@@ -140,8 +141,8 @@ class _ManualPrescriptionScreenState extends State<ManualPrescriptionScreen> {
                     icon: const Icon(Icons.camera_alt_outlined),
                     label: Text('manual_prescription.take_photo'.tr()),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF3872B1),
-                      side: const BorderSide(color: Color(0xFF3872B1)),
+                      foregroundColor: AppColors.brandBlueClr,
+                      side: const BorderSide(color: AppColors.brandBlueClr),
                       minimumSize: Size.fromHeight(48.h),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12.r),
@@ -158,7 +159,7 @@ class _ManualPrescriptionScreenState extends State<ManualPrescriptionScreen> {
                     style: AppTextStyles.of(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xFF334155),
+                      color: AppColors.exactFF334155,
                     ),
                   ),
                   SizedBox(height: 8.h),
@@ -169,10 +170,10 @@ class _ManualPrescriptionScreenState extends State<ManualPrescriptionScreen> {
                       hintText: 'manual_prescription.text_hint'.tr(),
                       hintStyle: AppTextStyles.of(
                         fontSize: 13.sp,
-                        color: const Color(0xFF9CA3AF),
+                        color: AppColors.exactFF9CA3AF,
                       ),
                       filled: true,
-                      fillColor: const Color(0xFFF1F5F9),
+                      fillColor: AppColors.exactFFF1F5F9,
                       contentPadding: EdgeInsets.all(14.w),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.r),
@@ -184,7 +185,7 @@ class _ManualPrescriptionScreenState extends State<ManualPrescriptionScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.r),
-                        borderSide: const BorderSide(color: Color(0xFF3872B1)),
+                        borderSide: const BorderSide(color: AppColors.brandBlueClr),
                       ),
                     ),
                   ),
@@ -196,8 +197,8 @@ class _ManualPrescriptionScreenState extends State<ManualPrescriptionScreen> {
                           ? null
                           : _submit,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF3872B1),
-                        foregroundColor: Colors.white,
+                        backgroundColor: AppColors.brandBlueClr,
+                        foregroundColor: AppColors.whiteClr,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12.r),
@@ -209,7 +210,7 @@ class _ManualPrescriptionScreenState extends State<ManualPrescriptionScreen> {
                               height: 22,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: Colors.white,
+                                color: AppColors.whiteClr,
                               ),
                             )
                           : Text('manual_prescription.submit'.tr()),
@@ -224,3 +225,4 @@ class _ManualPrescriptionScreenState extends State<ManualPrescriptionScreen> {
     );
   }
 }
+

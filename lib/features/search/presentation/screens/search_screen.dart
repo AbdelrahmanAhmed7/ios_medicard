@@ -13,6 +13,7 @@ import '../widgets/search_app_bar.dart';
 import '../widgets/search_medicines_tab.dart';
 import '../widgets/search_services_tab.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class SearchScreen extends StatefulWidget {
   final double? userLatitude;
   final double? userLongitude;
@@ -108,7 +109,7 @@ class _SearchScreenState extends State<SearchScreen>
         ),
       ],
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.whiteClr,
         body: Column(
           children: [
             SearchAppBar(
@@ -118,9 +119,9 @@ class _SearchScreenState extends State<SearchScreen>
             Container(
               padding: EdgeInsets.symmetric(horizontal: 8.w),
               decoration: const BoxDecoration(
-                color: Colors.white,
+                color: AppColors.whiteClr,
                 border: Border(
-                  bottom: BorderSide(color: Color(0xFFEEF1F5), width: 1),
+                  bottom: BorderSide(color: AppColors.exactFFEEF1F5, width: 1),
                 ),
               ),
               child: AnimatedBuilder(
@@ -147,7 +148,7 @@ class _SearchScreenState extends State<SearchScreen>
                                     fontWeight: isSelected
                                         ? FontWeight.w700
                                         : FontWeight.w400,
-                                    color: const Color(0xFF3872B1),
+                                    color: AppColors.brandBlueClr,
                                   ),
                                 ),
                               ),
@@ -156,7 +157,7 @@ class _SearchScreenState extends State<SearchScreen>
                                 margin: EdgeInsets.symmetric(horizontal: 32.w),
                                 decoration: BoxDecoration(
                                   color: isSelected
-                                      ? const Color(0xFF3872B1)
+                                      ? AppColors.brandBlueClr
                                       : Colors.transparent,
                                   borderRadius: BorderRadius.vertical(
                                     top: Radius.circular(3.r),
@@ -192,3 +193,4 @@ class _SearchScreenState extends State<SearchScreen>
     );
   }
 }
+

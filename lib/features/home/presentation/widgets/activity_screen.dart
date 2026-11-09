@@ -15,6 +15,7 @@ import 'activity/invoices_shimmer.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class ActivityScreen extends StatefulWidget {
   const ActivityScreen({super.key});
 
@@ -72,7 +73,7 @@ class _ActivityScreenState extends State<ActivityScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.whiteClr,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -98,7 +99,7 @@ class _ActivityScreenState extends State<ActivityScreen>
                           style: AppTextStyles.of(
                             fontSize: 26.sp,
                             fontWeight: FontWeight.w700,
-                            color: const Color(0xFF111827),
+                            color: AppColors.inkClr,
                           ),
                         ),
                         SizedBox(height: 4.h),
@@ -107,7 +108,7 @@ class _ActivityScreenState extends State<ActivityScreen>
                           style: AppTextStyles.of(
                             fontSize: 13.sp,
                             fontWeight: FontWeight.w400,
-                            color: const Color(0xFF6B7280),
+                            color: AppColors.exactFF6B7280,
                           ),
                         ),
                       ],
@@ -128,7 +129,7 @@ class _ActivityScreenState extends State<ActivityScreen>
                       ),
                       child: Icon(
                         Icons.add_rounded,
-                        color: Colors.white,
+                        color: AppColors.whiteClr,
                         size: 18.sp,
                       ),
                     ),
@@ -169,12 +170,12 @@ class _ActivityScreenState extends State<ActivityScreen>
                             vertical: 9.h,
                           ),
                           decoration: BoxDecoration(
-                            color: isSelected ? kAuthBlue : Colors.white,
+                            color: isSelected ? kAuthBlue : AppColors.whiteClr,
                             borderRadius: BorderRadius.circular(20.r),
                             border: Border.all(
                               color: isSelected
                                   ? kAuthBlue
-                                  : const Color(0xFFE5E7EB),
+                                  : AppColors.exactFFE5E7EB,
                               width: 1.2,
                             ),
                           ),
@@ -186,8 +187,8 @@ class _ActivityScreenState extends State<ActivityScreen>
                                   ? FontWeight.w600
                                   : FontWeight.w400,
                               color: isSelected
-                                  ? Colors.white
-                                  : const Color(0xFF4B5563),
+                                  ? AppColors.whiteClr
+                                  : AppColors.exactFF4B5563,
                             ),
                           ),
                         ),
@@ -334,3 +335,4 @@ class _ActivityTabViewState extends State<_ActivityTabView>
     }
   }
 }
+

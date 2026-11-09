@@ -6,6 +6,7 @@ import '../../../core/theming/app_text_styles.dart';
 import '../../../core/utils/language_helper.dart';
 import '../../../core/widgets/auth_shared_widgets.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Live password-requirements checklist. Pure given the current [password].
 class RegisterPasswordRequirements extends StatelessWidget {
   final String password;
@@ -79,9 +80,9 @@ class RegisterPasswordRequirement extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = isMet
-        ? Colors.green
+        ? AppColors.materialGreen
         : showInvalid
-        ? Colors.red
+        ? AppColors.materialRed
         : kAuthGreyText;
 
     return Padding(
@@ -109,3 +110,4 @@ class RegisterPasswordRequirement extends StatelessWidget {
     );
   }
 }
+

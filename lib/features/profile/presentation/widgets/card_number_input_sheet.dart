@@ -10,13 +10,14 @@ import '../../../../core/widgets/auth_shared_widgets.dart';
 import '../../data/models/profile_response_model.dart';
 import '../cubit/profile_cubit.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 Future<void> showActivateCardDialog(
   BuildContext context,
   ProfileData data,
 ) async {
   final cardNumber = await showModalBottomSheet<String>(
     context: context,
-    backgroundColor: Colors.white,
+    backgroundColor: AppColors.whiteClr,
     isScrollControlled: true,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
@@ -82,7 +83,7 @@ class CardNumberInputSheetState extends State<CardNumberInputSheet> {
               width: 42.w,
               height: 4.h,
               decoration: BoxDecoration(
-                color: const Color(0xFFE5E7EB),
+                color: AppColors.exactFFE5E7EB,
                 borderRadius: BorderRadius.circular(4.r),
               ),
             ),
@@ -91,7 +92,7 @@ class CardNumberInputSheetState extends State<CardNumberInputSheet> {
               width: 54.r,
               height: 54.r,
               decoration: const BoxDecoration(
-                color: Color(0xFFEBF1FB),
+                color: AppColors.exactFFEBF1FB,
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.credit_card, color: kAuthBlue, size: 26.sp),
@@ -102,7 +103,7 @@ class CardNumberInputSheetState extends State<CardNumberInputSheet> {
               style: AppTextStyles.of(
                 fontSize: 20.sp,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF111827),
+                color: AppColors.inkClr,
               ),
             ),
             SizedBox(height: 8.h),
@@ -112,7 +113,7 @@ class CardNumberInputSheetState extends State<CardNumberInputSheet> {
               style: AppTextStyles.of(
                 fontSize: 14.sp,
                 height: 1.35,
-                color: const Color(0xFF6B7280),
+                color: AppColors.exactFF6B7280,
               ),
             ),
             SizedBox(height: 20.h),
@@ -133,14 +134,14 @@ class CardNumberInputSheetState extends State<CardNumberInputSheet> {
                   hintText: 'profile.card_number_hint'.tr(),
                   counterText: '',
                   filled: true,
-                  fillColor: const Color(0xFFF9FAFB),
+                  fillColor: AppColors.exactFFF9FAFB,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.r),
-                    borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                    borderSide: const BorderSide(color: AppColors.exactFFE5E7EB),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.r),
-                    borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                    borderSide: const BorderSide(color: AppColors.exactFFE5E7EB),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.r),
@@ -148,11 +149,11 @@ class CardNumberInputSheetState extends State<CardNumberInputSheet> {
                   ),
                   errorBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.r),
-                    borderSide: const BorderSide(color: Colors.red),
+                    borderSide: const BorderSide(color: AppColors.materialRed),
                   ),
                   focusedErrorBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.r),
-                    borderSide: const BorderSide(color: Colors.red, width: 1.5),
+                    borderSide: const BorderSide(color: AppColors.materialRed, width: 1.5),
                   ),
                 ),
                 validator: _validateCardNumber,
@@ -166,7 +167,7 @@ class CardNumberInputSheetState extends State<CardNumberInputSheet> {
                 onPressed: _submit,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: kAuthBlue,
-                  foregroundColor: Colors.white,
+                  foregroundColor: AppColors.whiteClr,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r),
@@ -188,8 +189,8 @@ class CardNumberInputSheetState extends State<CardNumberInputSheet> {
               child: OutlinedButton(
                 onPressed: () => Navigator.of(context).pop(),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF334155),
-                  side: const BorderSide(color: Color(0xFFD1D5DB)),
+                  foregroundColor: AppColors.exactFF334155,
+                  side: const BorderSide(color: AppColors.exactFFD1D5DB),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r),
                   ),
@@ -210,3 +211,4 @@ class CardNumberInputSheetState extends State<CardNumberInputSheet> {
     );
   }
 }
+

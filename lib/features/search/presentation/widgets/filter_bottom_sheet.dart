@@ -10,6 +10,7 @@ import '../cubit/search_cubit.dart';
 import '../../../../core/theming/app_text_styles.dart';
 import '../../../../core/widgets/app_dropdown_menu_item.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class FilterBottomSheet extends StatelessWidget {
   const FilterBottomSheet({super.key, this.hideProviderFilters = false});
 
@@ -27,7 +28,7 @@ class FilterBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.whiteClr,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
       padding: EdgeInsets.only(
@@ -55,7 +56,7 @@ class FilterBottomSheet extends StatelessWidget {
                     width: 40.w,
                     height: 4.h,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFD1D5DB),
+                      color: AppColors.exactFFD1D5DB,
                       borderRadius: BorderRadius.circular(2.r),
                     ),
                   ),
@@ -71,7 +72,7 @@ class FilterBottomSheet extends StatelessWidget {
                       style: AppTextStyles.of(
                         fontWeight: FontWeight.w700,
                         fontSize: 18.sp,
-                        color: const Color(0xFF1A1A2E),
+                        color: AppColors.exactFF1A1A2E,
                       ),
                     ),
                     TextButton(
@@ -86,7 +87,7 @@ class FilterBottomSheet extends StatelessWidget {
                         style: AppTextStyles.of(
                           fontWeight: FontWeight.w500,
                           fontSize: 14.sp,
-                          color: const Color(0xFF3872B1),
+                          color: AppColors.brandBlueClr,
                         ),
                       ),
                     ),
@@ -165,7 +166,7 @@ class FilterBottomSheet extends StatelessWidget {
                   height: 52.h,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF3872B1),
+                      backgroundColor: AppColors.brandBlueClr,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14.r),
                       ),
@@ -184,7 +185,7 @@ class FilterBottomSheet extends StatelessWidget {
                       style: AppTextStyles.of(
                         fontWeight: FontWeight.w600,
                         fontSize: 15.sp,
-                        color: Colors.white,
+                        color: AppColors.whiteClr,
                       ),
                     ),
                   ),
@@ -209,7 +210,7 @@ class _SectionTitle extends StatelessWidget {
       style: AppTextStyles.of(
         fontWeight: FontWeight.w600,
         fontSize: 15.sp,
-        color: const Color(0xFF374151),
+        color: AppColors.exactFF374151,
       ),
     );
   }
@@ -237,12 +238,12 @@ class _SortOptionTile extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFEFF6FF) : const Color(0xFFF9FAFB),
+          color: isSelected ? AppColors.exactFFEFF6FF : AppColors.exactFFF9FAFB,
           borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
             color: isSelected
-                ? const Color(0xFF3872B1)
-                : const Color(0xFFE5E7EB),
+                ? AppColors.brandBlueClr
+                : AppColors.exactFFE5E7EB,
             width: 1.2,
           ),
         ),
@@ -255,16 +256,16 @@ class _SortOptionTile extends StatelessWidget {
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: isSelected
-                      ? const Color(0xFF3872B1)
-                      : const Color(0xFFD1D5DB),
+                      ? AppColors.brandBlueClr
+                      : AppColors.exactFFD1D5DB,
                   width: 2.w,
                 ),
                 color: isSelected
-                    ? const Color(0xFF3872B1)
+                    ? AppColors.brandBlueClr
                     : Colors.transparent,
               ),
               child: isSelected
-                  ? Icon(Icons.check, size: 12.sp, color: Colors.white)
+                  ? Icon(Icons.check, size: 12.sp, color: AppColors.whiteClr)
                   : null,
             ),
             SizedBox(width: 10.w),
@@ -275,8 +276,8 @@ class _SortOptionTile extends StatelessWidget {
                   fontSize: 14.sp,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                   color: isSelected
-                      ? const Color(0xFF1E3A5F)
-                      : const Color(0xFF374151),
+                      ? AppColors.exactFF1E3A5F
+                      : AppColors.exactFF374151,
                 ),
               ),
             ),
@@ -284,7 +285,7 @@ class _SortOptionTile extends StatelessWidget {
               Icon(
                 Icons.check_circle_rounded,
                 size: 18.sp,
-                color: const Color(0xFF3872B1),
+                color: AppColors.brandBlueClr,
               ),
           ],
         ),
@@ -316,9 +317,9 @@ class _LookupDropdown extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 12.w),
       height: 46.h,
       decoration: BoxDecoration(
-        color: isDisabled ? const Color(0xFFF3F4F6) : Colors.white,
+        color: isDisabled ? AppColors.exactFFF3F4F6 : AppColors.whiteClr,
         borderRadius: BorderRadius.circular(10.r),
-        border: Border.all(color: const Color(0xFFD1D5DB)),
+        border: Border.all(color: AppColors.exactFFD1D5DB),
       ),
       child: isLoading
           ? Center(
@@ -327,7 +328,7 @@ class _LookupDropdown extends StatelessWidget {
                 height: 18.r,
                 child: const CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: Color(0xFF3872B1),
+                  color: AppColors.brandBlueClr,
                 ),
               ),
             )
@@ -339,7 +340,7 @@ class _LookupDropdown extends StatelessWidget {
                     hint,
                     style: AppTextStyles.of(
                       fontSize: 13.sp,
-                      color: const Color(0xFF9CA3AF),
+                      color: AppColors.exactFF9CA3AF,
                     ),
                   ),
                   value: value,
@@ -350,11 +351,11 @@ class _LookupDropdown extends StatelessWidget {
                   borderRadius: AppDropdownTheme.dropdownBorderRadius,
                   style: AppTextStyles.of(
                     fontSize: 13.sp,
-                    color: const Color(0xFF1A1A2E),
+                    color: AppColors.exactFF1A1A2E,
                   ),
                   icon: Icon(
                     Icons.keyboard_arrow_down_rounded,
-                    color: const Color(0xFF9CA3AF),
+                    color: AppColors.exactFF9CA3AF,
                     size: 22.sp,
                   ),
                 ),
@@ -369,3 +370,4 @@ class _SortOption {
   final String labelKey;
   const _SortOption({required this.value, required this.labelKey});
 }
+

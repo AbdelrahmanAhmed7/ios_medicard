@@ -9,6 +9,7 @@ import '../../domain/models/cart.dart';
 import '../../domain/models/cart_item.dart';
 import 'checkout_summary_row.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Shows what was saved and lets the user continue an order or prepare the rest.
 class ProviderSelectionSummary extends StatelessWidget {
   final Cart cart;
@@ -58,7 +59,7 @@ class ProviderSelectionSummary extends StatelessWidget {
               .tr(),
           style: AppTextStyles.of(
             fontSize: 14.sp,
-            color: const Color(0xFF64748B),
+            color: AppColors.inkMutedClr,
           ),
         ),
         for (var i = 0; i < ids.length; i++) ...[
@@ -78,7 +79,7 @@ class ProviderSelectionSummary extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(14.r),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
+              color: AppColors.exactFFF8FAFC,
               borderRadius: BorderRadius.circular(14.r),
             ),
             child: Column(
@@ -104,7 +105,7 @@ class ProviderSelectionSummary extends StatelessWidget {
                   'cart.remaining_saved_hint'.tr(),
                   style: AppTextStyles.of(
                     fontSize: 13.sp,
-                    color: const Color(0xFF64748B),
+                    color: AppColors.inkMutedClr,
                   ),
                 ),
                 SizedBox(height: 12.h),
@@ -112,8 +113,8 @@ class ProviderSelectionSummary extends StatelessWidget {
                   key: const ValueKey('choose-remaining-places'),
                   onPressed: onChooseRemaining,
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF3872B1),
-                    side: const BorderSide(color: Color(0xFF3872B1)),
+                    foregroundColor: AppColors.brandBlueClr,
+                    side: const BorderSide(color: AppColors.brandBlueClr),
                     minimumSize: Size.fromHeight(46.h),
                     padding: EdgeInsets.symmetric(
                       horizontal: 12.w,
@@ -135,7 +136,7 @@ class ProviderSelectionSummary extends StatelessWidget {
         SizedBox(height: 12.h),
         TextButton(
           onPressed: onReviewCart,
-          style: TextButton.styleFrom(foregroundColor: const Color(0xFF3872B1)),
+          style: TextButton.styleFrom(foregroundColor: AppColors.brandBlueClr),
           child: Text('cart.review_services'.tr()),
         ),
       ],
@@ -174,9 +175,9 @@ class _OrderCard extends StatelessWidget {
       key: isSelected ? const ValueKey('selected-provider-order') : null,
       padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
-        color: isSelected ? const Color(0xFFF0F7FF) : Colors.white,
+        color: isSelected ? AppColors.exactFFF0F7FF : AppColors.whiteClr,
         border: Border.all(
-          color: isSelected ? const Color(0xFF3872B1) : const Color(0xFFE2E8F0),
+          color: isSelected ? AppColors.brandBlueClr : AppColors.lineClr,
         ),
         borderRadius: BorderRadius.circular(16.r),
       ),
@@ -191,7 +192,7 @@ class _OrderCard extends StatelessWidget {
               style: AppTextStyles.of(
                 fontSize: 11.5.sp,
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFF64748B),
+                color: AppColors.inkMutedClr,
               ),
             ),
             SizedBox(height: 6.h),
@@ -214,7 +215,7 @@ class _OrderCard extends StatelessWidget {
                       style: AppTextStyles.of(
                         fontSize: 11.5.sp,
                         fontWeight: FontWeight.w500,
-                        color: const Color(0xFF64748B),
+                        color: AppColors.inkMutedClr,
                       ),
                     ),
                     SizedBox(height: 2.h),
@@ -235,7 +236,7 @@ class _OrderCard extends StatelessWidget {
                           .tr(),
                       style: AppTextStyles.of(
                         fontSize: 12.sp,
-                        color: const Color(0xFF64748B),
+                        color: AppColors.inkMutedClr,
                       ),
                     ),
                   ],
@@ -268,7 +269,7 @@ class _OrderCard extends StatelessWidget {
                     style: AppTextStyles.of(
                       fontSize: 13.sp,
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xFF0F172A),
+                      color: AppColors.exactFF0F172A,
                     ),
                   ),
                 ],
@@ -282,7 +283,7 @@ class _OrderCard extends StatelessWidget {
             style: AppTextStyles.of(
               fontSize: 17.sp,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF3872B1),
+              color: AppColors.brandBlueClr,
             ),
           ),
           SizedBox(height: 6.h),
@@ -290,7 +291,7 @@ class _OrderCard extends StatelessWidget {
             'cart.branch_chosen_at_checkout'.tr(),
             style: AppTextStyles.of(
               fontSize: 11.5.sp,
-              color: const Color(0xFF64748B),
+              color: AppColors.inkMutedClr,
             ),
           ),
           SizedBox(height: 12.h),
@@ -298,8 +299,8 @@ class _OrderCard extends StatelessWidget {
             key: isSelected ? const ValueKey('continue-selected-order') : null,
             onPressed: onContinue,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF3872B1),
-              foregroundColor: Colors.white,
+              backgroundColor: AppColors.brandBlueClr,
+              foregroundColor: AppColors.whiteClr,
               minimumSize: Size.fromHeight(50.h),
               padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
               elevation: 0,
@@ -317,3 +318,4 @@ class _OrderCard extends StatelessWidget {
     );
   }
 }
+

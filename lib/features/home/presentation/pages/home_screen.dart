@@ -40,6 +40,7 @@ import '../widgets/promo_banner.dart';
 import '../widgets/quick_actions_row.dart';
 import '../widgets/summer_promo_dialog.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class HomeScreen extends StatefulWidget {
   final int initialIndex;
 
@@ -163,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 _selectTab(0);
               },
               child: Scaffold(
-                backgroundColor: Colors.white,
+                backgroundColor: AppColors.whiteClr,
                 body: IndexedStack(
                   index: _currentIndex,
                   children: [
@@ -294,7 +295,7 @@ class _HomeBodyState extends State<_HomeBody> {
 
     return RefreshIndicator(
       onRefresh: () => context.read<HomeCubit>().getHomeData(refresh: true),
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.whiteClr,
       child: _buildShellScrollView(
         banners: banners,
         isRefreshing: isRefreshing,
@@ -428,3 +429,4 @@ class _ProfileBodyState extends State<_ProfileBody> {
     );
   }
 }
+

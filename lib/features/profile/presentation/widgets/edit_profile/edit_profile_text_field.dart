@@ -58,12 +58,12 @@ class EditProfileTextField extends StatelessWidget {
       decoration: readOnly
           ? decoration.copyWith(
               filled: true,
-              fillColor: const Color(0xFFF1F5F9),
+              fillColor: AppColors.exactFFF1F5F9,
               enabledBorder: decoration.enabledBorder?.copyWith(
-                borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                borderSide: const BorderSide(color: AppColors.lineClr),
               ),
               focusedBorder: decoration.focusedBorder?.copyWith(
-                borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                borderSide: const BorderSide(color: AppColors.lineClr),
               ),
             )
           : decoration,

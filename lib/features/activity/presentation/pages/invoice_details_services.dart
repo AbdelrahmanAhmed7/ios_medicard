@@ -18,9 +18,9 @@ class _ServicesCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.whiteClr,
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.lineClr),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -31,12 +31,12 @@ class _ServicesCard extends StatelessWidget {
             style: AppTextStyles.of(
               fontSize: 16.sp,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF111827),
+              color: AppColors.inkClr,
             ),
           ),
           SizedBox(height: 10.h),
           const _TableHeaderRow(),
-          const Divider(height: 16, color: Color(0xFFEEF1F5)),
+          const Divider(height: 16, color: AppColors.exactFFEEF1F5),
           if (services.isEmpty)
             Padding(
               padding: EdgeInsets.symmetric(vertical: 8.h),
@@ -44,16 +44,16 @@ class _ServicesCard extends StatelessWidget {
                 '-',
                 style: AppTextStyles.of(
                   fontSize: 13.sp,
-                  color: const Color(0xFF6B7280),
+                  color: AppColors.exactFF6B7280,
                 ),
               ),
             ),
           for (var i = 0; i < services.length; i++) ...[
             _ServiceTableRow(service: services[i]),
             if (i < services.length - 1)
-              const Divider(height: 16, color: Color(0xFFEEF1F5)),
+              const Divider(height: 16, color: AppColors.exactFFEEF1F5),
           ],
-          const Divider(height: 24, color: Color(0xFFEEF1F5)),
+          const Divider(height: 24, color: AppColors.exactFFEEF1F5),
           _TotalRow(
             label: 'cart.subtotal'.tr(),
             value: formatPrice(totalBefore),
@@ -62,7 +62,7 @@ class _ServicesCard extends StatelessWidget {
           _TotalRow(
             label: 'activity.discount_percentage'.tr(),
             value: '${_apiValue(discountPct)}%',
-            valueColor: const Color(0xFF3872B1),
+            valueColor: AppColors.brandBlueClr,
           ),
           SizedBox(height: 8.h),
           _TotalRow(
@@ -90,7 +90,7 @@ class _TableHeaderRow extends StatelessWidget {
             style: AppTextStyles.of(
               fontSize: 11.5.sp,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF6B7280),
+              color: AppColors.exactFF6B7280,
             ),
           ),
         ),
@@ -102,7 +102,7 @@ class _TableHeaderRow extends StatelessWidget {
             style: AppTextStyles.of(
               fontSize: 11.5.sp,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF6B7280),
+              color: AppColors.exactFF6B7280,
             ),
           ),
         ),
@@ -114,7 +114,7 @@ class _TableHeaderRow extends StatelessWidget {
             style: AppTextStyles.of(
               fontSize: 11.5.sp,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF6B7280),
+              color: AppColors.exactFF6B7280,
             ),
           ),
         ),
@@ -143,7 +143,7 @@ class _ServiceTableRow extends StatelessWidget {
                 style: AppTextStyles.of(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF111827),
+                  color: AppColors.inkClr,
                   height: 1.35,
                 ),
                 maxLines: 2,
@@ -154,7 +154,7 @@ class _ServiceTableRow extends StatelessWidget {
                 '${'activity.total_quantity'.tr()}: ${service.quantity ?? 1}',
                 style: AppTextStyles.of(
                   fontSize: 10.5.sp,
-                  color: const Color(0xFF6B7280),
+                  color: AppColors.exactFF6B7280,
                 ),
               ),
               SizedBox(height: 3.h),
@@ -163,7 +163,7 @@ class _ServiceTableRow extends StatelessWidget {
                 '${_apiValue(service.displayedDiscountPercentage)}%',
                 style: AppTextStyles.of(
                   fontSize: 10.5.sp,
-                  color: const Color(0xFF6B7280),
+                  color: AppColors.exactFF6B7280,
                 ),
               ),
             ],
@@ -176,7 +176,7 @@ class _ServiceTableRow extends StatelessWidget {
             textAlign: TextAlign.center,
             style: AppTextStyles.of(
               fontSize: 12.sp,
-              color: const Color(0xFF6B7280),
+              color: AppColors.exactFF6B7280,
             ),
           ),
         ),
@@ -188,7 +188,7 @@ class _ServiceTableRow extends StatelessWidget {
             style: AppTextStyles.of(
               fontSize: 13.sp,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF3872B1),
+              color: AppColors.brandBlueClr,
             ),
           ),
         ),
@@ -221,8 +221,8 @@ class _TotalRow extends StatelessWidget {
               fontSize: isTotal ? 15.sp : 13.5.sp,
               fontWeight: isTotal ? FontWeight.w700 : FontWeight.w400,
               color: isTotal
-                  ? const Color(0xFF111827)
-                  : const Color(0xFF6B7280),
+                  ? AppColors.inkClr
+                  : AppColors.exactFF6B7280,
             ),
           ),
         ),
@@ -235,7 +235,7 @@ class _TotalRow extends StatelessWidget {
             fontWeight: FontWeight.w700,
             color:
                 valueColor ??
-                (isTotal ? const Color(0xFF3872B1) : const Color(0xFF111827)),
+                (isTotal ? AppColors.brandBlueClr : AppColors.inkClr),
           ),
         ),
       ],
@@ -254,10 +254,10 @@ class _StatusBadge extends StatelessWidget {
     final isCancelled = normalized == 'canceled' || normalized == 'cancelled';
     final isCompleted = normalized == 'used' || normalized == 'completed';
     final color = isCancelled
-        ? const Color(0xFFDC2626)
+        ? AppColors.exactFFDC2626
         : isCompleted
-        ? const Color(0xFF0F8A5F)
-        : const Color(0xFF9A6A00);
+        ? AppColors.exactFF0F8A5F
+        : AppColors.exactFF9A6A00;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
       decoration: BoxDecoration(
@@ -272,3 +272,4 @@ class _StatusBadge extends StatelessWidget {
     );
   }
 }
+

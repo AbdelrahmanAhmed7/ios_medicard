@@ -11,6 +11,7 @@ import '../cubit/forgot_password_state.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class ResetPasswordScreen extends StatefulWidget {
   final String phoneNumber;
   final String token;
@@ -285,9 +286,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     required bool showInvalid,
   }) {
     final color = isMet
-        ? Colors.green
+        ? AppColors.materialGreen
         : showInvalid
-        ? Colors.red
+        ? AppColors.materialRed
         : kAuthGreyText;
 
     return Padding(
@@ -315,3 +316,4 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     );
   }
 }
+

@@ -8,6 +8,7 @@ import '../../../../core/theming/app_text_styles.dart';
 import '../../../../core/widgets/auth_shared_widgets.dart';
 import '../../data/models/profile_response_model.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class ProfileLanguageItem extends StatelessWidget {
   final ProfileData data;
 
@@ -29,13 +30,13 @@ class ProfileLanguageItem extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         child: Row(
           children: [
-            Icon(Icons.language_outlined, size: 22.sp, color: Colors.black87),
+            Icon(Icons.language_outlined, size: 22.sp, color: AppColors.materialBlack87),
             SizedBox(width: 12.w),
             Expanded(
               child: Text(
                 label,
                 style: AppTextStyles.of(
-                  color: Colors.black,
+                  color: AppColors.materialBlack,
                   fontSize: 15.sp,
                   fontWeight: FontWeight.w500,
                 ),
@@ -70,7 +71,7 @@ class ProfileLanguageItem extends StatelessWidget {
     var selected = current;
     final picked = await showModalBottomSheet<String>(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.whiteClr,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
@@ -88,13 +89,13 @@ class ProfileLanguageItem extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? const Color(0xFFEFF6FF)
+                        ? AppColors.exactFFEFF6FF
                         : Colors.transparent,
                     borderRadius: BorderRadius.circular(12.r),
                     border: Border.all(
                       color: isSelected
-                          ? const Color(0xFF3872B1)
-                          : const Color(0xFFE5E7EB),
+                          ? AppColors.brandBlueClr
+                          : AppColors.exactFFE5E7EB,
                     ),
                   ),
                   child: Row(
@@ -107,7 +108,7 @@ class ProfileLanguageItem extends StatelessWidget {
                             fontWeight: isSelected
                                 ? FontWeight.w600
                                 : FontWeight.w400,
-                            color: const Color(0xFF111827),
+                            color: AppColors.inkClr,
                           ),
                         ),
                       ),
@@ -115,7 +116,7 @@ class ProfileLanguageItem extends StatelessWidget {
                         Icon(
                           Icons.check_circle_rounded,
                           size: 20.sp,
-                          color: const Color(0xFF3872B1),
+                          color: AppColors.brandBlueClr,
                         ),
                     ],
                   ),
@@ -135,7 +136,7 @@ class ProfileLanguageItem extends StatelessWidget {
                         width: 42.w,
                         height: 4.h,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE5E7EB),
+                          color: AppColors.exactFFE5E7EB,
                           borderRadius: BorderRadius.circular(4.r),
                         ),
                       ),
@@ -146,7 +147,7 @@ class ProfileLanguageItem extends StatelessWidget {
                       style: AppTextStyles.of(
                         fontSize: 18.sp,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF111827),
+                        color: AppColors.inkClr,
                       ),
                     ),
                     SizedBox(height: 14.h),
@@ -160,8 +161,8 @@ class ProfileLanguageItem extends StatelessWidget {
                           child: OutlinedButton(
                             onPressed: () => Navigator.of(sheetContext).pop(),
                             style: OutlinedButton.styleFrom(
-                              foregroundColor: const Color(0xFF334155),
-                              side: const BorderSide(color: Color(0xFFD1D5DB)),
+                              foregroundColor: AppColors.exactFF334155,
+                              side: const BorderSide(color: AppColors.exactFFD1D5DB),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12.r),
                               ),
@@ -176,8 +177,8 @@ class ProfileLanguageItem extends StatelessWidget {
                             onPressed: () =>
                                 Navigator.of(sheetContext).pop(selected),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF3872B1),
-                              foregroundColor: Colors.white,
+                              backgroundColor: AppColors.brandBlueClr,
+                              foregroundColor: AppColors.whiteClr,
                               elevation: 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12.r),
@@ -203,3 +204,4 @@ class ProfileLanguageItem extends StatelessWidget {
     }
   }
 }
+

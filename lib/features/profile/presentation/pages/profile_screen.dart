@@ -10,6 +10,7 @@ import '../widgets/profile_content.dart';
 import '../widgets/profile_error_view.dart';
 import '../widgets/profile_shimmer.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -64,7 +65,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         },
         builder: (context, state) {
           return Scaffold(
-            backgroundColor: const Color(0xFFF8F9FA),
+            backgroundColor: AppColors.lightGreyClr,
             body: state.when(
               initial: () => const SizedBox.shrink(),
               loading: () => const ProfileShimmer(),
@@ -82,3 +83,4 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
+

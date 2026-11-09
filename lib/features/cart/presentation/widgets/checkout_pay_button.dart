@@ -10,6 +10,7 @@ import '../../../../core/theming/app_toast.dart';
 import '../cubit/cart_cubit.dart';
 import '../cubit/cart_state.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class CheckoutPayButton extends StatelessWidget {
   final CartState state;
 
@@ -25,8 +26,8 @@ class CheckoutPayButton extends StatelessWidget {
         child: OutlinedButton(
           onPressed: () => _reconcile(context),
           style: OutlinedButton.styleFrom(
-            foregroundColor: const Color(0xFF3872B1),
-            side: const BorderSide(color: Color(0xFF3872B1)),
+            foregroundColor: AppColors.brandBlueClr,
+            side: const BorderSide(color: AppColors.brandBlueClr),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16.r),
             ),
@@ -73,9 +74,9 @@ class CheckoutPayButton extends StatelessWidget {
                 }
               },
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF3872B1),
-          disabledBackgroundColor: const Color(0xFFCBD5E1),
-          foregroundColor: Colors.white,
+          backgroundColor: AppColors.brandBlueClr,
+          disabledBackgroundColor: AppColors.exactFFCBD5E1,
+          foregroundColor: AppColors.whiteClr,
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16.r),
@@ -87,7 +88,7 @@ class CheckoutPayButton extends StatelessWidget {
                 height: 22,
                 child: CircularProgressIndicator(
                   strokeWidth: 2.4,
-                  color: Colors.white,
+                  color: AppColors.whiteClr,
                 ),
               )
             : Text(
@@ -123,3 +124,4 @@ class CheckoutPayButton extends StatelessWidget {
     }
   }
 }
+

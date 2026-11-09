@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Content height shared by the primary BottomNavigationBar screens.
 /// The system status-bar height is added by [SafeArea].
 const double kMainTabHeaderContentHeight = 120;
@@ -86,7 +87,7 @@ class AppBlueHeader extends StatelessWidget {
     this.actions,
     this.bottomChild,
     this.bottomRadius = 24,
-    this.color = const Color(0xFF3872B1),
+    this.color = AppColors.brandBlueClr,
     this.padding,
     this.contentHeight,
   });
@@ -130,7 +131,7 @@ class AppBlueHeader extends StatelessWidget {
                   children: [
                     if (showBack)
                       AppHeaderBackButton(
-                        color: Colors.white,
+                        color: AppColors.whiteClr,
                         onPressed: onBack ?? () => Navigator.of(context).pop(),
                       ),
                     if (title != null)
@@ -144,7 +145,7 @@ class AppBlueHeader extends StatelessWidget {
                               style: AppTextStyles.of(
                                 fontSize: 22.sp,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: AppColors.whiteClr,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -183,3 +184,4 @@ class AppBlueHeader extends StatelessWidget {
     );
   }
 }
+

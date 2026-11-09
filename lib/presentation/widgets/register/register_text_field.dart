@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../core/theming/app_text_styles.dart';
 import '../../../core/widgets/auth_shared_widgets.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 /// Shared text field for the register form. Focus wiring stays on the screen
 /// (it owns the focus nodes); everything visual lives here.
 class RegisterTextField extends StatelessWidget {
@@ -44,7 +45,7 @@ class RegisterTextField extends StatelessWidget {
       autovalidateMode: autovalidateMode,
       onChanged: onChanged,
       inputFormatters: inputFormatters,
-      style: AppTextStyles.of(fontSize: 15.sp, color: Colors.black),
+      style: AppTextStyles.of(fontSize: 15.sp, color: AppColors.materialBlack),
       decoration: authInputDecoration(hintText: hintText),
       validator:
           validator ??
@@ -54,3 +55,4 @@ class RegisterTextField extends StatelessWidget {
     );
   }
 }
+

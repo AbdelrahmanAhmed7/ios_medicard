@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/widgets/unified_search_field.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class SearchAppBar extends StatefulWidget {
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
@@ -48,7 +49,7 @@ class _SearchAppBarState extends State<SearchAppBar> {
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
-      color: Colors.white,
+      color: AppColors.whiteClr,
       child: SafeArea(
         bottom: false,
         child: Padding(
@@ -65,7 +66,7 @@ class _SearchAppBarState extends State<SearchAppBar> {
                     context.go('/medicard-home');
                   }
                 },
-                color: const Color(0xFF111827),
+                color: AppColors.inkClr,
               ),
 
               // Floating search pill.
@@ -103,15 +104,15 @@ class _SearchAppBarState extends State<SearchAppBar> {
                                       padding: const EdgeInsets.all(8),
                                       decoration: BoxDecoration(
                                         color: widget.hasActiveFilters
-                                            ? const Color(0xFFEFF6FF)
+                                            ? AppColors.exactFFEFF6FF
                                             : Colors.transparent,
                                         shape: BoxShape.circle,
                                       ),
                                       child: Icon(
                                         Icons.tune,
                                         color: widget.hasActiveFilters
-                                            ? const Color(0xFF3872B1)
-                                            : const Color(0xFF9CA3AF),
+                                            ? AppColors.brandBlueClr
+                                            : AppColors.exactFF9CA3AF,
                                         size: 18,
                                       ),
                                     ),
@@ -124,10 +125,10 @@ class _SearchAppBarState extends State<SearchAppBar> {
                                           width: 9,
                                           height: 9,
                                           decoration: BoxDecoration(
-                                            color: const Color(0xFF3872B1),
+                                            color: AppColors.brandBlueClr,
                                             shape: BoxShape.circle,
                                             border: Border.all(
-                                              color: Colors.white,
+                                              color: AppColors.whiteClr,
                                               width: 1.5,
                                             ),
                                           ),
@@ -148,3 +149,4 @@ class _SearchAppBarState extends State<SearchAppBar> {
     );
   }
 }
+

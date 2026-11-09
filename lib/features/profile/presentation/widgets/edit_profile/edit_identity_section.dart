@@ -109,7 +109,7 @@ class EditIdentitySection extends StatelessWidget {
               width: 72.w,
               height: 52.h,
               decoration: BoxDecoration(
-                color: const Color(0xFFF1F5F9),
+                color: AppColors.exactFFF1F5F9,
                 borderRadius: BorderRadius.circular(14.r),
                 border: Border.all(color: kAuthBorderColor),
               ),
@@ -118,7 +118,7 @@ class EditIdentitySection extends StatelessWidget {
                 '+20',
                 style: AppTextStyles.of(
                   fontSize: 15.sp,
-                  color: const Color(0xFF64748B),
+                  color: AppColors.inkMutedClr,
                   fontWeight: FontWeight.w600,
                   height: 1.3,
                 ),
@@ -184,7 +184,7 @@ class EditBirthDateField extends StatelessWidget {
           readOnly: true,
           style: AppTextStyles.of(
             fontSize: 15.sp,
-            color: isEmpty ? const Color(0xFFB0B8C1) : AppColors.inkClr,
+            color: isEmpty ? AppColors.exactFFB0B8C1 : AppColors.inkClr,
             fontWeight: FontWeight.w500,
             height: 1.3,
           ),
@@ -208,3 +208,4 @@ class EditBirthDateField extends StatelessWidget {
     );
   }
 }
+

@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/theming/app_text_styles.dart';
 import '../cubit/cart_cubit.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class CartSyncWarning extends StatelessWidget {
   final String message;
 
@@ -16,15 +17,15 @@ class CartSyncWarning extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFBEB),
+        color: AppColors.exactFFFFFBEB,
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: const Color(0xFFFBBF24)),
+        border: Border.all(color: AppColors.exactFFFBBF24),
       ),
       child: Row(
         children: [
           Icon(
             Icons.info_outline_rounded,
-            color: const Color(0xFFD97706),
+            color: AppColors.exactFFD97706,
             size: 20.sp,
           ),
           SizedBox(width: 10.w),
@@ -33,7 +34,7 @@ class CartSyncWarning extends StatelessWidget {
               message,
               style: AppTextStyles.of(
                 fontSize: 12.sp,
-                color: const Color(0xFF92400E),
+                color: AppColors.exactFF92400E,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -47,3 +48,4 @@ class CartSyncWarning extends StatelessWidget {
     );
   }
 }
+

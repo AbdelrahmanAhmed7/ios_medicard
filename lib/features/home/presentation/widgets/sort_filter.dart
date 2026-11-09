@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/widgets/app_dropdown_menu_item.dart';
 import '../../../../core/theming/app_text_styles.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 enum SortOption { nearest, highestRating }
 
 class SortFilterSheet extends StatefulWidget {
@@ -27,7 +28,7 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.whiteClr,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -40,7 +41,7 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: const Color(0xFFE5E7EB),
+                color: AppColors.exactFFE5E7EB,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -53,7 +54,7 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
             style: AppTextStyles.of(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF1A1A2E),
+              color: AppColors.exactFF1A1A2E,
             ),
           ),
           const SizedBox(height: 12),
@@ -70,7 +71,7 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
             style: AppTextStyles.of(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF1A1A2E),
+              color: AppColors.exactFF1A1A2E,
             ),
           ),
           const SizedBox(height: 12),
@@ -110,8 +111,8 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
                 });
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF3872B1),
-                foregroundColor: Colors.white,
+                backgroundColor: AppColors.brandBlueClr,
+                foregroundColor: AppColors.whiteClr,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -144,17 +145,17 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
               width: 22,
               height: 22,
               decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFF3872B1) : Colors.white,
+                color: isSelected ? AppColors.brandBlueClr : AppColors.whiteClr,
                 borderRadius: BorderRadius.circular(4),
                 border: Border.all(
                   color: isSelected
-                      ? const Color(0xFF3872B1)
-                      : const Color(0xFFD1D5DB),
+                      ? AppColors.brandBlueClr
+                      : AppColors.exactFFD1D5DB,
                   width: 1.5,
                 ),
               ),
               child: isSelected
-                  ? const Icon(Icons.check, color: Colors.white, size: 14)
+                  ? const Icon(Icons.check, color: AppColors.whiteClr, size: 14)
                   : null,
             ),
             const SizedBox(width: 12),
@@ -163,7 +164,7 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
               style: AppTextStyles.of(
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
-                color: const Color(0xFF1A1A2E),
+                color: AppColors.exactFF1A1A2E,
               ),
             ),
           ],
@@ -181,9 +182,9 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.whiteClr,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFD1D5DB)),
+        border: Border.all(color: AppColors.exactFFD1D5DB),
       ),
       child: AppDropdownTheme(
         child: DropdownButtonHideUnderline(
@@ -193,7 +194,7 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
               hint,
               style: AppTextStyles.of(
                 fontSize: 13,
-                color: const Color(0xFF6B7280),
+                color: AppColors.exactFF6B7280,
               ),
             ),
             isExpanded: true,
@@ -202,7 +203,7 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
             borderRadius: AppDropdownTheme.dropdownBorderRadius,
             icon: const Icon(
               Icons.keyboard_arrow_down_rounded,
-              color: Color(0xFF6B7280),
+              color: AppColors.exactFF6B7280,
             ),
             items: items
                 .map(
@@ -220,3 +221,4 @@ class _SortFilterSheetState extends State<SortFilterSheet> {
     );
   }
 }
+

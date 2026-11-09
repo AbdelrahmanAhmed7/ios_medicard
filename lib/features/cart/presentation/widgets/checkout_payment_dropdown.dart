@@ -9,6 +9,7 @@ import '../cubit/cart_cubit.dart';
 import '../cubit/cart_state.dart';
 import 'checkout_dropdown_frame.dart';
 
+import 'package:medicard/core/theming/app_colors.dart';
 class CheckoutPaymentDropdown extends StatelessWidget {
   final CartState state;
 
@@ -25,14 +26,14 @@ class CheckoutPaymentDropdown extends StatelessWidget {
             style: AppTextStyles.of(
               fontSize: 14.sp,
               fontWeight: FontWeight.w500,
-              color: const Color(0xFF111827),
+              color: AppColors.inkClr,
             ),
             dropdownColor: AppDropdownTheme.menuColor,
             elevation: AppDropdownTheme.menuElevation.toInt(),
             borderRadius: AppDropdownTheme.dropdownBorderRadius,
             icon: const Icon(
               Icons.keyboard_arrow_down_rounded,
-              color: Color(0xFF6B7280),
+              color: AppColors.exactFF6B7280,
             ),
             items: [
               AppDropdownMenuItem<CartPaymentMethod>(
@@ -57,3 +58,4 @@ class CheckoutPaymentDropdown extends StatelessWidget {
     );
   }
 }
+
