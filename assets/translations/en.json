@@ -317,6 +317,8 @@
     "add": "Upload New Prescription",
     "all": "All",
     "empty": "No prescriptions uploaded yet",
+    "empty_subtitle": "Upload your first prescription to review it and track its status easily.",
+    "empty_action": "Upload a new prescription",
     "number": "Prescription",
     "reason": "Rejection reason",
     "rejection_title": "Rejection reasons",

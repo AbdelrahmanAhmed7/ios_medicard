@@ -213,7 +213,9 @@ class _ManualPrescriptionsScreenState extends State<ManualPrescriptionsScreen> {
       );
     }
     if (_items.isEmpty) {
-      return Center(child: Text('manual_prescription.empty'.tr()));
+      return _EmptyPrescriptionsView(
+        onAdd: () => context.push('/manual-prescription'),
+      );
     }
     return RefreshIndicator(
       onRefresh: () => _load(refresh: true),
@@ -621,6 +623,116 @@ class _PrescriptionCardSkeleton extends StatelessWidget {
       ),
     ),
   );
+}
+
+class _EmptyPrescriptionsView extends StatelessWidget {
+  final VoidCallback onAdd;
+
+  const _EmptyPrescriptionsView({required this.onAdd});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(horizontal: 28.w, vertical: 24.h),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: 360.w),
+          child: Container(
+            padding: EdgeInsets.fromLTRB(22.w, 28.h, 22.w, 22.h),
+            decoration: BoxDecoration(
+              color: AppColors.whiteClr,
+              borderRadius: BorderRadius.circular(24.r),
+              border: Border.all(color: AppColors.lineClr),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.brandBlueClr.withValues(alpha: .08),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 108.r,
+                  height: 108.r,
+                  decoration: const BoxDecoration(
+                    color: AppColors.dropdownHoverClr,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Icon(
+                        Icons.receipt_long_outlined,
+                        size: 54.sp,
+                        color: AppColors.brandBlueClr,
+                      ),
+                      Positioned(
+                        right: 8.r,
+                        bottom: 10.r,
+                        child: Container(
+                          width: 30.r,
+                          height: 30.r,
+                          decoration: const BoxDecoration(
+                            color: AppColors.brandBlueClr,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.add_rounded,
+                            size: 20.sp,
+                            color: AppColors.whiteClr,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 22.h),
+                Text(
+                  'manual_prescription.empty'.tr(),
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.of(
+                    fontSize: 19.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.inkClr,
+                  ),
+                ),
+                SizedBox(height: 9.h),
+                Text(
+                  'manual_prescription.empty_subtitle'.tr(),
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.of(
+                    fontSize: 13.sp,
+                    color: AppColors.inkMutedClr,
+                    height: 1.55,
+                  ),
+                ),
+                SizedBox(height: 22.h),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48.h,
+                  child: FilledButton.icon(
+                    onPressed: onAdd,
+                    icon: Icon(Icons.upload_file_outlined, size: 19.sp),
+                    label: Text('manual_prescription.empty_action'.tr()),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.brandBlueClr,
+                      foregroundColor: AppColors.whiteClr,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _PrescriptionItemsSheet extends StatelessWidget {
