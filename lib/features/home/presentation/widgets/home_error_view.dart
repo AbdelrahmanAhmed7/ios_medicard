@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../domain/models/home_failure.dart';
-
+import 'package:medicard/core/theming/app_colors.dart';
 import '../../../../core/theming/app_text_styles.dart';
 
-import 'package:medicard/core/theming/app_colors.dart';
 /// Full-content error state shown inside the sliver scroll when the API fails.
 /// Displays a friendly message and a retry button.
 class HomeErrorView extends StatelessWidget {
@@ -24,7 +24,6 @@ class HomeErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final messageKey = switch (failure) {
       HomeFailureType.noInternet => 'home.no_internet_message',
       HomeFailureType.connectionTimeout => 'home.connection_timeout_message',
@@ -36,6 +35,7 @@ class HomeErrorView extends StatelessWidget {
     final icon = failure == HomeFailureType.noInternet
         ? Icons.wifi_off_rounded
         : Icons.cloud_off_rounded;
+    final isNoInternet = failure == HomeFailureType.noInternet;
 
     return SafeArea(
       child: LayoutBuilder(
@@ -51,21 +51,26 @@ class HomeErrorView extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primaryContainer.withValues(
-                        alpha: 0.5,
-                      ),
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: Icon(
-                      icon,
-                      size: 40,
-                      color: theme.colorScheme.onPrimaryContainer,
-                    ),
-                  ),
+                  isNoInternet
+                      ? Image.asset(
+                          'assets/no-internet-connection-available-illustration-svg-download-png-13996752.webp',
+                          width: 210.w,
+                          height: 150.h,
+                          fit: BoxFit.contain,
+                        )
+                      : Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: AppColors.exactFFEAF1F9,
+                            borderRadius: BorderRadius.circular(24.r),
+                          ),
+                          child: Icon(
+                            icon,
+                            size: 40,
+                            color: AppColors.brandBlueClr,
+                          ),
+                        ),
                   const SizedBox(height: 24),
                   Text(
                     'home.network_error_title'.tr(),
@@ -73,7 +78,7 @@ class HomeErrorView extends StatelessWidget {
                     style: AppTextStyles.of(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: theme.colorScheme.onSurface,
+                      color: AppColors.inkClr,
                       height: 1.2,
                     ),
                   ),
@@ -84,7 +89,7 @@ class HomeErrorView extends StatelessWidget {
                     style: AppTextStyles.of(
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
-                      color: theme.colorScheme.onSurfaceVariant,
+                      color: AppColors.inkMutedClr,
                       height: 1.6,
                     ),
                   ),
@@ -111,7 +116,7 @@ class HomeErrorView extends StatelessWidget {
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: theme.colorScheme.primary,
+                        backgroundColor: AppColors.brandBlueClr,
                         foregroundColor: AppColors.whiteClr,
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -130,4 +135,3 @@ class HomeErrorView extends StatelessWidget {
     );
   }
 }
-

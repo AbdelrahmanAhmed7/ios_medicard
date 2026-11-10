@@ -10,6 +10,7 @@ import 'package:medicard/features/home/domain/models/provider_model.dart';
 
 import '../../../../core/cubit/app_refresh_cubit.dart';
 import '../../../../core/di/service_locator.dart';
+import '../../../../core/network/connectivity_service.dart';
 import '../../../../core/theming/app_snack_bar.dart';
 import '../../../../core/theming/app_toast.dart';
 import '../../../../features/activity/presentation/cubit/activity_cubit.dart';
@@ -21,6 +22,7 @@ import '../../../../features/profile/presentation/widgets/profile_content.dart';
 import '../../../../features/profile/presentation/widgets/profile_error_view.dart';
 import '../../../../features/profile/presentation/widgets/profile_shimmer.dart';
 import '../../data/models/home_response_model.dart';
+import '../../domain/models/home_failure.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
 import '../cubit/location_cubit.dart';
@@ -41,6 +43,7 @@ import '../widgets/quick_actions_row.dart';
 import '../widgets/summer_promo_dialog.dart';
 
 import 'package:medicard/core/theming/app_colors.dart';
+
 class HomeScreen extends StatefulWidget {
   final int initialIndex;
 
@@ -217,6 +220,7 @@ class _HomeBodyState extends State<_HomeBody> {
   List<ProviderModel> _cachedProviders = const [];
   List<PromoBanner> _cachedBanners = const [];
   List<FeaturedServiceModel> _cachedServices = const [];
+  bool _wasOffline = false;
 
   void _updateCacheIfNeeded(HomeResponseModel data) {
     if (identical(_lastData, data) || _lastData == data) return;
@@ -233,46 +237,80 @@ class _HomeBodyState extends State<_HomeBody> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<HomeCubit, HomeState>(
-      listener: (context, state) {
-        state.maybeWhen(
-          refreshFailed: (_, _) => showAppSnackBar(
-            context,
-            'home.refresh_failed'.tr(),
-            type: SnackBarType.error,
-            actionLabel: 'common.retry'.tr(),
-            onAction: () =>
-                context.read<HomeCubit>().getHomeData(refresh: true),
-          ),
-          orElse: () {},
-        );
-      },
-      builder: (context, state) {
-        return state.when(
-          initial: () => _buildShellScrollView(
-            slivers: [const SliverToBoxAdapter(child: HomeShimmer())],
-          ),
-          loading: () => _buildShellScrollView(
-            slivers: [const SliverToBoxAdapter(child: HomeShimmer())],
-          ),
-          success: (data) => _buildLoadedView(context, data),
-          failed: (failure, isRetrying) => _buildShellScrollView(
-            showQuickActions: false,
-            slivers: [
-              SliverToBoxAdapter(
-                child: HomeErrorView(
-                  failure: failure,
-                  isRetrying: isRetrying,
-                  onRetry: () => context.read<HomeCubit>().getHomeData(),
-                ),
+    return StreamBuilder<bool>(
+      initialData: ConnectivityService.instance.isOnline,
+      stream: ConnectivityService.instance.connectivityStream,
+      builder: (context, connectivitySnapshot) {
+        final isOffline = connectivitySnapshot.data == false;
+        if (isOffline) {
+          _wasOffline = true;
+          return _buildOfflineView(context);
+        }
+        if (_wasOffline) {
+          _wasOffline = false;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              context.read<HomeCubit>().getHomeData(refresh: true);
+            }
+          });
+        }
+
+        return BlocConsumer<HomeCubit, HomeState>(
+          listener: (context, state) {
+            state.maybeWhen(
+              refreshFailed: (_, _) => showAppSnackBar(
+                context,
+                'home.refresh_failed'.tr(),
+                type: SnackBarType.error,
+                actionLabel: 'common.retry'.tr(),
+                onAction: () =>
+                    context.read<HomeCubit>().getHomeData(refresh: true),
               ),
-            ],
-          ),
-          refreshing: (data) =>
-              _buildLoadedView(context, data, isRefreshing: true),
-          refreshFailed: (data, _) => _buildLoadedView(context, data),
+              orElse: () {},
+            );
+          },
+          builder: (context, state) {
+            return state.when(
+              initial: () => _buildShellScrollView(
+                slivers: [const SliverToBoxAdapter(child: HomeShimmer())],
+              ),
+              loading: () => _buildShellScrollView(
+                slivers: [const SliverToBoxAdapter(child: HomeShimmer())],
+              ),
+              success: (data) => _buildLoadedView(context, data),
+              failed: (failure, isRetrying) => _buildShellScrollView(
+                showQuickActions: false,
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: HomeErrorView(
+                      failure: failure,
+                      isRetrying: isRetrying,
+                      onRetry: () => context.read<HomeCubit>().getHomeData(),
+                    ),
+                  ),
+                ],
+              ),
+              refreshing: (data) =>
+                  _buildLoadedView(context, data, isRefreshing: true),
+              refreshFailed: (data, _) => _buildLoadedView(context, data),
+            );
+          },
         );
       },
+    );
+  }
+
+  Widget _buildOfflineView(BuildContext context) {
+    return _buildShellScrollView(
+      showQuickActions: false,
+      slivers: [
+        SliverToBoxAdapter(
+          child: HomeErrorView(
+            failure: HomeFailureType.noInternet,
+            onRetry: () => context.read<HomeCubit>().getHomeData(refresh: true),
+          ),
+        ),
+      ],
     );
   }
 
@@ -429,4 +467,3 @@ class _ProfileBodyState extends State<_ProfileBody> {
     );
   }
 }
-
