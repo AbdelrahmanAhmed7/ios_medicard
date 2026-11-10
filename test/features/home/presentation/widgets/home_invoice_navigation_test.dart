@@ -231,7 +231,6 @@ class _NotificationCubit extends Cubit<NotificationState>
 
 class _CartCubit extends Cubit<CartState> implements CartCubit {
   _CartCubit() : super(const CartState());
-  @override
   Future<void> loadCart() async {}
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);

@@ -62,6 +62,9 @@ class MedicineModel {
   final String? arName;
   final String? enName;
   final double? medicinePrice;
+  final double? priceBefore;
+  final double? priceAfter;
+  final double? discountPercentage;
   final String? medicineImageUrl;
   final String? medicineForm;
   final String? unit;
@@ -71,6 +74,9 @@ class MedicineModel {
     this.arName,
     this.enName,
     this.medicinePrice,
+    this.priceBefore,
+    this.priceAfter,
+    this.discountPercentage,
     this.medicineImageUrl,
     this.medicineForm,
     this.unit,
@@ -81,6 +87,9 @@ class MedicineModel {
     arName: json['arName'] as String?,
     enName: json['enName'] as String?,
     medicinePrice: (json['medicinePrice'] as num?)?.toDouble(),
+    priceBefore: (json['priceBefore'] as num?)?.toDouble(),
+    priceAfter: (json['priceAfter'] as num?)?.toDouble(),
+    discountPercentage: (json['discountPercentage'] as num?)?.toDouble(),
     medicineImageUrl: json['medicineImageUrl'] as String?,
     medicineForm: json['medicineForm'] as String?,
     unit: json['unit'] as String?,

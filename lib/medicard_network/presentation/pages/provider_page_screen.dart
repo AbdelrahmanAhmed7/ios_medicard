@@ -1,8 +1,11 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/service_locator.dart';
+import '../../../../features/search/presentation/cubit/search_cubit.dart';
+import '../../../../features/search/presentation/widgets/search_medicines_tab.dart';
 import '../../../../network/data/provider_page_response_model.dart';
 import '../../logic/provider_page_cubit.dart';
 import '../../logic/provider_page_state.dart';
@@ -12,8 +15,10 @@ import '../widgets/provider_top_header.dart';
 import '../widgets/package_details_sheet.dart';
 
 import 'package:medicard/core/theming/app_colors.dart';
+
 class ProviderPageScreen extends StatefulWidget {
   final int providerId;
+  final String? categoryNameHint;
 
   /// When set (notification deep-link), the package sheet opens
   /// automatically once the page data is ready.
@@ -22,6 +27,7 @@ class ProviderPageScreen extends StatefulWidget {
   const ProviderPageScreen({
     super.key,
     required this.providerId,
+    this.categoryNameHint,
     this.autoOpenPackageId,
   });
 
@@ -88,11 +94,53 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
                               ),
                               sliver: SliverMainAxisGroup(
                                 slivers: [
-                                  const SliverToBoxAdapter(
-                                    child: ProviderSearchRow(),
-                                  ),
-                                  ProviderContentSection(
-                                    selectedBranch: _selectedBranch,
+                                  BlocSelector<
+                                    ProviderPageCubit,
+                                    ProviderPageState,
+                                    bool
+                                  >(
+                                    selector: (state) => _isPharmacy(
+                                      state.providerData?.categoryName ??
+                                          widget.categoryNameHint,
+                                    ),
+                                    builder: (context, isPharmacy) {
+                                      if (isPharmacy) {
+                                        return SliverMainAxisGroup(
+                                          slivers: [
+                                            SliverToBoxAdapter(
+                                              child: Padding(
+                                                padding: EdgeInsets.only(
+                                                  bottom: 8.h,
+                                                ),
+                                                child: Text(
+                                                  'cart.medicines'.tr(),
+                                                  style: TextStyle(
+                                                    fontSize: 16.sp,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: AppColors.inkClr,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            const SliverFillRemaining(
+                                              hasScrollBody: true,
+                                              child: _PharmacyMedicinesPanel(),
+                                            ),
+                                          ],
+                                        );
+                                      }
+
+                                      return SliverMainAxisGroup(
+                                        slivers: [
+                                          const SliverToBoxAdapter(
+                                            child: ProviderSearchRow(),
+                                          ),
+                                          ProviderContentSection(
+                                            selectedBranch: _selectedBranch,
+                                          ),
+                                        ],
+                                      );
+                                    },
                                   ),
                                 ],
                               ),
@@ -157,6 +205,23 @@ class _ProviderPageScreenState extends State<ProviderPageScreen> {
   }
 }
 
+bool _isPharmacy(String? categoryName) {
+  final category = categoryName?.trim().toLowerCase() ?? '';
+  return category.contains('pharmacy') || category.contains('صيد');
+}
+
+class _PharmacyMedicinesPanel extends StatelessWidget {
+  const _PharmacyMedicinesPanel();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => sl<SearchCubit>()..initMedicinesOnly(),
+      child: const SearchMedicinesTab(enableCartFeatures: true, embedded: true),
+    );
+  }
+}
+
 /// Opens a package sheet automatically once (notification deep-link).
 /// Loads the provider packages (a few pages max) and opens the sheet for
 /// [packageId]; silently gives up and leaves the user on the provider page
@@ -211,4 +276,3 @@ class _AutoOpenPackageState extends State<_AutoOpenPackage> {
   @override
   Widget build(BuildContext context) => const SizedBox.shrink();
 }
-

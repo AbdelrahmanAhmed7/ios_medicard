@@ -110,6 +110,23 @@ void main() {
     );
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('shows provider category when discount is zero', (tester) async {
+    await tester.pumpWidget(
+      _testApp(const [
+        SearchProviderModel(
+          providerId: 80,
+          providerName: 'Alfa Labs',
+          categoryName: 'Pharmacy',
+          maxDiscountPercentage: 0,
+        ),
+      ]),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pharmacy', skipOffstage: false), findsOneWidget);
+    expect(find.textContaining('Up to'), findsNothing);
+  });
 }
 
 Widget _testApp(List<SearchProviderModel> providers) {

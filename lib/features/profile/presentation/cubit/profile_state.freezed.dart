@@ -21,7 +21,7 @@ mixin _$ProfileState {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is ProfileState);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProfileState);
 }
 
 
@@ -30,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-    return 'ProfileState()';
+  return 'ProfileState()';
 }
 
 
@@ -216,7 +216,7 @@ class _Initial implements ProfileState {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Initial);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Initial);
 }
 
 
@@ -225,7 +225,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-    return 'ProfileState.initial()';
+  return 'ProfileState.initial()';
 }
 
 
@@ -248,7 +248,7 @@ class _Loading implements ProfileState {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loading);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loading);
 }
 
 
@@ -257,7 +257,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-    return 'ProfileState.loading()';
+  return 'ProfileState.loading()';
 }
 
 
@@ -286,18 +286,16 @@ _$SuccessCopyWith<_Success> get copyWith => __$SuccessCopyWithImpl<_Success>(thi
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Success&&(identical(other.data, data) || other.data == data)&&(identical(other.summary, summary) || other.summary == summary));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Success&&(identical(other.data, data) || other.data == data)&&(identical(other.summary, summary) || other.summary == summary));
 }
 
 
 @override
-int get hashCode {
-    return Object.hash(runtimeType,data,summary);
-}
+int get hashCode => Object.hash(runtimeType,data,summary);
 
 @override
 String toString() {
-    return 'ProfileState.success(data: $data, summary: $summary)';
+  return 'ProfileState.success(data: $data, summary: $summary)';
 }
 
 
@@ -356,18 +354,16 @@ _$UpdatingCopyWith<_Updating> get copyWith => __$UpdatingCopyWithImpl<_Updating>
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Updating&&(identical(other.data, data) || other.data == data)&&(identical(other.summary, summary) || other.summary == summary));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Updating&&(identical(other.data, data) || other.data == data)&&(identical(other.summary, summary) || other.summary == summary));
 }
 
 
 @override
-int get hashCode {
-    return Object.hash(runtimeType,data,summary);
-}
+int get hashCode => Object.hash(runtimeType,data,summary);
 
 @override
 String toString() {
-    return 'ProfileState.updating(data: $data, summary: $summary)';
+  return 'ProfileState.updating(data: $data, summary: $summary)';
 }
 
 
@@ -426,18 +422,16 @@ _$UpdatedCopyWith<_Updated> get copyWith => __$UpdatedCopyWithImpl<_Updated>(thi
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Updated&&(identical(other.data, data) || other.data == data)&&(identical(other.summary, summary) || other.summary == summary));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Updated&&(identical(other.data, data) || other.data == data)&&(identical(other.summary, summary) || other.summary == summary));
 }
 
 
 @override
-int get hashCode {
-    return Object.hash(runtimeType,data,summary);
-}
+int get hashCode => Object.hash(runtimeType,data,summary);
 
 @override
 String toString() {
-    return 'ProfileState.updated(data: $data, summary: $summary)';
+  return 'ProfileState.updated(data: $data, summary: $summary)';
 }
 
 
@@ -495,18 +489,16 @@ _$FailedCopyWith<_Failed> get copyWith => __$FailedCopyWithImpl<_Failed>(this, _
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Failed&&(identical(other.error, error) || other.error == error));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Failed&&(identical(other.error, error) || other.error == error));
 }
 
 
 @override
-int get hashCode {
-    return Object.hash(runtimeType,error);
-}
+int get hashCode => Object.hash(runtimeType,error);
 
 @override
 String toString() {
-    return 'ProfileState.failed(error: $error)';
+  return 'ProfileState.failed(error: $error)';
 }
 
 

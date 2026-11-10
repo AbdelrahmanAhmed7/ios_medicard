@@ -105,6 +105,34 @@ class SearchCubit extends Cubit<SearchState> {
     ]);
   }
 
+  /// Initializes only the medicines catalog. Used when medicines are embedded
+  /// inside a provider page, where loading the providers/services catalogs is
+  /// unnecessary.
+  Future<void> initMedicinesOnly({bool enableCartFeatures = true}) async {
+    if (isClosed) return;
+    _enableCartFeatures = enableCartFeatures;
+    _servicesCacheMode = enableCartFeatures;
+
+    // Mark the first medicines request as loading before any cart request.
+    // Otherwise the medicines panel briefly renders the empty state while
+    // cart counters are being loaded.
+    emit(
+      state.copyWith(
+        isLoadingMedicines: true,
+        isLoadingMoreMedicines: false,
+        medicines: const [],
+        medicinesCurrentPage: 1,
+        medicinesTotalPages: 1,
+        clearMedicinesError: true,
+      ),
+    );
+
+    if (enableCartFeatures) {
+      unawaited(_loadCartCounters());
+    }
+    await searchMedicines();
+  }
+
   @override
   Future<void> close() {
     _cartSyncSubscription?.cancel();

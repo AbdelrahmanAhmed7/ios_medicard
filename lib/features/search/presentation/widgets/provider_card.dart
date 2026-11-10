@@ -13,6 +13,7 @@ import '../../data/models/search_provider_model.dart';
 import '../../../../core/theming/app_text_styles.dart';
 
 import 'package:medicard/core/theming/app_colors.dart';
+
 class ProviderCard extends StatelessWidget {
   final SearchProviderModel provider;
 
@@ -23,7 +24,13 @@ class ProviderCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         if (provider.providerId != null) {
-          context.push('/provider-page', extra: provider.providerId);
+          context.push(
+            '/provider-page',
+            extra: {
+              'providerId': provider.providerId,
+              'categoryName': provider.categoryName,
+            },
+          );
         }
       },
       child: Container(
@@ -77,7 +84,8 @@ class ProviderCard extends StatelessWidget {
                       ],
                     ),
                     SizedBox(height: 5.h),
-                    if ((provider.maxDiscountPercentage ?? 0) > 0) ...[
+                    if ((provider.categoryName?.trim().isNotEmpty ?? false) ||
+                        (provider.maxDiscountPercentage ?? 0) > 0) ...[
                       _DiscountChipsRow(
                         categoryName: provider.categoryName,
                         maxDiscount: provider.maxDiscountPercentage,
@@ -189,12 +197,11 @@ class _DiscountChipsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (maxDiscount == null || maxDiscount! <= 0) {
+    final hasDiscount = maxDiscount != null && maxDiscount! > 0;
+    final hasCategory = categoryName != null && categoryName!.trim().isNotEmpty;
+    if (!hasCategory && !hasDiscount) {
       return const SizedBox.shrink();
     }
-
-    final pct = maxDiscount!.toStringAsFixed(0);
-    final hasCategory = categoryName != null && categoryName!.trim().isNotEmpty;
 
     return Row(
       children: [
@@ -207,13 +214,14 @@ class _DiscountChipsRow extends StatelessWidget {
               FontWeight.w500,
             ),
           ),
-        if (hasCategory) SizedBox(width: 6.w),
-        _buildChip(
-          'search.up_to_discount'.tr(args: [pct]),
-          AppColors.exactFFEFF6FF,
-          AppColors.brandBlueClr,
-          FontWeight.w600,
-        ),
+        if (hasCategory && hasDiscount) SizedBox(width: 6.w),
+        if (hasDiscount)
+          _buildChip(
+            'search.up_to_discount'.tr(args: [maxDiscount!.toStringAsFixed(0)]),
+            AppColors.exactFFEFF6FF,
+            AppColors.brandBlueClr,
+            FontWeight.w600,
+          ),
       ],
     );
   }
@@ -342,4 +350,3 @@ class _LocationAndContactRow extends StatelessWidget {
     );
   }
 }
-

@@ -11,6 +11,7 @@ import 'provider_card.dart';
 import 'search_shimmer.dart';
 
 import 'package:medicard/core/theming/app_colors.dart';
+
 class SearchProvidersTab extends StatelessWidget {
   final ScrollController scrollController;
   const SearchProvidersTab({super.key, required this.scrollController});
@@ -34,9 +35,14 @@ class _ProviderCategoryStrip extends StatelessWidget {
     return BlocBuilder<SearchCubit, SearchState>(
       buildWhen: (previous, current) =>
           previous.categories != current.categories ||
-          previous.selectedCategoryId != current.selectedCategoryId,
+          previous.selectedCategoryId != current.selectedCategoryId ||
+          previous.isLoading != current.isLoading,
       builder: (context, state) {
-        if (state.categories.isEmpty) return const SizedBox.shrink();
+        if (state.categories.isEmpty) {
+          return state.isLoading
+              ? const ProviderCategoriesShimmer()
+              : const SizedBox.shrink();
+        }
 
         return Container(
           color: AppColors.whiteClr,
@@ -216,4 +222,3 @@ class _ErrorView extends StatelessWidget {
     );
   }
 }
-

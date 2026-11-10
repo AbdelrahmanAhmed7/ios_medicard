@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../../core/theming/app_text_styles.dart';
 import '../../../../core/theming/app_toast.dart';
@@ -11,13 +12,18 @@ import '../../../../core/utils/price_formatter.dart';
 import '../../data/models/medicine_response_model.dart';
 import '../cubit/search_cubit.dart';
 import '../cubit/search_state.dart';
-import 'search_shimmer.dart';
 
 import 'package:medicard/core/theming/app_colors.dart';
+
 class SearchMedicinesTab extends StatefulWidget {
   final bool enableCartFeatures;
+  final bool embedded;
 
-  const SearchMedicinesTab({super.key, required this.enableCartFeatures});
+  const SearchMedicinesTab({
+    super.key,
+    required this.enableCartFeatures,
+    this.embedded = false,
+  });
 
   @override
   State<SearchMedicinesTab> createState() => _SearchMedicinesTabState();
@@ -83,7 +89,7 @@ class _SearchMedicinesTabState extends State<SearchMedicinesTab> {
     int selectedCount,
   ) {
     if (state.isLoadingMedicines && state.medicines.isEmpty) {
-      return const SearchShimmer();
+      return _MedicinesShimmer(embedded: widget.embedded);
     }
 
     if (state.medicinesError != null && state.medicines.isEmpty) {
@@ -107,9 +113,9 @@ class _SearchMedicinesTabState extends State<SearchMedicinesTab> {
     return ListView.builder(
       controller: _scrollController,
       padding: EdgeInsets.fromLTRB(
-        16.w,
+        widget.embedded ? 0 : 16.w,
         12.h,
-        16.w,
+        widget.embedded ? 0 : 16.w,
         selectedCount > 0 ? MediaQuery.of(context).padding.bottom + 92.h : 16.h,
       ),
       itemCount:
@@ -224,26 +230,40 @@ class _MedicineCard extends StatelessWidget {
       medicine.medicineForm?.trim(),
       medicine.unit?.trim(),
     ].whereType<String>().where((value) => value.isNotEmpty).join(' • ');
+    final currentPrice = medicine.priceAfter ?? medicine.medicinePrice;
+    final oldPrice = medicine.priceBefore;
+    final hasDiscount =
+        (medicine.discountPercentage ?? 0) > 0 &&
+        oldPrice != null &&
+        currentPrice != null &&
+        oldPrice > currentPrice;
 
     return Container(
       margin: EdgeInsets.only(bottom: 12.h),
       padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
-        color: AppColors.whiteClr,
+        color: isSelected ? AppColors.exactFFF8FAFC : AppColors.whiteClr,
         borderRadius: BorderRadius.circular(14.r),
         border: Border.all(
           color: isSelected
               ? AppColors.brandBlueClr.withValues(alpha: 0.35)
               : AppColors.exactFFE5E7EB,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.exactFF0F172A.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12.r),
             child: SizedBox(
-              width: 72.r,
-              height: 72.r,
+              width: 82.r,
+              height: 82.r,
               child: imageUrl.isEmpty
                   ? const _MedicineImageFallback()
                   : CachedNetworkImage(
@@ -296,13 +316,60 @@ class _MedicineCard extends StatelessWidget {
                   ),
                 ],
                 SizedBox(height: 7.h),
-                Text(
-                  formatPrice(medicine.medicinePrice),
-                  style: AppTextStyles.of(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.brandBlueClr,
-                  ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (hasDiscount) ...[
+                      Text(
+                        formatPrice(oldPrice),
+                        style: AppTextStyles.of(
+                          fontSize: 11.sp,
+                          color: AppColors.exactFF9CA3AF,
+                          decoration: TextDecoration.lineThrough,
+                        ),
+                      ),
+                      SizedBox(width: 6.w),
+                    ],
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 8.w,
+                        vertical: 4.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.exactFFEFF6FF,
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Text(
+                        formatPrice(currentPrice),
+                        style: AppTextStyles.of(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.brandBlueClr,
+                        ),
+                      ),
+                    ),
+                    if (hasDiscount) ...[
+                      SizedBox(width: 6.w),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 6.w,
+                          vertical: 3.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.exactFFF0FDF4,
+                          borderRadius: BorderRadius.circular(7.r),
+                        ),
+                        child: Text(
+                          '${medicine.discountPercentage!.toStringAsFixed(0)}%',
+                          style: AppTextStyles.of(
+                            fontSize: 10.sp,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.exactFF15803D,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ],
             ),
@@ -346,6 +413,104 @@ class _MedicineCard extends StatelessWidget {
             )
           else
             _AddToCartButton(onTap: onToggle),
+        ],
+      ),
+    );
+  }
+}
+
+class _MedicinesShimmer extends StatelessWidget {
+  final bool embedded;
+
+  const _MedicinesShimmer({required this.embedded});
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: AppColors.exactFFE5E7EB,
+      highlightColor: AppColors.exactFFF8FAFC,
+      child: ListView.builder(
+        padding: EdgeInsets.fromLTRB(
+          embedded ? 0 : 16.w,
+          12.h,
+          embedded ? 0 : 16.w,
+          16.h,
+        ),
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: 5,
+        itemBuilder: (_, _) => const _MedicineShimmerCard(),
+      ),
+    );
+  }
+}
+
+class _MedicineShimmerCard extends StatelessWidget {
+  const _MedicineShimmerCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 116.h,
+      margin: EdgeInsets.only(bottom: 12.h),
+      padding: EdgeInsets.all(12.r),
+      decoration: BoxDecoration(
+        color: AppColors.whiteClr,
+        borderRadius: BorderRadius.circular(14.r),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 82.r,
+            height: 82.r,
+            decoration: BoxDecoration(
+              color: AppColors.whiteClr,
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  height: 15.h,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: AppColors.whiteClr,
+                    borderRadius: BorderRadius.circular(6.r),
+                  ),
+                ),
+                SizedBox(height: 9.h),
+                Container(
+                  height: 11.h,
+                  width: 105.w,
+                  decoration: BoxDecoration(
+                    color: AppColors.whiteClr,
+                    borderRadius: BorderRadius.circular(6.r),
+                  ),
+                ),
+                SizedBox(height: 10.h),
+                Container(
+                  height: 22.h,
+                  width: 76.w,
+                  decoration: BoxDecoration(
+                    color: AppColors.whiteClr,
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: 10.w),
+          Container(
+            width: 36.r,
+            height: 36.r,
+            decoration: BoxDecoration(
+              color: AppColors.whiteClr,
+              borderRadius: BorderRadius.circular(10.r),
+            ),
+          ),
         ],
       ),
     );
@@ -537,4 +702,3 @@ class _ReviewMedicinesBar extends StatelessWidget {
     ),
   );
 }
-

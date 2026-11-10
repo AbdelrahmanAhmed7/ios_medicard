@@ -20,14 +20,14 @@ mixin _$AppRefreshState implements DiagnosticableTreeMixin {
 
 @override
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    properties
+  properties
     ..add(DiagnosticsProperty('type', 'AppRefreshState'))
     ;
 }
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is AppRefreshState);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppRefreshState);
 }
 
 
@@ -36,7 +36,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-    return 'AppRefreshState()';
+  return 'AppRefreshState()';
 }
 
 
@@ -203,14 +203,14 @@ class _Initial with DiagnosticableTreeMixin implements AppRefreshState {
 
 @override
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    properties
+  properties
     ..add(DiagnosticsProperty('type', 'AppRefreshState.initial'))
     ;
 }
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Initial);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Initial);
 }
 
 
@@ -219,7 +219,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-    return 'AppRefreshState.initial()';
+  return 'AppRefreshState.initial()';
 }
 
 
@@ -241,14 +241,14 @@ class LanguageChanged with DiagnosticableTreeMixin implements AppRefreshState {
 
 @override
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    properties
+  properties
     ..add(DiagnosticsProperty('type', 'AppRefreshState.languageChanged'))
     ;
 }
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is LanguageChanged);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LanguageChanged);
 }
 
 
@@ -257,7 +257,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-    return 'AppRefreshState.languageChanged()';
+  return 'AppRefreshState.languageChanged()';
 }
 
 
@@ -279,14 +279,14 @@ class SessionExpired with DiagnosticableTreeMixin implements AppRefreshState {
 
 @override
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    properties
+  properties
     ..add(DiagnosticsProperty('type', 'AppRefreshState.sessionExpired'))
     ;
 }
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is SessionExpired);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SessionExpired);
 }
 
 
@@ -295,7 +295,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-    return 'AppRefreshState.sessionExpired()';
+  return 'AppRefreshState.sessionExpired()';
 }
 
 

@@ -21,7 +21,7 @@ mixin _$RegisterState {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is RegisterState);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RegisterState);
 }
 
 
@@ -30,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-    return 'RegisterState()';
+  return 'RegisterState()';
 }
 
 
@@ -204,7 +204,7 @@ class Initial implements RegisterState {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is Initial);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Initial);
 }
 
 
@@ -213,7 +213,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-    return 'RegisterState.initial()';
+  return 'RegisterState.initial()';
 }
 
 
@@ -236,7 +236,7 @@ class Loading implements RegisterState {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is Loading);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Loading);
 }
 
 
@@ -245,7 +245,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-    return 'RegisterState.loading()';
+  return 'RegisterState.loading()';
 }
 
 
@@ -273,18 +273,16 @@ $SuccessCopyWith<Success> get copyWith => _$SuccessCopyWithImpl<Success>(this, _
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is Success&&(identical(other.response, response) || other.response == response));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Success&&(identical(other.response, response) || other.response == response));
 }
 
 
 @override
-int get hashCode {
-    return Object.hash(runtimeType,response);
-}
+int get hashCode => Object.hash(runtimeType,response);
 
 @override
 String toString() {
-    return 'RegisterState.success(response: $response)';
+  return 'RegisterState.success(response: $response)';
 }
 
 
@@ -341,18 +339,16 @@ $FailedCopyWith<Failed> get copyWith => _$FailedCopyWithImpl<Failed>(this, _$ide
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is Failed&&(identical(other.error, error) || other.error == error));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Failed&&(identical(other.error, error) || other.error == error));
 }
 
 
 @override
-int get hashCode {
-    return Object.hash(runtimeType,error);
-}
+int get hashCode => Object.hash(runtimeType,error);
 
 @override
 String toString() {
-    return 'RegisterState.failed(error: $error)';
+  return 'RegisterState.failed(error: $error)';
 }
 
 

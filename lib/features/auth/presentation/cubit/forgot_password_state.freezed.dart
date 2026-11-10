@@ -21,7 +21,7 @@ mixin _$ForgotPasswordState {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is ForgotPasswordState);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ForgotPasswordState);
 }
 
 
@@ -30,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-    return 'ForgotPasswordState()';
+  return 'ForgotPasswordState()';
 }
 
 
@@ -216,7 +216,7 @@ class _Initial implements ForgotPasswordState {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Initial);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Initial);
 }
 
 
@@ -225,7 +225,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-    return 'ForgotPasswordState.initial()';
+  return 'ForgotPasswordState.initial()';
 }
 
 
@@ -248,7 +248,7 @@ class _Loading implements ForgotPasswordState {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loading);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loading);
 }
 
 
@@ -257,7 +257,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-    return 'ForgotPasswordState.loading()';
+  return 'ForgotPasswordState.loading()';
 }
 
 
@@ -286,18 +286,16 @@ _$OtpSentCopyWith<_OtpSent> get copyWith => __$OtpSentCopyWithImpl<_OtpSent>(thi
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _OtpSent&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.otp, otp) || other.otp == otp));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OtpSent&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.otp, otp) || other.otp == otp));
 }
 
 
 @override
-int get hashCode {
-    return Object.hash(runtimeType,phoneNumber,otp);
-}
+int get hashCode => Object.hash(runtimeType,phoneNumber,otp);
 
 @override
 String toString() {
-    return 'ForgotPasswordState.otpSent(phoneNumber: $phoneNumber, otp: $otp)';
+  return 'ForgotPasswordState.otpSent(phoneNumber: $phoneNumber, otp: $otp)';
 }
 
 
@@ -356,18 +354,16 @@ _$OtpVerifiedCopyWith<_OtpVerified> get copyWith => __$OtpVerifiedCopyWithImpl<_
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _OtpVerified&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.token, token) || other.token == token));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OtpVerified&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.token, token) || other.token == token));
 }
 
 
 @override
-int get hashCode {
-    return Object.hash(runtimeType,phoneNumber,token);
-}
+int get hashCode => Object.hash(runtimeType,phoneNumber,token);
 
 @override
 String toString() {
-    return 'ForgotPasswordState.otpVerified(phoneNumber: $phoneNumber, token: $token)';
+  return 'ForgotPasswordState.otpVerified(phoneNumber: $phoneNumber, token: $token)';
 }
 
 
@@ -420,7 +416,7 @@ class _ResetSuccess implements ForgotPasswordState {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ResetSuccess);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ResetSuccess);
 }
 
 
@@ -429,7 +425,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-    return 'ForgotPasswordState.resetSuccess()';
+  return 'ForgotPasswordState.resetSuccess()';
 }
 
 
@@ -457,18 +453,16 @@ _$FailedCopyWith<_Failed> get copyWith => __$FailedCopyWithImpl<_Failed>(this, _
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Failed&&(identical(other.error, error) || other.error == error));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Failed&&(identical(other.error, error) || other.error == error));
 }
 
 
 @override
-int get hashCode {
-    return Object.hash(runtimeType,error);
-}
+int get hashCode => Object.hash(runtimeType,error);
 
 @override
 String toString() {
-    return 'ForgotPasswordState.failed(error: $error)';
+  return 'ForgotPasswordState.failed(error: $error)';
 }
 
 

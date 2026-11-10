@@ -21,7 +21,7 @@ mixin _$LocalizationState {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is LocalizationState);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LocalizationState);
 }
 
 
@@ -30,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-    return 'LocalizationState()';
+  return 'LocalizationState()';
 }
 
 
@@ -209,18 +209,16 @@ _$InitialCopyWith<_Initial> get copyWith => __$InitialCopyWithImpl<_Initial>(thi
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Initial&&(identical(other.language, language) || other.language == language));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Initial&&(identical(other.language, language) || other.language == language));
 }
 
 
 @override
-int get hashCode {
-    return Object.hash(runtimeType,language);
-}
+int get hashCode => Object.hash(runtimeType,language);
 
 @override
 String toString() {
-    return 'LocalizationState.initial(language: $language)';
+  return 'LocalizationState.initial(language: $language)';
 }
 
 
@@ -272,7 +270,7 @@ class _Loading implements LocalizationState {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loading);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loading);
 }
 
 
@@ -281,7 +279,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-    return 'LocalizationState.loading()';
+  return 'LocalizationState.loading()';
 }
 
 
@@ -309,18 +307,16 @@ _$LoadedCopyWith<_Loaded> get copyWith => __$LoadedCopyWithImpl<_Loaded>(this, _
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loaded&&(identical(other.language, language) || other.language == language));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loaded&&(identical(other.language, language) || other.language == language));
 }
 
 
 @override
-int get hashCode {
-    return Object.hash(runtimeType,language);
-}
+int get hashCode => Object.hash(runtimeType,language);
 
 @override
 String toString() {
-    return 'LocalizationState.loaded(language: $language)';
+  return 'LocalizationState.loaded(language: $language)';
 }
 
 
@@ -377,18 +373,16 @@ _$ErrorCopyWith<_Error> get copyWith => __$ErrorCopyWithImpl<_Error>(this, _$ide
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Error&&(identical(other.message, message) || other.message == message));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Error&&(identical(other.message, message) || other.message == message));
 }
 
 
 @override
-int get hashCode {
-    return Object.hash(runtimeType,message);
-}
+int get hashCode => Object.hash(runtimeType,message);
 
 @override
 String toString() {
-    return 'LocalizationState.error(message: $message)';
+  return 'LocalizationState.error(message: $message)';
 }
 
 

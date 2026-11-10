@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'package:medicard/core/theming/app_colors.dart';
+
 class SearchShimmer extends StatelessWidget {
   const SearchShimmer({super.key});
 
@@ -16,6 +17,35 @@ class SearchShimmer extends StatelessWidget {
         shrinkWrap: true,
         itemCount: 6,
         itemBuilder: (_, _) => const _ShimmerCard(),
+      ),
+    );
+  }
+}
+
+class ProviderCategoriesShimmer extends StatelessWidget {
+  const ProviderCategoriesShimmer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: AppColors.exactFFE5E7EB,
+      highlightColor: AppColors.exactFFF3F4F6,
+      child: SizedBox(
+        height: 58.h,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+          itemCount: 5,
+          separatorBuilder: (_, _) => SizedBox(width: 8.w),
+          itemBuilder: (_, index) => Container(
+            width: index == 0 ? 68.w : 92.w,
+            decoration: BoxDecoration(
+              color: AppColors.whiteClr,
+              borderRadius: BorderRadius.circular(22.r),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -38,8 +68,8 @@ class _ShimmerCard extends StatelessWidget {
         children: [
           // لوجو وهمي بنفس حجم اللوجو الحقيقي
           Container(
-            width: 56.r,
-            height: 56.r,
+            width: 92.r,
+            height: 92.r,
             decoration: BoxDecoration(
               color: AppColors.whiteClr,
               borderRadius: BorderRadius.circular(10.r),
@@ -58,12 +88,12 @@ class _ShimmerCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(6.r),
                   ),
                 ),
-                SizedBox(height: 8.h),
+                SizedBox(height: 10.h),
                 Row(
                   children: [
                     Container(
-                      height: 22.h,
-                      width: 70.w,
+                      height: 24.h,
+                      width: 78.w,
                       decoration: BoxDecoration(
                         color: AppColors.whiteClr,
                         borderRadius: BorderRadius.circular(12.r),
@@ -72,7 +102,7 @@ class _ShimmerCard extends StatelessWidget {
                     SizedBox(width: 6.w),
                     Container(
                       height: 22.h,
-                      width: 90.w,
+                      width: 98.w,
                       decoration: BoxDecoration(
                         color: AppColors.whiteClr,
                         borderRadius: BorderRadius.circular(12.r),
@@ -80,7 +110,7 @@ class _ShimmerCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 10.h),
+                SizedBox(height: 9.h),
                 Container(
                   height: 12.h,
                   width: 140.w,
@@ -97,4 +127,3 @@ class _ShimmerCard extends StatelessWidget {
     );
   }
 }
-

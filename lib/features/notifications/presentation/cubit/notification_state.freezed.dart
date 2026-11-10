@@ -29,21 +29,16 @@ $NotificationStateCopyWith<NotificationState> get copyWith => _$NotificationStat
 
 @override
 bool operator ==(Object other) {
-  final _this = this as NotificationState;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationState&&const DeepCollectionEquality().equals(other.items, _this.items)&&(identical(other.isLoading, _this.isLoading) || other.isLoading == _this.isLoading)&&(identical(other.isLoadingMore, _this.isLoadingMore) || other.isLoadingMore == _this.isLoadingMore)&&(identical(other.hasMore, _this.hasMore) || other.hasMore == _this.hasMore)&&(identical(other.currentPage, _this.currentPage) || other.currentPage == _this.currentPage)&&(identical(other.error, _this.error) || other.error == _this.error)&&(identical(other.markReadError, _this.markReadError) || other.markReadError == _this.markReadError));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationState&&const DeepCollectionEquality().equals(other.items, items)&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isLoadingMore, isLoadingMore) || other.isLoadingMore == isLoadingMore)&&(identical(other.hasMore, hasMore) || other.hasMore == hasMore)&&(identical(other.currentPage, currentPage) || other.currentPage == currentPage)&&(identical(other.error, error) || other.error == error)&&(identical(other.markReadError, markReadError) || other.markReadError == markReadError));
 }
 
 
 @override
-int get hashCode {
-  final _this = this as NotificationState;
-  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.items),_this.isLoading,_this.isLoadingMore,_this.hasMore,_this.currentPage,_this.error,_this.markReadError);
-}
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(items),isLoading,isLoadingMore,hasMore,currentPage,error,markReadError);
 
 @override
 String toString() {
-  final _this = this as NotificationState;
-  return 'NotificationState(items: ${_this.items}, isLoading: ${_this.isLoading}, isLoadingMore: ${_this.isLoadingMore}, hasMore: ${_this.hasMore}, currentPage: ${_this.currentPage}, error: ${_this.error}, markReadError: ${_this.markReadError})';
+  return 'NotificationState(items: $items, isLoading: $isLoading, isLoadingMore: $isLoadingMore, hasMore: $hasMore, currentPage: $currentPage, error: $error, markReadError: $markReadError)';
 }
 
 
@@ -251,18 +246,16 @@ _$NotificationStateCopyWith<_NotificationState> get copyWith => __$NotificationS
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationState&&const DeepCollectionEquality().equals(other.items, _items)&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isLoadingMore, isLoadingMore) || other.isLoadingMore == isLoadingMore)&&(identical(other.hasMore, hasMore) || other.hasMore == hasMore)&&(identical(other.currentPage, currentPage) || other.currentPage == currentPage)&&(identical(other.error, error) || other.error == error)&&(identical(other.markReadError, markReadError) || other.markReadError == markReadError));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationState&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isLoadingMore, isLoadingMore) || other.isLoadingMore == isLoadingMore)&&(identical(other.hasMore, hasMore) || other.hasMore == hasMore)&&(identical(other.currentPage, currentPage) || other.currentPage == currentPage)&&(identical(other.error, error) || other.error == error)&&(identical(other.markReadError, markReadError) || other.markReadError == markReadError));
 }
 
 
 @override
-int get hashCode {
-    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_items),isLoading,isLoadingMore,hasMore,currentPage,error,markReadError);
-}
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_items),isLoading,isLoadingMore,hasMore,currentPage,error,markReadError);
 
 @override
 String toString() {
-    return 'NotificationState(items: $items, isLoading: $isLoading, isLoadingMore: $isLoadingMore, hasMore: $hasMore, currentPage: $currentPage, error: $error, markReadError: $markReadError)';
+  return 'NotificationState(items: $items, isLoading: $isLoading, isLoadingMore: $isLoadingMore, hasMore: $hasMore, currentPage: $currentPage, error: $error, markReadError: $markReadError)';
 }
 
 

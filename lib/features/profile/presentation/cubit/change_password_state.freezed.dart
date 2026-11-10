@@ -21,7 +21,7 @@ mixin _$ChangePasswordState {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is ChangePasswordState);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ChangePasswordState);
 }
 
 
@@ -30,7 +30,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-    return 'ChangePasswordState()';
+  return 'ChangePasswordState()';
 }
 
 
@@ -204,7 +204,7 @@ class _Initial implements ChangePasswordState {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Initial);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Initial);
 }
 
 
@@ -213,7 +213,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-    return 'ChangePasswordState.initial()';
+  return 'ChangePasswordState.initial()';
 }
 
 
@@ -236,7 +236,7 @@ class _Loading implements ChangePasswordState {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loading);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loading);
 }
 
 
@@ -245,7 +245,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-    return 'ChangePasswordState.loading()';
+  return 'ChangePasswordState.loading()';
 }
 
 
@@ -268,7 +268,7 @@ class _Success implements ChangePasswordState {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Success);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Success);
 }
 
 
@@ -277,7 +277,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-    return 'ChangePasswordState.success()';
+  return 'ChangePasswordState.success()';
 }
 
 
@@ -305,18 +305,16 @@ _$FailureCopyWith<_Failure> get copyWith => __$FailureCopyWithImpl<_Failure>(thi
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Failure&&(identical(other.message, message) || other.message == message));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Failure&&(identical(other.message, message) || other.message == message));
 }
 
 
 @override
-int get hashCode {
-    return Object.hash(runtimeType,message);
-}
+int get hashCode => Object.hash(runtimeType,message);
 
 @override
 String toString() {
-    return 'ChangePasswordState.failure(message: $message)';
+  return 'ChangePasswordState.failure(message: $message)';
 }
 
 
