@@ -67,6 +67,7 @@ class ManualPrescriptionItemModel {
   final DateTime? createdAt;
   final DateTime? reviewedAt;
   final String? rejectionReason;
+  final List<String> rejectionReasons;
   final List<ManualPrescriptionEntryModel> items;
 
   const ManualPrescriptionItemModel({
@@ -77,6 +78,7 @@ class ManualPrescriptionItemModel {
     this.createdAt,
     this.reviewedAt,
     this.rejectionReason,
+    this.rejectionReasons = const [],
     this.items = const [],
   });
 
@@ -91,6 +93,7 @@ class ManualPrescriptionItemModel {
       createdAt: parseDate(json['createdAt']),
       reviewedAt: parseDate(json['reviewedAt']),
       rejectionReason: json['rejectionReason']?.toString(),
+      rejectionReasons: _rejectionReasons(json),
       items: (json['items'] is List ? json['items'] as List : const [])
           .whereType<Map>()
           .map(
@@ -101,6 +104,19 @@ class ManualPrescriptionItemModel {
           .toList(),
     );
   }
+}
+
+List<String> _rejectionReasons(Map<String, dynamic> json) {
+  final rawReasons = json['rejectionReasons'];
+  final reasons = rawReasons is List
+      ? rawReasons
+            .map((reason) => reason.toString().trim())
+            .where((reason) => reason.isNotEmpty)
+            .toList()
+      : <String>[];
+  final single = json['rejectionReason']?.toString().trim() ?? '';
+  if (reasons.isEmpty && single.isNotEmpty) reasons.add(single);
+  return reasons;
 }
 
 class ManualPrescriptionEntryModel {

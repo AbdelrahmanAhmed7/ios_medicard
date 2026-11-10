@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/theming/app_text_styles.dart';
 
 import 'package:medicard/core/theming/app_colors.dart';
+
 /// Popup shown once after a cash invoice is successfully created,
 /// carrying the invoice number. Visa (online) payments don't use it because the
 /// payment status can't be verified from the backend on browser return.
@@ -83,7 +84,10 @@ class _OrderPlacedDialog extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: AppColors.exactFF159447,
                             shape: BoxShape.circle,
-                            border: Border.all(color: AppColors.whiteClr, width: 3),
+                            border: Border.all(
+                              color: AppColors.whiteClr,
+                              width: 3,
+                            ),
                           ),
                           child: Icon(
                             Icons.check_rounded,
@@ -140,30 +144,45 @@ class _OrderPlacedDialog extends StatelessWidget {
                 ),
                 SizedBox(height: 26.h),
                 if (remainingServices > 0) ...[
-                  Text(
-                    'cart.services_still_in_cart'.tr(
-                      args: ['$remainingServices'],
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 10.h),
-                  SizedBox(
+                  Container(
                     width: double.infinity,
-                    child: FilledButton(
-                      onPressed: () => Navigator.of(context).pop(true),
-                      child: Text(
-                        'cart.continue_remaining_services'.tr(),
-                        textAlign: TextAlign.center,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 14.w,
+                      vertical: 11.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.warningClr.withValues(alpha: .12),
+                      borderRadius: BorderRadius.circular(12.r),
+                      border: Border.all(
+                        color: AppColors.warningClr.withValues(alpha: .28),
+                      ),
+                    ),
+                    child: Text(
+                      'cart.services_still_in_cart'.tr(
+                        args: ['$remainingServices'],
+                      ),
+                      textAlign: TextAlign.center,
+                      style: AppTextStyles.of(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.inkClr,
                       ),
                     ),
                   ),
-                  SizedBox(height: 8.h),
+                  SizedBox(height: 14.h),
                 ],
                 SizedBox(
                   width: double.infinity,
                   height: 50.h,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(false),
+                  child: FilledButton.icon(
+                    onPressed: () =>
+                        Navigator.of(context).pop(remainingServices > 0),
+                    icon: Icon(
+                      remainingServices > 0
+                          ? Icons.shopping_cart_outlined
+                          : Icons.receipt_long_outlined,
+                      size: 20.sp,
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.brandBlueClr,
                       foregroundColor: AppColors.whiteClr,
@@ -172,8 +191,11 @@ class _OrderPlacedDialog extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8.r),
                       ),
                     ),
-                    child: Text(
-                      'cart.view_invoices'.tr(),
+                    label: Text(
+                      (remainingServices > 0
+                              ? 'cart.go_to_cart'
+                              : 'cart.view_invoices')
+                          .tr(),
                       style: AppTextStyles.of(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w600,
@@ -189,4 +211,3 @@ class _OrderPlacedDialog extends StatelessWidget {
     );
   }
 }
-

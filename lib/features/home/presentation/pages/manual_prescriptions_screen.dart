@@ -16,6 +16,9 @@ import '../../../../core/widgets/app_header_back_button.dart';
 import '../../../../core/utils/shimmer_card.dart';
 import '../../../../data/manual_prescription_response_model.dart';
 import '../../../../domain/medicard_repository.dart';
+import '../../../cart/presentation/cubit/cart_cubit.dart';
+import '../../../../medicard_network/logic/provider_page_state.dart';
+import '../../../../medicard_network/presentation/widgets/provider_shared_widgets.dart';
 import '../../../notifications/push_notification_service.dart';
 
 class ManualPrescriptionsScreen extends StatefulWidget {
@@ -154,11 +157,21 @@ class _ManualPrescriptionsScreenState extends State<ManualPrescriptionsScreen> {
                       ),
                     ),
                   ),
-                  IconButton(
-                    onPressed: () => context.push('/manual-prescription'),
-                    icon: const Icon(Icons.add_circle_outline),
-                    color: AppColors.brandBlueClr,
-                    tooltip: 'manual_prescription.add'.tr(),
+                  GestureDetector(
+                    onTap: () => context.push('/manual-prescription'),
+                    child: Container(
+                      width: 32.r,
+                      height: 32.r,
+                      decoration: const BoxDecoration(
+                        color: AppColors.brandBlueClr,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.add_rounded,
+                        color: AppColors.whiteClr,
+                        size: 18.sp,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -218,14 +231,23 @@ class _ManualPrescriptionsScreenState extends State<ManualPrescriptionsScreen> {
             onTap: _items[index].items.isEmpty
                 ? null
                 : () => _showItemsPopup(_items[index]),
+            onRejectionTap: _items[index].rejectionReasons.isEmpty
+                ? null
+                : () => _showRejectionDialog(_items[index]),
           );
         },
       ),
     );
   }
 
-  void _showItemsPopup(ManualPrescriptionItemModel prescription) {
-    showDialog<void>(
+  Future<void> _showItemsPopup(ManualPrescriptionItemModel prescription) async {
+    final cartItems = sl<CartCubit>().state.cart?.items ?? const [];
+    final hasPrescriptionItemsInCart = prescription.items.any(
+      (prescriptionItem) => cartItems.any(
+        (cartItem) => cartItem.serviceId == prescriptionItem.serviceId,
+      ),
+    );
+    final action = await showDialog<bool>(
       context: context,
       builder: (_) => Dialog(
         backgroundColor: AppColors.whiteClr,
@@ -233,7 +255,54 @@ class _ManualPrescriptionsScreenState extends State<ManualPrescriptionsScreen> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(22.r),
         ),
-        child: _PrescriptionItemsSheet(prescription: prescription),
+        child: _PrescriptionItemsSheet(
+          prescription: prescription,
+          showCartAction: hasPrescriptionItemsInCart,
+        ),
+      ),
+    );
+    if (!mounted || action == null) return;
+    if (action) {
+      context.push('/cart');
+    } else {
+      context.go('/medicard-home?tab=activity');
+    }
+  }
+
+  void _showRejectionDialog(ManualPrescriptionItemModel prescription) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('manual_prescription.rejection_title'.tr()),
+        content: SizedBox(
+          width: 0.78.sw,
+          height: math.min(
+            0.45.sh,
+            math.max(72.h, prescription.rejectionReasons.length * 48.h),
+          ),
+          child: ListView.separated(
+            itemCount: prescription.rejectionReasons.length,
+            separatorBuilder: (_, _) => SizedBox(height: 10.h),
+            itemBuilder: (_, index) => Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.error_outline_rounded,
+                  size: 19.sp,
+                  color: AppColors.errorClr,
+                ),
+                SizedBox(width: 8.w),
+                Expanded(child: Text(prescription.rejectionReasons[index])),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text('manual_prescription.close'.tr()),
+          ),
+        ],
       ),
     );
   }
@@ -252,7 +321,7 @@ class _StatusFilters extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-    height: 48.h,
+    height: 54.h,
     child: ListView.separated(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       scrollDirection: Axis.horizontal,
@@ -260,20 +329,10 @@ class _StatusFilters extends StatelessWidget {
       separatorBuilder: (_, _) => SizedBox(width: 8.w),
       itemBuilder: (_, index) {
         final status = statuses[index];
-        final isSelected = status == selected;
-        return ChoiceChip(
-          label: Text(_label(status)),
-          selected: isSelected,
-          onSelected: (_) => onChanged(status),
-          selectedColor: AppColors.brandBlueClr,
-          labelStyle: TextStyle(
-            color: isSelected ? AppColors.whiteClr : AppColors.inkSoftClr,
-            fontWeight: FontWeight.w600,
-          ),
-          side: BorderSide(
-            color: isSelected ? AppColors.brandBlueClr : AppColors.lineClr,
-          ),
-          backgroundColor: AppColors.whiteClr,
+        return CategoryTabChip(
+          tab: CategoryTab(categoryId: index, categoryName: _label(status)),
+          isSelected: status == selected,
+          onTap: () => onChanged(status),
         );
       },
     ),
@@ -287,7 +346,13 @@ class _StatusFilters extends StatelessWidget {
 class _PrescriptionCard extends StatelessWidget {
   final ManualPrescriptionItemModel item;
   final VoidCallback? onTap;
-  const _PrescriptionCard({required this.item, this.onTap});
+  final VoidCallback? onRejectionTap;
+
+  const _PrescriptionCard({
+    required this.item,
+    this.onTap,
+    this.onRejectionTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -426,15 +491,52 @@ class _PrescriptionCard extends StatelessWidget {
                     ),
                   ],
                   if (item.status.toLowerCase() == 'rejected' &&
-                      item.rejectionReason?.isNotEmpty == true) ...[
-                    SizedBox(height: 4.h),
-                    Text(
-                      '${'manual_prescription.reason'.tr()}: ${item.rejectionReason}',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: AppColors.errorClr,
-                        fontSize: 12.sp,
+                      item.rejectionReasons.isNotEmpty) ...[
+                    SizedBox(height: 7.h),
+                    InkWell(
+                      onTap: onRejectionTap,
+                      borderRadius: BorderRadius.circular(8.r),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 9.w,
+                          vertical: 6.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.errorClr.withValues(alpha: .08),
+                          borderRadius: BorderRadius.circular(8.r),
+                          border: Border.all(
+                            color: AppColors.errorClr.withValues(alpha: .25),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.error_outline_rounded,
+                              size: 16.sp,
+                              color: AppColors.errorClr,
+                            ),
+                            SizedBox(width: 5.w),
+                            Flexible(
+                              child: Text(
+                                'manual_prescription.view_rejection_reason'
+                                    .tr(),
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: AppColors.errorClr,
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 3.w),
+                            Icon(
+                              Icons.chevron_right_rounded,
+                              size: 17.sp,
+                              color: AppColors.errorClr,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -523,14 +625,19 @@ class _PrescriptionCardSkeleton extends StatelessWidget {
 
 class _PrescriptionItemsSheet extends StatelessWidget {
   final ManualPrescriptionItemModel prescription;
-  const _PrescriptionItemsSheet({required this.prescription});
+  final bool showCartAction;
+
+  const _PrescriptionItemsSheet({
+    required this.prescription,
+    required this.showCartAction,
+  });
 
   @override
   Widget build(BuildContext context) {
     final isArabic = context.locale.languageCode == 'ar';
     final dialogHeight = math.min(
-      0.72.sh,
-      135.h + (prescription.items.length * 88.h),
+      0.78.sh,
+      190.h + (prescription.items.length * 88.h),
     );
     return SizedBox(
       height: dialogHeight,
@@ -587,6 +694,31 @@ class _PrescriptionItemsSheet extends StatelessWidget {
                           _PrescriptionItemRow(item: item, isArabic: isArabic),
                     )
                     .toList(),
+              ),
+            ),
+            SizedBox(height: 14.h),
+            SizedBox(
+              width: double.infinity,
+              height: 48.h,
+              child: FilledButton.icon(
+                onPressed: () => Navigator.of(context).pop(showCartAction),
+                icon: Icon(
+                  showCartAction
+                      ? Icons.shopping_cart_outlined
+                      : Icons.receipt_long_outlined,
+                  size: 19.sp,
+                ),
+                label: Text(
+                  (showCartAction ? 'cart.go_to_cart' : 'cart.view_invoices')
+                      .tr(),
+                ),
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.brandBlueClr,
+                  foregroundColor: AppColors.whiteClr,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(11.r),
+                  ),
+                ),
               ),
             ),
           ],
