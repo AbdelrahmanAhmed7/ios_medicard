@@ -14,6 +14,7 @@ import '../../../../core/widgets/app_header_back_button.dart';
 import '../../../../domain/medicard_repository.dart';
 
 import 'package:medicard/core/theming/app_colors.dart';
+
 class ManualPrescriptionScreen extends StatefulWidget {
   const ManualPrescriptionScreen({super.key});
 
@@ -53,7 +54,7 @@ class _ManualPrescriptionScreenState extends State<ManualPrescriptionScreen> {
     result.when(
       success: (_) {
         showSuccessToast('manual_prescription.upload_success'.tr());
-        context.pop();
+        context.pop(true);
       },
       failure: (message) => showErrorToast(message),
     );
@@ -185,7 +186,9 @@ class _ManualPrescriptionScreenState extends State<ManualPrescriptionScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.r),
-                        borderSide: const BorderSide(color: AppColors.brandBlueClr),
+                        borderSide: const BorderSide(
+                          color: AppColors.brandBlueClr,
+                        ),
                       ),
                     ),
                   ),
@@ -225,4 +228,3 @@ class _ManualPrescriptionScreenState extends State<ManualPrescriptionScreen> {
     );
   }
 }
-

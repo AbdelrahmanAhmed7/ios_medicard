@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -12,8 +13,10 @@ import '../../../../core/di/service_locator.dart';
 import '../../../../core/theming/app_colors.dart';
 import '../../../../core/theming/app_text_styles.dart';
 import '../../../../core/widgets/app_header_back_button.dart';
+import '../../../../core/utils/shimmer_card.dart';
 import '../../../../data/manual_prescription_response_model.dart';
 import '../../../../domain/medicard_repository.dart';
+import '../../../notifications/push_notification_service.dart';
 
 class ManualPrescriptionsScreen extends StatefulWidget {
   const ManualPrescriptionsScreen({super.key});
@@ -26,6 +29,8 @@ class ManualPrescriptionsScreen extends StatefulWidget {
 class _ManualPrescriptionsScreenState extends State<ManualPrescriptionsScreen> {
   static const _pageSize = 10;
   final _scrollController = ScrollController();
+  Timer? _refreshTimer;
+  StreamSubscription<RemoteMessage>? _prescriptionNotificationSubscription;
   final _statuses = <String?>[null, 'Pending', 'Processed', 'Rejected'];
   List<ManualPrescriptionItemModel> _items = [];
   String? _status;
@@ -34,20 +39,38 @@ class _ManualPrescriptionsScreenState extends State<ManualPrescriptionsScreen> {
   int _totalPages = 1;
   bool _loading = true;
   bool _loadingMore = false;
+  bool _loadingRequest = false;
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
     unawaited(_load());
+    _refreshTimer = Timer.periodic(
+      const Duration(seconds: 30),
+      (_) => unawaited(_load(refresh: true)),
+    );
+    _prescriptionNotificationSubscription = PushNotificationService
+        .instance
+        .onMessageReceived
+        .where(_isPrescriptionNotification)
+        .listen((_) => unawaited(_load(refresh: true)));
   }
 
   @override
   void dispose() {
+    _refreshTimer?.cancel();
+    _prescriptionNotificationSubscription?.cancel();
     _scrollController
       ..removeListener(_onScroll)
       ..dispose();
     super.dispose();
+  }
+
+  bool _isPrescriptionNotification(RemoteMessage message) {
+    final data = message.data;
+    final body = (data['Body'] ?? data['body'])?.toString().trim();
+    return body?.toLowerCase() == 'prescription';
   }
 
   void _onScroll() {
@@ -58,7 +81,8 @@ class _ManualPrescriptionsScreenState extends State<ManualPrescriptionsScreen> {
   }
 
   Future<void> _load({bool refresh = false}) async {
-    if (_loadingMore) return;
+    if (_loadingMore || _loadingRequest) return;
+    _loadingRequest = true;
     setState(() {
       _loading = !refresh || _items.isEmpty;
       _error = null;
@@ -81,6 +105,7 @@ class _ManualPrescriptionsScreenState extends State<ManualPrescriptionsScreen> {
         _error = message;
       }),
     );
+    _loadingRequest = false;
   }
 
   Future<void> _loadMore() async {
@@ -164,7 +189,7 @@ class _ManualPrescriptionsScreenState extends State<ManualPrescriptionsScreen> {
   }
 
   Widget _buildContent() {
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const _PrescriptionsLoadingList();
     if (_error != null) {
       return Center(
         child: TextButton.icon(
@@ -274,7 +299,10 @@ class _PrescriptionCard extends StatelessWidget {
     };
     final date = item.createdAt == null
         ? ''
-        : DateFormat('dd/MM/yyyy').format(item.createdAt!.toLocal());
+        : DateFormat(
+            'dd/MM/yyyy - hh:mm a',
+            context.locale.languageCode,
+          ).format(item.createdAt!.toLocal());
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(14.r),
@@ -299,9 +327,19 @@ class _PrescriptionCard extends StatelessWidget {
                       )
                     : CachedNetworkImage(
                         imageUrl: item.imageUrl!,
+                        cacheKey: _stableImageCacheKey(item.imageUrl!),
                         fit: BoxFit.cover,
-                        errorWidget: (_, _, _) =>
-                            const Icon(Icons.broken_image),
+                        memCacheWidth: 240,
+                        placeholder: (_, _) => SmoothShimmer(
+                          child: ColoredBox(
+                            color: AppColors.exactFFE8E8E8,
+                            child: SizedBox(width: 72.w, height: 72.w),
+                          ),
+                        ),
+                        errorWidget: (_, _, _) => const ColoredBox(
+                          color: AppColors.exactFFF1F5F9,
+                          child: Icon(Icons.broken_image_outlined),
+                        ),
                       ),
               ),
             ),
@@ -408,6 +446,79 @@ class _PrescriptionCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String _stableImageCacheKey(String url) {
+  final parsed = Uri.tryParse(url);
+  return parsed == null || parsed.path.isEmpty ? url : parsed.path;
+}
+
+class _PrescriptionsLoadingList extends StatelessWidget {
+  const _PrescriptionsLoadingList();
+
+  @override
+  Widget build(BuildContext context) => ListView.separated(
+    physics: const NeverScrollableScrollPhysics(),
+    padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 100.h),
+    itemCount: 5,
+    separatorBuilder: (_, _) => SizedBox(height: 12.h),
+    itemBuilder: (_, _) => const _PrescriptionCardSkeleton(),
+  );
+}
+
+class _PrescriptionCardSkeleton extends StatelessWidget {
+  const _PrescriptionCardSkeleton();
+
+  @override
+  Widget build(BuildContext context) => Container(
+    height: 112.h,
+    padding: EdgeInsets.all(12.w),
+    decoration: BoxDecoration(
+      color: AppColors.whiteClr,
+      borderRadius: BorderRadius.circular(14.r),
+      border: Border.all(color: AppColors.lineClr),
+    ),
+    child: SmoothShimmer(
+      child: Row(
+        children: [
+          Container(
+            width: 72.w,
+            height: 72.w,
+            decoration: BoxDecoration(
+              color: AppColors.exactFFE8E8E8,
+              borderRadius: BorderRadius.circular(10.r),
+            ),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 150.w,
+                  height: 15.h,
+                  decoration: BoxDecoration(
+                    color: AppColors.exactFFE8E8E8,
+                    borderRadius: BorderRadius.circular(5.r),
+                  ),
+                ),
+                SizedBox(height: 12.h),
+                Container(
+                  width: 95.w,
+                  height: 11.h,
+                  decoration: BoxDecoration(
+                    color: AppColors.exactFFE8E8E8,
+                    borderRadius: BorderRadius.circular(5.r),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 }
 
 class _PrescriptionItemsSheet extends StatelessWidget {
