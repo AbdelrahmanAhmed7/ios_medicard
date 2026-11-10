@@ -275,6 +275,7 @@ class _AppVideoSplashState extends State<AppVideoSplash> {
   Timer? _fallbackTimer;
   var _isReady = false;
   var _didFinish = false;
+  var _isDisposed = false;
 
   @override
   void initState() {
@@ -283,13 +284,13 @@ class _AppVideoSplashState extends State<AppVideoSplash> {
       ..setLooping(false)
       ..initialize()
           .then((_) {
-            if (!mounted) return;
+            if (!mounted || _isDisposed) return;
             setState(() => _isReady = true);
-            _controller
-              ..addListener(_handleVideoProgress)
-              ..play();
+            _controller.addListener(_handleVideoProgress);
+            unawaited(_startVideo());
           })
           .catchError((error, stackTrace) {
+            if (_isDisposed) return;
             if (kDebugMode) {
               debugPrint('[Startup] Splash video failed: $error');
               debugPrintStack(stackTrace: stackTrace);
@@ -300,7 +301,22 @@ class _AppVideoSplashState extends State<AppVideoSplash> {
     _fallbackTimer = Timer(const Duration(seconds: 4), _finish);
   }
 
+  Future<void> _startVideo() async {
+    if (!mounted || _isDisposed) return;
+    try {
+      await _controller.play();
+    } catch (error, stackTrace) {
+      if (_isDisposed) return;
+      if (kDebugMode) {
+        debugPrint('[Startup] Splash video playback failed: $error');
+        debugPrintStack(stackTrace: stackTrace);
+      }
+      _finish();
+    }
+  }
+
   void _handleVideoProgress() {
+    if (_isDisposed) return;
     final value = _controller.value;
     if (!value.isInitialized || value.isPlaying) return;
 
@@ -313,17 +329,43 @@ class _AppVideoSplashState extends State<AppVideoSplash> {
   }
 
   void _finish() {
-    if (_didFinish) return;
+    if (_didFinish || _isDisposed) return;
     _didFinish = true;
+    _fallbackTimer?.cancel();
+    _controller.removeListener(_handleVideoProgress);
+    unawaited(_stopAndFinish());
+  }
+
+  Future<void> _stopAndFinish() async {
+    try {
+      await _controller.pause();
+    } catch (_) {
+      // The controller can already be stopping while the splash is removed.
+    }
+    if (!mounted || _isDisposed) return;
     widget.onFinished();
   }
 
   @override
   void dispose() {
+    _isDisposed = true;
     _fallbackTimer?.cancel();
     _controller.removeListener(_handleVideoProgress);
-    _controller.dispose();
+    unawaited(_disposeVideoController());
     super.dispose();
+  }
+
+  Future<void> _disposeVideoController() async {
+    try {
+      await _controller.pause();
+    } catch (_) {
+      // The controller may still be initializing when the splash is removed.
+    }
+    try {
+      await _controller.dispose();
+    } catch (_) {
+      // Disposing an already stopped controller is safe to ignore.
+    }
   }
 
   @override
