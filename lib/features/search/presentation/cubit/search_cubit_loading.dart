@@ -157,6 +157,16 @@ extension SearchCubitLoading on SearchCubit {
             selectedMedicineIds: selectedMedicineIds,
           ),
         );
+        _cartSyncService.selectionSnapshotChanged(
+          selectedServiceIds: cart.items.map((item) => item.serviceId),
+          selectedMedicineIds: selectedMedicineIds,
+          medicineQuantities: {
+            for (final item in cart.items)
+              if (item.categoryId == 1) item.serviceId: item.quantity,
+          },
+          categorySelectedCounts: counts,
+          refreshCart: false,
+        );
       },
       // Badges only: logged, never toasted — erroring on every init would
       // spam the user for non-critical background data.

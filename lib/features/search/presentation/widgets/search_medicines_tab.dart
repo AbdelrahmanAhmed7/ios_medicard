@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +11,8 @@ import 'package:shimmer/shimmer.dart';
 import '../../../../core/theming/app_text_styles.dart';
 import '../../../../core/theming/app_toast.dart';
 import '../../../../core/utils/price_formatter.dart';
+import '../../../../core/di/service_locator.dart';
+import '../../../cart/domain/services/cart_sync_service.dart';
 import '../../data/models/medicine_response_model.dart';
 import '../cubit/search_cubit.dart';
 import '../cubit/search_state.dart';
@@ -32,11 +36,15 @@ class SearchMedicinesTab extends StatefulWidget {
 class _SearchMedicinesTabState extends State<SearchMedicinesTab> {
   final ScrollController _scrollController = ScrollController();
   final Map<int, int> _quantities = {};
+  StreamSubscription<CartSyncEvent>? _cartSyncSubscription;
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_loadMoreIfNeeded);
+    _cartSyncSubscription = sl<CartSyncService>().stream.listen(
+      _onCartSyncEvent,
+    );
   }
 
   void _loadMoreIfNeeded() {
@@ -49,8 +57,24 @@ class _SearchMedicinesTabState extends State<SearchMedicinesTab> {
 
   @override
   void dispose() {
+    _cartSyncSubscription?.cancel();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onCartSyncEvent(CartSyncEvent event) {
+    if (!mounted) return;
+    if (event.cartCleared) {
+      setState(_quantities.clear);
+      return;
+    }
+    final quantities = event.medicineQuantities;
+    if (quantities == null) return;
+    setState(() {
+      _quantities
+        ..removeWhere((id, _) => !quantities.containsKey(id))
+        ..addAll(quantities);
+    });
   }
 
   @override

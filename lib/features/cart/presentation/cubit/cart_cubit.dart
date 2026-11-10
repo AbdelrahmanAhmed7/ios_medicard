@@ -53,6 +53,7 @@ class CartCubit extends Cubit<CartState> {
   var _invoiceSubmissionInFlight = false;
   var _providerAssignmentInFlight = false;
   final _confirmedProviderAssignments = <int, CartItem>{};
+  final Map<int, Future<void>> _medicineQuantityUpdates = {};
 
   /// A successful assignment can precede the cart read model. Keep that
   /// confirmed choice while the same item is still returned without a provider.
@@ -136,6 +137,10 @@ class CartCubit extends Cubit<CartState> {
       selectedMedicineIds: cart.items
           .where((item) => item.categoryId == 1)
           .map((item) => item.serviceId),
+      medicineQuantities: {
+        for (final item in cart.items)
+          if (item.categoryId == 1) item.serviceId: item.quantity,
+      },
       categorySelectedCounts: {
         for (final counter in cart.categoryCounters)
           counter.categoryId: counter.count,

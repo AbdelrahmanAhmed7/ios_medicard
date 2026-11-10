@@ -61,6 +61,7 @@ class SearchCubit extends Cubit<SearchState> {
   var _serviceCategoryRequestGeneration = 0;
   var _medicineRequestGeneration = 0;
   String? _medicineKeyword;
+  final Map<int, Future<void>> _medicineQuantityUpdates = {};
 
   SearchCubit(
     this._searchProvidersUseCase,

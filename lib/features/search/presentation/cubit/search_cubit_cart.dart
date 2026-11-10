@@ -106,8 +106,30 @@ extension SearchCubitCart on SearchCubit {
   Future<void> updateMedicineQuantity({
     required int serviceId,
     required int quantity,
+  }) {
+    if (isClosed || quantity < 1) return Future<void>.value();
+    final previous =
+        _medicineQuantityUpdates[serviceId] ?? Future<void>.value();
+    final operation = previous.then(
+      (_) => _performMedicineQuantityUpdate(
+        serviceId: serviceId,
+        quantity: quantity,
+      ),
+    );
+    late final Future<void> queued;
+    queued = operation.whenComplete(() {
+      if (identical(_medicineQuantityUpdates[serviceId], queued)) {
+        _medicineQuantityUpdates.remove(serviceId);
+      }
+    });
+    _medicineQuantityUpdates[serviceId] = queued;
+    return queued;
+  }
+
+  Future<void> _performMedicineQuantityUpdate({
+    required int serviceId,
+    required int quantity,
   }) async {
-    if (isClosed || quantity < 1) return;
     final result = await _cartRepository.updateMedicineQuantity(
       serviceId: serviceId,
       quantity: quantity,

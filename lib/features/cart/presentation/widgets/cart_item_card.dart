@@ -10,6 +10,7 @@ import '../cubit/cart_cubit.dart';
 import '../cubit/cart_state.dart';
 
 import 'package:medicard/core/theming/app_colors.dart';
+
 /// Borderless divider-separated row used inside provider group sections.
 class CartItemCard extends StatelessWidget {
   final CartItem item;
@@ -53,7 +54,7 @@ class CartItemCard extends StatelessWidget {
                           runSpacing: 5.h,
                           crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
-                            if (item.discountPercentage != null)
+                            if ((item.discountPercentage ?? 0) > 0)
                               _Tag(
                                 label: 'cart.discount_percent'.tr(
                                   args: [
@@ -266,4 +267,3 @@ class _PriceLine extends StatelessWidget {
     );
   }
 }
-

@@ -7,6 +7,7 @@ class CartSyncEvent {
   final bool cartCleared;
   final Set<int>? selectedServiceIds;
   final Set<int>? selectedMedicineIds;
+  final Map<int, int>? medicineQuantities;
   final Map<int, int>? categorySelectedCounts;
   final bool refreshCart;
 
@@ -17,6 +18,7 @@ class CartSyncEvent {
     this.cartCleared = false,
     this.selectedServiceIds,
     this.selectedMedicineIds,
+    this.medicineQuantities,
     this.categorySelectedCounts,
     this.refreshCart = true,
   });
@@ -48,6 +50,7 @@ class CartSyncService {
   void selectionSnapshotChanged({
     required Iterable<int> selectedServiceIds,
     Iterable<int>? selectedMedicineIds,
+    Map<int, int>? medicineQuantities,
     Map<int, int>? categorySelectedCounts,
     bool refreshCart = true,
   }) {
@@ -57,6 +60,9 @@ class CartSyncService {
         selectedMedicineIds: selectedMedicineIds == null
             ? null
             : Set<int>.unmodifiable(selectedMedicineIds),
+        medicineQuantities: medicineQuantities == null
+            ? null
+            : Map<int, int>.unmodifiable(medicineQuantities),
         categorySelectedCounts: categorySelectedCounts == null
             ? null
             : Map<int, int>.unmodifiable(categorySelectedCounts),
