@@ -44,6 +44,13 @@ abstract class MedicardApiService {
     @Part(name: 'Text') String? text,
   );
 
+  @GET('ManualPrescription')
+  Future<ManualPrescriptionPageResponseModel> getManualPrescriptions(
+    @Query('pageNumber') int pageNumber,
+    @Query('pageSize') int pageSize,
+    @Query('status') String? status,
+  );
+
   @POST("Auth/register")
   Future<AuthResponseModel> register(@Body() AuthRegisterRequestModel request);
 

@@ -7,6 +7,7 @@ import '../../../../core/theming/app_text_styles.dart';
 import '../../data/model/notification_model.dart';
 
 import 'package:medicard/core/theming/app_colors.dart';
+
 /// Compact notification row matching the flat list treatment used by family
 /// members. Unread state is communicated by a light tint, stronger title and
 /// blue dot; marking as read stays an explicit trailing icon action.
@@ -39,7 +40,9 @@ class NotificationCard extends StatelessWidget {
             constraints: BoxConstraints(minHeight: 78.h),
             padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
             decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide(color: AppColors.exactFFE9ECF2)),
+              border: Border(
+                bottom: BorderSide(color: AppColors.exactFFE9ECF2),
+              ),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -243,6 +246,13 @@ class _NotificationThumbnail extends StatelessWidget {
     if (data.containsKey('Cart') || data.containsKey('cart')) {
       return Icons.shopping_cart_outlined;
     }
+    final body = (data['Body'] ?? data['body'])?.toString().toLowerCase();
+    if (body == 'prescription') {
+      return Icons.receipt_long_outlined;
+    }
+    if (body == 'cart') {
+      return Icons.shopping_cart_outlined;
+    }
     if (data.containsKey('PackageId') || data.containsKey('packageId')) {
       return Icons.local_offer_outlined;
     }
@@ -289,4 +299,3 @@ class _NotificationFallbackIcon extends StatelessWidget {
     );
   }
 }
-

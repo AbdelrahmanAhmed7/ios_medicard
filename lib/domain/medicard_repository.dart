@@ -16,6 +16,7 @@ import '../features/profile/data/models/profile_summary_response_model.dart';
 import '../features/profile/data/models/member_card_activation_response_model.dart';
 import '../features/auth/data/models/otp_response_model.dart';
 import '../features/ecard/data/models/card_data_response_model.dart';
+import '../data/manual_prescription_response_model.dart';
 
 abstract class MedicardRepository {
   Future<ApiResult<AuthResponseModel>> register(
@@ -107,5 +108,12 @@ abstract class MedicardRepository {
   Future<ApiResult<void>> createManualPrescription({
     required String imagePath,
     String? text,
+  });
+
+  Future<ApiResult<ManualPrescriptionPageResponseModel>>
+  getManualPrescriptions({
+    required int pageNumber,
+    required int pageSize,
+    String? status,
   });
 }

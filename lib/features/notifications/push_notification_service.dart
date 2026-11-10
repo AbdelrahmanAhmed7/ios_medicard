@@ -653,10 +653,18 @@ class PushNotificationService {
       return;
     }
 
+    final bodyTarget = (data['Body'] ?? data['body'])?.toString().trim();
+    if (bodyTarget?.toLowerCase() == 'prescription') {
+      if (kDebugMode) {
+        debugPrint('[Push] opening prescriptions from notification');
+      }
+      AppRouter.current?.push('/manual-prescriptions');
+      return;
+    }
+
     // Cart deep-link: the backend can send either `Cart: ...` or
     // `Body: Cart` in the notification data payload.
     final rawCart = data['Cart'] ?? data['cart'];
-    final bodyTarget = (data['Body'] ?? data['body'])?.toString().trim();
     if (rawCart != null || bodyTarget?.toLowerCase() == 'cart') {
       if (kDebugMode) {
         debugPrint('[Push] opening cart from notification');

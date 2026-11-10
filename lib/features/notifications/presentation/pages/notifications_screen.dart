@@ -16,6 +16,7 @@ import '../cubit/notification_state.dart';
 import '../widgets/notification_card.dart';
 
 import 'package:medicard/core/theming/app_colors.dart';
+
 const _brandBlue = AppColors.brandBlueClr;
 const _ink = AppColors.inkClr;
 const _inkFaint = AppColors.exactFF9CA3AF;
@@ -117,9 +118,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       return;
     }
 
+    final bodyTarget = (data?['Body'] ?? data?['body'])?.toString().trim();
+    if (bodyTarget?.toLowerCase() == 'prescription' && context.mounted) {
+      context.push('/manual-prescriptions');
+      return;
+    }
+
     // Cart deep-link
     final rawCart = data == null ? null : (data['Cart'] ?? data['cart']);
-    if (rawCart != null && context.mounted) {
+    if ((rawCart != null || bodyTarget?.toLowerCase() == 'cart') &&
+        context.mounted) {
       context.push('/cart');
       return;
     }
@@ -718,4 +726,3 @@ class _NotificationsMessage extends StatelessWidget {
     );
   }
 }
-

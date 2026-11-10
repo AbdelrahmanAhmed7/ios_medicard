@@ -37,6 +37,7 @@ import '../../features/help_center/presentation/pages/help_center_screen.dart';
 import '../../features/home/domain/models/appointment_model.dart';
 import '../../features/home/presentation/pages/home_screen.dart';
 import '../../features/home/presentation/pages/manual_prescription_screen.dart';
+import '../../features/home/presentation/pages/manual_prescriptions_screen.dart';
 import '../../features/home/presentation/widgets/pending_appointment_details_screen.dart';
 import '../../features/notifications/presentation/cubit/notification_cubit.dart';
 import '../../features/notifications/presentation/pages/notifications_screen.dart';
@@ -83,6 +84,7 @@ class AppRouter {
     '/medicard-profile',
     '/medicard-edit-profile-new',
     '/manual-prescription',
+    '/manual-prescriptions',
     '/change-password',
     '/family-members',
     '/family-members/add',
@@ -410,6 +412,10 @@ class AppRouter {
               child: EditProfileScreen(profileData: profileData),
             );
           },
+        ),
+        GoRoute(
+          path: '/manual-prescriptions',
+          builder: (context, state) => const ManualPrescriptionsScreen(),
         ),
         GoRoute(
           path: '/manual-prescription',
@@ -767,6 +773,7 @@ class AppRouter {
               final providerId = extra['providerId'] as int;
               return ProviderPageScreen(
                 providerId: providerId,
+                categoryNameHint: extra['categoryName'] as String?,
                 autoOpenPackageId: extra['autoOpenPackageId'] as int?,
               );
             }

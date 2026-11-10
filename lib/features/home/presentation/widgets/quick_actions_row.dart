@@ -7,6 +7,7 @@ import '../../../../core/theming/app_spacing.dart';
 import '../../../../core/theming/app_text_styles.dart';
 
 import 'package:medicard/core/theming/app_colors.dart';
+
 class QuickActionsRow extends StatelessWidget {
   final List<QuickAction> actions;
   final double verticalPadding;
@@ -107,7 +108,7 @@ class QuickActionsRow extends StatelessWidget {
         if (isGuest) {
           context.go('/medicard-login');
         } else {
-          context.push('/manual-prescription');
+          context.push('/manual-prescriptions');
         }
         break;
       case 'home.providers':
@@ -119,4 +120,3 @@ class QuickActionsRow extends StatelessWidget {
     }
   }
 }
-

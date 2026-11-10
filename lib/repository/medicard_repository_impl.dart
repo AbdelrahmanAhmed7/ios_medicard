@@ -16,6 +16,7 @@ import '../data/card_update_profile_response_model.dart';
 import '../data/auth_register_request_model.dart';
 import '../data/auth_login_request_model.dart';
 import '../data/auth_response_model.dart';
+import '../data/manual_prescription_response_model.dart';
 import '../features/auth/data/models/send_otp_request_model.dart';
 import '../features/auth/data/models/verify_otp_request_model.dart';
 import '../features/auth/data/models/reset_password_request_model.dart';
@@ -137,6 +138,29 @@ class MedicardRepositoryImpl implements MedicardRepository {
           ? const ApiResult.success(null)
           : ApiResult.failure(
               response.message ?? 'Failed to upload prescription.',
+            );
+    } catch (error) {
+      return ApiResult.failure(parseApiError(error));
+    }
+  }
+
+  @override
+  Future<ApiResult<ManualPrescriptionPageResponseModel>>
+  getManualPrescriptions({
+    required int pageNumber,
+    required int pageSize,
+    String? status,
+  }) async {
+    try {
+      final response = await _apiService.getManualPrescriptions(
+        pageNumber,
+        pageSize,
+        status,
+      );
+      return response.succeeded
+          ? ApiResult.success(response)
+          : ApiResult.failure(
+              response.message ?? 'Failed to load prescriptions.',
             );
     } catch (error) {
       return ApiResult.failure(parseApiError(error));
