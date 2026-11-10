@@ -7,9 +7,11 @@ import '../../domain/models/provider_model.dart';
 import '../../../../core/services/url_launcher_service.dart';
 import '../../../../core/theming/app_spacing.dart';
 import '../../../../core/theming/app_text_styles.dart';
+import '../../../../core/utils/shimmer_card.dart';
 import 'home_horizontal_card_style.dart';
 
 import 'package:medicard/core/theming/app_colors.dart';
+
 class NearestProviderCard extends StatelessWidget {
   final ProviderModel provider;
 
@@ -50,16 +52,21 @@ class NearestProviderCard extends StatelessWidget {
                       width: double.infinity,
                       child: CachedNetworkImage(
                         imageUrl: provider.imageUrl,
+                        cacheKey: _homeImageCacheKey(provider.imageUrl),
                         memCacheWidth: 400,
                         memCacheHeight: 300,
                         height: HomeHorizontalCardStyle.imageHeight,
                         width: double.infinity,
-                        fit: BoxFit.fill,
+                        fit: BoxFit.cover,
                         alignment: Alignment.center,
-                        placeholder: (context, url) => Container(
-                          color: HomeHorizontalCardStyle.imageBackground,
-                          height: HomeHorizontalCardStyle.imageHeight,
-                          width: double.infinity,
+                        placeholder: (context, url) => const SmoothShimmer(
+                          child: ColoredBox(
+                            color: HomeHorizontalCardStyle.imageBackground,
+                            child: SizedBox(
+                              height: HomeHorizontalCardStyle.imageHeight,
+                              width: double.infinity,
+                            ),
+                          ),
                         ),
                         errorWidget: (context, url, error) => Container(
                           color: HomeHorizontalCardStyle.imageBackground,
@@ -259,3 +266,7 @@ class NearestProviderCard extends StatelessWidget {
   }
 }
 
+String _homeImageCacheKey(String url) {
+  final parsed = Uri.tryParse(url);
+  return parsed == null || parsed.path.isEmpty ? url : parsed.path;
+}

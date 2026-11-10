@@ -2,12 +2,14 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:medicard/core/theming/app_colors.dart';
 
 import '../../../../core/auth/auth_session_storage.dart';
 import '../../../../core/constants/api_result.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/theming/app_spacing.dart';
 import '../../../../core/theming/app_toast.dart';
+import '../../../../core/utils/shimmer_card.dart';
 import '../../../../medicard_network/domain/usecases/get_package_details_usecase.dart';
 import '../../../../medicard_network/presentation/widgets/package_details_sheet.dart';
 import '../../../../medicard_network/presentation/widgets/provider_shared_widgets.dart';
@@ -15,7 +17,6 @@ import '../../../../network/data/provider_page_response_model.dart';
 import '../../domain/models/featured_service_model.dart';
 import 'home_horizontal_card_style.dart';
 
-import 'package:medicard/core/theming/app_colors.dart';
 class FeaturedServiceCard extends StatefulWidget {
   final FeaturedServiceModel service;
 
@@ -23,6 +24,11 @@ class FeaturedServiceCard extends StatefulWidget {
 
   @override
   State<FeaturedServiceCard> createState() => _FeaturedServiceCardState();
+}
+
+String _homeImageCacheKey(String url) {
+  final parsed = Uri.tryParse(url);
+  return parsed == null || parsed.path.isEmpty ? url : parsed.path;
 }
 
 class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
@@ -65,15 +71,20 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                       width: double.infinity,
                       child: CachedNetworkImage(
                         imageUrl: service.imageUrl,
+                        cacheKey: _homeImageCacheKey(service.imageUrl),
                         memCacheWidth: 400,
                         memCacheHeight: 300,
                         height: HomeHorizontalCardStyle.imageHeight,
                         width: double.infinity,
-                        fit: BoxFit.fill,
-                        placeholder: (context, url) => Container(
-                          color: HomeHorizontalCardStyle.imageBackground,
-                          height: HomeHorizontalCardStyle.imageHeight,
-                          width: double.infinity,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => const SmoothShimmer(
+                          child: ColoredBox(
+                            color: HomeHorizontalCardStyle.imageBackground,
+                            child: SizedBox(
+                              height: HomeHorizontalCardStyle.imageHeight,
+                              width: double.infinity,
+                            ),
+                          ),
                         ),
                         errorWidget: (context, url, error) => Container(
                           color: HomeHorizontalCardStyle.imageBackground,
@@ -95,11 +106,14 @@ class _FeaturedServiceCardState extends State<FeaturedServiceCard> {
                           child: ClipOval(
                             child: CachedNetworkImage(
                               imageUrl: service.providerLogoUrl,
+                              cacheKey: _homeImageCacheKey(
+                                service.providerLogoUrl,
+                              ),
                               memCacheWidth: 100,
                               memCacheHeight: 100,
                               width: 36,
                               height: 36,
-                              fit: BoxFit.fill,
+                              fit: BoxFit.contain,
                               placeholder: (context, url) => Container(
                                 color: HomeHorizontalCardStyle.imageBackground,
                               ),
@@ -381,4 +395,3 @@ class _PackageDetailsSheetState extends State<_PackageDetailsSheet> {
     );
   }
 }
-
